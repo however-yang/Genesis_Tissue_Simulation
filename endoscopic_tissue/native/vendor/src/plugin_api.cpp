@@ -20,6 +20,10 @@ extern "C" void xpbd_profile_enable(int);
 extern "C" int xpbd_profile_read(int,float*);
 LCS_API void LCS_ProfileEnable(int enabled){xpbd_profile_enable(enabled);}
 LCS_API int LCS_ProfileRead(int steps,float* ms){return xpbd_profile_read(steps,ms);}
+extern "C" void xpbd_profile_sections(int);
+extern "C" int xpbd_profile_sections_read(char*,int);
+LCS_API void LCS_ProfileSections(int enabled){xpbd_profile_sections(enabled);}
+LCS_API int LCS_ProfileSectionsRead(char* text,int capacity){return xpbd_profile_sections_read(text,capacity);}
 int recon_render_buffer(int,void*,int*,float*,const float*,const float*);
 LCS_API int LCS_GetRenderBuffer(int n,void* vertices,int* counts,float* bounds,const float* uvMin,const float* uvSize){return recon_render_buffer(n,vertices,counts,bounds,uvMin,uvSize);}
 extern "C" int xpbd_get_jaw_load(float*);

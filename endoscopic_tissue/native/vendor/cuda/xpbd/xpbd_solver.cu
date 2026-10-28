@@ -6,6 +6,10 @@
 #include <vector>
 #include <cstring>
 #include <cmath>
+#include <algorithm>
+#include <cstdio>
+#include <string>
+#include <utility>
 
 // Opt-in CUDA timeline measurements. Disabled during normal simulation.
 static bool g_profile=false;
@@ -22,6 +26,37 @@ extern "C" int xpbd_profile_read(int steps,float* ms){
     cudaEventSynchronize(g_profileEvents[steps*4-1]);
     for(int p=0;p<3;p++){ms[p]=0;for(int s=0;s<steps;s++){float t=0;cudaEventElapsedTime(&t,g_profileEvents[4*s+p],g_profileEvents[4*s+p+1]);ms[p]+=t;}}
     return 0;
+}
+// Opt-in section timing for performance work. While enabled, the unified substep issues its captured kernel
+// sequence directly on the default stream, and the time between consecutive marks accumulates under the name of the
+// later mark. Disabled, a mark costs one flag test and every captured graph stays as it is.
+static bool g_sectionProfile=false;
+static std::vector<std::pair<const char*,cudaEvent_t>> g_sectionMarks;
+static std::vector<cudaEvent_t> g_sectionPool;
+static std::vector<std::pair<std::string,double>> g_sectionTotals;
+extern "C" void xpbd_section_mark(const char* name){
+    if(!g_sectionProfile)return;
+    if(g_sectionPool.size()<=g_sectionMarks.size()){cudaEvent_t e;cudaEventCreate(&e);g_sectionPool.push_back(e);}
+    cudaEvent_t e=g_sectionPool[g_sectionMarks.size()];cudaEventRecord(e,0);g_sectionMarks.push_back({name,e});
+}
+extern "C" void xpbd_section_flush(){
+    if(!g_sectionProfile || g_sectionMarks.empty())return;
+    cudaEventSynchronize(g_sectionMarks.back().second);
+    for(size_t k=1;k<g_sectionMarks.size();k++){
+        float t=0;cudaEventElapsedTime(&t,g_sectionMarks[k-1].second,g_sectionMarks[k].second);
+        const char* name=g_sectionMarks[k].first;
+        auto found=std::find_if(g_sectionTotals.begin(),g_sectionTotals.end(),[&](const std::pair<std::string,double>& entry){return entry.first==name;});
+        if(found==g_sectionTotals.end())g_sectionTotals.push_back({name,t});else found->second+=t;
+    }
+    g_sectionMarks.clear();
+}
+extern "C" void xpbd_profile_sections(int enabled){g_sectionProfile=enabled!=0;g_sectionMarks.clear();g_sectionTotals.clear();}
+// Writes "name=ms" lines into text and returns 0, or returns the capacity the text needs.
+extern "C" int xpbd_profile_sections_read(char* text,int capacity){
+    std::string out;
+    for(const auto& entry:g_sectionTotals){char line[200];snprintf(line,sizeof line,"%s=%.4f\n",entry.first.c_str(),entry.second);out+=line;}
+    if(!text || capacity<=(int)out.size())return (int)out.size()+1;
+    memcpy(text,out.c_str(),out.size()+1);return 0;
 }
 
 // ── minimal float3 helpers (kept local so this module is independent of common.cuh) ─────────────
@@ -81,6 +116,10 @@ static cudaGraphExec_t g_unifiedGraph=nullptr;
 static bool g_unifiedGraphDirty=false;
 static cudaGraphExec_t g_unifiedRecoveryGraph=nullptr;
 static bool g_unifiedRecoveryGraphDirty=false;
+// The substep graph for substeps with no free component, see the substep query in unifiedSubstep.
+static cudaGraphExec_t g_unifiedLoadedGraph=nullptr;
+static bool g_unifiedLoadedGraphDirty=false;
+static int* d_substepQuery=nullptr;
 static cudaGraphExec_t g_unifiedContactGraph=nullptr;
 static bool g_unifiedContactGraphDirty=false;
 
@@ -1841,7 +1880,7 @@ extern "C" int xpbd_set_contact_surface(int count,const int* tags,const float3* 
         // Cutting changes launch bounds frequently. Retain the executable and
         // update its captured parameters instead of re-instantiating hundreds
         // of identical PCG nodes on every changed surface.
-        g_unifiedGraphDirty=true;g_unifiedRecoveryGraphDirty=true;
+        g_unifiedGraphDirty=true;g_unifiedRecoveryGraphDirty=true;g_unifiedLoadedGraphDirty=true;
         g_unifiedContactGraphDirty=true;
     }
     g_surfaceCount=count;g_surfaceTags=tags;g_surfaceExpanded=expanded;g_surfaceCorners=corners;
@@ -2777,6 +2816,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     }
     if(g_blade.enabled)findBlade();
     e=prepareUnifiedManifold();if(e!=cudaSuccess)return -(int)e;
+    xpbd_section_mark("pre: tool, contact discovery, manifold");
     cudaMemcpyAsync(d_pos,d_prevPos,(size_t)g_N*sizeof(float3),cudaMemcpyDeviceToDevice);
     UnifiedState s={};s.componentSupport=d_fragmentSupported;s.coupledReady=true;s.component=d_unifiedComponents;s.graspComponents=d_graspComponents;s.safeCluster=d_safeCluster;s.safeAggregate=d_safeAggregate;s.n=g_N;s.nx=g_dimsX+1;s.ny=g_dimsY+1;s.nt=g_T;s.grips=g_embeddedGrip&&g_grasping?g_gripCount:0;
     s.offsets=d_incidentOffsets;s.incident=d_incidentTets;s.ids=d_tetIds;s.live=d_tetActive;s.contactIds=d_manifoldIds;s.contactCount=d_manifoldCount;
@@ -2816,15 +2856,28 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     // avoids running empty global kernels and rebuilding contact on loaded tissue.
     k_MarkCoarseContact<<<128,64>>>(d_unified);
     k_MarkVolumeRecovery<<<Gr(g_T),64>>>(d_unified);
-    int* request=&d_cgSearch[0].invalid;int recoveryRequested=0;
-    e=cudaMemsetAsync(request,0,sizeof(int));if(e!=cudaSuccess)return -(int)e;
-    k_MaterialRecoveryRequested<<<Gr(g_N),64>>>(d_unified,request);
-    e=cudaMemcpy(&recoveryRequested,request,sizeof(int),cudaMemcpyDeviceToHost);if(e!=cudaSuccess)return -(int)e;
-    cudaGraphExec_t& selectedGraph=recoveryRequested?g_unifiedRecoveryGraph:g_unifiedGraph;
-    bool& selectedGraphDirty=recoveryRequested?g_unifiedRecoveryGraphDirty:g_unifiedGraphDirty;
-    if(!selectedGraph || selectedGraphDirty){
-        if(!g_captureStream)e=cudaStreamCreate(&g_captureStream);if(e!=cudaSuccess)return -(int)e;
-        e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return -(int)e;
+    // The same query also flags a free component. Within a substep the component flags only gain bits, so when no
+    // movable node belongs to a free component here, every PCG iteration beyond MaterialLoadedIterations returns at
+    // once for every node, and the loaded graph leaves them out.
+    if(!d_substepQuery)e=cudaMalloc(&d_substepQuery,2*sizeof(int));if(e!=cudaSuccess)return -(int)e;
+    int query[2]={};
+    e=cudaMemsetAsync(d_substepQuery,0,2*sizeof(int));if(e!=cudaSuccess)return -(int)e;
+    k_MaterialRecoveryRequested<<<Gr(g_N),64>>>(d_unified,d_substepQuery);
+    k_MaterialFreeNodes<<<Gr(g_N),64>>>(d_unified,d_substepQuery+1);
+    e=cudaMemcpy(query,d_substepQuery,2*sizeof(int),cudaMemcpyDeviceToHost);if(e!=cudaSuccess)return -(int)e;
+    const int recoveryRequested=query[0];const bool loaded=!query[1];
+    cudaGraphExec_t& selectedGraph=recoveryRequested?g_unifiedRecoveryGraph:loaded?g_unifiedLoadedGraph:g_unifiedGraph;
+    bool& selectedGraphDirty=recoveryRequested?g_unifiedRecoveryGraphDirty:loaded?g_unifiedLoadedGraphDirty:g_unifiedGraphDirty;
+    xpbd_section_mark("pre: predictor, recovery query");
+    // Section timing issues the sequence directly, kernel after kernel, instead of capturing it.
+    const bool direct=g_sectionProfile;
+    cudaStream_t captureStream=g_captureStream;
+    if(direct || !selectedGraph || selectedGraphDirty){
+        if(direct)g_captureStream=0;
+        else{
+            if(!g_captureStream)e=cudaStreamCreate(&g_captureStream);if(e!=cudaSuccess)return -(int)e;
+            e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return -(int)e;
+        }
         int sites=((s.nx+1)/2)*((s.ny+1)/2)*((g_dimsZ+2)/2);
         // Reuse the same swept-contact discovery after every material correction.
         auto refreshJawManifold=[&](){
@@ -2852,6 +2905,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState);}
             k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
             if(it==0)k_MarkVolumeRecovery<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);
+            xpbd_section_mark("loop: manifold, contact marks");
             if(it==0 || it==2)for(int mode=1;mode<=(it==0?4:1);mode++){
                 k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,mode);
                 k_InitSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
@@ -2879,6 +2933,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 }
                 k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             }
+            xpbd_section_mark("loop: coarse modes");
             // Solve unconstrained material DOFs with contact/anchor witnesses
             // fixed in this correction. Witnesses retain all four V18 sweeps;
             // remaining vertices receive a final nonlinear polish.
@@ -2897,19 +2952,26 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                     k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
                 }
                 k_MaterialRecoveryOnly<<<1,1,0,g_captureStream>>>(d_unified,nonlinear>0);
+                xpbd_section_mark("cg assembly: start");
                 k_UnifiedVertex<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,-1,0,d_cgR,d_cgH);
+                xpbd_section_mark("cg assembly: gradient and diagonal");
                 k_MaterialStencilClear<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix);
-                k_MaterialStencilTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgMatrix);
+                xpbd_section_mark("cg assembly: stencil clear");
+                k_MaterialStencilGather<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix);
+                xpbd_section_mark("cg assembly: stencil gather");
                 k_MaterialStencilDiagonal<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgH);
                 k_MaterialStencilActiveIndices<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgIndices);
+                xpbd_section_mark("cg assembly: diagonal, indices");
                 k_MaterialCGClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgS,true);
                 k_MaterialCGBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgR,d_cgH,d_cgP,d_cgD,d_cgS);
-                for(int cg=0;cg<(nonlinear==0?MaterialFreeIterations:MaterialLoadedIterations);cg++){
+                xpbd_section_mark("cg: assembly");
+                for(int cg=0;cg<(nonlinear==0 && !loaded?MaterialFreeIterations:MaterialLoadedIterations);cg++){
                     k_MaterialStencilProduct<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgP,d_cgMatrix,d_cgIndices,d_cgA,d_cgS,cg);
                     k_MaterialCGAdvance<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgR,d_cgH,d_cgP,d_cgA,d_cgD,d_cgS,cg);
                     k_MaterialCGDirection<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgR,d_cgH,d_cgP,d_cgS,cg);
                     k_MaterialCGFinish<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgS,cg);
                 }
+                xpbd_section_mark("cg: iterations");
                 k_MaterialRestrictionClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_coarseWeight);
                 k_RecoveryTrust<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgD,d_coarseWeight);
                 k_ApplyMaterialRestriction<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgD,d_coarseWeight,nullptr,d_unified);
@@ -2919,6 +2981,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                     k_ProjectRecoveryDirection<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgH,d_cgD,d_cgA,d_coarseWeight);
                     k_ApplyRecoveryDirection<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgD,d_cgA,d_coarseWeight,true);
                 }
+                xpbd_section_mark("cg: trust, projection");
                 for(int feasible=0;feasible<8;feasible++){
                     // Reuse two line-search flags before that buffer is cleared.
                     // If the preceding pass changed nothing, every later pass
@@ -2930,12 +2993,14 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                     k_RestrictMaterialDirection<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgD,d_coarseWeight,previous,changed);
                     k_ApplyMaterialRestriction<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgD,d_coarseWeight,changed,d_unified);
                 }
+                xpbd_section_mark("cg: feasible");
                 k_MaterialLineClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgSearch);
                 k_MaterialLineNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgD,d_cgSearch);
                 k_MaterialLineTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgD,d_cgSearch);
                 k_MaterialLineApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgD,d_cgSearch);
                 k_MaterialRecoveryOnly<<<1,1,0,g_captureStream>>>(d_unified,false);
                 k_MaterialReady<<<1,1,0,g_captureStream>>>(d_unified,true);
+                xpbd_section_mark("cg: line search");
                 }
             }
             // Coarse motion can bring previously separated triangles into a jaw.
@@ -2955,6 +3020,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             }
             if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState);}
             k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
+            xpbd_section_mark("loop: contact discovery");
             // A tissue-only regional mode lets pressure move a finite patch
             // away from an operator-held jaw, complementing joint transport.
             if(it==0 || it==2){
@@ -2977,8 +3043,10 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 k_PressureLineSelect<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             }
+            xpbd_section_mark("loop: regional mode");
             k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,0);
             for(int c=0;c<8;c++){k_ClearUnifiedInteractions<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,c);k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);k_UnifiedVertex<<<Gr(32*sites),64,0,g_captureStream>>>(d_unified,c,0);}
+            xpbd_section_mark("loop: local sweeps");
             k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);
             if(g_blade.enabled)k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_bladeState);
             // The coupled tool/patch direction needs the same feasible basis
@@ -2999,6 +3067,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,true);
             k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+            xpbd_section_mark("loop: tool, safe and global coarse");
             { // Retain rotational inertia in every material/contact sweep.
                 k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,7);
                 k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
@@ -3011,18 +3080,22 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 k_RigidFeasible<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 k_RigidApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             }
+            xpbd_section_mark("loop: rigid modes");
         }
-        cudaGraph_t graph=nullptr;e=cudaStreamEndCapture(g_captureStream,&graph);if(e!=cudaSuccess)return -(int)e;
-        if(selectedGraph){
-            cudaGraphExecUpdateResultInfo info={};e=cudaGraphExecUpdate(selectedGraph,graph,&info);
-            if(e==cudaErrorGraphExecUpdateFailure || (e==cudaSuccess && info.result!=cudaGraphExecUpdateSuccess)){
-                cudaGetLastError();cudaGraphExecDestroy(selectedGraph);selectedGraph=nullptr;e=cudaSuccess;
+        if(direct)g_captureStream=captureStream;
+        else{
+            cudaGraph_t graph=nullptr;e=cudaStreamEndCapture(g_captureStream,&graph);if(e!=cudaSuccess)return -(int)e;
+            if(selectedGraph){
+                cudaGraphExecUpdateResultInfo info={};e=cudaGraphExecUpdate(selectedGraph,graph,&info);
+                if(e==cudaErrorGraphExecUpdateFailure || (e==cudaSuccess && info.result!=cudaGraphExecUpdateSuccess)){
+                    cudaGetLastError();cudaGraphExecDestroy(selectedGraph);selectedGraph=nullptr;e=cudaSuccess;
+                }
             }
+            if(e==cudaSuccess && !selectedGraph)e=cudaGraphInstantiate(&selectedGraph,graph,0);
+            cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;selectedGraphDirty=false;
         }
-        if(e==cudaSuccess && !selectedGraph)e=cudaGraphInstantiate(&selectedGraph,graph,0);
-        cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;selectedGraphDirty=false;
     }
-    e=cudaGraphLaunch(selectedGraph,0);if(e!=cudaSuccess)return -(int)e;
+    if(!direct){e=cudaGraphLaunch(selectedGraph,0);if(e!=cudaSuccess)return -(int)e;}
     k_MaterialReady<<<1,1>>>(d_unified,false);
     // Finish the translational nullspace solve ONLY for free components. Internal
     // elasticity cannot change their COM momentum. Components with supports,
@@ -3039,8 +3112,10 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     k_CoarseContactBound<<<128,64>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,true);
     k_CoarseApply<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
+    xpbd_section_mark("post: free-component nullspace");
     e=solveFragmentContact();if(e!=cudaSuccess)return -(int)e;
     profileMark(g_substepIndex-1,1);profileMark(g_substepIndex-1,2);
+    xpbd_section_mark("post: fragment contact");
     if(g_blade.enabled){
         k_BladeReaction<<<1,32>>>(d_bladeState,d_bladePhase,g_blade.startForce,d_bladeResult,d_bladeHistory,true,false,d_scissorsLoads,g_scissors.squeeze);
         k_UnifiedTool<<<1,32>>>(d_bladeState);
@@ -3062,6 +3137,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     k_update_velocity<<<Gr(g_N),64>>>(g_N,1.f/h,d_invMass,d_pos,d_prevPos,d_vel);
     k_apply_velscale<<<Gr(g_N),64>>>(g_N,g_velScaleF,d_invMass,d_vel);
     if(g_substepIndex>=g_p.numSubsteps)g_toolFrom=g_tool;
+    xpbd_section_mark("post: blade and contact reactions, velocity");
     profileMark(g_substepIndex-1,3);return -(int)cudaGetLastError();
 }
 
@@ -3131,6 +3207,7 @@ extern "C" int xpbd_substep(void)
                                g_bound ? g_liveExtForce    : nullptr,
                                g_bound && !g_frictionContact ? g_liveHapticForce : nullptr, // avoid a second, proxy-based tissue traction
                                d_invMass, d_pos, d_prevPos, d_vel);
+    xpbd_section_mark("substep prologue: liveness, fragment contact, predict");
     if(d_coupledTool && g_toolArmed && d_incidentOffsets && g_frictionContact && d_surfaceActiveCount) return unifiedSubstep(h,previousTool,stepTool,componentsFresh);
     // redesign 2026-07-07: core corners now have NORMAL invMass (see k_RefreshLiveness), so predict no
     // longer skips them — they need no separate pre-step target-force; the compliant k_SolveCorePin,
@@ -3384,7 +3461,7 @@ extern "C" void xpbd_shutdown()
     cudaFree(d_cgMatrix);d_cgMatrix=nullptr;
     cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
     cudaFree(d_cgH);d_cgH=nullptr;cudaFree(d_cgS);d_cgS=nullptr;cudaFree(d_cgSearch);d_cgSearch=nullptr;
-    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
+    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
     cudaFree(d_feasibleStart);d_feasibleStart=nullptr;cudaFree(d_feasibleTarget);d_feasibleTarget=nullptr;cudaFree(d_incidentOffsets);d_incidentOffsets=nullptr;cudaFree(d_incidentTets);d_incidentTets=nullptr;cudaFree(d_needFeasible);d_needFeasible=nullptr;
     cudaFree(d_captureInside);d_captureInside=nullptr;g_volumePasses=0;g_minTetVolume=0;g_captureWedge=false;
     destroyGripGraph();cudaFree(d_contactResidual);d_contactResidual=nullptr;cudaFree(d_coupledTool);d_coupledTool=nullptr;cudaFree(d_gripError);d_gripError=nullptr;

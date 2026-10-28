@@ -53,6 +53,13 @@ __global__ void k_MaterialReady(UnifiedState* state,bool ready){state->coupledRe
 
 __global__ void k_MaterialRecoveryOnly(UnifiedState* state,bool only){state->recoveryOnly=only;}
 
+// Flags whether some movable node belongs to a free component: one neither held, touched nor anchored. Only those
+// nodes take part in the PCG iterations beyond MaterialLoadedIterations.
+__global__ void k_MaterialFreeNodes(const UnifiedState* state,int* free){
+    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
+    bool freeNode=i<s.n && s.invMass[i]>0 && (!s.active||s.active[i]) && !(s.graspComponents[s.component[i]]&7);
+    if(__any_sync(0xffffffff,freeNode) && (threadIdx.x&31)==0)atomicExch(free,1);
+}
 __global__ void k_MaterialRecoveryRequested(const UnifiedState* state,int* requested){
  const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
  if(i<s.n && s.component[i]==i && materialFreeRecovery(s,i))atomicExch(requested,1);

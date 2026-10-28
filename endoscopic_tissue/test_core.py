@@ -167,13 +167,14 @@ class CoreTests(unittest.TestCase):
         exterior = grid.positions[np.where(inside_a != 0, b, a)]
         self.assertTrue(np.all(kidney.distance(interior) < 0) and np.all(kidney.distance(exterior) >= 0))
         self.assertTrue(np.all(np.einsum("ij,ij->i", normal, exterior - interior) > 0))
-        # The tumor rises to its full height above the kidney, and the hilum
-        # carves the medial border well inside the kidney's outline.
+        # The tumor rises to its full height above the kidney. Below the bed
+        # height the lattice keeps only the pinned layer under a flat cut.
         self.assertTrue(kidney.high[1] - grid.cell_size[1] < hit[:, 1].max() <= kidney.high[1] + 1e-6)
-        self.assertLess((np.linalg.norm(hit / kidney.half_extents, axis=1) - 1).min(), -.3)
+        np.testing.assert_allclose(hit[:, 1].min(), kidney.bed_height, atol=1e-6)
+        self.assertGreater(grid.positions[grid.active != 0, 1].min(), kidney.bed_height - grid.cell_size[1] - 1e-6)
         pinned = grid.positions[grid.pinned != 0]
         self.assertGreater(len(pinned), 0)
-        self.assertTrue(np.all(pinned[:, 1] < kidney.low[1] + kidney.bed_depth))
+        self.assertTrue(np.all(pinned[:, 1] < kidney.bed_height))
         tumor = (grid.inside != 0) & (grid.positions[:, 1] > kidney.half_extents[1])
         self.assertGreater(np.count_nonzero(tumor), 0)
         self.assertFalse(np.any(grid.pinned[tumor]))

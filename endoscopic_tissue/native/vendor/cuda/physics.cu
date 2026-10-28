@@ -12,6 +12,8 @@
 #include "dc_recon.h"     // recon_corner_pos(), recon_corner_count(), recon_dims()
 #include "cut.h"          // cut_is_ready() + cut_ribbon_tick() (Stage 4 per-substep ribbon)
 #include "xpbd/xpbd_solver.h"  // XPBD GO-LIVE (design rev-B 9-(4)): xpbd_bind + begin_frame/substep
+extern "C" void xpbd_section_mark(const char* name);
+extern "C" void xpbd_section_flush();
 #include <stdlib.h>
 #include <math.h>
 
@@ -347,12 +349,14 @@ int physics_step(float dt)
     // raise maxSubstepsPerFrame if fast debris tunnels past the per-substep CCD tick. PATH B (the
     // rod-phase quad, cut_detect between LCS_Step and LCS_Finalize) runs per C# rod substep, independent
     // of N.
+    xpbd_section_mark("step start");
     int rc = xpbd_begin_frame(dt);
     if (rc != 0) return rc;
     int N = (g_pdesc.maxSubsteps > 0) ? g_pdesc.maxSubsteps : 20;
     int tickErr = 0;   // first ribbon-tick failure (surfaced after the loop — review R3-m4)
     for (int n = 0; n < N; n++)
     {
+        xpbd_section_mark("begin frame, cut tick and rebuild between substeps");
         rc = xpbd_substep();
         if (rc != 0) return rc;
 
@@ -382,6 +386,8 @@ int physics_step(float dt)
     // connectivity.
     cudaError_t le = cudaGetLastError();
     if (le == cudaSuccess) le = cudaDeviceSynchronize();   // commit the frame (replaces the errMax sync)
+    xpbd_section_mark("begin frame, cut tick and rebuild between substeps");
+    xpbd_section_flush();
     if (le != cudaSuccess) return -(int)le;
     if (tickErr != 0) return tickErr;   // surface ribbon-tick failures to C# (review R3-m4)
     return 0;
