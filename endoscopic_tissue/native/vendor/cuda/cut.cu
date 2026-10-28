@@ -109,6 +109,9 @@ extern "C" const int* xpbd_blade_phase_device();
 extern "C" const float3* xpbd_blade_sweep_device();
 static int g_pressureCut=0;
 static float4* d_pendingCrossings=nullptr;
+// Material piece of every corner, and the (links, piece) owner key of the envelope release (k_SpreadShellOwners).
+static int* d_materialPieces=nullptr;
+static unsigned long long* d_shellOwner=nullptr;
 extern "C" int xpbd_blade_sweep_count();
 // Geometry immediately before this pressure gesture first contacted tissue.
 // The blade can push the skin ahead of its centreline without crossing it.
@@ -697,6 +700,19 @@ __global__ void k_CarveRimBridge(int cornerCount, const int* nbrIdxNow, const in
 // SeverLinks — one thread per grid edge. For cut edges: sever structural (NbrIdx=-1 both ways) +
 // bending pairs whose arm crosses the edge (alive=0). Paper SS2.1.2 line 367.
 // ─────────────────────────────────────────────────────────────────────────────────────────────
+// Parts the link from idA to idB, the next corner along the axis, and the bend pairs across it.
+__device__ inline void SeverLink(int idA, int idB, int axis, int* nbrIdx, BendPairGpuC* bendPairs)
+{
+    nbrIdx[6 * idA + 2 * axis + 1] = -1;   // idA's slot toward idB
+    nbrIdx[6 * idB + 2 * axis] = -1;       // idB's slot toward idA
+    for (int p = 0; p < 15; p++)
+    {
+        int ia = 15 * idA + p; BendPairGpuC a = bendPairs[ia];
+        if (a.alive != 0 && (a.j == idB || a.k == idB)) { a.alive = 0; bendPairs[ia] = a; }
+        int ib = 15 * idB + p; BendPairGpuC b = bendPairs[ib];
+        if (b.alive != 0 && (b.j == idA || b.k == idA)) { b.alive = 0; bendPairs[ib] = b; }
+    }
+}
 __global__ void k_SeverLinks(int gridEdgeCount, int3 dims, const GridEdgeGpu2* gridEdges,
                              const unsigned int* voxelCutMask, int* nbrIdx, BendPairGpuC* bendPairs)
 {
@@ -710,21 +726,7 @@ __global__ void k_SeverLinks(int gridEdgeCount, int3 dims, const GridEdgeGpu2* g
     if (!EdgeIsCut(axis, baseC, dims, voxelCutMask)) return;
 
     int3 axisDir = make_int3(axis == 0 ? 1 : 0, axis == 1 ? 1 : 0, axis == 2 ? 1 : 0);
-    int idA = CorIdCuda(baseC, dims);
-    int idB = CorIdCuda(baseC + axisDir, dims);
-    int sPlus  = 2 * axis + 1;    // idA's slot toward idB
-    int sMinus = 2 * axis;        // idB's slot toward idA
-
-    nbrIdx[6 * idA + sPlus]  = -1;
-    nbrIdx[6 * idB + sMinus] = -1;
-
-    for (int p = 0; p < 15; p++)
-    {
-        int ia = 15 * idA + p; BendPairGpuC a = bendPairs[ia];
-        if (a.alive != 0 && (a.j == idB || a.k == idB)) { a.alive = 0; bendPairs[ia] = a; }
-        int ib = 15 * idB + p; BendPairGpuC b = bendPairs[ib];
-        if (b.alive != 0 && (b.j == idA || b.k == idA)) { b.alive = 0; bendPairs[ib] = b; }
-    }
+    SeverLink(CorIdCuda(baseC, dims), CorIdCuda(baseC + axisDir, dims), axis, nbrIdx, bendPairs);
 }
 
 // Count isolated particles for diagnostics. A detached fragment remains dynamic.
@@ -1241,6 +1243,39 @@ int cut_surface_revision(unsigned* revision){
     return -(int)cudaMemcpy(revision,d_cutPointCounter,sizeof(unsigned),cudaMemcpyDeviceToHost);
 }
 
+// Union-find over corners (unified_vertex.cuh), here joined through the links between material corners alone.
+__global__ void k_InitComponents(int n,int* parent);
+__global__ void k_JoinComponents(int n,const int* neighbors,const int* active,int* parent);
+__global__ void k_FlattenComponents(int n,int* parent);
+// The envelope corners around the material carry no tissue, yet their links and the envelope tets between them hold
+// as tissue does. Where two material pieces part close to each other, such as under the overhang of a tumor cut off
+// at its neck, the envelope between them keeps them tied. Each corner belongs to the material piece it reaches in the
+// fewest intact links: the key (links << 32 | piece) of a material corner is its piece, and every pass lowers the key
+// of a neighbour to one more link with atomicMin.
+__global__ void k_SeedShellOwners(int n,const int* inside,const int* pieces,unsigned long long* owner){
+    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n)owner[i]=inside[i]?(unsigned long long)(unsigned)pieces[i]:~0ull;
+}
+__global__ void k_SpreadShellOwners(int n,const int* nbrIdx,unsigned long long* owner){
+    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n)return;unsigned long long key=owner[i];if(key==~0ull)return;
+    for(int a=0;a<6;a++){int j=nbrIdx[6*i+a];if(j>=0)atomicMin(owner+j,key+(1ull<<32));}
+}
+// Severs the intact links whose ends belong to different material pieces, along the link at its middle. A single
+// material piece leaves every key on one piece, and nothing parts. A link whose four cells hold no tissue has no bit
+// in the voxel cut mask, which tracks cells with tissue alone (MarkAndEmit): it parts here directly, and no surface
+// passes through it.
+__global__ void k_SeverPieceSeams(int n,const int* phase,const GridEdgeGpu2* edges,int3 dims,float D,float L,const float3* pos,
+ int* nbrIdx,BendPairGpuC* bendPairs,const unsigned long long* owner,unsigned* mask,const unsigned* occupied,
+ CutPointGpu* points,unsigned* count,int capacity,const RotGpu* rotations){
+    int e=blockIdx.x*blockDim.x+threadIdx.x;if(e>=n || !bladeCommits(*phase))return;
+    GridEdgeGpu2 ge=edges[e];int3 bc=make_int3(ge.bcX,ge.bcY,ge.bcZ),dir=make_int3(ge.axis==0,ge.axis==1,ge.axis==2);
+    int a=CorIdCuda(bc,dims),b=CorIdCuda(bc+dir,dims);if(nbrIdx[6*a+2*ge.axis+1]<0)return;
+    unsigned long long ka=owner[a],kb=owner[b];if(ka==~0ull || kb==~0ull || (unsigned)ka==(unsigned)kb)return;
+    bool tissue=false;
+    for(int k=0;k<4;k++){int3 vc=bc+ES_VoxelOffset(ge.axis,k);tissue|=VoxInBounds(vc,dims) && occupied[VoxId(vc,dims)]!=0u;}
+    if(!tissue){SeverLink(a,b,ge.axis,nbrIdx,bendPairs);return;}
+    float3 along=pos[b]-pos[a];along=along*rsqrtf(fmaxf(dot3(along,along),1e-20f));
+    MarkAndEmit(e,ge.axis,bc,dir,a,b,.5f,pos[a]+.5f*(pos[b]-pos[a]),along,D,L,dims,pos,mask,occupied,points,count,capacity,rotations);
+}
 int cut_ribbon_tick()
 {
     if (!g_cut_ready || !g_toolSet) return 0;
@@ -1343,6 +1378,21 @@ int cut_ribbon_tick()
                                            d_cutPointCounter, g_cdesc.cutPointCapacity,
                                            c_particleRot, d_dbg, d_edgeWasExempt, d_edgeDecayTicks);
     k_SeverLinks<<<Gc(gec), 64>>>(gec, g_cdims, d_gridEdges, d_voxelCutMask, c_nbrIdx, c_bendPairs);
+    if(scissors){
+        // Release the envelope between material pieces this snip has parted (k_SeedShellOwners). Envelope corners lie
+        // within a few links of the material, and four passes give each of them its owner.
+        cudaError_t err=cudaSuccess;
+        if(!d_materialPieces)err=cudaMalloc(&d_materialPieces,cc*sizeof(int));if(err!=cudaSuccess)return -(int)err;
+        if(!d_shellOwner)err=cudaMalloc(&d_shellOwner,cc*sizeof(unsigned long long));if(err!=cudaSuccess)return -(int)err;
+        k_InitComponents<<<Gc(cc),64>>>(cc,d_materialPieces);
+        k_JoinComponents<<<Gc(cc),64>>>(cc,c_nbrIdx,d_cornerInside,d_materialPieces);
+        k_FlattenComponents<<<Gc(cc),64>>>(cc,d_materialPieces);
+        k_SeedShellOwners<<<Gc(cc),64>>>(cc,d_cornerInside,d_materialPieces,d_shellOwner);
+        for(int pass=0;pass<4;pass++)k_SpreadShellOwners<<<Gc(cc),64>>>(cc,c_nbrIdx,d_shellOwner);
+        k_SeverPieceSeams<<<Gc(gec),64>>>(gec,phase,d_gridEdges,g_cdims,g_tool.d,g_cdesc.voxelL,c_cornerPos,c_nbrIdx,c_bendPairs,
+            d_shellOwner,d_voxelCutMask,d_voxelOccupied,d_cutPoint,d_cutPointCounter,g_cdesc.cutPointCapacity,c_particleRot);
+        k_SeverLinks<<<Gc(gec),64>>>(gec,g_cdims,d_gridEdges,d_voxelCutMask,c_nbrIdx,c_bendPairs);
+    }
 
     if(g_pressureCut){
         k_FinishPressureEntry<<<1,1>>>(d_entryState,phase,scissors);
@@ -1544,6 +1594,7 @@ void cut_shutdown()
     cudaFree(d_entryState);d_entryState=nullptr;
 
     cudaFree(d_pendingCrossings);d_pendingCrossings=nullptr;g_pressureCut=0;
+    cudaFree(d_materialPieces);d_materialPieces=nullptr;cudaFree(d_shellOwner);d_shellOwner=nullptr;
     cudaFree(d_gridEdges);       d_gridEdges = nullptr;
     cudaFree(d_prevCorner);      d_prevCorner = nullptr;
     g_toolSet = false; g_havePrevCorner = false; g_tearLen2 = 0.f;
