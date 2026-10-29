@@ -87,7 +87,8 @@ static int g_fragmentCapacity=0;
 #include "../solver/material/pressure_patch_line.cuh"
 #include "../solver/material/coupled_material.cuh"
 #include "../solver/material/material_stencil.cuh"
-static float* d_cgMatrix=nullptr;
+static __half* d_cgMatrix=nullptr;
+static float* d_cgScale=nullptr;
 static unsigned short* d_cgStencil=nullptr;
 #include "../solver/material/material_line_search.cuh"
 static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;
@@ -2783,7 +2784,8 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     }
     if(e==cudaSuccess && !d_cgStencil)e=cudaMalloc(&d_cgStencil,g_N*sizeof(unsigned short));
     if(e==cudaSuccess && !d_cgZ)e=cudaMalloc(&d_cgZ,g_N*sizeof(float3));
-    if(e==cudaSuccess && !d_cgMatrix)e=cudaMalloc(&d_cgMatrix,(size_t)72*g_N*sizeof(float));
+    if(e==cudaSuccess && !d_cgMatrix)e=cudaMalloc(&d_cgMatrix,(size_t)72*g_N*sizeof(__half));
+    if(e==cudaSuccess && !d_cgScale)e=cudaMalloc(&d_cgScale,(size_t)8*g_N*sizeof(float));
     if(e==cudaSuccess && !d_cgR)e=cudaMalloc(&d_cgR,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgP)e=cudaMalloc(&d_cgP,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgD)e=cudaMalloc(&d_cgD,g_N*sizeof(float3));
@@ -2958,18 +2960,15 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 xpbd_section_mark("cg assembly: start");
                 k_UnifiedVertex<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,-1,0,d_cgR,d_cgH);
                 xpbd_section_mark("cg assembly: gradient and diagonal");
-                k_MaterialStencilClear<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix);
-                xpbd_section_mark("cg assembly: stencil clear");
-                k_MaterialStencilGather<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix);
-                xpbd_section_mark("cg assembly: stencil gather");
-                k_MaterialStencilDiagonal<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgH);
+                k_MaterialStencilAssemble<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgH);
+                xpbd_section_mark("cg assembly: stencil");
                 k_MaterialStencilActiveMask<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil);
-                xpbd_section_mark("cg assembly: diagonal, indices");
+                xpbd_section_mark("cg assembly: mask");
                 k_MaterialCGClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgS,true);
                 k_MaterialCGBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgR,d_cgH,d_cgP,d_cgD,d_cgS);
                 xpbd_section_mark("cg: assembly");
                 for(int cg=0;cg<(nonlinear==0 && !loaded?MaterialFreeIterations:MaterialLoadedIterations);cg++){
-                    k_MaterialStencilProduct<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgP,d_cgMatrix,d_cgStencil,d_cgA,d_cgS,cg);
+                    k_MaterialStencilProduct<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgP,d_cgMatrix,d_cgScale,d_cgStencil,d_cgA,d_cgS,cg);
                     k_MaterialCGAdvance<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgR,d_cgH,d_cgP,d_cgA,d_cgD,d_cgZ,d_cgS,cg);
                     k_MaterialCGDirection<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgZ,d_cgP,d_cgS,cg);
                     k_MaterialCGFinish<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgS,cg);
@@ -3466,7 +3465,7 @@ extern "C" void xpbd_shutdown()
     freeBlade();
     cudaFree(d_toolClearance);d_toolClearance=nullptr;
     cudaFree(d_cgStencil);d_cgStencil=nullptr;cudaFree(d_cgZ);d_cgZ=nullptr;
-    cudaFree(d_cgMatrix);d_cgMatrix=nullptr;
+    cudaFree(d_cgMatrix);d_cgMatrix=nullptr;cudaFree(d_cgScale);d_cgScale=nullptr;
     cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
     cudaFree(d_cgH);d_cgH=nullptr;cudaFree(d_cgS);d_cgS=nullptr;cudaFree(d_cgSearch);d_cgSearch=nullptr;
     if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;

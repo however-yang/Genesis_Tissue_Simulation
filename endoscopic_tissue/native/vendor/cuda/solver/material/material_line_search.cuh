@@ -28,7 +28,7 @@ __global__ void k_MaterialLineNodes(const UnifiedState* state,const float3* star
     if(i>=s.n||(s.active&&!s.active[i]))return;
     // The inertial, support and damping terms are quadratic in the node's step: g.step+|step|^2*curvature/2. Each step
     // runs to the trial position as k_MaterialLineApply writes it (k_MaterialLineTets).
-    float3 p=s.pos[i],v=start[i],d=p-s.target[i],gradient=mkf3(0,0,0);float energy=0,curvature=0;
+    float3 p=s.pos[i],d=p-s.target[i],gradient=mkf3(0,0,0);float energy=0,curvature=0;
     if(s.invMass[i]>0){float inertia=1.f/(s.invMass[i]*s.h*s.h);energy+=.5f*inertia*dot3(d,d);gradient=d*inertia;curvature=inertia;}
     if(s.attach){float stiffness=s.attach[i],viscous=unifiedSupportDamping(s,i);float3 r=p-s.attachRest[i],q=p-s.previous[i];
         energy+=.5f*(stiffness*dot3(r,r)+viscous*dot3(q,q));gradient=gradient+r*stiffness+q*viscous;curvature+=stiffness+viscous;}
