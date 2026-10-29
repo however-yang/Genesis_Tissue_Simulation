@@ -333,8 +333,20 @@ __global__ void k_LevelScissorsColumns(int n,int3 dims,float reach,const GridEdg
     float length=frame[3].y,now=asinf(fminf(.95f,fmaxf(0.f,frame[3].x)/(2*length))),open=asinf(fminf(.95f,frame[3].z/(2*length)));
     float x=dot3(m,frame[1]),y=dot3(m,frame[2]);
     if(!scissorsSwept(x,y,frame[4],frame[5],1.f,now,open,reach) && !scissorsSwept(x,y,frame[6],frame[7],-1.f,now,open,reach))return;
-    float ya=AlongAxis(rest[a],axis);
-    atomicCAS(columnLevel+ColumnOf(bc,axis,dims),COLUMN_UNSET,__float_as_uint(ya+CrackFraction(t)*(AlongAxis(rest[b],axis)-ya)));
+    float ya=AlongAxis(rest[a],axis),yb=AlongAxis(rest[b],axis),level=ya+CrackFraction(t)*(yb-ya);
+    // A level in the last material link of a run of material nodes along the column cuts the end node off alone. It
+    // keeps only its links across the column, and where the neighbouring columns are cut a layer away, those part at
+    // the steps too: the node becomes an island that the envelope release sets free. The level moves into the
+    // envelope link beyond that node instead, at the material surface, so the node stays with its run.
+    if(inside[a] && inside[b]){
+        int3 above=bc+dir+dir,below=bc-dir;
+        if(above.x<=dims.x && above.y<=dims.y && above.z<=dims.z && !inside[CorIdCuda(above,dims)] && nbrIdx[6*b+2*axis+1]>=0)
+            level=yb+CrackFraction(0.f)*(AlongAxis(rest[CorIdCuda(above,dims)],axis)-yb);
+        else if(below.x>=0 && below.y>=0 && below.z>=0 && !inside[CorIdCuda(below,dims)] && nbrIdx[6*CorIdCuda(below,dims)+2*axis+1]>=0){
+            float yc=AlongAxis(rest[CorIdCuda(below,dims)],axis);level=yc+CrackFraction(1.f)*(ya-yc);
+        }
+    }
+    atomicCAS(columnLevel+ColumnOf(bc,axis,dims),COLUMN_UNSET,__float_as_uint(level));
 }
 // A skin column, the ring of lattice corners just outside the material, takes
 // the level of a neighbouring material column, side by side or diagonal across
