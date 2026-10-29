@@ -187,8 +187,11 @@ __global__ void k_FragmentContact(int triangles,const int* queries,const int* qu
     for(int q=(blockIdx.x*blockDim.x+threadIdx.x)/32;q<*queryCount;q+=warps)
         fragmentQuery(queries[q],threadIdx.x%32,triangles,component,pos,previous,start,vertices,points,inverseMass,delta,degree);
 }
-__global__ void k_ApplyFragmentContact(int n,float3* pos,const float3* delta,const int* degree){
-    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n && degree[i])pos[i]=pos[i]+delta[i]*(.8f/degree[i]);
+// Applies and clears the corrections of one pass, leaving delta and degree zero for the next one. Every node the
+// passes move belongs to a detached component with a query (k_FragmentQueries): without one they are all zero.
+__global__ void k_ApplyFragmentContact(int n,float3* pos,float3* delta,int* degree,const int* queryCount){
+    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n || !*queryCount || !degree[i])return;
+    pos[i]=pos[i]+delta[i]*(.8f/degree[i]);delta[i]=mkf3(0,0,0);degree[i]=0;
 }
 
 // Components without any live volume element use inertial particles and
@@ -198,10 +201,12 @@ __global__ void k_UnsupportedFlight(int n,const int* support,const int* componen
     int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n || inverseMass[i]<=0 || support[components[i]] || (grasp[components[i]]&1))return;
     pos[i]=target[i];
 }
+// Its nodes are nodes with a query (k_FragmentQueries), so none moves without one.
 __global__ void k_UnsupportedTools(int n,const int* support,const int* components,const int* grasp,
     const float* inverseMass,const float3* previous,float3* pos,const CoupledTool* grasper,const CoupledTool* blade,
-    float thickness,float minGap){
-    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n || inverseMass[i]<=0 || support[components[i]] || (grasp[components[i]]&1))return;
+    float thickness,float minGap,const int* queryCount){
+    int i=blockIdx.x*blockDim.x+threadIdx.x;
+    if(i>=n || !*queryCount || inverseMass[i]<=0 || support[components[i]] || (grasp[components[i]]&1))return;
     float3 x=pos[i];
     // Prescribed instrument guides provide the boundary for these unsupported
     // point remnants. The deformable tissue keeps its coupled force solve.
@@ -226,10 +231,12 @@ __global__ void k_FragmentVolumes(int count,const int* ids,const int* live,const
     // All tets of a component set the same flag: once it is set, skip the contended atomic.
     int* flag=support+component[ids[4*i]];if(!(*flag&2))atomicOr(flag,2);
 }
+// Its nodes are nodes with a query (k_FragmentQueries), so none moves without one.
 __global__ void k_FragmentEdges(int n,const int* neighbors,const float3* rest,const int* component,const int* support,
-    const int* grasp,const float* inverseMass,const float3* pos,float young,float h,float* lambda,float3* delta,int* degree){
+    const int* grasp,const float* inverseMass,const float3* pos,float young,float h,float* lambda,float3* delta,int* degree,
+    const int* queryCount){
     int i=blockIdx.x*blockDim.x+threadIdx.x;
-    if(i>=n || inverseMass[i]<=0 || support[component[i]] || (grasp[component[i]]&1))return;
+    if(i>=n || !*queryCount || inverseMass[i]<=0 || support[component[i]] || (grasp[component[i]]&1))return;
     float cell[3];for(int k=0;k<3;k++)cell[k]=fmaxf(len3(rest[6*i+2*k]),len3(rest[6*i+2*k+1]));
     for(int a=0;a<3;a++){
         int slot=6*i+2*a+1,j=neighbors[slot];if(j<0 || support[component[j]])continue;

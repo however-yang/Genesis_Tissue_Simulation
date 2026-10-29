@@ -91,7 +91,8 @@ static __half* d_cgMatrix=nullptr;
 static float* d_cgScale=nullptr;
 static unsigned short* d_cgStencil=nullptr;
 #include "../solver/material/material_line_search.cuh"
-static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;
+// d_cgP and d_cgQ hold the PCG direction of alternate iterations (k_MaterialStencilProduct).
+static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;
 static Symmetric3* d_cgH=nullptr;
 static MaterialCGSum* d_cgS=nullptr;
 static MaterialLineSearch* d_cgSearch=nullptr;
@@ -108,6 +109,8 @@ static int* d_safeJoined=nullptr;
 
 static float* d_coarseWeight=nullptr;
 static float* d_unifiedInteraction=nullptr;
+// The vertices each local sweep solves, listed per lattice color by k_SweepSites, and their counts.
+static int *d_sweepSites=nullptr,*d_sweepCount=nullptr;
 static CoarseBlock* d_coarseBlock=nullptr;
 static CoarseBlock* d_globalCoarse=nullptr;
 static SurfaceContact* d_manifold=nullptr;
@@ -174,12 +177,13 @@ static int     g_bNumColors = 0;
 static int*    d_bendSrcIdx = nullptr;            // [B] colour-slot -> original input element index (M1)
 static std::vector<int> g_bendSlotOfInput;        // host: input element index -> colour slot
 
-// STEP 7 — per-tet isochoric/volumetric Neo-Hookean strain (design rev-B §4[Strain]/§9-(7)). Colour-ordered like
-// edges/bending. BOUND MODE ONLY: built once by xpbd_build_tets from the live cornerPos/active/nbrIdx
+// STEP 7 — per-tet isochoric/volumetric Neo-Hookean strain (design rev-B §4[Strain]/§9-(7)). Stored by Kuhn tet
+// type, each type in cell order (see xpbd_build_tets); the colour-ordered passes reach their tets through
+// d_tetColorOrder. BOUND MODE ONLY: built once by xpbd_build_tets from the live cornerPos/active/nbrIdx
 // dims captured at xpbd_bind. d_tetActive is NOT written by a notify path — it is RE-DERIVED every
 // substep by k_RefreshLiveness from the SAME live nbrIdx/active flags (a tet's 3 member axis-edge owner
 // slots + its 4 corners), so it is naturally permanent (nbrIdx never un-severs).
-static int*    d_tetIds     = nullptr;   // [4*T] corner ids (p0,p1,p2,p3), colour-ordered
+static int*    d_tetIds     = nullptr;   // [4*T] corner ids (p0,p1,p2,p3)
 static float3* d_tetBr0     = nullptr;   // [T] Dm^-1 row 0 (rest inverse matrix, baked at build time)
 static float3* d_tetBr1     = nullptr;   // [T] Dm^-1 row 1
 static float3* d_tetBr2     = nullptr;   // [T] Dm^-1 row 2
@@ -195,6 +199,12 @@ static int*    d_edgeTetSupport = nullptr; // [6*N] live material support for ea
 static int     g_T = 0;
 static std::vector<int> g_tColorOff, g_tColorCnt;
 static int     g_tNumColors = 0;
+// The tets of colour c, by index: entries g_tColorOff[c] to g_tColorOff[c]+g_tColorCnt[c]-1 (host copy and device).
+static std::vector<int> g_tetColorOrder;
+static int* d_tetColorOrder=nullptr;
+// The node ids and rest determinant of the tet at each entry of d_tetColorOrder (k_ColorTetData).
+static int4* d_colorTetIds=nullptr;
+static float* d_colorTetDet=nullptr;
 static int* d_localTets=nullptr;
 static std::vector<int> g_localOff,g_localCount;
 static int g_localPasses=0;
@@ -339,6 +349,16 @@ static const float3*          g_liveHapticForce = nullptr;   // [N] SS2.3 felt r
 static int g_dimsX = 0, g_dimsY = 0, g_dimsZ = 0;            // carried for the step-7 tet builder
 
 static inline int Gr(int n) { int g = (n + 63) / 64; return g < 1 ? 1 : g; }
+// One full wave of 64-thread blocks of a kernel whose warps stride over the vertices k_SweepSites lists. A larger grid
+// leaves a partly filled second wave of warps that each walk several vertices; a smaller one leaves SMs idle.
+template<class Kernel> static int fullWave(Kernel kernel){
+    int device=0,processors=0,blocks=0;cudaGetDevice(&device);
+    cudaDeviceGetAttribute(&processors,cudaDevAttrMultiProcessorCount,device);
+    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks,kernel,64,0);return std::max(1,processors*blocks);
+}
+static int g_sweepBlocks=0,g_predictorBlocks=0;
+// Grid of the kernels that sum per-component terms through blockAccumulate (unified_vertex.cuh).
+static inline int GrAccumulate(int n) { int g = (n + ACCUMULATE_THREADS - 1) / ACCUMULATE_THREADS; return g < 1 ? 1 : g; }
 
 // ── kernels ───────────────────────────────────────────────────────────────────────────────────
 // Predict: save prev, integrate the external body forces into velocity, advance position. Pinned
@@ -571,10 +591,10 @@ __device__ void projectTensile(int e,const int* ids,const int* active,
 
 }
 
-__global__ void k_TensileReinforcement(int off,int count,const int* ids,const int* active,
+__global__ void k_TensileReinforcement(int off,int count,const int* order,const int* ids,const int* active,
     const float3* b0,const float3* b1,const float3* b2,const float* mass,float3* pos,const float* alphaDev,float* fiberLambda,float strength){
-    int e=off+blockIdx.x*blockDim.x+threadIdx.x;
-    if(e<off+count)projectTensile(e,ids,active,b0,b1,b2,mass,pos,alphaDev,fiberLambda,strength);
+    int k=off+blockIdx.x*blockDim.x+threadIdx.x;
+    if(k<off+count)projectTensile(order[k],ids,active,b0,b1,b2,mass,pos,alphaDev,fiberLambda,strength);
 }
 
 // Eight parity colours: no two vertices of one colour belong to the same
@@ -639,13 +659,21 @@ static void beginFeasible(){
 // A simultaneous translation can be feasible even when moving its four
 // vertices one at a time is not. Repair only invalid candidate volumes first,
 // then accept the complete valid configuration without a coordinate-wise path.
-__global__ void k_RepairMinimumVolume(int off,int count,const int* ids,const int* active,
-    const float3* b0,const float3* b1,const float3* b2,const float* invMass,float3* pos,float minimum,const int* unsafe){
+// The colour-ordered tet data of k_RepairMinimumVolume, whose launch over one colour then reads them contiguously.
+__global__ void k_ColorTetData(int count,const int* order,const int* ids,const float3* b0,const float3* b1,const float3* b2,
+    int4* colorIds,float* colorDet){
+    int k=blockIdx.x*blockDim.x+threadIdx.x;if(k>=count)return;
+    int t=order[k];colorIds[k]=make_int4(ids[4*t],ids[4*t+1],ids[4*t+2],ids[4*t+3]);
+    colorDet[k]=dot3(b0[t],cross3(b1[t],b2[t]));
+}
+__global__ void k_RepairMinimumVolume(int off,int count,const int* order,const int4* colorIds,const float* colorDet,
+    const int* active,const float* invMass,float3* pos,float minimum,const int* unsafe){
     if(!*unsafe)return;
-    int t=off+blockIdx.x*blockDim.x+threadIdx.x;if(t>=off+count || !active[t])return;
-    int id[4]={ids[4*t],ids[4*t+1],ids[4*t+2],ids[4*t+3]};
+    int k=off+blockIdx.x*blockDim.x+threadIdx.x;if(k>=off+count)return;
+    int t=order[k];if(!active[t])return;
+    int4 c=colorIds[k];int id[4]={c.x,c.y,c.z,c.w};
     float3 p[4]={pos[id[0]],pos[id[1]],pos[id[2]],pos[id[3]]};
-    float3 u=p[1]-p[0],v=p[2]-p[0],w=p[3]-p[0];float detB=dot3(b0[t],cross3(b1[t],b2[t]));
+    float3 u=p[1]-p[0],v=p[2]-p[0],w=p[3]-p[0];float detB=colorDet[k];
     float J=dot3(u,cross3(v,w))*detB;if(!isfinite(J) || J>=minimum+1e-4f)return;
     float3 g[4];g[1]=cross3(v,w)*detB;g[2]=cross3(w,u)*detB;g[3]=cross3(u,v)*detB;g[0]=(g[1]+g[2]+g[3])*(-1.f);
     float den=0;for(int k=0;k<4;k++)den+=invMass[id[k]]*dot3(g[k],g[k]);if(den<1e-20f)return;
@@ -669,7 +697,7 @@ static cudaError_t finishFeasible(){
         cudaMemsetAsync(d_needFeasible,0,(size_t)(g_N+1)*sizeof(int),g_captureStream);
         k_CheckCandidateVolume<<<(g_T+63)/64,64,0,g_captureStream>>>(g_T,d_tetIds,d_tetActive,d_tetBr0,d_tetBr1,d_tetBr2,d_pos,g_minTetVolume,d_needFeasible+g_N);
         for(int pass=0;pass<2;pass++)for(int c=0;c<g_tNumColors;c++)if(g_tColorCnt[c]>0)
-            k_RepairMinimumVolume<<<(g_tColorCnt[c]+63)/64,64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],d_tetIds,d_tetActive,d_tetBr0,d_tetBr1,d_tetBr2,d_invMass,d_pos,g_minTetVolume,d_needFeasible+g_N);
+            k_RepairMinimumVolume<<<(g_tColorCnt[c]+63)/64,64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],d_tetColorOrder,d_colorTetIds,d_colorTetDet,d_tetActive,d_invMass,d_pos,g_minTetVolume,d_needFeasible+g_N);
         cudaMemsetAsync(d_needFeasible+g_N,0,sizeof(int),g_captureStream);
         k_CheckCandidateVolume<<<(g_T+63)/64,64,0,g_captureStream>>>(g_T,d_tetIds,d_tetActive,d_tetBr0,d_tetBr1,d_tetBr2,d_pos,g_minTetVolume,d_needFeasible+g_N);
         k_NeedFeasible<<<(g_T+63)/64,64,0,g_captureStream>>>(g_T,d_tetIds,d_tetActive,d_tetBr0,d_tetBr1,d_tetBr2,d_feasibleStart,d_pos,d_needFeasible,g_minTetVolume,d_needFeasible+g_N);
@@ -774,10 +802,11 @@ __global__ void k_solve_tet(int colorOff, int colorCnt, float omega, float dampi
 
 // Finite bulk elasticity: C=log(J), alpha=1/(kappa*V*h^2). Pressure and material
 // share lambdaHyd, so these iterations converge to one constitutive response.
-__global__ void k_SolveBulk(int off,int count,const int* ids,const int* active,
+__global__ void k_SolveBulk(int off,int count,const int* order,const int* ids,const int* active,
     const float3* b0,const float3* b1,const float3* b2,const float* mass,
     const float3* previous,float3* pos,const float* alpha,float* lambda,float damping){
-    int e=off+blockIdx.x*blockDim.x+threadIdx.x;if(e>=off+count || !active[e])return;
+    int k=off+blockIdx.x*blockDim.x+threadIdx.x;if(k>=off+count)return;
+    int e=order[k];if(!active[e])return;
     int id[4]={ids[4*e],ids[4*e+1],ids[4*e+2],ids[4*e+3]};
     float3 p[4]={pos[id[0]],pos[id[1]],pos[id[2]],pos[id[3]]},b[3]={b0[e],b1[e],b2[e]},f[3];
     for(int k=0;k<3;k++)f[k]=(p[1]-p[0])*compF3(b[0],k)+(p[2]-p[0])*compF3(b[1],k)+(p[3]-p[0])*compF3(b[2],k);
@@ -1558,6 +1587,7 @@ extern "C" int xpbd_build_tets()
     std::vector<float3> hBr0, hBr1, hBr2; hBr0.reserve(1024); hBr1.reserve(1024); hBr2.reserve(1024);
     std::vector<float>  hMuV, hLambdaV;    hMuV.reserve(1024); hLambdaV.reserve(1024);
     std::vector<int>    hOwnerSlot;  hOwnerSlot.reserve(3072);
+    std::vector<int>    hType;       hType.reserve(1024);   // Kuhn tet type (TET_TABLE row) of each emitted tet
 
     // Shear/bulk moduli from E/nu: mu=E/(2*(1+nu)); kappa=E/(3*(1-2*nu)). youngE<=0
     // (strain OFF) still builds the tet mesh — so the CUT lifecycle can be exercised independent of the
@@ -1634,6 +1664,7 @@ extern "C" int xpbd_build_tets()
             hBr2.push_back(mkf3((float)B[2][0], (float)B[2][1], (float)B[2][2]));
             hMuV.push_back(mu * (float)V);
             hLambdaV.push_back(lambda * (float)V);
+            hType.push_back(ti);
         }
     }
 
@@ -1658,13 +1689,24 @@ extern "C" int xpbd_build_tets()
     for (int e = 0; e < T; e++) g_tColorCnt[tetColor[e]]++;
     g_tColorOff.assign(numColors, 0);
     for (int c = 1; c < numColors; c++) g_tColorOff[c] = g_tColorOff[c-1] + g_tColorCnt[c-1];
+    // Device order: the six Kuhn tet types one after the other, each in cell order (x fastest). Consecutive tets are
+    // then the same tet of neighbouring cells, so a thread per tet gathers neighbouring nodes, and threads walking the
+    // incident tets of neighbouring nodes read neighbouring tets at every step (incident lists are in tet order).
+    // Colour order scatters the 24 tets of a node over the whole array. The colour-ordered passes read their tets
+    // through g_tetColorOrder.
+    std::vector<int> place(T), typeCursor(7, 0);
+    for (int e = 0; e < T; e++) typeCursor[hType[e] + 1]++;
+    for (int k = 1; k < 7; k++) typeCursor[k] += typeCursor[k - 1];
+    for (int e = 0; e < T; e++) place[e] = typeCursor[hType[e]]++;
     std::vector<int> cursor = g_tColorOff;
+    g_tetColorOrder.assign(T, 0);
+    for (int e = 0; e < T; e++) g_tetColorOrder[cursor[tetColor[e]]++] = place[e];
     std::vector<int>    dIds((size_t)4*T);
     std::vector<float3> dBr0(T), dBr1(T), dBr2(T);
     std::vector<float>  dMuV(T), dLambdaV(T);
     std::vector<int>    dOwner((size_t)3*T);
     for (int e = 0; e < T; e++) {
-        int dst = cursor[tetColor[e]]++;
+        int dst = place[e];
         dIds[4*dst+0]=hTetIds[4*e+0]; dIds[4*dst+1]=hTetIds[4*e+1];
         dIds[4*dst+2]=hTetIds[4*e+2]; dIds[4*dst+3]=hTetIds[4*e+3];
         dBr0[dst]=hBr0[e]; dBr1[dst]=hBr1[e]; dBr2[dst]=hBr2[e];
@@ -1686,6 +1728,9 @@ extern "C" int xpbd_build_tets()
         XK(cudaMalloc(&d_tetActive,     (size_t)T   * sizeof(int)));
         XK(cudaMalloc(&d_fiberLambda,(size_t)6*T*sizeof(float)));
         XK(cudaMalloc(&d_tetEdgeOwnerSlot, (size_t)3*T * sizeof(int)));
+        XK(cudaMalloc(&d_tetColorOrder,  (size_t)T   * sizeof(int)));
+        XK(cudaMalloc(&d_colorTetIds,    (size_t)T   * sizeof(int4)));
+        XK(cudaMalloc(&d_colorTetDet,    (size_t)T   * sizeof(float)));
         XK(cudaMalloc(&d_edgeTetSupport, (size_t)6*g_N * sizeof(int)));
 
         XK(cudaMemcpy(d_tetIds,        dIds.data(),    (size_t)4*T*sizeof(int),   cudaMemcpyHostToDevice));
@@ -1695,6 +1740,9 @@ extern "C" int xpbd_build_tets()
         XK(cudaMemcpy(d_tetMuV,        dMuV.data(),    (size_t)T*sizeof(float),  cudaMemcpyHostToDevice));
         XK(cudaMemcpy(d_tetLambdaV,    dLambdaV.data(),(size_t)T*sizeof(float),  cudaMemcpyHostToDevice));
         XK(cudaMemcpy(d_tetEdgeOwnerSlot, dOwner.data(),(size_t)3*T*sizeof(int), cudaMemcpyHostToDevice));
+        XK(cudaMemcpy(d_tetColorOrder, g_tetColorOrder.data(),(size_t)T*sizeof(int), cudaMemcpyHostToDevice));
+        k_ColorTetData<<<Gr(T),64>>>(T,d_tetColorOrder,d_tetIds,d_tetBr0,d_tetBr1,d_tetBr2,d_colorTetIds,d_colorTetDet);
+        XK(cudaGetLastError());
         XK(cudaMemset(d_tetAlphaDev,   0, (size_t)T*sizeof(float)));
         XK(cudaMemset(d_tetAlphaHyd,   0, (size_t)T*sizeof(float)));
         XK(cudaMemset(d_tetLambdaDevL, 0, (size_t)T*sizeof(float)));
@@ -1970,7 +2018,8 @@ extern "C" int xpbd_set_local_refinement(float x,float y,float z,float radius,in
     float3 center=mkf3(x,y,z);
     for(int c=0;c<g_tNumColors;c++){
         g_localOff[c]=(int)selected.size();
-        for(int t=g_tColorOff[c];t<g_tColorOff[c]+g_tColorCnt[c];t++){
+        for(int slot=g_tColorOff[c];slot<g_tColorOff[c]+g_tColorCnt[c];slot++){
+            int t=g_tetColorOrder[slot];
             bool touchesRegion=false;for(int k=0;k<4;k++)touchesRegion|=len3(rest[ids[4*t+k]]-center)<radius;
             if(touchesRegion)selected.push_back(t);
         }
@@ -2385,12 +2434,12 @@ static cudaError_t solveTetGraph(float damping){
         e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return e;
         for(int c=0;c<g_tNumColors;c++)if(g_tColorCnt[c]>0)
             k_solve_tet<<<Gr(g_tColorCnt[c]),64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],g_p.omega,damping,g_hFrame>0?g_bulkDampingSeconds/g_hFrame:0.f,d_prevPos,
-                d_tetIds,d_tetBr0,d_tetBr1,d_tetBr2,d_tetActive,d_tetAlphaDev,d_tetAlphaHyd,d_invMass,d_tetLambdaDevL,d_tetLambdaHydL,d_pos,g_volumePasses>0?1.f:0.f);
+                d_tetIds,d_tetBr0,d_tetBr1,d_tetBr2,d_tetActive,d_tetAlphaDev,d_tetAlphaHyd,d_invMass,d_tetLambdaDevL,d_tetLambdaHydL,d_pos,g_volumePasses>0?1.f:0.f,d_tetColorOrder);
         for(int pass=0;pass<g_localPasses;pass++)for(int c=0;c<g_tNumColors;c++)if(g_localCount[c]>0)
             k_solve_tet<<<Gr(g_localCount[c]),64,0,g_captureStream>>>(g_localOff[c],g_localCount[c],g_p.omega,damping,g_hFrame>0?g_bulkDampingSeconds/g_hFrame:0.f,d_prevPos,
                 d_tetIds,d_tetBr0,d_tetBr1,d_tetBr2,d_tetActive,d_tetAlphaDev,d_tetAlphaHyd,d_invMass,d_tetLambdaDevL,d_tetLambdaHydL,d_pos,g_volumePasses>0?1.f:0.f,d_localTets);
         for(int pass=0;pass<g_volumePasses;pass++)for(int c=0;c<g_tNumColors;c++)if(g_tColorCnt[c]>0)
-            k_TensileReinforcement<<<Gr(g_tColorCnt[c]),64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],
+            k_TensileReinforcement<<<Gr(g_tColorCnt[c]),64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],d_tetColorOrder,
                 d_tetIds,d_tetActive,d_tetBr0,d_tetBr1,d_tetBr2,d_invMass,d_pos,d_tetAlphaDev,d_fiberLambda,g_tissueHardening);
         cudaGraph_t graph=nullptr;e=cudaStreamEndCapture(g_captureStream,&graph);if(e!=cudaSuccess)return e;
         e=cudaGraphInstantiate(&g_tetGraph,graph,0);cudaGraphDestroy(graph);if(e!=cudaSuccess)return e;
@@ -2409,8 +2458,8 @@ static cudaError_t solvePressureGraph(){
                 // instead of alternating contact with a bulk-only projection.
                 k_solve_tet<<<Gr(g_tColorCnt[c]),64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],g_p.omega,
                     g_p.strainDamping/g_hFrame,g_bulkDampingSeconds/g_hFrame,d_prevPos,
-                    d_tetIds,d_tetBr0,d_tetBr1,d_tetBr2,d_tetActive,d_tetAlphaDev,d_tetAlphaHyd,d_invMass,d_tetLambdaDevL,d_tetLambdaHydL,d_pos,1.f,nullptr,d_coupledTool);
-            else k_SolveBulk<<<Gr(g_tColorCnt[c]),64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],
+                    d_tetIds,d_tetBr0,d_tetBr1,d_tetBr2,d_tetActive,d_tetAlphaDev,d_tetAlphaHyd,d_invMass,d_tetLambdaDevL,d_tetLambdaHydL,d_pos,1.f,d_tetColorOrder,d_coupledTool);
+            else k_SolveBulk<<<Gr(g_tColorCnt[c]),64,0,g_captureStream>>>(g_tColorOff[c],g_tColorCnt[c],d_tetColorOrder,
                 d_tetIds,d_tetActive,d_tetBr0,d_tetBr1,d_tetBr2,d_invMass,d_prevPos,d_pos,d_tetAlphaHyd,d_tetLambdaHydL,g_bulkDampingSeconds/fmaxf(g_hFrame,1e-8f));
         }
         cudaGraph_t graph=nullptr;e=cudaStreamEndCapture(g_captureStream,&graph);if(e!=cudaSuccess)return e;
@@ -2537,16 +2586,17 @@ static cudaError_t solveFragmentContact(bool prepare=false){
     else k_UnsupportedFlight<<<Gr(g_N),64>>>(g_N,d_fragmentSupported,d_unifiedComponents,d_graspComponents,d_invMass,d_unifiedTarget,d_pos);
     cudaMemcpyAsync(d_fragmentStart,d_pos,g_N*sizeof(float3),cudaMemcpyDeviceToDevice);
     const float3* previous=prepare?d_fragmentBefore:d_prevPos;
+    // The passes add into d_surfaceDelta and d_fragmentDegree, which k_ApplyFragmentContact leaves cleared.
+    cudaMemsetAsync(d_surfaceDelta,0,g_N*sizeof(float3));cudaMemsetAsync(d_fragmentDegree,0,g_N*sizeof(int));
     beginFeasible();
     for(int pass=0;pass<8;pass++){
         k_FragmentVertices<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,d_unifiedComponents,d_pos,previous,d_fragmentStart,d_fragmentVertices,d_fragmentQueryCount);
-        cudaMemsetAsync(d_surfaceDelta,0,g_N*sizeof(float3));cudaMemsetAsync(d_fragmentDegree,0,g_N*sizeof(int));
-        if(!prepare)k_FragmentEdges<<<Gr(g_N),64>>>(g_N,g_liveNbrIdx,g_liveRestNbr,d_unifiedComponents,d_fragmentSupported,d_graspComponents,d_invMass,d_pos,g_p.youngE,g_hFrame,d_fragmentLambda,d_surfaceDelta,d_fragmentDegree);
+        if(!prepare)k_FragmentEdges<<<Gr(g_N),64>>>(g_N,g_liveNbrIdx,g_liveRestNbr,d_unifiedComponents,d_fragmentSupported,d_graspComponents,d_invMass,d_pos,g_p.youngE,g_hFrame,d_fragmentLambda,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
         // A fixed grid of warps strides over the device query list: no host readback of its length.
         k_FragmentContact<<<2048,64>>>(g_surfaceCount,d_fragmentQueries,d_fragmentQueryCount,d_unifiedComponents,d_pos,previous,d_fragmentStart,
             d_surfaceVertices,d_fragmentVertices,d_invMass,d_surfaceDelta,d_fragmentDegree);
-        k_ApplyFragmentContact<<<Gr(g_N),64>>>(g_N,d_pos,d_surfaceDelta,d_fragmentDegree);
-        k_UnsupportedTools<<<Gr(g_N),64>>>(g_N,d_fragmentSupported,d_unifiedComponents,d_graspComponents,d_invMass,previous,d_pos,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr,g_jawThickness,g_gp.jawGapClosed);
+        k_ApplyFragmentContact<<<Gr(g_N),64>>>(g_N,d_pos,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
+        k_UnsupportedTools<<<Gr(g_N),64>>>(g_N,d_fragmentSupported,d_unifiedComponents,d_graspComponents,d_invMass,previous,d_pos,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr,g_jawThickness,g_gp.jawGapClosed,d_fragmentQueryCount);
     }
     e=finishFeasible();if(e!=cudaSuccess)return e;
     if(prepare)k_FragmentIncomingVelocity<<<Gr(g_N),64>>>(g_N,d_unifiedComponents,d_fragmentSupported,d_graspComponents,d_fragmentBefore,d_pos,d_vel);
@@ -2635,12 +2685,12 @@ extern "C" int xpbd_relax_reconstructed_contact(){
             if(it==0){
                 k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,5);
                 k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
+                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
                 k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
                 k_CoarseSolve<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
                 k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
                 k_PressureLineClear<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
@@ -2667,10 +2717,11 @@ extern "C" int xpbd_relax_reconstructed_contact(){
                     k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState);
                 }
             }
+            cudaMemsetAsync(d_sweepCount,0,8*sizeof(int),g_captureStream);
+            k_SweepSites<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,SweepRepair,sites,d_sweepSites,d_sweepCount);
             for(int c=0;c<8;c++){
-                k_ClearUnifiedInteractions<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,c);
                 k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);
-                k_UnifiedVertex<<<Gr(32*sites),64,0,g_captureStream>>>(d_unified,c,1);
+                k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);
             }
             k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);
             // Fracture has already consumed this substep's actual blade sweep.
@@ -2679,12 +2730,12 @@ extern "C" int xpbd_relax_reconstructed_contact(){
 
             if(it==0){
                 k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-                k_CoarseNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_coarseBlock,false);
+                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,false);
                 k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
                 k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_coarseBlock,true);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,true);
                 k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,true);
             k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
@@ -2774,6 +2825,10 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     if(e==cudaSuccess && !d_coarseWeight)e=cudaMalloc(&d_coarseWeight,(size_t)g_N*sizeof(float));
     if(e==cudaSuccess && !d_coarseBlock)e=cudaMalloc(&d_coarseBlock,sizeof(CoarseBlock));
     if(e==cudaSuccess && !d_unifiedInteraction)e=cudaMalloc(&d_unifiedInteraction,(size_t)9*g_N*sizeof(float));
+    // A color holds at most one vertex per site of its parity, the count the sweeps pass as the list capacity.
+    if(e==cudaSuccess && !d_sweepSites)e=cudaMalloc(&d_sweepSites,(size_t)8*((g_dimsX+2)/2)*((g_dimsY+2)/2)*((g_dimsZ+2)/2)*sizeof(int));
+    if(e==cudaSuccess && !d_sweepCount)e=cudaMalloc(&d_sweepCount,8*sizeof(int));
+    if(!g_sweepBlocks){g_sweepBlocks=fullWave(k_UnifiedVertex);g_predictorBlocks=fullWave(k_UnifiedPredictor);}
     const bool cacheRest=g_unifiedTetCapacity<g_T;
     if(e==cudaSuccess && cacheRest){
         cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;
@@ -2788,6 +2843,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     if(e==cudaSuccess && !d_cgScale)e=cudaMalloc(&d_cgScale,(size_t)8*g_N*sizeof(float));
     if(e==cudaSuccess && !d_cgR)e=cudaMalloc(&d_cgR,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgP)e=cudaMalloc(&d_cgP,g_N*sizeof(float3));
+    if(e==cudaSuccess && !d_cgQ)e=cudaMalloc(&d_cgQ,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgD)e=cudaMalloc(&d_cgD,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgA)e=cudaMalloc(&d_cgA,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgH)e=cudaMalloc(&d_cgH,g_N*sizeof(Symmetric3));
@@ -2849,7 +2905,9 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     if(g_blade.enabled)k_MarkCoarseContact<<<128,64>>>(d_bladeState);
     k_CoarseWeights<<<Gr(g_N),64>>>(d_unified);
     const int predictorSites=((s.nx+1)/2)*((s.ny+1)/2)*((g_dimsZ+2)/2);
-    for(int color=0;color<8;color++)k_UnifiedPredictor<<<Gr(32*predictorSites),64>>>(d_unified,color);
+    cudaMemsetAsync(d_sweepCount,0,8*sizeof(int));
+    k_SweepSites<<<Gr(g_N),64>>>(d_unified,SweepPredictor,predictorSites,d_sweepSites,d_sweepCount);
+    for(int color=0;color<8;color++)k_UnifiedPredictor<<<g_predictorBlocks,64>>>(d_unified,d_sweepSites+color*predictorSites,d_sweepCount+color);
     k_PredictorClear<<<Gr(g_N),64>>>(g_N,d_globalCoarse);
     k_PredictorNodeEnergy<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
     k_PredictorTetEnergy<<<Gr(g_T),64>>>(d_unified,d_globalCoarse);
@@ -2919,12 +2977,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 k_AccumulateSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
                 k_FinishSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
                 k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
+                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
                 k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
                 k_CoarseSolve<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
                 k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
                 if(mode>=1 && mode<=4){
@@ -2958,20 +3016,17 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 }
                 k_MaterialRecoveryOnly<<<1,1,0,g_captureStream>>>(d_unified,nonlinear>0);
                 xpbd_section_mark("cg assembly: start");
-                k_UnifiedVertex<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,-1,0,d_cgR,d_cgH);
-                xpbd_section_mark("cg assembly: gradient and diagonal");
-                k_MaterialStencilAssemble<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgH);
-                xpbd_section_mark("cg assembly: stencil");
+                k_MaterialStencilAssemble<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);
+                xpbd_section_mark("cg assembly: stencil and residual");
                 k_MaterialStencilActiveMask<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil);
                 xpbd_section_mark("cg assembly: mask");
-                k_MaterialCGClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgS,true);
-                k_MaterialCGBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgR,d_cgH,d_cgP,d_cgD,d_cgS);
+                k_MaterialCGClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgS);
+                k_MaterialCGBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgR,d_cgH,d_cgZ,d_cgQ,d_cgD,d_cgS);
                 xpbd_section_mark("cg: assembly");
                 for(int cg=0;cg<(nonlinear==0 && !loaded?MaterialFreeIterations:MaterialLoadedIterations);cg++){
-                    k_MaterialStencilProduct<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgP,d_cgMatrix,d_cgScale,d_cgStencil,d_cgA,d_cgS,cg);
-                    k_MaterialCGAdvance<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgR,d_cgH,d_cgP,d_cgA,d_cgD,d_cgZ,d_cgS,cg);
-                    k_MaterialCGDirection<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgZ,d_cgP,d_cgS,cg);
-                    k_MaterialCGFinish<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgS,cg);
+                    float3* direction=cg%2?d_cgQ:d_cgP;const float3* previous=cg%2?d_cgP:d_cgQ;
+                    k_MaterialStencilProduct<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,previous,d_cgZ,direction,d_cgMatrix,d_cgScale,d_cgStencil,d_cgA,d_cgS,cg);
+                    k_MaterialCGAdvance<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgR,d_cgH,direction,d_cgA,d_cgD,d_cgZ,d_cgS,cg);
                 }
                 xpbd_section_mark("cg: iterations");
                 // The trust region and the tangent-cone projection act on free recovering components alone. Without
@@ -3033,12 +3088,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             if(it==0 || it==2){
                 k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,5);
                 k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
+                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
                 k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
                 k_CoarseSolve<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
+                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
                 k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
                 k_PressureLineClear<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
@@ -3052,7 +3107,9 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             }
             xpbd_section_mark("loop: regional mode");
             k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,0);
-            for(int c=0;c<8;c++){k_ClearUnifiedInteractions<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,c);k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);k_UnifiedVertex<<<Gr(32*sites),64,0,g_captureStream>>>(d_unified,c,0);}
+            cudaMemsetAsync(d_sweepCount,0,8*sizeof(int),g_captureStream);
+            k_SweepSites<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,SweepLocal,sites,d_sweepSites,d_sweepCount);
+            for(int c=0;c<8;c++){k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);}
             xpbd_section_mark("loop: local sweeps");
             k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);
             if(g_blade.enabled)k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_bladeState);
@@ -3065,12 +3122,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             k_AccumulateSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
             k_FinishSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
             k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-            k_CoarseNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
-            k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_coarseBlock,false);
+            k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
+            k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,false);
             k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
             k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-            k_CoarseTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_coarseBlock,true);
+            k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,true);
             k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,true);
             k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
@@ -3110,12 +3167,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     // correction there would undo the tool/tissue contact balance.
     k_CoarseWeights<<<Gr(g_N),64>>>(d_unified,6);
     k_CoarseBegin<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
-    k_CoarseNodes<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
-    k_CoarseTets<<<Gr(g_T),64>>>(d_unified,d_globalCoarse,false);
+    k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
+    k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse,false);
     k_CoarseContactGrip<<<128,64>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,false);
     k_CoarseSolve<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
-    k_CoarseTets<<<Gr(g_T),64>>>(d_unified,d_globalCoarse,true);
+    k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse,true);
     k_CoarseContactBound<<<128,64>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,true);
     k_CoarseApply<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
@@ -3466,9 +3523,9 @@ extern "C" void xpbd_shutdown()
     cudaFree(d_toolClearance);d_toolClearance=nullptr;
     cudaFree(d_cgStencil);d_cgStencil=nullptr;cudaFree(d_cgZ);d_cgZ=nullptr;
     cudaFree(d_cgMatrix);d_cgMatrix=nullptr;cudaFree(d_cgScale);d_cgScale=nullptr;
-    cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
+    cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgQ);d_cgQ=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
     cudaFree(d_cgH);d_cgH=nullptr;cudaFree(d_cgS);d_cgS=nullptr;cudaFree(d_cgSearch);d_cgSearch=nullptr;
-    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
+    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_sweepSites);d_sweepSites=nullptr;cudaFree(d_sweepCount);d_sweepCount=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
     cudaFree(d_feasibleStart);d_feasibleStart=nullptr;cudaFree(d_feasibleTarget);d_feasibleTarget=nullptr;cudaFree(d_incidentOffsets);d_incidentOffsets=nullptr;cudaFree(d_incidentTets);d_incidentTets=nullptr;cudaFree(d_needFeasible);d_needFeasible=nullptr;
     cudaFree(d_captureInside);d_captureInside=nullptr;g_volumePasses=0;g_minTetVolume=0;g_captureWedge=false;
     destroyGripGraph();cudaFree(d_contactResidual);d_contactResidual=nullptr;cudaFree(d_coupledTool);d_coupledTool=nullptr;cudaFree(d_gripError);d_gripError=nullptr;
@@ -3505,6 +3562,8 @@ extern "C" void xpbd_shutdown()
     cudaFree(d_tetAlphaDev); d_tetAlphaDev = nullptr; cudaFree(d_tetAlphaHyd); d_tetAlphaHyd = nullptr;
     cudaFree(d_tetLambdaDevL); d_tetLambdaDevL = nullptr; cudaFree(d_tetLambdaHydL); d_tetLambdaHydL = nullptr;
     cudaFree(d_tetActive); d_tetActive = nullptr;
+    cudaFree(d_tetColorOrder); d_tetColorOrder = nullptr; g_tetColorOrder.clear();
+    cudaFree(d_colorTetIds); d_colorTetIds = nullptr; cudaFree(d_colorTetDet); d_colorTetDet = nullptr;
     destroyFeasibleGraphs();
     if(g_pressureGraph){cudaGraphExecDestroy(g_pressureGraph);g_pressureGraph=nullptr;}
     cudaFree(d_fiberLambda);d_fiberLambda=nullptr;g_tissueHardening=80.f;g_bulkDampingSeconds=.003125f;

@@ -29,16 +29,23 @@ __device__ __forceinline__ void materialRowAdd(float (&row)[72],int slot,const f
 // precision, each scaled by its largest entry (blockScale), which halves the bytes every matrix-vector product reads.
 // The scaled entries keep three significant digits of their own block, an error far below what the PCG's fixed
 // iteration budget leaves unresolved, and the transposed lower blocks read the same values, so the stored matrix
-// stays symmetric.
-__global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matrix,float* blockScale,Symmetric3* diagonal){
-    const auto& s=*state;int node=blockIdx.x*blockDim.x+threadIdx.x;if(node>=s.n||materialCgFixed(s,node))return;
-    float row[72]={};
-    row[0]=row[4]=row[8]=1.f/(s.invMass[node]*s.h*s.h)+(s.attach?s.attach[node]:0)+unifiedSupportDamping(s,node);
+// stays symmetric. A block below the diagonal is stored by the row of its other node, so only its diagonal part
+// (tension hardening) is computed here.
+// The same pass writes the PCG right-hand side, the residual: minus the gradient of the node's energy, with the terms
+// and the summation order of k_UnifiedVertex. A fixed node gets a zero residual and an identity diagonal.
+__global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matrix,float* blockScale,float3* residual,Symmetric3* diagonal){
+    const auto& s=*state;int node=blockIdx.x*blockDim.x+threadIdx.x;if(node>=s.n)return;
+    if(materialCgFixed(s,node)){residual[node]=mkf3(0,0,0);diagonal[node]={1,1,1,0,0,0};return;}
+    float3 p=s.pos[node];float inertia=1.f/(s.invMass[node]*s.h*s.h),row[72]={};
+    float3 gradient=(p-s.target[node])*inertia;
+    if(s.attach && s.attach[node]>0)gradient=gradient+(p-s.attachRest[node])*s.attach[node]+(p-s.previous[node])*unifiedSupportDamping(s,node);
+    row[0]=row[4]=row[8]=inertia+(s.attach?s.attach[node]:0)+unifiedSupportDamping(s,node);
     if(s.neighbors&&s.edgeSupport)for(int a=0;a<6;a++){
         int j=s.neighbors[6*node+a];if(j<0||(s.active&&!s.active[j]))continue;
         int owner=(a&1)?6*node+a:6*j+(a^1);if(s.edgeSupport[owner])continue;
         float3 e=s.pos[node]-s.pos[j];float l=len3(e),l0=len3(s.restNeighbors[6*node+a]);
         if(l>1e-10f){float3 n=e*(1.f/l);float K=.5f*(unifiedEdgeStiffness(s,node,a/2)+unifiedEdgeStiffness(s,j,a/2));
+            gradient=gradient+n*(K*(l-l0));
             float tangent=K*fmaxf(0.f,(l-l0)/l),block[9];
             #pragma unroll
             for(int u=0;u<3;u++)
@@ -52,6 +59,22 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
         const int* id=s.ids+4*t;int i=id[0]==node?0:id[1]==node?1:id[2]==node?2:3;
         float3 e[3]={s.pos[id[1]]-s.pos[id[0]],s.pos[id[2]]-s.pos[id[0]],s.pos[id[3]]-s.pos[id[0]]};
         float3 b[3]={s.b0[t],s.b1[t],s.b2[t]},q[4]={(b[0]+b[1]+b[2])*(-1.f),b[0],b[1],b[2]},F[3];
+        // The row node's shape vector, selected without indexing at run time.
+        float3 qi=q[0];
+        #pragma unroll
+        for(int a=1;a<4;a++)if(i==a)qi=q[a];
+        float mu=s.mu[t];
+        // Its gradient: elasticity with the compression barrier, then strain damping, as k_UnifiedVertex evaluates them.
+        // It goes first, before the curvature terms below hold their registers.
+        {
+            float det=s.restMetric[7*t+6],J=dot3(e[0],cross3(e[1],e[2]))*det;
+            float3 g1=cross3(e[1],e[2])*det,g2=cross3(e[2],e[0])*det,g3=cross3(e[0],e[1])*det;
+            float3 g=i==0?(g1+g2+g3)*(-1.f):i==1?g1:i==2?g2:g3;
+            float3 Fq=e[0]*dot3(b[0],qi)+e[1]*dot3(b[1],qi)+e[2]*dot3(b[2],qi);
+            float lambda=s.bulk[t]+mu/3.f,pressure=lambda*(J-1.f)-mu;
+            gradient=gradient+Fq*mu+g*(pressure+unifiedCompressionBarrier(J,s.minimum,lambda).gradient);
+            Symmetric3 unused={};unifiedStrainDamping(s,t,e[0],e[1],e[2],qi,gradient,unused);
+        }
         #pragma unroll
         for(int a=0;a<3;a++)F[a]=e[0]*compF3(b[0],a)+e[1]*compF3(b[1],a)+e[2]*compF3(b[2],a);
         float3 cof[3]={cross3(F[1],F[2]),cross3(F[2],F[0]),cross3(F[0],F[1])},fq[4],gJ[4],G[3]={},pq[4]={},gq[4]={};
@@ -70,7 +93,7 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
             }
         }
         float barrierCurvature=unifiedCompressionBarrier(dot3(F[0],cof[0]),s.minimum,s.bulk[t]+s.mu[t]/3.f).curvature;
-        float mu=s.mu[t],scale=.5f*mu*s.damping/s.h,fft[9]={},ggt[9]={};
+        float scale=.5f*mu*s.damping/s.h,fft[9]={},ggt[9]={};
         #pragma unroll
         for(int u=0;u<3;u++)
             #pragma unroll
@@ -80,10 +103,10 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
                     fft[3*u+v]+=compF3(F[a],u)*compF3(F[a],v);
                     if(s.damping>0)ggt[3*u+v]+=compF3(G[a],u)*compF3(G[a],v);
                 }
-        // The row node's own terms, selected without indexing at run time.
-        float3 qi=q[0],fqi=fq[0],gJi=gJ[0],pqi=pq[0],gqi=gq[0];
+        // The row node's own curvature terms, selected without indexing at run time.
+        float3 fqi=fq[0],gJi=gJ[0],pqi=pq[0],gqi=gq[0];
         #pragma unroll
-        for(int a=1;a<4;a++)if(i==a){qi=q[a];fqi=fq[a];gJi=gJ[a];pqi=pq[a];gqi=gq[a];}
+        for(int a=1;a<4;a++)if(i==a){fqi=fq[a];gJi=gJ[a];pqi=pq[a];gqi=gq[a];}
         #pragma unroll
         for(int j=0;j<4;j++){
             int slot=abs(materialSlot(s,node,id[j])-7);float dot=dot3(qi,q[j]),pdot=s.damping>0?dot3(pqi,pq[j]):0;
@@ -91,22 +114,31 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
             if(i!=j&&s.hardening>0){
                 float3 edge=s.pos[node]-s.pos[id[j]];float l=len3(edge),l0=unifiedRestLength(s,t,i,j),strain=fmaxf(0.f,l/l0-1.f);
                 if(strain>0&&l>1e-12f){n=edge*(1.f/l);float s2=strain*strain,s4=s2*s2;
+                    gradient=gradient+n*(3.f*mu*s.hardening*s4*strain/l0);
                     tangent=3.f*mu*s.hardening*s4*strain/(l0*l);axial=15.f*mu*s.hardening*s4/(l0*l0)-tangent;}
             }
-            float block[9];
-            #pragma unroll
-            for(int u=0;u<3;u++)
+            if(id[j]>=node){
+                float block[9];
                 #pragma unroll
-                for(int v=0;v<3;v++){
-                    float H=mu*(dot*fft[3*u+v]+compF3(fq[j],u)*compF3(fqi,v)-(2.f/3.f)*compF3(fqi,u)*compF3(fq[j],v))
-                        +(s.bulk[t]+barrierCurvature)*compF3(gJi,u)*compF3(gJ[j],v);
-                    if(s.damping>0)H+=scale*(pdot*ggt[3*u+v]+compF3(gq[j],u)*compF3(gqi,v));
-                    float extra=axial*compF3(n,u)*compF3(n,v)+(u==v?tangent:0);
-                    block[3*u+v]=H-extra;row[3*u+v]+=extra;
-                }
-            if(id[j]>=node)materialRowAdd(row,slot,block);
+                for(int u=0;u<3;u++)
+                    #pragma unroll
+                    for(int v=0;v<3;v++){
+                        float H=mu*(dot*fft[3*u+v]+compF3(fq[j],u)*compF3(fqi,v)-(2.f/3.f)*compF3(fqi,u)*compF3(fq[j],v))
+                            +(s.bulk[t]+barrierCurvature)*compF3(gJi,u)*compF3(gJ[j],v);
+                        if(s.damping>0)H+=scale*(pdot*ggt[3*u+v]+compF3(gq[j],u)*compF3(gqi,v));
+                        float extra=axial*compF3(n,u)*compF3(n,v)+(u==v?tangent:0);
+                        block[3*u+v]=H-extra;row[3*u+v]+=extra;
+                    }
+                materialRowAdd(row,slot,block);
+            }else{
+                #pragma unroll
+                for(int u=0;u<3;u++)
+                    #pragma unroll
+                    for(int v=0;v<3;v++)row[3*u+v]+=axial*compF3(n,u)*compF3(n,v)+(u==v?tangent:0);
+            }
         }
     }
+    residual[node]=gradient*(-1.f);
     diagonal[node]={row[0],row[4],row[8],row[1],row[2],row[5]};
     #pragma unroll
     for(int b=0;b<8;b++){
@@ -125,18 +157,26 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
 __device__ inline int materialSlotOffset(const UnifiedState& s,int slot){
     int sign=slot<7?-1:1,bits=abs(slot-7);return sign*((bits&1)+s.nx*(((bits>>1)&1)+s.ny*((bits>>2)&1)));
 }
-__global__ void k_MaterialStencilProduct(const UnifiedState* __restrict__ state,const float3* __restrict__ vector,
+// The product A*p of this iteration's direction p, and its p'Ap. The direction is formed here, p=z+beta*p from the
+// preconditioned residual z and the previous direction, for the node and for each neighbor it reads: a neighbor is a
+// CG node of the same component, so it forms the same value. The node stores its own into direction for the advance.
+__global__ void k_MaterialStencilProduct(const UnifiedState* __restrict__ state,const float3* __restrict__ previous,
+    const float3* __restrict__ preconditioned,float3* __restrict__ direction,
     const __half* __restrict__ matrix,const float* __restrict__ blockScale,const unsigned short* __restrict__ stencil,
     float3* __restrict__ result,MaterialCGSum* sums,int iteration){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
     unsigned mask=stencil[i];
     result[i]=mkf3(0,0,0);if(!(mask>>7&1)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
-    float3 out=mkf3(0,0,0);
+    // beta: the r'z of the previous iteration over its rho (materialRho), 0 at iteration 0.
+    const auto& q=sums[s.component[i]];double rho=q.next[(iteration+1)%3];
+    float beta=rho>1e-30?(float)(q.next[(iteration+2)%3]/rho):0;
+    float3 own=preconditioned[i]+previous[i]*beta,out=mkf3(0,0,0);direction[i]=own;
     #pragma unroll
     for(int slot=0;slot<15;slot++){
         if(!(mask>>slot&1))continue;
         int j=i+materialSlotOffset(s,slot),block=abs(slot-7),owner=slot<7?j:i;
-        float3 v=vector[j]*blockScale[block*s.n+owner];const __half* h=matrix+9*block*s.n+owner;float a[9];
+        float3 p=slot==7?own:preconditioned[j]+previous[j]*beta;
+        float3 v=p*blockScale[block*s.n+owner];const __half* h=matrix+9*block*s.n+owner;float a[9];
         #pragma unroll
         for(int k=0;k<9;k++)a[k]=__half2float(h[k*s.n]);
         if(slot<7){
@@ -149,7 +189,7 @@ __global__ void k_MaterialStencilProduct(const UnifiedState* __restrict__ state,
             out.z+=a[6]*v.x+a[7]*v.y+a[8]*v.z;
         }
     }
-    result[i]=out;materialDotAdd(&sums[s.component[i]].denominator,unifiedDot(vector[i],out));
+    result[i]=out;materialDotAdd(&sums[s.component[i]].denominator[iteration%3],unifiedDot(own,out));
 }
 
 // The fixed witnesses and component labels are unchanged during one PCG

@@ -200,7 +200,7 @@ int xpbd_build_tets();
 int xpbd_tet_count();
 int xpbd_tet_color_count();
 
-// Copy the actual colour-ordered tetrahedron node IDs for topology diagnostics.
+// Copy the tetrahedron node IDs (grouped by Kuhn tet type, each type in cell order) for topology diagnostics.
 // out4T contains 4*xpbd_tet_count() ints. Shared-face conformity tests must inspect
 // these IDs rather than assuming a particular alternating diagonal pattern.
 int xpbd_readback_tet_ids(int* out4T);

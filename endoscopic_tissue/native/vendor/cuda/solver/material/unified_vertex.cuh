@@ -85,6 +85,30 @@ template<int N> __device__ inline bool unifiedReduce(const void* address,float (
     }
     return true;
 }
+// Threads per CUDA block of the kernels that add their terms through blockAccumulate.
+constexpr int ACCUMULATE_THREADS=256;
+// Adds the values of each thread into the sums at its target. The threads of the CUDA block that share the target of
+// its first contributing thread add theirs in shared memory first, so that this target, typically the root of the one
+// large component, receives one atomic per value and CUDA block. Atomics into one address serialize: the nine sums of
+// every warp over all the tets of a large component took most of the time of the coarse modes. Threads with another
+// target keep the warp-level reduction. Every thread of the CUDA block calls it, once per kernel, a thread with nothing
+// to add with a null target. add(target,values) issues the atomics of the N values into the sums at target. Kernels
+// with one sum per warp keep unifiedReduce: the barriers of a large CUDA block cost them more than their atomics.
+template<int N,class Add> __device__ void blockAccumulate(const void* target,float (&v)[N],Add add){
+    __shared__ unsigned long long first;__shared__ float sum[N];
+    if(threadIdx.x==0)first=0;
+    for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
+    __syncthreads();
+    if(target)atomicCAS(&first,0ull,(unsigned long long)target);
+    __syncthreads();
+    if(target && (unsigned long long)target==first){
+        auto group=cooperative_groups::coalesced_threads();
+        for(int j=0;j<N;j++)v[j]=cooperative_groups::reduce(group,v[j],cooperative_groups::plus<float>());
+        if(group.thread_rank()==0)for(int j=0;j<N;j++)atomicAdd(sum+j,v[j]);
+    }else if(target && unifiedReduce(target,v))add(target,v);
+    __syncthreads();
+    if(threadIdx.x==0 && first)add((const void*)first,sum);
+}
 __device__ inline void unifiedEnergyChangeAdd(CoarseBlock* b,float change){
     float values[1]={change};if(unifiedReduce(b,values))atomicAdd(&b->yy,values[0]);
 }
@@ -399,11 +423,34 @@ __global__ void k_PredictorInteractionEnergy(const UnifiedState* state,CoarseBlo
 __device__ inline int unifiedColor(const UnifiedState& s,int i){
     return ((i%s.nx)&1)|((((i/s.nx)%s.ny)&1)<<1)|(((i/(s.nx*s.ny))&1)<<2);
 }
-// Only the vertices of the sweep's color read their interactions, so only
-// theirs are cleared and assembled before it.
-__global__ void k_ClearUnifiedInteractions(const UnifiedState* state,int color){
-    const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n || unifiedColor(s,i)!=color)return;
-    if((s.degree[i]>0 || (s.secondary && s.secondary->degree[i]>0)) || (s.grips>0 && s.gripDegree[i]>0))for(int j=0;j<9;j++)s.interaction[9*i+j]=0;
+// The vertex sets k_SweepSites lists: those of a local sweep, of a local sweep in a surface repair, and of the
+// predictor.
+enum SweepList{SweepLocal,SweepRepair,SweepPredictor};
+// Lists, per lattice color, the vertices that a colored pass moves. A local sweep (k_UnifiedVertex) solves every
+// movable vertex while the coupled material solve is off, otherwise the contact and anchor witnesses that solve holds
+// fixed, and in a surface repair also the vertices the regional mode moves. The predictor (k_UnifiedPredictor) moves
+// the movable vertices other than witnesses. Each color then launches warps for its listed vertices alone. For a sweep
+// it also clears the interactions of every witness: the assembly of a color writes only the vertices of that color,
+// so clearing them all before the sweep equals clearing each color before its assembly. Color c lists its vertices
+// from sites+c*capacity on and counts them in count[c], zeroed before.
+__global__ void k_SweepSites(const UnifiedState* state,SweepList list,int capacity,int* sites,int* count){
+    const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
+    bool solved=false;int color=-1;
+    if(i<s.n){
+        bool witness=(s.degree[i]>0 || (s.secondary && s.secondary->degree[i]>0)) || (s.grips>0 && s.gripDegree[i]>0);
+        if(witness && list!=SweepPredictor)for(int j=0;j<9;j++)s.interaction[9*i+j]=0;
+        solved=s.invMass[i]>0 && (list==SweepPredictor?!witness:
+            list==SweepRepair?(!(s.coarseWeight[i]<=0) || witness):!(s.coupledReady && !materialCgFixed(s,i)));
+        if(solved)color=unifiedColor(s,i);
+    }
+    // One atomic per color present in the warp.
+    unsigned group=__match_any_sync(0xffffffffu,color);
+    if(solved){
+        int lane=threadIdx.x&31,leader=__ffs(group)-1,base=0;
+        if(lane==leader)base=atomicAdd(count+color,__popc(group));
+        base=__shfl_sync(group,base,leader);
+        sites[color*capacity+base+__popc(group&((1u<<lane)-1))]=i;
+    }
 }
 __device__ inline void scatterInteraction(float* out,float3 f,const Symmetric3& H,float w){
     atomicAdd(out,f.x*w);atomicAdd(out+1,f.y*w);atomicAdd(out+2,f.z*w);
@@ -447,28 +494,25 @@ __global__ void k_AssembleUnifiedInteractions(const UnifiedState* state,int colo
 // like mesh-dependent viscosity. Accept each colored predictor increment up to
 // the same affine determinant bound used by the material solve; contact planes
 // were discovered over the full previous-to-predicted swept trajectory.
-// One warp per vertex, lanes over its incident tets (see k_UnifiedVertex).
-__global__ void k_UnifiedPredictor(const UnifiedState* state,int color){
-    const UnifiedState& s=*state;
-    int thread=blockIdx.x*blockDim.x+threadIdx.x,lane=thread%32,site=thread/32,cx=(s.nx+1)/2,cy=(s.ny+1)/2,nz=s.n/(s.nx*s.ny);
-    int x=2*(site%cx)+(color&1),y=2*((site/cx)%cy)+((color>>1)&1),z=2*(site/(cx*cy))+((color>>2)&1);
-    if(x>=s.nx || y>=s.ny || z>=nz)return;
-    int i=x+s.nx*(y+s.ny*z);if(s.invMass[i]<=0)return;
-    // Keep only the actual material contact/anchor witnesses at their accepted
-    // configuration. Unconstrained tissue retains its inertial warm start.
-    if((s.degree[i]>0 || (s.secondary && s.secondary->degree[i]>0)) || (s.grips>0 && s.gripDegree[i]>0))return;
-    float3 p=s.pos[i],step=s.target[i]-p;float scale=1;
-    for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=32){
-        int t=s.incident[k];if(!s.live[t])continue;const int* ids=s.ids+4*t;
-        float3 a=s.pos[ids[0]],u=s.pos[ids[1]]-a,v=s.pos[ids[2]]-a,w=s.pos[ids[3]]-a;
-        float det=s.restMetric[7*t+6],J=dot3(u,cross3(v,w))*det;
-        float3 g1=cross3(v,w),g2=cross3(w,u),g3=cross3(u,v);
-        float3 g=i==ids[0]?(g1+g2+g3)*(-1.f):i==ids[1]?g1:i==ids[2]?g2:g3;
-        float dj=dot3(g,step)*det;
-        if(dj<0)scale=fminf(scale,fmaxf(0.f,.9f*(J-s.minimum)/(-dj)));
+// One warp per vertex, lanes over its incident tets (see k_UnifiedVertex), for the vertices of one color listed by
+// k_SweepSites. The contact and anchor witnesses keep their accepted configuration; unconstrained tissue takes its
+// inertial warm start.
+__global__ void k_UnifiedPredictor(const UnifiedState* state,const int* sites,const int* count){
+    const UnifiedState& s=*state;int lane=threadIdx.x%32,warps=gridDim.x*blockDim.x/32;
+    for(int site=(blockIdx.x*blockDim.x+threadIdx.x)/32;site<*count;site+=warps){
+        int i=sites[site];float3 p=s.pos[i],step=s.target[i]-p;float scale=1;
+        for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=32){
+            int t=s.incident[k];if(!s.live[t])continue;const int* ids=s.ids+4*t;
+            float3 a=s.pos[ids[0]],u=s.pos[ids[1]]-a,v=s.pos[ids[2]]-a,w=s.pos[ids[3]]-a;
+            float det=s.restMetric[7*t+6],J=dot3(u,cross3(v,w))*det;
+            float3 g1=cross3(v,w),g2=cross3(w,u),g3=cross3(u,v);
+            float3 g=i==ids[0]?(g1+g2+g3)*(-1.f):i==ids[1]?g1:i==ids[2]?g2:g3;
+            float dj=dot3(g,step)*det;
+            if(dj<0)scale=fminf(scale,fmaxf(0.f,.9f*(J-s.minimum)/(-dj)));
+        }
+        for(int offset=16;offset;offset/=2)scale=fminf(scale,__shfl_xor_sync(0xffffffff,scale,offset));
+        if(lane==0 && isfinite(step.x+step.y+step.z))s.pos[i]=p+step*scale;
     }
-    for(int offset=16;offset;offset/=2)scale=fminf(scale,__shfl_xor_sync(0xffffffff,scale,offset));
-    if(lane==0 && isfinite(step.x+step.y+step.z))s.pos[i]=p+step*scale;
 }
 // Sum one vertex's gradient and Hessian over the lanes of its warp. Every
 // lane receives lane 0's total, so all lanes solve the same local step.
@@ -476,21 +520,9 @@ __device__ inline void unifiedWarpSum(float3& gradient,Symmetric3& H){
     float v[9]={gradient.x,gradient.y,gradient.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};unifiedWarpSum(v);
     gradient=mkf3(v[0],v[1],v[2]);H={v[3],v[4],v[5],v[6],v[7],v[8]};
 }
-// A colored sweep gives each vertex one warp whose lanes split its incident
-// tets and edges: with one thread per vertex, a color's few thousand threads
-// leave most of the GPU idle while each walks its tets in turn. The residual
-// pass over all vertices keeps one thread per vertex.
-__global__ void k_UnifiedVertex(const UnifiedState* state,int color,int localOnly,float3* residual=nullptr,Symmetric3* diagonal=nullptr){
-    const UnifiedState& s=*state;
-    int lanes=color<0?1:32,thread=blockIdx.x*blockDim.x+threadIdx.x,lane=thread%lanes,site=thread/lanes;
-    int cx=(s.nx+1)/2,cy=(s.ny+1)/2,nz=s.n/(s.nx*s.ny);
-    int x=2*(site%cx)+(color&1),y=2*((site/cx)%cy)+((color>>1)&1),z=2*(site/(cx*cy))+((color>>2)&1);
-    if(color>=0 && (x>=s.nx || y>=s.ny || z>=nz))return;
-    int i=color<0?site:x+s.nx*(y+s.ny*z);if(i>=s.n)return;
-    if(residual){residual[i]=mkf3(0,0,0);diagonal[i]={1,1,1,0,0,0};}
-    float inv=s.invMass[i];if(inv<=0 || (residual && materialCgFixed(s,i)))return;
-    if(!residual && localOnly!=1 && s.coupledReady && !materialCgFixed(s,i))return;
-    if(localOnly && s.coarseWeight[i]<=0 && (s.degree[i]==0 && !(s.secondary && s.secondary->degree[i]>0)) && !(s.grips>0 && s.gripDegree[i]>0))return;
+// The local solve of vertex i by the 32 lanes of a warp, which split its incident tets and edges.
+__device__ inline void unifiedVertexSolve(const UnifiedState& s,int i,int lane){
+    float inv=s.invMass[i];
     float3 p=s.pos[i],gradient=mkf3(0,0,0);Symmetric3 H={};
     if(lane==0){
         float inertia=1.f/(inv*s.h*s.h);H.diagonal(inertia);gradient=(p-s.target[i])*inertia;
@@ -501,14 +533,14 @@ __global__ void k_UnifiedVertex(const UnifiedState* state,int color,int localOnl
     // Neighbor slots also exist outside the active tissue. Like k_RefreshLiveness,
     // require BOTH endpoints active: an inactive grid corner is not a support.
     // Do not use invMass here: an active pinned endpoint is a real support.
-    if(s.neighbors && s.edgeSupport)for(int a=lane;a<6;a+=lanes){
+    if(s.neighbors && s.edgeSupport)for(int a=lane;a<6;a+=32){
         int j=s.neighbors[6*i+a];if(j<0 || (s.active && !s.active[j]))continue;
         int owner=(a&1)?6*i+a:6*j+(a^1);if(s.edgeSupport[owner])continue;
         float3 e=p-s.pos[j];float l=len3(e),l0=len3(s.restNeighbors[6*i+a]);
         if(l>1e-10f){float3 n=e*(1.f/l);float strain=l-l0,K=.5f*(unifiedEdgeStiffness(s,i,a/2)+unifiedEdgeStiffness(s,j,a/2));
             gradient=gradient+n*(K*strain);H.outer(n,K);H.diagonal(K*fmaxf(0.f,strain/l));}
     }
-    for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=lanes){
+    for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=32){
         int t=s.incident[k];if(!s.live[t])continue;const int* ids=s.ids+4*t;
         float3 a=s.pos[ids[0]],e1=s.pos[ids[1]]-a,e2=s.pos[ids[2]]-a,e3=s.pos[ids[3]]-a;
         float3 b[3]={s.b0[t],s.b1[t],s.b2[t]};
@@ -540,12 +572,11 @@ __global__ void k_UnifiedVertex(const UnifiedState* state,int color,int localOnl
         const float* f=s.interaction+9*i;gradient=gradient+mkf3(f[0],f[1],f[2]);
         H.xx+=f[3];H.yy+=f[4];H.zz+=f[5];H.xy+=f[6];H.xz+=f[7];H.yz+=f[8];
     }
-    if(lanes>1)unifiedWarpSum(gradient,H);
-    if(residual){residual[i]=gradient*(-1.f);diagonal[i]=H;return;}
+    unifiedWarpSum(gradient,H);
     float3 step=H.solve(gradient)*(-1.f);float scale=1;
     // J is affine in this vertex with all other vertices fixed. Eight lattice
     // colors never share a tetrahedron, so this bound survives parallel writes.
-    for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=lanes){
+    for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=32){
         int t=s.incident[k];if(!s.live[t])continue;const int* ids=s.ids+4*t;
         float3 a=s.pos[ids[0]],u=s.pos[ids[1]]-a,v=s.pos[ids[2]]-a,w=s.pos[ids[3]]-a;
         float det=s.restMetric[7*t+6],J=dot3(u,cross3(v,w))*det;
@@ -554,11 +585,17 @@ __global__ void k_UnifiedVertex(const UnifiedState* state,int color,int localOnl
         float dj=dot3(g,step)*det;
         if(dj<0)scale=fminf(scale,fmaxf(0.f,.9f*(J-s.minimum)/(-dj)));
     }
-    for(int offset=16;lanes>1 && offset;offset/=2)scale=fminf(scale,__shfl_xor_sync(0xffffffff,scale,offset));
+    for(int offset=16;offset;offset/=2)scale=fminf(scale,__shfl_xor_sync(0xffffffff,scale,offset));
     // Same-color vertices share neither a lattice tetrahedron nor an axial
     // cut-rim edge. Embedded interactions were assembled before this kernel,
     // so each vertex can commit directly without a second whole-grid pass.
     if(lane==0 && isfinite(step.x+step.y+step.z))s.pos[i]=p+step*scale;
+}
+// Solves the vertices of one lattice color listed by k_SweepSites, one warp per vertex: with one thread per vertex, a
+// color's few thousand threads leave most of the GPU idle while each walks its tets in turn.
+__global__ void k_UnifiedVertex(const UnifiedState* state,const int* sites,const int* count){
+    const UnifiedState& s=*state;int lane=threadIdx.x%32,warps=gridDim.x*blockDim.x/32;
+    for(int k=(blockIdx.x*blockDim.x+threadIdx.x)/32;k<*count;k+=warps)unifiedVertexSolve(s,sites[k],lane);
 }
 __global__ void k_UnifiedTool(UnifiedState* state){
     UnifiedState& s=*state;CoupledTool& b=*s.tool;
@@ -705,6 +742,13 @@ __global__ void k_CoarseWeights(UnifiedState* state,int mode=0){
     float t=fminf(1.f,fmaxf(0.f,(r-s.patchCoreRadius)/fmaxf(s.patchFalloff,1e-5f)));
     s.coarseWeight[i]=s.invMass[i]>0?1-t*t*(3-2*t):0;
 }
+// Adds a gradient and Hessian, packed as {g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz}, into a coarse block.
+__device__ inline void coarseAdd(const void* target,const float* v){
+    CoarseBlock* b=(CoarseBlock*)target;
+    atomicAdd(&b->gradient.x,v[0]);atomicAdd(&b->gradient.y,v[1]);atomicAdd(&b->gradient.z,v[2]);
+    atomicAdd(&b->xx,v[3]);atomicAdd(&b->yy,v[4]);atomicAdd(&b->zz,v[5]);
+    atomicAdd(&b->xy,v[6]);atomicAdd(&b->xz,v[7]);atomicAdd(&b->yz,v[8]);
+}
 __device__ inline void coarseAccumulate(CoarseBlock* b,float3 g,const Symmetric3& H){
     float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
     // Most interior warps belong to one component. Reduce their terms before
@@ -725,19 +769,30 @@ __device__ inline void coarseAccumulate(CoarseBlock* b,float3 g,const Symmetric3
             if(group.thread_rank()!=0)return;
         }
     }
-    atomicAdd(&b->gradient.x,v[0]);atomicAdd(&b->gradient.y,v[1]);atomicAdd(&b->gradient.z,v[2]);
-    atomicAdd(&b->xx,v[3]);atomicAdd(&b->yy,v[4]);atomicAdd(&b->zz,v[5]);
-    atomicAdd(&b->xy,v[6]);atomicAdd(&b->xz,v[7]);atomicAdd(&b->yz,v[8]);
+    coarseAdd(b,v);
+}
+// coarseAccumulate summed over the CUDA block first (blockAccumulate): every thread of the CUDA block calls it, a
+// thread without terms with a null block.
+__device__ inline void coarseAccumulateBlock(CoarseBlock* b,float3 g,const Symmetric3& H){
+    float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
+    blockAccumulate(b,v,[](const void* target,const float* values){coarseAdd(target,values);});
 }
 // Connected-component coarse modes accelerate long-range force transmission.
 // Each severed piece has its own reduction/step, so a cut cannot introduce an
 // artificial global spring between unrelated fragments.
 __device__ inline int unifiedRoot(const int* parent,int i){while(parent[i]!=i)i=parent[i];return i;}
+// unifiedRoot that also points each node on the path at its grandparent. A parent only ever moves to an ancestor of
+// smaller index, so the concurrent unions of k_JoinComponents still see a valid forest, and later walks are short.
+// k_FlattenComponents keeps unifiedRoot: a halving there could replace the final root of a node by an older ancestor.
+__device__ inline int unifiedRootHalving(int* parent,int i){
+    for(int next=parent[i];next!=i;next=parent[i]){int grand=parent[next];if(grand!=next)parent[i]=grand;i=grand;}
+    return i;
+}
 __global__ void k_InitComponents(int n,int* parent){int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n)parent[i]=i;}
 __global__ void k_JoinComponents(int n,const int* neighbors,const int* active,int* parent){
     int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n || (active && !active[i]))return;
     for(int a=1;a<6;a+=2){int j=neighbors[6*i+a];if(j<0 || (active && !active[j]))continue;
-        while(true){int x=unifiedRoot(parent,i),y=unifiedRoot(parent,j);if(x==y)break;int hi=max(x,y),lo=min(x,y);if(atomicCAS(parent+hi,hi,lo)==hi)break;}}
+        while(true){int x=unifiedRootHalving(parent,i),y=unifiedRootHalving(parent,j);if(x==y)break;int hi=max(x,y),lo=min(x,y);if(atomicCAS(parent+hi,hi,lo)==hi)break;}}
 }
 __global__ void k_FlattenComponents(int n,int* parent){int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n)parent[i]=unifiedRoot(parent,i);}
 // A nearly active volume bound must not reduce an entire graded direction to
@@ -809,21 +864,25 @@ __global__ void k_CoarseBegin(const UnifiedState* state,CoarseBlock* b){
     *b={};b->gradient=(s.tool->pose.jawHinge-s.toolTarget)*inertia;b->xx=b->yy=b->zz=inertia;b->scale=1;
 }
 __global__ void k_CoarseNodes(const UnifiedState* state,CoarseBlock* block){
-    const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n || (s.active && !s.active[i]))return;
-    if(s.coarseMode)block+=s.component[i];
-    if(s.coarseMode==6 && (s.invMass[i]<=0 || (s.attach && s.attach[i]>0)))atomicExch(&block->external,1);
-    float w=s.coarseWeight[i];
-    float inertia=w!=0?1.f/(s.invMass[i]*s.h*s.h):0;Symmetric3 H={};H.diagonal(inertia*w*w);
-    float3 g=(s.pos[i]-s.target[i])*(inertia*w);
-    if(s.attach){float viscous=unifiedSupportDamping(s,i);
-        g=g+((s.pos[i]-s.attachRest[i])*s.attach[i]+(s.pos[i]-s.previous[i])*viscous)*w;H.diagonal((s.attach[i]+viscous)*w*w);}
-    if(s.neighbors && s.edgeSupport)for(int a=1;a<6;a+=2){
-        int j=s.neighbors[6*i+a];if(j<0 || (s.active && !s.active[j]) || s.edgeSupport[6*i+a])continue;
-        float dw=w-s.coarseWeight[j];float3 e=s.pos[i]-s.pos[j];float l=len3(e),l0=len3(s.restNeighbors[6*i+a]);
-        if(l>1e-10f){float3 n=e*(1.f/l);float strain=l-l0,K=.5f*(unifiedEdgeStiffness(s,i,a/2)+unifiedEdgeStiffness(s,j,a/2));
-            g=g+n*(K*strain*dw);H.outer(n,K*dw*dw);H.diagonal(K*fmaxf(0.f,strain/l)*dw*dw);}
+    const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
+    float3 g=mkf3(0,0,0);Symmetric3 H={};CoarseBlock* target=nullptr;
+    if(i<s.n && (!s.active || s.active[i])){
+        if(s.coarseMode)block+=s.component[i];
+        if(s.coarseMode==6 && (s.invMass[i]<=0 || (s.attach && s.attach[i]>0)))atomicExch(&block->external,1);
+        float w=s.coarseWeight[i];
+        float inertia=w!=0?1.f/(s.invMass[i]*s.h*s.h):0;H.diagonal(inertia*w*w);
+        g=(s.pos[i]-s.target[i])*(inertia*w);
+        if(s.attach){float viscous=unifiedSupportDamping(s,i);
+            g=g+((s.pos[i]-s.attachRest[i])*s.attach[i]+(s.pos[i]-s.previous[i])*viscous)*w;H.diagonal((s.attach[i]+viscous)*w*w);}
+        if(s.neighbors && s.edgeSupport)for(int a=1;a<6;a+=2){
+            int j=s.neighbors[6*i+a];if(j<0 || (s.active && !s.active[j]) || s.edgeSupport[6*i+a])continue;
+            float dw=w-s.coarseWeight[j];float3 e=s.pos[i]-s.pos[j];float l=len3(e),l0=len3(s.restNeighbors[6*i+a]);
+            if(l>1e-10f){float3 n=e*(1.f/l);float strain=l-l0,K=.5f*(unifiedEdgeStiffness(s,i,a/2)+unifiedEdgeStiffness(s,j,a/2));
+                g=g+n*(K*strain*dw);H.outer(n,K*dw*dw);H.diagonal(K*fmaxf(0.f,strain/l)*dw*dw);}
+        }
+        if(H.xx+H.yy+H.zz>0)target=block;
     }
-    if(H.xx+H.yy+H.zz>0)coarseAccumulate(block,g,H);
+    coarseAccumulateBlock(target,g,H);
 }
 // One reduction per participating warp/component, including partial warps.
 // A global volume line bound otherwise serializes one atomic at every tet.
@@ -838,19 +897,21 @@ __device__ inline void coarseBound(CoarseBlock* block,float scale){
     }
     atomicMin((unsigned*)&block->scale,value);
 }
-__global__ void k_CoarseTets(const UnifiedState* state,CoarseBlock* block,bool bound){
-    const UnifiedState& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=s.nt || !s.live[t])return;
+// The coarse terms of tet t: the gradient and Hessian of its energy in the mode, or its step bound, returned with the
+// block of its component, or null when the tet adds nothing.
+__device__ inline CoarseBlock* coarseTetTerms(const UnifiedState& s,int t,CoarseBlock* block,bool bound,float3& g,Symmetric3& H,float& scale){
+    if(t>=s.nt || !s.live[t])return nullptr;
     const int* id=s.ids+4*t;if(s.coarseMode)block+=s.component[id[0]];float w[4];for(int j=0;j<4;j++)w[j]=s.coarseWeight[id[j]];
     float3 q=s.b0[t]*(w[1]-w[0])+s.b1[t]*(w[2]-w[0])+s.b2[t]*(w[3]-w[0]);
-    if(dot3(q,q)<1e-20f)return;
+    if(dot3(q,q)<1e-20f)return nullptr;
     float3 a=s.pos[id[0]],e1=s.pos[id[1]]-a,e2=s.pos[id[2]]-a,e3=s.pos[id[3]]-a;
     float det=s.restMetric[7*t+6],J=dot3(e1,cross3(e2,e3))*det;
     float3 gJ=(cross3(e2,e3)*(w[1]-w[0])+cross3(e3,e1)*(w[2]-w[0])+cross3(e1,e2)*(w[3]-w[0]))*det;
-    if(bound){float dj=dot3(gJ,block->step);if(dj<0)coarseBound(block,fminf(1.f,fmaxf(0.f,.9f*(J-s.minimum)/(-dj))));return;}
+    if(bound){float dj=dot3(gJ,block->step);if(!(dj<0))return nullptr;scale=fminf(1.f,fmaxf(0.f,.9f*(J-s.minimum)/(-dj)));return block;}
     float3 Fq=e1*dot3(s.b0[t],q)+e2*dot3(s.b1[t],q)+e3*dot3(s.b2[t],q);
     float mu=s.mu[t],lambda=s.bulk[t]+mu/3.f;
     CompressionBarrier barrier=unifiedCompressionBarrier(J,s.minimum,lambda);
-    float3 g=Fq*mu+gJ*(lambda*(J-1)-mu+barrier.gradient);Symmetric3 H={};H.diagonal(mu*dot3(q,q));H.outer(gJ,lambda+barrier.curvature);
+    g=Fq*mu+gJ*(lambda*(J-1)-mu+barrier.gradient);H.diagonal(mu*dot3(q,q));H.outer(gJ,lambda+barrier.curvature);
     unifiedStrainDamping(s,t,e1,e2,e3,q,g,H);
     for(int j=0;j<4;j++)for(int k=j+1;k<4;k++){
         float dw=w[j]-w[k];if(dw==0)continue;float3 e=s.pos[id[j]]-s.pos[id[k]];
@@ -858,7 +919,13 @@ __global__ void k_CoarseTets(const UnifiedState* state,CoarseBlock* block,bool b
         if(strain>0 && l>1e-12f){float s2=strain*strain,s4=s2*s2;float f=3*mu*s.hardening*s4*strain/l0,h=15*mu*s.hardening*s4/(l0*l0);float3 n=e*(1.f/l);
             g=g+n*(f*dw);H.diagonal(f/l*dw*dw);H.outer(n,(h-f/l)*dw*dw);}
     }
-    coarseAccumulate(block,g,H);
+    return block;
+}
+__global__ void k_CoarseTets(const UnifiedState* state,CoarseBlock* block,bool bound){
+    float3 g=mkf3(0,0,0);Symmetric3 H={};float scale=1;
+    CoarseBlock* target=coarseTetTerms(*state,blockIdx.x*blockDim.x+threadIdx.x,block,bound,g,H,scale);
+    // The bound adds one value per warp, which the warp-level coarseBound sums at little cost (blockAccumulate).
+    if(!bound)coarseAccumulateBlock(target,g,H);else if(target)coarseBound(target,scale);
 }
 __global__ void k_CoarseContactGrip(const UnifiedState* state,CoarseBlock* block){
     const UnifiedState& s=*state;for(int k=blockIdx.x*blockDim.x+threadIdx.x;k<max(*s.contactCount,s.grips);k+=blockDim.x*gridDim.x){

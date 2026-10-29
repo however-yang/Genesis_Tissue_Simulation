@@ -6,7 +6,13 @@
 // components need more Krylov directions to resolve a thin hinge's inertia.
 static constexpr int MaterialFreeIterations=80;
 static constexpr int MaterialLoadedIterations=32;
-struct MaterialCGSum { double rho,next,denominator; };
+// The PCG sums of a component for three consecutive iterations, by iteration modulo 3: p'Ap (denominator) and r'z
+// (next) of iteration k. The r'z of iteration k-1 is the rho of iteration k (materialRho). The direction update of
+// iteration k therefore runs inside the matrix-vector product of iteration k+1 (k_MaterialStencilProduct), and the
+// advance of iteration k clears the slot of iteration k+1, with no kernel of their own.
+struct MaterialCGSum { double denominator[3],next[3]; };
+// The rho of an iteration; k_MaterialCGBegin stores the initial one as the r'z of iteration -1.
+__device__ inline double materialRho(const MaterialCGSum& q,int iteration){return q.next[(iteration+2)%3];}
 __device__ inline void materialDotAdd(double* address,double value){
     unsigned mask=__activemask();auto key=(unsigned long long)address;
     if(__all_sync(mask,key==__shfl_sync(mask,key,__ffs(mask)-1))){
@@ -16,17 +22,18 @@ __device__ inline void materialDotAdd(double* address,double value){
     }
     atomicAdd(address,value);
 }
-__global__ void k_MaterialCGClear(int n,MaterialCGSum* sums,bool initial){
-    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n)return;
-    sums[i].next=sums[i].denominator=0;if(initial)sums[i].rho=0;
+__global__ void k_MaterialCGClear(int n,MaterialCGSum* sums){
+    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n)sums[i]={};
 }
+// The first preconditioned residual z, and a zero direction before it: iteration 0 then forms its direction z+0*0
+// as every later one forms z+beta*p (k_MaterialStencilProduct).
 __global__ void k_MaterialCGBegin(const UnifiedState* state,const float3* r,const Symmetric3* diagonal,
-    float3* direction,float3* step,MaterialCGSum* sums){
+    float3* preconditioned,float3* direction,float3* step,MaterialCGSum* sums){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
     step[i]=mkf3(0,0,0);direction[i]=mkf3(0,0,0);
     if(materialCgFixed(s,i))return;
-    direction[i]=diagonal[i].solve(r[i]);
-    materialDotAdd(&sums[s.component[i]].rho,unifiedDot(r[i],direction[i]));
+    preconditioned[i]=diagonal[i].solve(r[i]);
+    materialDotAdd(&sums[s.component[i]].next[2],unifiedDot(r[i],preconditioned[i]));
 }
 // The CG nodes are the nodes whose stencil (k_MaterialStencilActiveMask) holds its own slot 7: exactly those that
 // materialCgFixed leaves free, which it evaluates once per solve instead of at every iteration. The advance keeps the
@@ -36,23 +43,14 @@ __global__ void k_MaterialCGAdvance(const UnifiedState* state,const unsigned sho
     const Symmetric3* diagonal,const float3* direction,const float3* product,float3* step,float3* preconditioned,
     MaterialCGSum* sums,int iteration){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
+    // The slot of the next iteration held the sums of the one before last, which this iteration's product read last.
+    if(coarseRoot(s,i)){sums[i].denominator[(iteration+1)%3]=0;sums[i].next[(iteration+1)%3]=0;}
     if(!materialCgNode(stencil,i)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
-    auto& q=sums[s.component[i]];float alpha=q.denominator>1e-30&&q.rho>0?(float)(q.rho/q.denominator):0;
+    auto& q=sums[s.component[i]];double rho=materialRho(q,iteration),denominator=q.denominator[iteration%3];
+    float alpha=denominator>1e-30&&rho>0?(float)(rho/denominator):0;
     step[i]=step[i]+direction[i]*alpha;float3 r=residual[i]-product[i]*alpha;residual[i]=r;
     float3 z=diagonal[i].solve(r);preconditioned[i]=z;
-    materialDotAdd(&q.next,unifiedDot(r,z));
-}
-__global__ void k_MaterialCGDirection(const UnifiedState* state,const unsigned short* stencil,const float3* preconditioned,
-    float3* direction,const MaterialCGSum* sums,int iteration){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
-    if(!materialCgNode(stencil,i)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
-    const auto& q=sums[s.component[i]];float beta=q.rho>1e-30?(float)(q.next/q.rho):0;
-    direction[i]=preconditioned[i]+direction[i]*beta;
-}
-__global__ void k_MaterialCGFinish(const UnifiedState* state,MaterialCGSum* sums,int iteration){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
-    if(i>=s.n||s.component[i]!=i||(s.active&&!s.active[i])||(iteration>=MaterialLoadedIterations && (s.graspComponents[i]&7)))return;
-    sums[i].rho=sums[i].next;sums[i].next=sums[i].denominator=0;
+    materialDotAdd(&q.next[iteration%3],unifiedDot(r,z));
 }
 
 __global__ void k_MaterialReady(UnifiedState* state,bool ready){state->coupledReady=ready;}
