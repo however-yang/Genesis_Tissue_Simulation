@@ -12,7 +12,7 @@ struct UnifiedState {
     UnifiedState* secondary;const int *cutPhase,*cutContactCount;float cutResistance;
     const int* componentSupport;
     int* component;int* graspComponents; // component flags: 1=anchor, 2=contact, 4=unheld jaw patch, 8=active-volume recovery
-    int* safeCluster;SafeCoarseCluster* safeAggregate;
+    int* safeCluster;SafeCoarseCluster* safeAggregate;int* safeJoined; // safeJoined: some tet joined a cluster (k_JoinSafeCoarse)
     const int *offsets,*incident,*ids,*live,*contactIds,*contactCount,*degree,*gripDegree,*neighbors,*edgeSupport,*active;
     const float3 *b0,*b1,*b2,*previous,*target,*attachRest,*restNeighbors;
     const float3* previousInverse;const float* restMetric;
@@ -85,9 +85,8 @@ template<int N> __device__ inline bool unifiedReduce(const void* address,float (
     }
     return true;
 }
-__device__ inline void unifiedEnergyAdd(CoarseBlock* b,float old,float trial){
-    float values[2]={old,trial};if(!unifiedReduce(b,values))return;
-    atomicAdd(&b->xx,values[0]);atomicAdd(&b->yy,values[1]);
+__device__ inline void unifiedEnergyChangeAdd(CoarseBlock* b,float change){
+    float values[1]={change};if(unifiedReduce(b,values))atomicAdd(&b->yy,values[0]);
 }
 struct Symmetric3 {
     float xx,yy,zz,xy,xz,yz;
@@ -140,68 +139,110 @@ __device__ inline CompressionBarrier unifiedCompressionBarrier(double J,float mi
     return b;
 }
 __device__ inline double unifiedDot(float3 a,float3 b){return double(a.x)*b.x+double(a.y)*b.y+double(a.z)*b.z;}
-__device__ inline double unifiedTetEnergy(const UnifiedState& s,int t,const float3* p){
-    float3 e1=p[1]-p[0],e2=p[2]-p[0],e3=p[3]-p[0];
+// The volume ratio J of a tet along the segment p+a*v, as the cubic j0+a*(j1+a*(j2+a*j3)) of the step length a. The
+// edges e and their changes d run from the tet's first node, and det is the determinant of its inverse rest shape.
+struct TetVolumePath { float j0,j1,j2,j3; };
+__device__ inline TetVolumePath unifiedVolumePath(float3 e1,float3 e2,float3 e3,float3 d1,float3 d2,float3 d3,float det){
+    return {dot3(e1,cross3(e2,e3))*det,(dot3(d1,cross3(e2,e3))+dot3(e1,cross3(d2,e3))+dot3(e1,cross3(e2,d3)))*det,
+        (dot3(d1,cross3(d2,e3))+dot3(d1,cross3(e2,d3))+dot3(e1,cross3(d2,d3)))*det,dot3(d1,cross3(d2,d3))*det};
+}
+// len(e+d)-len(e) for len(e)=l, without subtracting two nearly equal lengths.
+__device__ inline float unifiedLengthChange(float3 e,float3 d,float l){
+    float sum=len3(e+d)+l;return sum>0?(2.f*dot3(e,d)+dot3(d,d))/sum:0.f;
+}
+// The sixth power of the tensile strain l/l0-1 of an edge, from l^2-l0^2 and l0^2: exact where l is close to l0, and 0
+// for a compressed edge.
+__device__ inline float unifiedTensionStrain6(float growth,float rest2){
+    if(!(growth>0))return 0.f;
+    float strain=growth/(rest2*(sqrtf(1.f+growth/rest2)+1.f)),s2=strain*strain;return s2*s2*s2;
+}
+// Energy change E(p+v)-E(p) of tet t, with the tet energy of the solve: stable Neo-Hookean elasticity, the compression
+// barrier, objective strain damping and tension-only edge hardening (the terms of k_UnifiedVertex). Each term is
+// expanded in powers of v around p, so no two nearly equal energies are subtracted: the change keeps its own relative
+// accuracy in single precision, where the energies at p and p+v share all but their last digits. *energy, when given,
+// receives an estimate of E(p) for scale tolerances.
+__device__ inline float unifiedTetEnergyChange(const UnifiedState& s,int t,const float3 (&p)[4],const float3 (&v)[4],
+    float* energy=nullptr){
+    float3 e1=p[1]-p[0],e2=p[2]-p[0],e3=p[3]-p[0],d1=v[1]-v[0],d2=v[2]-v[0],d3=v[3]-v[0];
     float3 b0=s.b0[t],b1=s.b1[t],b2=s.b2[t];
-    float det=dot3(b0,cross3(b1,b2));double J=unifiedDot(e1,cross3(e2,e3))*det;
     float3 f[3]={e1*b0.x+e2*b1.x+e3*b2.x,e1*b0.y+e2*b1.y+e3*b2.y,e1*b0.z+e2*b1.z+e3*b2.z};
-    double mu=s.mu[t],lambda=s.bulk[t]+mu/3,energy=.5*mu*(unifiedDot(f[0],f[0])+unifiedDot(f[1],f[1])+unifiedDot(f[2],f[2])-3)-mu*(J-1)+.5*lambda*(J-1)*(J-1);
-    energy+=unifiedCompressionBarrier(J,s.minimum,float(lambda)).energy;
+    float3 df[3]={d1*b0.x+d2*b1.x+d3*b2.x,d1*b0.y+d2*b1.y+d3*b2.y,d1*b0.z+d2*b1.z+d3*b2.z};
+    TetVolumePath J=unifiedVolumePath(e1,e2,e3,d1,d2,d3,s.restMetric[7*t+6]);
+    float mu=s.mu[t],lambda=s.bulk[t]+mu/3.f,stretch=J.j0-1.f,dJ=J.j1+J.j2+J.j3;
+    float change=mu*(dot3(f[0],df[0])+dot3(f[1],df[1])+dot3(f[2],df[2])+.5f*(dot3(df[0],df[0])+dot3(df[1],df[1])+dot3(df[2],df[2])))
+        -mu*dJ+.5f*lambda*dJ*(2.f*stretch+dJ);
+    float total=.5f*mu*(dot3(f[0],f[0])+dot3(f[1],f[1])+dot3(f[2],f[2])-3.f)-mu*stretch+.5f*lambda*stretch*stretch;
+    // The barrier acts only below twice the volume floor, where its logarithm keeps double precision.
+    if(s.minimum>0 && fminf(J.j0,J.j0+dJ)<2*s.minimum){
+        double start=unifiedCompressionBarrier(J.j0,s.minimum,lambda).energy;total+=float(start);
+        change+=float(unifiedCompressionBarrier(J.j0+(double(J.j1)+J.j2+J.j3),s.minimum,lambda).energy-start);
+    }
     if(s.damping>0){
+        // The incremental Green strain S=G'G-I of G=F*inverse(F_previous) changes from S0 to S0+S1+S2.
         float3 r0=s.previousInverse[3*t],r1=s.previousInverse[3*t+1],r2=s.previousInverse[3*t+2];
         float3 g[3]={f[0]*r0.x+f[1]*r1.x+f[2]*r2.x,f[0]*r0.y+f[1]*r1.y+f[2]*r2.y,f[0]*r0.z+f[1]*r1.z+f[2]*r2.z};
-        double strain=0;for(int j=0;j<3;j++)for(int k=0;k<3;k++){double d=unifiedDot(g[j],g[k])-(j==k?1.:0.);strain+=d*d;}
-        energy+=mu*s.damping/(8*s.h)*strain;
+        float3 dg[3]={df[0]*r0.x+df[1]*r1.x+df[2]*r2.x,df[0]*r0.y+df[1]*r1.y+df[2]*r2.y,df[0]*r0.z+df[1]*r1.z+df[2]*r2.z};
+        float s00=0,s01=0,s02=0,s11=0,s12=0,s22=0;
+        #pragma unroll
+        for(int j=0;j<3;j++)
+            #pragma unroll
+            for(int k=0;k<3;k++){
+                float a0=dot3(g[j],g[k])-(j==k?1.f:0.f),a1=dot3(g[j],dg[k])+dot3(dg[j],g[k]),a2=dot3(dg[j],dg[k]);
+                s00+=a0*a0;s01+=a0*a1;s02+=a0*a2;s11+=a1*a1;s12+=a1*a2;s22+=a2*a2;
+            }
+        float c=mu*s.damping/(8*s.h);total+=c*s00;change+=c*(2.f*s01+s11+2.f*s02+2.f*s12+s22);
     }
-    float3 rest[4]={mkf3(0,0,0),cross3(b1,b2)*(1.f/det),cross3(b2,b0)*(1.f/det),cross3(b0,b1)*(1.f/det)};
-    for(int j=0;j<4;j++)for(int k=j+1;k<4;k++){
-        double length2=unifiedDot(p[j]-p[k],p[j]-p[k]),rest2=unifiedDot(rest[j]-rest[k],rest[j]-rest[k]);
-        // The tension-only term is identically zero for compressed edges.
-        // Avoid expensive FP64 square roots there without changing its law.
-        if(length2>rest2){double strain=sqrt(length2/rest2)-1;
-            double s2=strain*strain;energy+=.5*mu*s.hardening*s2*s2*s2;}
+    if(s.hardening>0){
+        float h=.5f*mu*s.hardening;
+        #pragma unroll
+        for(int j=0;j<4;j++)
+            #pragma unroll
+            for(int k=j+1;k<4;k++){
+                float3 x=p[j]-p[k],y=v[j]-v[k];float l0=unifiedRestLength(s,t,j,k),rest2=l0*l0;
+                float growth=dot3(x,x)-rest2,start=h*unifiedTensionStrain6(growth,rest2);total+=start;
+                change+=h*unifiedTensionStrain6(growth+2.f*dot3(x,y)+dot3(y,y),rest2)-start;
+            }
     }
-    return energy;
+    if(energy)*energy=total;
+    return change;
 }
 // Pick the lower-energy feasible initial guess independently for each connected
 // piece. Ballistic/rigid motion keeps its inertial prediction; a high-frequency
 // elastic predictor may not inject unresolved strain energy into a fixed-budget
 // solve. This changes only the starting iterate, never the inertial target.
-__global__ void k_PredictorClear(int n,CoarseBlock* b){int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n){b[i].xx=b[i].yy=0;b[i].external=0;}}
+// Each component's yy sums the energy change from the previous configuration to
+// the inertial guess (unifiedTetEnergyChange): the guess stands unless it raises it.
+__global__ void k_PredictorClear(int n,CoarseBlock* b){int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n){b[i].yy=0;b[i].external=0;}}
 __global__ void k_PredictorNodeEnergy(const UnifiedState* state,CoarseBlock* b){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n||s.invMass[i]<=0)return;
-    float3 p[2]={s.previous[i],s.pos[i]};float energy[2]={};
-    for(int k=0;k<2;k++){
-        float3 d=p[k]-s.target[i];double e=.5*unifiedDot(d,d)/(s.invMass[i]*s.h*s.h);
-        if(s.attach){d=p[k]-s.attachRest[i];e+=.5*s.attach[i]*unifiedDot(d,d);
-            d=p[k]-s.previous[i];e+=.5*unifiedSupportDamping(s,i)*unifiedDot(d,d);}
-        if(s.neighbors&&s.edgeSupport)for(int a=1;a<6;a+=2){int j=s.neighbors[6*i+a];
-            if(j<0||(s.active&&!s.active[j])||s.edgeSupport[6*i+a])continue;
-            float3 pj=k?s.pos[j]:s.previous[j];double stretch=len3(p[k]-pj)-len3(s.restNeighbors[6*i+a]);
-            e+=.25*(unifiedEdgeStiffness(s,i,a/2)+unifiedEdgeStiffness(s,j,a/2))*stretch*stretch;}
-        energy[k]=(float)e;
-    }
-    unifiedEnergyAdd(b+s.component[i],energy[0],energy[1]);
+    float3 p=s.previous[i],v=s.pos[i]-p,d=p-s.target[i];
+    float change=(dot3(d,v)+.5f*dot3(v,v))/(s.invMass[i]*s.h*s.h);
+    if(s.attach){d=p-s.attachRest[i];change+=s.attach[i]*(dot3(d,v)+.5f*dot3(v,v))+.5f*unifiedSupportDamping(s,i)*dot3(v,v);}
+    if(s.neighbors&&s.edgeSupport)for(int a=1;a<6;a+=2){int j=s.neighbors[6*i+a];
+        if(j<0||(s.active&&!s.active[j])||s.edgeSupport[6*i+a])continue;
+        float3 e=p-s.previous[j];float l=len3(e),stretch=l-len3(s.restNeighbors[6*i+a]);
+        float growth=unifiedLengthChange(e,v-(s.pos[j]-s.previous[j]),l);
+        change+=.25f*(unifiedEdgeStiffness(s,i,a/2)+unifiedEdgeStiffness(s,j,a/2))*growth*(2.f*stretch+growth);}
+    unifiedEnergyChangeAdd(b+s.component[i],change);
 }
 __global__ void k_PredictorTetEnergy(const UnifiedState* state,CoarseBlock* b){
     const UnifiedState& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=s.nt||!s.live[t])return;
-    const int* id=s.ids+4*t;float3 p[4];for(int j=0;j<4;j++)p[j]=s.previous[id[j]];
+    const int* id=s.ids+4*t;float3 p[4],q[4],v[4];
+    for(int j=0;j<4;j++){p[j]=s.previous[id[j]];q[j]=s.pos[id[j]];v[j]=q[j]-p[j];}
     float det=s.restMetric[7*t+6];
     float oldJ=dot3(p[1]-p[0],cross3(p[2]-p[0],p[3]-p[0]))*det;
-    float old=(float)unifiedTetEnergy(s,t,p);for(int j=0;j<4;j++)p[j]=s.pos[id[j]];
     // The finite stable material energy alone does not exclude inversion.
     // A ballistic guess must be feasible before any local/material solve starts.
-    float nextJ=dot3(p[1]-p[0],cross3(p[2]-p[0],p[3]-p[0]))*det;
+    float nextJ=dot3(q[1]-q[0],cross3(q[2]-q[0],q[3]-q[0]))*det;
     if(!(nextJ>=fminf(s.minimum,oldJ)))atomicOr(&b[s.component[id[0]]].external,1);
-    float predicted=(float)unifiedTetEnergy(s,t,p);
-    unifiedEnergyAdd(b+s.component[id[0]],old,predicted);
+    unifiedEnergyChangeAdd(b+s.component[id[0]],unifiedTetEnergyChange(s,t,p,v));
 }
 __global__ void k_SelectPredictor(const UnifiedState* state,const CoarseBlock* b){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
     const CoarseBlock& e=b[s.component[i]];
     // Contact is included in the trial energy. A local contact must not reset
     // the inertial prediction of the entire connected organ unconditionally.
-    if(e.external || !isfinite(e.yy)||e.yy>e.xx)s.pos[i]=s.previous[i];
+    if(e.external || !isfinite(e.yy)||e.yy>0)s.pos[i]=s.previous[i];
 }
 __device__ inline float3 unifiedPoint(const SurfaceContact& c,const float3* pos){
     float3 x=c.offset;for(int k=0;k<c.count;k++)x=x+pos[c.id[k]]*c.weight[k];return x;
@@ -344,16 +385,13 @@ __global__ void k_PredictorInteractionEnergy(const UnifiedState* state,CoarseBlo
                 float D=unifiedImpactStiffness(s,c),effectiveK=K+D;float compression=fmaxf(0.f,-C-D*unifiedPreviousDepth(c,normal)/fmaxf(effectiveK,1e-20f));energy[j]=.5f*effectiveK*compression*compression;
                 if(s.cutPhase && c.kind<3 && bladeYields(*s.cutPhase)){float cap=s.cutResistance*K/s.contactK;float d=-C,y=cap/K;if(d>y)energy[j]=cap*(d-.5f*y);}
             }
-            atomicAdd(&b[s.component[c.id[0]]].xx,energy[0]);atomicAdd(&b[s.component[c.id[0]]].yy,energy[1]);
-
+            atomicAdd(&b[s.component[c.id[0]]].yy,energy[1]-energy[0]);
         }
         if(k<s.grips && s.points[k].valid){
             const GripPoint& a=s.points[k];float3 target=gripTarget(a,s.tool->pose,s.minGap);
             float3 old=unifiedGripPoint(a,s.previous)-target,trial=unifiedGripPoint(a,s.pos)-target;
             float stiffness=s.gripK/a.complianceScale;
-            atomicAdd(&b[s.component[a.id[0]]].xx,.5f*stiffness*dot3(old,old));
-            atomicAdd(&b[s.component[a.id[0]]].yy,.5f*stiffness*dot3(trial,trial));
-
+            atomicAdd(&b[s.component[a.id[0]]].yy,.5f*stiffness*dot3(trial-old,trial+old));
         }
     }
 }
@@ -709,6 +747,7 @@ __global__ void k_FlattenComponents(int n,int* parent){int i=blockIdx.x*blockDim
 // still resolves its material strain. No material or volume bound is changed.
 __global__ void k_InitSafeCoarse(const UnifiedState* state){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
+    if(i==0)*s.safeJoined=0;
     if(i>=s.n)return;s.safeCluster[i]=i;s.safeAggregate[i]={};
 }
 __global__ void k_MarkCoarseContact(const UnifiedState* state){
@@ -733,18 +772,21 @@ __global__ void k_JoinSafeCoarse(const UnifiedState* state){
     float3 a=s.pos[id[0]];
     float J=dot3(s.pos[id[1]]-a,cross3(s.pos[id[2]]-a,s.pos[id[3]]-a))*s.restMetric[7*t+6];
     if(J>s.minimum+fmaxf(1e-5f,1e-3f*s.minimum))return;
+    *s.safeJoined=1;
     for(int k=1;k<4;k++)while(true){
         int x=unifiedRoot(s.safeCluster,id[0]),y=unifiedRoot(s.safeCluster,id[k]);
         if(x==y)break;int hi=max(x,y),lo=min(x,y);if(atomicCAS(s.safeCluster+hi,hi,lo)==hi)break;
     }
 }
+// Without a join every cluster is a single node, whose finished weight is its own coarse weight: k_CoarseWeights has
+// already set it to 0 on a pinned node, so flattening, accumulating and finishing change nothing then.
 __global__ void k_FlattenSafeCoarse(const UnifiedState* state){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
-    if(i<s.n)s.safeCluster[i]=unifiedRoot(s.safeCluster,i);
+    if(i<s.n && *s.safeJoined)s.safeCluster[i]=unifiedRoot(s.safeCluster,i);
 }
 __global__ void k_AccumulateSafeCoarse(const UnifiedState* state){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
-    if(i>=s.n)return;
+    if(i>=s.n || !*s.safeJoined)return;
     SafeCoarseCluster* c=s.safeAggregate+s.safeCluster[i];
     atomicAdd(&c->weight,s.coarseWeight[i]);atomicAdd(&c->count,1);
     if(s.invMass[i]<=0)atomicExch(&c->pinned,1);
@@ -752,13 +794,17 @@ __global__ void k_AccumulateSafeCoarse(const UnifiedState* state){
 }
 __global__ void k_FinishSafeCoarse(const UnifiedState* state){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
-    if(i>=s.n)return;
+    if(i>=s.n || !*s.safeJoined)return;
     const SafeCoarseCluster& c=s.safeAggregate[s.safeCluster[i]];
     s.coarseWeight[i]=c.pinned?0.f:c.grips?c.gripWeight/c.grips:c.weight/fmaxf(1.f,float(c.count));
 }
+// A per-component mode accumulates into the block of each active component root, and every reader reaches a block
+// through a component root (k_CoarseApply). Only those blocks are cleared and solved: the other blocks of the
+// lattice-sized array are never read.
+__device__ inline bool coarseRoot(const UnifiedState& s,int i){return i<s.n && s.component[i]==i && (!s.active || s.active[i]);}
 __global__ void k_CoarseBegin(const UnifiedState* state,CoarseBlock* b){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
-    if(s.coarseMode){if(i<s.n){b[i]={};b[i].scale=1;}return;}
+    if(s.coarseMode){if(coarseRoot(s,i)){b[i]={};b[i].scale=1;}return;}
     if(i)return;float inertia=1.f/(s.tool->inverseMass*s.h*s.h);
     *b={};b->gradient=(s.tool->pose.jawHinge-s.toolTarget)*inertia;b->xx=b->yy=b->zz=inertia;b->scale=1;
 }
@@ -829,7 +875,7 @@ __global__ void k_CoarseContactGrip(const UnifiedState* state,CoarseBlock* block
     }
 }
 __global__ void k_CoarseSolve(const UnifiedState* state,CoarseBlock* block){
-    int i=blockIdx.x*blockDim.x+threadIdx.x;if(state->coarseMode){if(i>=state->n)return;block+=i;}else if(i)return;
+    int i=blockIdx.x*blockDim.x+threadIdx.x;if(state->coarseMode){if(!coarseRoot(*state,i))return;block+=i;}else if(i)return;
     Symmetric3 H={block->xx,block->yy,block->zz,block->xy,block->xz,block->yz};
     const CoupledTool& b=*state->tool;
     if(state->coarseMode==7 && block->pins==-1){
@@ -870,7 +916,10 @@ __global__ void k_CoarseApply(const UnifiedState* state,const CoarseBlock* block
     if(s.coarseMode)block+=s.component[i];
     if(s.coarseMode==6 && block->external)return;
     float3 d=block->step*block->scale;
-    if(!isfinite(d.x+d.y+d.z))return;s.pos[i]=s.pos[i]+d*s.coarseWeight[i];
+    if(!isfinite(d.x+d.y+d.z))return;
+    // An inactive node is its own component root without a cleared block (coarseRoot). Its block accumulates nothing,
+    // so a per-component mode never moves it.
+    if(!s.coarseMode || !s.active || s.active[i])s.pos[i]=s.pos[i]+d*s.coarseWeight[i];
     if(i==0 && !s.coarseMode)s.tool->pose=shiftTool(s.tool->pose,d);
 }
 // Exact rigid rotations are null modes of the isotropic material and objective
@@ -902,8 +951,7 @@ __global__ void k_RigidCenters(const UnifiedState* state,CoarseBlock* blocks){
     if(unifiedReduce(b,values)){add3(&b->center,mkf3(values[0],values[1],values[2]));atomicAdd(&b->mass,values[3]);}
 }
 __global__ void k_RigidCenterFinish(const UnifiedState* state,CoarseBlock* b){
-    int n=state->n;
-    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n)return;
+    int i=blockIdx.x*blockDim.x+threadIdx.x;if(!coarseRoot(*state,i))return;
     if(state->coupledReady && !(state->graspComponents[i]&7)){b[i].external=1;return;}
     b[i].center=b[i].pins==1?b[i].pivot:b[i].center*(1.f/fmaxf(b[i].mass,1e-20f));
     b[i].scale=0;

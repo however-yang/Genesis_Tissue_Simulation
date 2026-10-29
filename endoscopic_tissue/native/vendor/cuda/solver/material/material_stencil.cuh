@@ -116,22 +116,21 @@ __global__ void k_MaterialStencilDiagonal(const UnifiedState* state,const float*
 }
 
 
-__global__ void k_MaterialStencilIndices(int n,int nx,int ny,int* indices){
-    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n)return;
-    int x=i%nx,y=(i/nx)%ny,z=i/(nx*ny);
-    for(int slot=0;slot<15;slot++){
-        int sign=slot<7?-1:1,bits=abs(slot-7),dx=sign*(bits&1),dy=sign*((bits>>1)&1),dz=sign*((bits>>2)&1);
-        indices[slot*n+i]=(x+dx<0||x+dx>=nx||y+dy<0||y+dy>=ny||z+dz<0||z+dz>=n/(nx*ny))?-1:i+dx+nx*(dy+ny*dz);
-    }
+// The lattice offset of the neighbor in slot 0..14 of a stencil row: slot 7 is the node itself, slots above 7 its seven
+// upper neighbors and slots below 7 the lower ones, mirrored.
+__device__ inline int materialSlotOffset(const UnifiedState& s,int slot){
+    int sign=slot<7?-1:1,bits=abs(slot-7);return sign*((bits&1)+s.nx*(((bits>>1)&1)+s.ny*((bits>>2)&1)));
 }
 __global__ void k_MaterialStencilProduct(const UnifiedState* __restrict__ state,const float3* __restrict__ vector,
-    const float* __restrict__ matrix,const int* __restrict__ indices,float3* __restrict__ result,MaterialCGSum* sums,int iteration){
+    const float* __restrict__ matrix,const unsigned short* __restrict__ stencil,float3* __restrict__ result,MaterialCGSum* sums,int iteration){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
-    result[i]=mkf3(0,0,0);if(indices[7*s.n+i]<0||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
+    unsigned mask=stencil[i];
+    result[i]=mkf3(0,0,0);if(!(mask>>7&1)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
     float3 out=mkf3(0,0,0);
     #pragma unroll
     for(int slot=0;slot<15;slot++){
-        int j=indices[slot*s.n+i];if(j<0)continue;
+        if(!(mask>>slot&1))continue;
+        int j=i+materialSlotOffset(s,slot);
         float3 v=vector[j];const float* a=matrix+9*abs(slot-7)*s.n+(slot<7?j:i);
         if(slot<7){
             out.x+=a[0*s.n]*v.x+a[3*s.n]*v.y+a[6*s.n]*v.z;
@@ -150,13 +149,20 @@ __global__ void k_MaterialStencilProduct(const UnifiedState* __restrict__ state,
 // solve. Filter the stencil once, instead of chasing their buffers for every
 // neighbor during all 32/80 matrix-vector products. Rebuild after each manifold
 // and topology update; this is never a persistent contact/fixation cache.
-__global__ void k_MaterialStencilActiveIndices(const UnifiedState* state,int* indices){
+// Bit k of a node's mask marks slot k of its row as a neighbor the PCG solves in
+// the same component. A fixed node keeps an empty mask, so bit 7, the node
+// itself, marks the nodes the PCG solves (materialCgNode).
+__global__ void k_MaterialStencilActiveMask(const UnifiedState* state,unsigned short* stencil){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
-    bool fixed=materialCgFixed(s,i);int x=i%s.nx,y=(i/s.nx)%s.ny,z=i/(s.nx*s.ny);
-    for(int slot=0;slot<15;slot++){
-        int sign=slot<7?-1:1,bits=abs(slot-7),dx=sign*(bits&1),dy=sign*((bits>>1)&1),dz=sign*((bits>>2)&1);
-        int j=(fixed||x+dx<0||x+dx>=s.nx||y+dy<0||y+dy>=s.ny||z+dz<0||z+dz>=s.n/(s.nx*s.ny))?-1:i+dx+s.nx*(dy+s.ny*dz);
-        if(j>=0 && (materialCgFixed(s,j)||s.component[i]!=s.component[j]))j=-1;
-        indices[slot*s.n+i]=j;
+    unsigned mask=0;
+    if(!materialCgFixed(s,i)){
+        int x=i%s.nx,y=(i/s.nx)%s.ny,z=i/(s.nx*s.ny);
+        for(int slot=0;slot<15;slot++){
+            int sign=slot<7?-1:1,bits=abs(slot-7),dx=sign*(bits&1),dy=sign*((bits>>1)&1),dz=sign*((bits>>2)&1);
+            if(x+dx<0||x+dx>=s.nx||y+dy<0||y+dy>=s.ny||z+dz<0||z+dz>=s.n/(s.nx*s.ny))continue;
+            int j=i+dx+s.nx*(dy+s.ny*dz);
+            if(!materialCgFixed(s,j) && s.component[i]==s.component[j])mask|=1u<<slot;
+        }
     }
+    stencil[i]=(unsigned short)mask;
 }

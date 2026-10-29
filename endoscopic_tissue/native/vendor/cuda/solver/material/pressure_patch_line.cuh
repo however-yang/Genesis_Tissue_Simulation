@@ -16,7 +16,7 @@ __device__ bool pressureLineZeroStep(const CoarseBlock& b){
 }
 __global__ void k_PressureLineClear(const UnifiedState* state,CoarseBlock* blocks){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
-    if(i<s.n && pressureLineActive(s))blocks[i].gradient=mkf3(0,0,0);
+    if(coarseRoot(s,i) && pressureLineActive(s))blocks[i].gradient=mkf3(0,0,0);
 }
 __global__ void k_PressureLineNodes(const UnifiedState* state,CoarseBlock* blocks,int pass=-1){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
@@ -52,9 +52,13 @@ __global__ void k_PressureLineTets(const UnifiedState* state,CoarseBlock* blocks
     const int* id=s.ids+4*t;float w[4];for(int j=0;j<4;j++)w[j]=s.coarseWeight[id[j]];
     if(w[0]==w[1] && w[0]==w[2] && w[0]==w[3])return;
     CoarseBlock* b=blocks+s.component[id[0]];if(pressureLineZeroStep(*b) || (pass==1 && b->gradient.x<=0))return;
-    float3 p[4],q[4];for(int j=0;j<4;j++)p[j]=s.pos[id[j]];
-    double old=unifiedTetEnergy(s,t,p);float values[3]={};
-    for(int k=pass==1?1:0;k<(pass==0?1:3);k++){float a=ldexpf(b->scale,-k);for(int j=0;j<4;j++)q[j]=p[j]+b->step*(a*w[j]);values[k]=(float)(unifiedTetEnergy(s,t,q)-old);}
+    float3 p[4],step[4];for(int j=0;j<4;j++)p[j]=s.pos[id[j]];float values[3]={};
+    for(int k=pass==1?1:0;k<(pass==0?1:3);k++){
+        // The change to the trial positions rounded to float, as in k_MaterialLineTets.
+        float a=ldexpf(b->scale,-k);
+        for(int j=0;j<4;j++)step[j]=(p[j]+b->step*(a*w[j]))-p[j];
+        values[k]=unifiedTetEnergyChange(s,t,p,step);
+    }
     pressureLineAdd(b,values);
 }
 __device__ float pressureFrictionEnergy(float distance,float stiffness,float pressure,float muS,float muD){
@@ -90,6 +94,6 @@ __global__ void k_PressureLineContacts(const UnifiedState* state,CoarseBlock* bl
     }
 }
 __global__ void k_PressureLineSelect(const UnifiedState* state,CoarseBlock* blocks){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n || !pressureLineActive(s))return;
+    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(!coarseRoot(s,i) || !pressureLineActive(s))return;
     auto& b=blocks[i];float scale=b.gradient.x<=0?1.f:b.gradient.y<=0?.5f:b.gradient.z<=0?.25f:0.f;b.scale*=scale;
 }

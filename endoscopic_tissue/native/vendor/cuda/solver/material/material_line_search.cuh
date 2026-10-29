@@ -4,6 +4,8 @@
 // the ENTIRE segment, so a trial cannot invert and then recover at its endpoint.
 // Contact/anchor witnesses are fixed in this material-only correction, so
 // their energies stay constant. V18 vertex/tool sweeps solve those DOFs.
+// energy[0] estimates the energy at the start of the search, the scale of the tolerance in k_MaterialLineApply.
+// energy[k] for k>0 is the energy change of the step materialLineAlpha(k) (unifiedTetEnergyChange).
 struct MaterialLineSearch { double energy[5]; int invalid; };
 __device__ inline float materialLineAlpha(int k){return k==0?0.f:k==1?1.f:k==2?.5f:k==3?.25f:.125f;}
 __device__ inline float3 materialLinePoint(const UnifiedState& s,const float3* start,int i,float a){
@@ -24,20 +26,23 @@ __global__ void k_MaterialLineClear(int n,MaterialLineSearch* search){
 __global__ void k_MaterialLineNodes(const UnifiedState* state,const float3* start,MaterialLineSearch* search){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
     if(i>=s.n||(s.active&&!s.active[i]))return;
-    double energy[5]={};
-    for(int k=0;k<5;k++){
-        float a=materialLineAlpha(k);float3 p=materialLinePoint(s,start,i,a),d=p-s.target[i];
-        double e=s.invMass[i]>0?.5*unifiedDot(d,d)/(s.invMass[i]*s.h*s.h):0;
-        if(s.attach){d=p-s.attachRest[i];e+=.5*s.attach[i]*unifiedDot(d,d);
-            d=p-s.previous[i];e+=.5*unifiedSupportDamping(s,i)*unifiedDot(d,d);}
-        if(s.neighbors&&s.edgeSupport)for(int j=1;j<6;j+=2){int nb=s.neighbors[6*i+j];
-            if(nb<0||(s.active&&!s.active[nb])||s.edgeSupport[6*i+j])continue;
-            double stretch=len3(p-materialLinePoint(s,start,nb,a))-len3(s.restNeighbors[6*i+j]);
-            e+=.25*(unifiedEdgeStiffness(s,i,j/2)+unifiedEdgeStiffness(s,nb,j/2))*stretch*stretch;
-        }
-        energy[k]=e;
+    // The inertial, support and damping terms are quadratic in the node's step: g.step+|step|^2*curvature/2. Each step
+    // runs to the trial position as k_MaterialLineApply writes it (k_MaterialLineTets).
+    float3 p=s.pos[i],v=start[i],d=p-s.target[i],gradient=mkf3(0,0,0);float energy=0,curvature=0;
+    if(s.invMass[i]>0){float inertia=1.f/(s.invMass[i]*s.h*s.h);energy+=.5f*inertia*dot3(d,d);gradient=d*inertia;curvature=inertia;}
+    if(s.attach){float stiffness=s.attach[i],viscous=unifiedSupportDamping(s,i);float3 r=p-s.attachRest[i],q=p-s.previous[i];
+        energy+=.5f*(stiffness*dot3(r,r)+viscous*dot3(q,q));gradient=gradient+r*stiffness+q*viscous;curvature+=stiffness+viscous;}
+    double values[5]={energy};
+    for(int k=1;k<5;k++){float3 step=materialLinePoint(s,start,i,materialLineAlpha(k))-p;values[k]=dot3(gradient,step)+.5f*curvature*dot3(step,step);}
+    if(s.neighbors&&s.edgeSupport)for(int j=1;j<6;j+=2){int nb=s.neighbors[6*i+j];
+        if(nb<0||(s.active&&!s.active[nb])||s.edgeSupport[6*i+j])continue;
+        float3 e=p-s.pos[nb];float l=len3(e),stretch=l-len3(s.restNeighbors[6*i+j]);
+        float K=.25f*(unifiedEdgeStiffness(s,i,j/2)+unifiedEdgeStiffness(s,nb,j/2));values[0]+=K*stretch*stretch;
+        for(int k=1;k<5;k++){float a=materialLineAlpha(k);
+            float3 move=(materialLinePoint(s,start,i,a)-p)-(materialLinePoint(s,start,nb,a)-s.pos[nb]);
+            float growth=unifiedLengthChange(e,move,l);values[k]+=K*growth*(2.f*stretch+growth);}
     }
-    materialLineAdd(search+s.component[i],energy);
+    materialLineAdd(search+s.component[i],values);
 }
 __device__ inline float materialLineJ(float a,float j0,float j1,float j2,float j3){return ((j3*a+j2)*a+j1)*a+j0;}
 __device__ inline bool materialLineFeasible(float a,float floor,float j0,float j1,float j2,float j3){
@@ -85,9 +90,8 @@ __global__ void k_RestrictMaterialDirection(const UnifiedState* state,const floa
     const int* id=s.ids+4*t;float3 p[4],v[4];for(int j=0;j<4;j++){p[j]=s.pos[id[j]];v[j]=direction[id[j]];}
     float3 e1=p[1]-p[0],e2=p[2]-p[0],e3=p[3]-p[0],d1=v[1]-v[0],d2=v[2]-v[0],d3=v[3]-v[0];
     if(dot3(d1,d1)+dot3(d2,d2)+dot3(d3,d3)==0)return; // Rigid translation preserves J exactly.
-    float det=s.restMetric[7*t+6],j0=dot3(e1,cross3(e2,e3))*det;
-    float j1=(dot3(d1,cross3(e2,e3))+dot3(e1,cross3(d2,e3))+dot3(e1,cross3(e2,d3)))*det;
-    float j2=(dot3(d1,cross3(d2,e3))+dot3(d1,cross3(e2,d3))+dot3(e1,cross3(d2,d3)))*det,j3=dot3(d1,cross3(d2,d3))*det;
+    TetVolumePath J=unifiedVolumePath(e1,e2,e3,d1,d2,d3,s.restMetric[7*t+6]);
+    float j0=J.j0,j1=J.j1,j2=J.j2,j3=J.j3;
     if(!materialLineFeasible(1.f,fminf(s.minimum,j0),j0,j1,j2,j3)){
         float lo=0,hi=1,floor=fminf(s.minimum,j0);
         int iterationFlags=s.graspComponents[s.component[id[0]]];
@@ -115,24 +119,23 @@ __global__ void k_MaterialLineTets(const UnifiedState* state,const float3* start
     if(t>=s.nt||!s.live[t])return;const int* id=s.ids+4*t;int root=s.component[id[0]];
 
     float3 p[4],v[4];for(int j=0;j<4;j++){p[j]=s.pos[id[j]];v[j]=start[id[j]];}
-    float3 e1=p[1]-p[0],e2=p[2]-p[0],e3=p[3]-p[0];
-    float3 d1=v[1]-v[0],d2=v[2]-v[0],d3=v[3]-v[0];float det=s.restMetric[7*t+6];
-    float j0=dot3(e1,cross3(e2,e3))*det;
-    float j1=(dot3(d1,cross3(e2,e3))+dot3(e1,cross3(d2,e3))+dot3(e1,cross3(e2,d3)))*det;
-    float j2=(dot3(d1,cross3(d2,e3))+dot3(d1,cross3(e2,d3))+dot3(e1,cross3(d2,d3)))*det;
-    float j3=dot3(d1,cross3(d2,d3))*det;double energy[5]={};
-    for(int k=0;k<5;k++){
-        float a=materialLineAlpha(k);float3 q[4];for(int j=0;j<4;j++)q[j]=p[j]+v[j]*a;
-        energy[k]=unifiedTetEnergy(s,t,q);
-        if(k&&!materialLineFeasible(a,fminf(s.minimum,j0),j0,j1,j2,j3))atomicOr(&search[root].invalid,1<<k);
+    TetVolumePath J=unifiedVolumePath(p[1]-p[0],p[2]-p[0],p[3]-p[0],v[1]-v[0],v[2]-v[0],v[3]-v[0],s.restMetric[7*t+6]);
+    double values[5]={};
+    for(int k=1;k<5;k++){
+        // The change to the trial positions as k_MaterialLineApply writes them, rounded to float, rather than to p+a*v:
+        // their difference from p is exact in float, and the accepted step must lower the energy of the stored state.
+        float a=materialLineAlpha(k),energy;float3 step[4];
+        for(int j=0;j<4;j++)step[j]=(p[j]+v[j]*a)-p[j];
+        values[k]=unifiedTetEnergyChange(s,t,p,step,&energy);values[0]=energy;
+        if(!materialLineFeasible(a,fminf(s.minimum,J.j0),J.j0,J.j1,J.j2,J.j3))atomicOr(&search[root].invalid,1<<k);
     }
-    materialLineAdd(search+root,energy);
+    materialLineAdd(search+root,values);
 }
 __global__ void k_MaterialLineApply(const UnifiedState* state,const float3* start,const MaterialLineSearch* search){
     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
     if(i>=s.n||materialCgFixed(s,i))return;
-    const auto& q=search[s.component[i]];int best=0;
-    for(int k=1;k<5;k++)if(!(q.invalid&(1<<k))&&isfinite(q.energy[k])&&q.energy[k]<q.energy[best]-1e-10*fmax(1.,fabs(q.energy[0])))best=k;
+    const auto& q=search[s.component[i]];int best=0;double lowest=0,tolerance=1e-10*fmax(1.,fabs(q.energy[0]));
+    for(int k=1;k<5;k++)if(!(q.invalid&(1<<k))&&isfinite(q.energy[k])&&q.energy[k]<lowest-tolerance){best=k;lowest=q.energy[k];}
     // A rejected/nonfinite direction must leave the accepted position intact:
     // multiplying an invalid direction by zero would still propagate NaNs.
     if(best>0)s.pos[i]=materialLinePoint(s,start,i,materialLineAlpha(best));

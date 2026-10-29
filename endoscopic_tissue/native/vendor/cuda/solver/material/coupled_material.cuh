@@ -28,20 +28,26 @@ __global__ void k_MaterialCGBegin(const UnifiedState* state,const float3* r,cons
     direction[i]=diagonal[i].solve(r[i]);
     materialDotAdd(&sums[s.component[i]].rho,unifiedDot(r[i],direction[i]));
 }
-__global__ void k_MaterialCGAdvance(const UnifiedState* state,float3* residual,const Symmetric3* diagonal,
-    const float3* direction,const float3* product,float3* step,MaterialCGSum* sums,int iteration){
+// The CG nodes are the nodes whose stencil (k_MaterialStencilActiveMask) holds its own slot 7: exactly those that
+// materialCgFixed leaves free, which it evaluates once per solve instead of at every iteration. The advance keeps the
+// preconditioned residual for the direction update.
+__device__ inline bool materialCgNode(const unsigned short* stencil,int i){return stencil[i]>>7&1;}
+__global__ void k_MaterialCGAdvance(const UnifiedState* state,const unsigned short* stencil,float3* residual,
+    const Symmetric3* diagonal,const float3* direction,const float3* product,float3* step,float3* preconditioned,
+    MaterialCGSum* sums,int iteration){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
-    if(materialCgFixed(s,i)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
+    if(!materialCgNode(stencil,i)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
     auto& q=sums[s.component[i]];float alpha=q.denominator>1e-30&&q.rho>0?(float)(q.rho/q.denominator):0;
     step[i]=step[i]+direction[i]*alpha;float3 r=residual[i]-product[i]*alpha;residual[i]=r;
-    materialDotAdd(&q.next,unifiedDot(r,diagonal[i].solve(r)));
+    float3 z=diagonal[i].solve(r);preconditioned[i]=z;
+    materialDotAdd(&q.next,unifiedDot(r,z));
 }
-__global__ void k_MaterialCGDirection(const UnifiedState* state,const float3* residual,const Symmetric3* diagonal,
+__global__ void k_MaterialCGDirection(const UnifiedState* state,const unsigned short* stencil,const float3* preconditioned,
     float3* direction,const MaterialCGSum* sums,int iteration){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
-    if(materialCgFixed(s,i)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
+    if(!materialCgNode(stencil,i)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
     const auto& q=sums[s.component[i]];float beta=q.rho>1e-30?(float)(q.next/q.rho):0;
-    direction[i]=diagonal[i].solve(residual[i])+direction[i]*beta;
+    direction[i]=preconditioned[i]+direction[i]*beta;
 }
 __global__ void k_MaterialCGFinish(const UnifiedState* state,MaterialCGSum* sums,int iteration){
     const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
