@@ -87,6 +87,7 @@ static int g_fragmentCapacity=0;
 #include "../solver/material/pressure_patch_line.cuh"
 #include "../solver/material/coupled_material.cuh"
 #include "../solver/material/material_stencil.cuh"
+#include "../solver/material/material_multigrid.cuh"
 static __half* d_cgMatrix=nullptr;
 static float* d_cgScale=nullptr;
 static unsigned short* d_cgStencil=nullptr;
@@ -102,6 +103,17 @@ static float3* d_unifiedPreviousInverse=nullptr;
 static float* d_unifiedRestMetric=nullptr;
 static int g_unifiedTetCapacity=0;
 static int* d_unifiedComponents=nullptr;
+// Records of data derived from the live topology alone: the topology revision it was derived at, then 1 when the next
+// refresh must derive it again (k_TopologyStale). ~0u marks data never derived for the bound topology. One record
+// each for the component labels, the liveness flags and inverse masses of k_RefreshLiveness, and the tet edge support
+// derived from those flags, and the multigrid hierarchy; xpbd_bind allocates them together.
+static unsigned* d_topologyRecords=nullptr;
+static unsigned* d_multigridRevision=nullptr;
+static unsigned* d_componentRevision=nullptr;
+static unsigned* d_livenessRevision=nullptr;
+static unsigned* d_edgeSupportRevision=nullptr;
+// A host write to the liveness flags or inverse masses: derive them, and the edge support, again.
+static void markLivenessStale(){if(d_livenessRevision)cudaMemset(d_livenessRevision,0xff,4*sizeof(unsigned));}
 static int* d_graspComponents=nullptr;
 static int* d_safeCluster=nullptr;
 static SafeCoarseCluster* d_safeAggregate=nullptr;
@@ -196,7 +208,12 @@ static float*  d_tetLambdaHydL = nullptr; // [T] XPBD multiplier, hydrostatic (r
 static int*    d_tetActive  = nullptr;   // [T] 1=live (re-derived every substep by k_RefreshLiveness)
 static int*    d_tetEdgeOwnerSlot = nullptr; // [3*T] the tet's 3 member AXIS-edge owner slots (6p+s)
 static int*    d_edgeTetSupport = nullptr; // [6*N] live material support for each axis-edge slot
+static int*    d_tetCellBase = nullptr;  // [T/6] corner-0 node of the cell of the k-th tet of every type
+static KuhnTet* d_kuhnTets   = nullptr;  // [6] rest data of each Kuhn type, copied from its first tet (k_KuhnTable)
 static int     g_T = 0;
+static int     g_tetCells = 0;           // T/6: the tets of each type
+static int*    d_activeNodes = nullptr;  // [g_activeNodes] the active nodes in increasing order (UnifiedState::activeNodes)
+static int     g_activeNodes = 0;
 static std::vector<int> g_tColorOff, g_tColorCnt;
 static int     g_tNumColors = 0;
 // The tets of colour c, by index: entries g_tColorOff[c] to g_tColorOff[c]+g_tColorCnt[c]-1 (host copy and device).
@@ -414,9 +431,13 @@ __global__ void k_RefreshLiveness(int N, int E, int B, int T,
                                   const XpbdBendPairGpu* bendPairs, const int* bendSrcIdx,
                                   const int* active, const int* pinned, const float* mass,
                                   const int* tetIds, const int* tetEdgeOwnerSlot,
-                                  int* edgeActive, int* bendActive, float* invMass, int* tetActive)
+                                  int* edgeActive, int* bendActive, float* invMass, int* tetActive,
+                                  const unsigned* stale)
 {
+    // Every output is a function of the live topology and the fixed flags alone: a non-null `stale` flag skips the
+    // refresh while the topology revision stays the same (k_TopologyStale, d_livenessRevision).
     int t = blockIdx.x * blockDim.x + threadIdx.x;
+    if (stale && !*stale) return;
     if (t < E)
         edgeActive[t] = (nbrIdx[edgeOwnerSlot[t]] >= 0 &&
                          active[edgeI[t]] != 0 && active[edgeJ[t]] != 0) ? 1 : 0;
@@ -443,10 +464,16 @@ __global__ void k_RefreshLiveness(int N, int E, int B, int T,
     }
 }
 
-__global__ void k_MarkTetEdgeSupport(int T, const int* live, const int* slots, int* support)
+// The edge support of the live tets, derived again with the liveness flags only (`stale`, k_RefreshLiveness).
+__global__ void k_ClearTetEdgeSupport(int n, int* support, const unsigned* stale)
+{
+    int i=blockIdx.x*blockDim.x+threadIdx.x;
+    if(i<n && *stale) support[i]=0;
+}
+__global__ void k_MarkTetEdgeSupport(int T, const int* live, const int* slots, int* support, const unsigned* stale)
 {
     int t=blockIdx.x*blockDim.x+threadIdx.x;
-    if(t>=T || !live[t]) return;
+    if(t>=T || !live[t] || !*stale) return;
     for(int k=0;k<3;k++) atomicExch(support+slots[3*t+k],1);
 }
 
@@ -1260,7 +1287,9 @@ extern "C" int xpbd_set_edge_active(int inputEdgeIndex, int active)
     if (inputEdgeIndex < 0 || inputEdgeIndex >= (int)g_edgeSlotOfInput.size()) return XPBD_ERR_BAD_ARG;
     int slot = g_edgeSlotOfInput[inputEdgeIndex];
     int v = active ? 1 : 0;
-    return -(int)cudaMemcpy(d_edgeActive + slot, &v, sizeof(int), cudaMemcpyHostToDevice);
+    int r = -(int)cudaMemcpy(d_edgeActive + slot, &v, sizeof(int), cudaMemcpyHostToDevice);
+    markLivenessStale();
+    return r;
 }
 
 extern "C" int xpbd_set_bend_active(int inputBendIndex, int active)
@@ -1269,14 +1298,18 @@ extern "C" int xpbd_set_bend_active(int inputBendIndex, int active)
     if (inputBendIndex < 0 || inputBendIndex >= (int)g_bendSlotOfInput.size()) return XPBD_ERR_BAD_ARG;
     int slot = g_bendSlotOfInput[inputBendIndex];
     int v = active ? 1 : 0;
-    return -(int)cudaMemcpy(d_bendActive + slot, &v, sizeof(int), cudaMemcpyHostToDevice);
+    int r = -(int)cudaMemcpy(d_bendActive + slot, &v, sizeof(int), cudaMemcpyHostToDevice);
+    markLivenessStale();
+    return r;
 }
 
 extern "C" int xpbd_set_particle_inv_mass(int particle, float invMass)
 {
     if (!g_ready) return XPBD_ERR_NOT_READY;
     if (particle < 0 || particle >= g_N) return XPBD_ERR_BAD_ARG;
-    return -(int)cudaMemcpy(d_invMass + particle, &invMass, sizeof(float), cudaMemcpyHostToDevice);
+    int r = -(int)cudaMemcpy(d_invMass + particle, &invMass, sizeof(float), cudaMemcpyHostToDevice);
+    markLivenessStale();
+    return r;
 }
 
 extern "C" void xpbd_set_params(const XpbdParams* p) { if (p) { g_p = *p; g_frameReady = false; } }
@@ -1363,6 +1396,7 @@ extern "C" int xpbd_set_bending(int bendCount, const int* ijk, const float* thet
     XB(cudaMemcpy(d_bendActive,hAct.data(),(size_t)g_B*sizeof(int),cudaMemcpyHostToDevice));
     XB(cudaMemcpy(d_bendSrcIdx,hSrcB.data(),(size_t)g_B*sizeof(int),cudaMemcpyHostToDevice));
     XB(cudaMemset(d_bendLambda,0,(size_t)g_B*sizeof(float)));
+    markLivenessStale();
     #undef XB
     return 0;
 }
@@ -1477,6 +1511,11 @@ extern "C" int xpbd_bind(float3* cornerPos, float3* vel,
     g_liveRestNbr=restNbr; g_liveNbrIdx = nbrIdx; g_liveBendPairs = (const XpbdBendPairGpu*)bendPairsRaw;
     g_liveActive = active; g_livePinned = pinned; g_liveMass = mass;
     g_liveExtForce = extForce; g_liveHapticForce = hapticForce;
+    // Data derived for an earlier binding describes another topology.
+    if (!d_topologyRecords) XK(cudaMalloc(&d_topologyRecords, 8 * sizeof(unsigned)));
+    XK(cudaMemset(d_topologyRecords, 0xff, 8 * sizeof(unsigned)));
+    d_componentRevision = d_topologyRecords; d_livenessRevision = d_topologyRecords + 2;
+    d_edgeSupportRevision = d_topologyRecords + 4; d_multigridRevision = d_topologyRecords + 6;
     g_dimsX = dimsX; g_dimsY = dimsY; g_dimsZ = dimsZ;
     // 6) BIND-TIME STATE (§9-(4)): d_prevPos = cornerPos (no first-frame velocity kick); the CURRENT
     //    shared vel contents are ADOPTED (a moving liver is not zeroed — d_vel now aliases it, untouched).
@@ -1603,6 +1642,22 @@ extern "C" int xpbd_build_tets()
     if (!(mu > 0.f)) mu = 1.f;
     if (!(lambda > 0.f)) lambda = 1.f;
 
+    // The rest lattice is regular up to float rounding, so all tets of one Kuhn type share one rest shape. It is
+    // baked from the lattice spacing, identical for every tet of the type: the material kernels read it per type
+    // (UnifiedState::kuhn), the other kernels from the per-tet arrays, and both see the same values.
+    double spacing[3] = { ((double)hPos[cid(g_dimsX, 0, 0)].x - (double)hPos[0].x) / g_dimsX,
+                          ((double)hPos[cid(0, g_dimsY, 0)].y - (double)hPos[0].y) / g_dimsY,
+                          ((double)hPos[cid(0, 0, g_dimsZ)].z - (double)hPos[0].z) / g_dimsZ };
+    double typeB[6][3][3], typeV[6];
+    for (int ti = 0; ti < 6; ti++) {
+        double Dm[3][3];
+        for (int k = 1; k < 4; k++)
+            for (int a = 0; a < 3; a++) Dm[a][k - 1] = ((TET_TABLE[ti][k] >> a) & 1) * spacing[a];
+        if (!Inv3x3d(Dm, typeB[ti])) return XPBD_ERR_IRREGULAR_REST;
+        typeV[ti] = fabs(Dm[0][0]*(Dm[1][1]*Dm[2][2]-Dm[1][2]*Dm[2][1]) - Dm[0][1]*(Dm[1][0]*Dm[2][2]-Dm[1][2]*Dm[2][0])
+                         + Dm[0][2]*(Dm[1][0]*Dm[2][1]-Dm[1][1]*Dm[2][0])) / 6.0;
+    }
+
     for (int z = 0; z < g_dimsZ; z++)
     for (int y = 0; y < g_dimsY; y++)
     for (int x = 0; x < g_dimsX; x++) {
@@ -1636,6 +1691,15 @@ extern "C" int xpbd_build_tets()
                        + Dm[0][2]*(Dm[1][0]*Dm[2][1]-Dm[1][1]*Dm[2][0]);
             double V = fabs(det) / 6.0;
             if (V < 1e-12) continue;         // degenerate-tet guard (XPBDSolverGPU.cs:208-231 pattern)
+            double scale = 0, deviation = 0;
+            for (int a = 0; a < 3; a++)
+                for (int b = 0; b < 3; b++) {
+                    scale = fmax(scale, fabs(typeB[ti][a][b]));
+                    deviation = fmax(deviation, fabs(B[a][b] - typeB[ti][a][b]));
+                }
+            if (deviation > 1e-4 * scale) return XPBD_ERR_IRREGULAR_REST;
+            memcpy(B, typeB[ti], sizeof(B));
+            V = typeV[ti];
 
             // the tet's 3 member AXIS edges (popcount(local_a^local_b)==1). Axis identity is computed
             // from the ORIGINAL (pre-flip) local indices — XOR-ing both endpoints by the SAME flip mask
@@ -1713,8 +1777,32 @@ extern "C" int xpbd_build_tets()
         dMuV[dst]=hMuV[e]; dLambdaV[dst]=hLambdaV[e];
         dOwner[3*dst+0]=hOwnerSlot[3*e+0]; dOwner[3*dst+1]=hOwnerSlot[3*e+1]; dOwner[3*dst+2]=hOwnerSlot[3*e+2];
     }
+    // Every emitting cell gives one tet of each type, so the k-th tet of every type lies in the k-th cell, and corner 0
+    // of each tet (TET_TABLE) is corner 0 of its cell. The material kernels derive the corner ids from that corner
+    // (unifiedTetIds): check that the stored ids are exactly those.
+    const int cells = T / 6;
+    if (T != 6 * cells) return XPBD_ERR_IRREGULAR_REST;
+    std::vector<int> cellBase(cells);
+    for (int k = 0; k < cells; k++) cellBase[k] = dIds[4 * k];
+    for (int ti = 0; ti < 6 && cells > 0; ti++)
+        for (int k = 0; k < cells; k++)
+            for (int j = 0; j < 4; j++)
+                if (dIds[4 * (ti * cells + k) + j] - cellBase[k] != dIds[4 * ti * cells + j] - cellBase[0])
+                    return XPBD_ERR_IRREGULAR_REST;
 
+    cudaFree(d_tetCellBase); d_tetCellBase = nullptr; cudaFree(d_kuhnTets); d_kuhnTets = nullptr;
+    // The active flags never change after this build: list the active nodes once.
+    std::vector<int> activeNodes;
+    for (int c = 0; c < cc; c++) if (hActive[c] != 0) activeNodes.push_back(c);
+    cudaFree(d_activeNodes); d_activeNodes = nullptr; g_activeNodes = (int)activeNodes.size();
+    if (g_activeNodes > 0) {
+        XK(cudaMalloc(&d_activeNodes, activeNodes.size() * sizeof(int)));
+        XK(cudaMemcpy(d_activeNodes, activeNodes.data(), activeNodes.size() * sizeof(int), cudaMemcpyHostToDevice));
+    }
     if (T > 0) {
+        XK(cudaMalloc(&d_tetCellBase,   (size_t)cells * sizeof(int)));
+        XK(cudaMemcpy(d_tetCellBase,    cellBase.data(), (size_t)cells*sizeof(int), cudaMemcpyHostToDevice));
+        XK(cudaMalloc(&d_kuhnTets,      6 * sizeof(KuhnTet)));
         XK(cudaMalloc(&d_tetIds,        (size_t)4*T * sizeof(int)));
         XK(cudaMalloc(&d_tetBr0,        (size_t)T   * sizeof(float3)));
         XK(cudaMalloc(&d_tetBr1,        (size_t)T   * sizeof(float3)));
@@ -1752,7 +1840,8 @@ extern "C" int xpbd_build_tets()
         std::vector<int> ones(T, 1);
         XK(cudaMemcpy(d_tetActive, ones.data(), (size_t)T*sizeof(int), cudaMemcpyHostToDevice));
     }
-    g_T = T; g_tNumColors = numColors; g_haveTets = true;
+    g_T = T; g_tetCells = cells; g_tNumColors = numColors; g_haveTets = true;
+    markLivenessStale();   // the seeded tet flags and the new edge support array
     g_frameReady = false;   // topology changed: caller must begin a new frame
     return 0;
 }
@@ -2538,13 +2627,117 @@ static cudaError_t dampSurfaceGraph(float h){
 #include "../cutting/pressure_blade.cuh"
 #include "tool_feedback.cuh"
 
+
+// ---- The multigrid preconditioner of the material PCG (material_multigrid.cuh).
+// Levels 1..g_multigridLevels, each sized for MG_SLOTS aggregates per site: the coarsest is the first whose capacity the
+// dense solve takes (MG_COARSEST).
+static int g_multigridLevels=0;
+static MultigridLevel g_multigrid[MG_MAX_LEVELS+1]={};
+// The dense coarsest operator and its Cholesky factor, the inverse of the factor, and the inverse operator.
+static float *d_multigridDense=nullptr,*d_multigridFactorInverse=nullptr,*d_multigridInverse=nullptr;
+// The fine correction before the post smoothing.
+static float3* d_multigridFine=nullptr;
+static void freeMultigrid(){
+    for(int l=1;l<=g_multigridLevels;l++){
+        MultigridLevel& L=g_multigrid[l];
+        for(void* p:{(void*)L.slots,(void*)L.index,(void*)L.count,(void*)L.parent,(void*)L.site,(void*)L.component,
+                     (void*)L.neighbor,(void*)L.A,(void*)L.inverse,(void*)L.r,(void*)L.z,(void*)L.post})cudaFree(p);
+        L={};
+    }
+    g_multigridLevels=0;
+    cudaFree(d_multigridDense);cudaFree(d_multigridFactorInverse);cudaFree(d_multigridInverse);cudaFree(d_multigridFine);
+    d_multigridDense=d_multigridFactorInverse=d_multigridInverse=nullptr;d_multigridFine=nullptr;
+}
+static cudaError_t allocateMultigrid(){
+    if(g_multigridLevels)return cudaSuccess;
+    int sx=g_dimsX+1,sy=g_dimsY+1,sz=g_dimsZ+1,children=g_N;cudaError_t e=cudaSuccess;
+    for(int l=1;l<=MG_MAX_LEVELS && e==cudaSuccess;l++){
+        sx=(sx+1)/2;sy=(sy+1)/2;sz=(sz+1)/2;
+        MultigridLevel& L=g_multigrid[l];L.sx=sx;L.sy=sy;L.sz=sz;
+        int sites=sx*sy*sz,capacity=MG_SLOTS*sites;L.capacity=capacity;g_multigridLevels=l;
+        if(e==cudaSuccess)e=cudaMalloc(&L.slots,(size_t)capacity*sizeof(int));
+        if(e==cudaSuccess)e=cudaMalloc(&L.index,(size_t)capacity*sizeof(int));
+        if(e==cudaSuccess)e=cudaMalloc(&L.count,sizeof(int));
+        if(e==cudaSuccess)e=cudaMalloc(&L.parent,(size_t)children*sizeof(int));
+        if(e==cudaSuccess)e=cudaMalloc(&L.site,(size_t)capacity*sizeof(int));
+        if(e==cudaSuccess)e=cudaMalloc(&L.component,(size_t)capacity*sizeof(int));
+        if(e==cudaSuccess)e=cudaMalloc(&L.neighbor,(size_t)27*capacity*sizeof(int));
+        if(e==cudaSuccess)e=cudaMalloc(&L.A,(size_t)27*9*capacity*sizeof(float));
+        if(e==cudaSuccess)e=cudaMalloc(&L.inverse,(size_t)9*capacity*sizeof(float));
+        if(e==cudaSuccess)e=cudaMalloc(&L.r,(size_t)capacity*sizeof(float3));
+        if(e==cudaSuccess)e=cudaMalloc(&L.z,(size_t)capacity*sizeof(float3));
+        if(e==cudaSuccess)e=cudaMalloc(&L.post,(size_t)capacity*sizeof(float3));
+        children=capacity;
+        if(capacity<=MG_COARSEST)break;
+    }
+    const size_t dense=(size_t)9*MG_COARSEST*MG_COARSEST*sizeof(float);
+    if(e==cudaSuccess)e=cudaMalloc(&d_multigridDense,dense);
+    if(e==cudaSuccess)e=cudaMalloc(&d_multigridFactorInverse,dense);
+    if(e==cudaSuccess)e=cudaMalloc(&d_multigridInverse,dense);
+    if(e==cudaSuccess)e=cudaMalloc(&d_multigridFine,(size_t)g_N*sizeof(float3));
+    if(e==cudaSuccess)e=cudaMemset(d_multigridFine,0,(size_t)g_N*sizeof(float3));
+    if(e==cudaSuccess && g_multigrid[g_multigridLevels].capacity>MG_COARSEST)e=cudaErrorInvalidValue;
+    if(e!=cudaSuccess)freeMultigrid();
+    return e;
+}
+// The aggregates of every level, made again once the topology revision moves (the component labels are fresh).
+static void rebuildMultigrid(){
+    k_TopologyStale<<<1,1>>>(cut_topology_revision_device(),d_multigridRevision);
+    const unsigned* stale=d_multigridRevision+1;int children=g_N;
+    for(int l=1;l<=g_multigridLevels;l++){
+        MultigridLevel& L=g_multigrid[l];
+        k_MgClear<<<Gr(L.capacity),64>>>(L,stale);
+        if(l==1)k_MgClaimFine<<<Gr(g_N),64>>>(d_unified,L,stale);
+        else k_MgClaim<<<Gr(g_multigrid[l-1].capacity),64>>>(g_multigrid[l-1],L,stale);
+        k_MgNumber<<<Gr(L.capacity),64>>>(L,stale);
+        k_MgParent<<<Gr(children),64>>>(L,children,stale);
+        k_MgNeighbors<<<Gr(L.capacity),64>>>(L,stale);
+        children=L.capacity;
+    }
+}
+// The Galerkin operators of this solve's stencil and the dense inverse of the coarsest one.
+static void assembleMultigrid(cudaStream_t stream){
+    auto blocks=[](int capacity){return (capacity+MG_GALERKIN_ROWS-1)/MG_GALERKIN_ROWS;};
+    k_MgGalerkinFine<<<blocks(g_multigrid[1].capacity),8*MG_GALERKIN_ROWS,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,g_multigrid[1]);
+    for(int l=2;l<=g_multigridLevels;l++)
+        k_MgGalerkin<<<blocks(g_multigrid[l].capacity),8*MG_SLOTS*MG_GALERKIN_ROWS,0,stream>>>(g_multigrid[l-1],g_multigrid[l]);
+    const MultigridLevel& coarsest=g_multigrid[g_multigridLevels];
+    cudaMemsetAsync(d_multigridDense,0,(size_t)9*MG_COARSEST*MG_COARSEST*sizeof(float),stream);
+    k_MgDense<<<Gr(27*coarsest.capacity),64,0,stream>>>(coarsest,d_multigridDense);
+    k_MgCholesky<<<1,256,0,stream>>>(coarsest,d_multigridDense);
+    k_MgFactorInverse<<<Gr(3*MG_COARSEST),64,0,stream>>>(coarsest,d_multigridDense,d_multigridFactorInverse);
+    k_MgCoarseInverse<<<Gr(9*MG_COARSEST*MG_COARSEST),64,0,stream>>>(coarsest,d_multigridFactorInverse,d_multigridInverse);
+}
+// z = M^-1 r by one V(1,1) cycle, adding r'z into the slot `slot` of each component's PCG sums.
+static void applyMultigrid(cudaStream_t stream,const float3* r,float3* z,MaterialCGSum* sums,int slot){
+    MultigridLevel* L=g_multigrid;const int top=g_multigridLevels;
+    cudaMemsetAsync(L[1].r,0,(size_t)L[1].capacity*sizeof(float3),stream);
+    k_MgFinePre<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,d_cgH,r,d_multigridFine);
+    k_MgFineRestrict<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,r,d_multigridFine,L[1]);
+    for(int l=1;l<top;l++){
+        cudaMemsetAsync(L[l+1].r,0,(size_t)L[l+1].capacity*sizeof(float3),stream);
+        k_MgPre<<<Gr(L[l].capacity),64,0,stream>>>(L[l]);
+        k_MgRestrict<<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1]);
+    }
+    k_MgCoarsest<<<Gr(3*MG_COARSEST),64,0,stream>>>(L[top],d_multigridInverse);
+    for(int l=top-1;l>=1;l--){
+        k_MgProlong<<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1]);
+        k_MgPost<<<Gr(L[l].capacity),64,0,stream>>>(L[l]);
+    }
+    k_MgFineProlong<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,L[1],d_multigridFine);
+    k_MgFinePost<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,d_cgH,r,d_multigridFine,z,sums,slot);
+}
+
 // Cut edges can change BETWEEN substeps and during final reconstruction.
-// Never reuse a pre-cut component map for a coarse solve of separated tissue.
+// Never reuse a pre-cut component map for a coarse solve of separated tissue: the passes run whenever the topology
+// revision has moved since the labels were made, and leave the labels of an unchanged topology as they are.
 static cudaError_t refreshUnifiedComponents(){
     if(!d_unifiedComponents || g_N<=0)return cudaErrorInvalidValue;
-    k_InitComponents<<<Gr(g_N),64>>>(g_N,d_unifiedComponents);
-    if(g_liveNbrIdx)k_JoinComponents<<<Gr(g_N),64>>>(g_N,g_liveNbrIdx,g_liveActive,d_unifiedComponents);
-    k_FlattenComponents<<<Gr(g_N),64>>>(g_N,d_unifiedComponents);
+    const unsigned* stale=d_componentRevision+1;
+    k_TopologyStale<<<1,1>>>(cut_topology_revision_device(),d_componentRevision);
+    k_InitComponents<<<Gr(g_N),64>>>(g_N,d_unifiedComponents,stale);
+    if(g_liveNbrIdx)k_JoinComponents<<<Gr(g_N),64>>>(g_N,g_liveNbrIdx,g_liveActive,d_unifiedComponents,stale);
+    k_FlattenComponents<<<Gr(g_N),64>>>(g_N,d_unifiedComponents,stale);
     return cudaGetLastError();
 }
 
@@ -2556,6 +2749,69 @@ static cudaError_t refreshFragmentSupport(){
     k_FragmentSupports<<<Gr(g_N),64>>>(g_N,d_unifiedComponents,d_invMass,g_liveActive,d_fragmentSupported);
     if(g_T>0)k_FragmentVolumes<<<Gr(g_T),64>>>(g_T,d_tetIds,d_tetActive,d_unifiedComponents,d_fragmentSupported);
     return cudaGetLastError();
+}
+
+// The eight fragment contact passes. Without a fragment query (k_FragmentQueries) every one of their kernels returns
+// at once and they change nothing.
+static void launchFragmentPasses(cudaStream_t stream,bool prepare,const float3* previous){
+    for(int pass=0;pass<8;pass++){
+        k_FragmentVertices<<<Gr(3*g_surfaceCount),64,0,stream>>>(3*g_surfaceCount,d_surfaceVertices,d_unifiedComponents,d_pos,previous,d_fragmentStart,d_fragmentVertices,d_fragmentQueryCount);
+        if(!prepare)k_FragmentEdges<<<Gr(g_N),64,0,stream>>>(g_N,g_liveNbrIdx,g_liveRestNbr,d_unifiedComponents,d_fragmentSupported,d_graspComponents,d_invMass,d_pos,g_p.youngE,g_hFrame,d_fragmentLambda,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
+        // A fixed grid of warps strides over the device query list: no host readback of its length.
+        k_FragmentContact<<<2048,64,0,stream>>>(g_surfaceCount,d_fragmentQueries,d_fragmentQueryCount,d_unifiedComponents,d_pos,previous,d_fragmentStart,
+            d_surfaceVertices,d_fragmentVertices,d_invMass,d_surfaceDelta,d_fragmentDegree);
+        k_ApplyFragmentContact<<<Gr(g_N),64,0,stream>>>(g_N,d_pos,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
+        k_UnsupportedTools<<<Gr(g_N),64,0,stream>>>(g_N,d_fragmentSupported,d_unifiedComponents,d_graspComponents,d_invMass,previous,d_pos,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr,g_jawThickness,g_gp.jawGapClosed,d_fragmentQueryCount);
+    }
+}
+__global__ void k_FragmentPassCondition(cudaGraphConditionalHandle handle,const int* queryCount){
+    cudaGraphSetConditional(handle,*queryCount>0?1u:0u);
+}
+// The launch arguments the fragment pass graph bakes in: a change of any of them builds it again.
+struct FragmentPassKey{const void* pointers[18];int surfaceCount,n;float young,h,thickness,gap;};
+// The fragment passes of solveFragmentContact (prepare or not) as a graph whose body runs only once a query exists.
+// Tissue without detached fragments, the usual case, then pays one graph launch instead of 40 kernel launches that
+// return at once.
+static cudaGraphExec_t g_fragmentPassGraph[2]={};
+static FragmentPassKey g_fragmentPassKey[2]={};
+static void destroyFragmentPassGraphs(){
+    for(int k=0;k<2;k++){if(g_fragmentPassGraph[k])cudaGraphExecDestroy(g_fragmentPassGraph[k]);g_fragmentPassGraph[k]=nullptr;}
+}
+static cudaError_t runFragmentPasses(bool prepare,const float3* previous){
+    // Section profiles time the passes kernel by kernel.
+    if(g_sectionProfile){launchFragmentPasses(0,prepare,previous);return cudaGetLastError();}
+    FragmentPassKey key;memset(&key,0,sizeof(key));
+    const void* pointers[18]={d_surfaceVertices,d_unifiedComponents,d_pos,previous,d_fragmentStart,d_fragmentVertices,d_fragmentQueryCount,
+        g_liveNbrIdx,g_liveRestNbr,d_fragmentSupported,d_graspComponents,d_invMass,d_fragmentLambda,d_surfaceDelta,d_fragmentDegree,
+        d_fragmentQueries,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr};
+    memcpy(key.pointers,pointers,sizeof(pointers));
+    key.surfaceCount=g_surfaceCount;key.n=g_N;key.young=g_p.youngE;key.h=g_hFrame;key.thickness=g_jawThickness;key.gap=g_gp.jawGapClosed;
+    cudaGraphExec_t& exec=g_fragmentPassGraph[prepare?1:0];
+    if(!exec || memcmp(&key,&g_fragmentPassKey[prepare?1:0],sizeof(key))){
+        cudaError_t e=cudaSuccess;
+        if(!g_captureStream)e=cudaStreamCreate(&g_captureStream);
+        cudaGraph_t graph=nullptr;if(e==cudaSuccess)e=cudaGraphCreate(&graph,0);
+        cudaGraphConditionalHandle handle=0;
+        if(e==cudaSuccess)e=cudaGraphConditionalHandleCreate(&handle,graph,0,cudaGraphCondAssignDefault);
+        cudaGraphNode_t condition=nullptr;const int* count=d_fragmentQueryCount;void* arguments[]={&handle,&count};
+        cudaKernelNodeParams kernel={};kernel.func=(void*)k_FragmentPassCondition;kernel.gridDim=dim3(1);kernel.blockDim=dim3(1);
+        kernel.kernelParams=arguments;
+        if(e==cudaSuccess)e=cudaGraphAddKernelNode(&condition,graph,nullptr,0,&kernel);
+        cudaGraphNodeParams branch={cudaGraphNodeTypeConditional};
+        branch.conditional.handle=handle;branch.conditional.type=cudaGraphCondTypeIf;branch.conditional.size=1;
+        cudaGraphNode_t node=nullptr;if(e==cudaSuccess)e=cudaGraphAddNode(&node,graph,&condition,1,&branch);
+        if(e==cudaSuccess)e=cudaStreamBeginCaptureToGraph(g_captureStream,branch.conditional.phGraph_out[0],nullptr,nullptr,0,cudaStreamCaptureModeThreadLocal);
+        if(e==cudaSuccess){
+            launchFragmentPasses(g_captureStream,prepare,previous);
+            cudaGraph_t body=nullptr;e=cudaStreamEndCapture(g_captureStream,&body);
+        }
+        if(exec)cudaGraphExecDestroy(exec);exec=nullptr;
+        if(e==cudaSuccess)e=cudaGraphInstantiate(&exec,graph,0);
+        if(graph)cudaGraphDestroy(graph);
+        if(e!=cudaSuccess)return e;
+        g_fragmentPassKey[prepare?1:0]=key;
+    }
+    return cudaGraphLaunch(exec,0);
 }
 
 // Reads the component support of the caller's latest refreshFragmentSupport.
@@ -2589,15 +2845,7 @@ static cudaError_t solveFragmentContact(bool prepare=false){
     // The passes add into d_surfaceDelta and d_fragmentDegree, which k_ApplyFragmentContact leaves cleared.
     cudaMemsetAsync(d_surfaceDelta,0,g_N*sizeof(float3));cudaMemsetAsync(d_fragmentDegree,0,g_N*sizeof(int));
     beginFeasible();
-    for(int pass=0;pass<8;pass++){
-        k_FragmentVertices<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,d_unifiedComponents,d_pos,previous,d_fragmentStart,d_fragmentVertices,d_fragmentQueryCount);
-        if(!prepare)k_FragmentEdges<<<Gr(g_N),64>>>(g_N,g_liveNbrIdx,g_liveRestNbr,d_unifiedComponents,d_fragmentSupported,d_graspComponents,d_invMass,d_pos,g_p.youngE,g_hFrame,d_fragmentLambda,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
-        // A fixed grid of warps strides over the device query list: no host readback of its length.
-        k_FragmentContact<<<2048,64>>>(g_surfaceCount,d_fragmentQueries,d_fragmentQueryCount,d_unifiedComponents,d_pos,previous,d_fragmentStart,
-            d_surfaceVertices,d_fragmentVertices,d_invMass,d_surfaceDelta,d_fragmentDegree);
-        k_ApplyFragmentContact<<<Gr(g_N),64>>>(g_N,d_pos,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
-        k_UnsupportedTools<<<Gr(g_N),64>>>(g_N,d_fragmentSupported,d_unifiedComponents,d_graspComponents,d_invMass,previous,d_pos,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr,g_jawThickness,g_gp.jawGapClosed,d_fragmentQueryCount);
-    }
+    e=runFragmentPasses(prepare,previous);if(e!=cudaSuccess)return e;
     e=finishFeasible();if(e!=cudaSuccess)return e;
     if(prepare)k_FragmentIncomingVelocity<<<Gr(g_N),64>>>(g_N,d_unifiedComponents,d_fragmentSupported,d_graspComponents,d_fragmentBefore,d_pos,d_vel);
 #ifdef ENDO_FRAGMENT_TRACE
@@ -2649,8 +2897,10 @@ extern "C" int xpbd_relax_reconstructed_contact(){
     // merely because the execution-graph cache needs to be rebuilt.
     if(d_unified){
         int refreshMax=std::max(std::max(g_N,g_E),std::max(g_B,g_T));
+        k_TopologyStale<<<1,1>>>(cut_topology_revision_device(),d_livenessRevision);
         k_RefreshLiveness<<<Gr(refreshMax),64>>>(g_N,g_E,g_B,g_T,g_liveNbrIdx,d_edgeOwnerSlot,d_edgeI,d_edgeJ,
-            g_liveBendPairs,d_bendSrcIdx,g_liveActive,g_livePinned,g_liveMass,d_tetIds,d_tetEdgeOwnerSlot,d_edgeActive,d_bendActive,d_invMass,d_tetActive);
+            g_liveBendPairs,d_bendSrcIdx,g_liveActive,g_livePinned,g_liveMass,d_tetIds,d_tetEdgeOwnerSlot,d_edgeActive,d_bendActive,d_invMass,d_tetActive,
+            d_livenessRevision+1);
         cudaError_t componentError=refreshUnifiedComponents();
         if(componentError!=cudaSuccess)return -(int)componentError;
         componentError=refreshFragmentSupport();if(componentError!=cudaSuccess)return -(int)componentError;
@@ -2683,25 +2933,20 @@ extern "C" int xpbd_relax_reconstructed_contact(){
             // surface reconstruction. Vertex-only repair converges very slowly
             // when a stiff captured patch must move with its supporting tissue.
             if(it==0){
-                k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,5);
-                k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
-                k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,5);
+                k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
-                k_CoarseSolve<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
-                k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
-                k_PressureLineClear<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 for(int pass=0;pass<2;pass++){
-                    k_PressureLineNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
-                    k_PressureLineTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
-                    k_PressureLineContacts<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
+                    k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
                 }
-                k_PressureLineSelect<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,0);
+                k_PressureLineSelect<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,0);
             }
             if(it>0 && g_surfaceCount>0){
                 cudaMemsetAsync(d_manifoldCount,0,sizeof(int),g_captureStream);
@@ -2730,15 +2975,12 @@ extern "C" int xpbd_relax_reconstructed_contact(){
 
             if(it==0){
                 k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,false);
-                k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
                 k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,true);
-                k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,true);
-            k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+            k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
             }
         }
         cudaGraph_t graph=nullptr;capture=cudaStreamEndCapture(g_captureStream,&graph);if(capture!=cudaSuccess)return -(int)capture;
@@ -2822,7 +3064,11 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
 
     if(!d_unified)e=cudaMalloc(&d_unified,sizeof(UnifiedState));
     if(e==cudaSuccess && !d_unifiedTarget)e=cudaMalloc(&d_unifiedTarget,(size_t)g_N*sizeof(float3));
-    if(e==cudaSuccess && !d_coarseWeight)e=cudaMalloc(&d_coarseWeight,(size_t)g_N*sizeof(float));
+    // The coarse kernels visit the active nodes alone (UnifiedState::activeNodes): every other node keeps weight 0.
+    if(e==cudaSuccess && !d_coarseWeight){
+        e=cudaMalloc(&d_coarseWeight,(size_t)g_N*sizeof(float));
+        if(e==cudaSuccess)e=cudaMemset(d_coarseWeight,0,(size_t)g_N*sizeof(float));
+    }
     if(e==cudaSuccess && !d_coarseBlock)e=cudaMalloc(&d_coarseBlock,sizeof(CoarseBlock));
     if(e==cudaSuccess && !d_unifiedInteraction)e=cudaMalloc(&d_unifiedInteraction,(size_t)9*g_N*sizeof(float));
     // A color holds at most one vertex per site of its parity, the count the sweeps pass as the list capacity.
@@ -2837,9 +3083,13 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
         if(e==cudaSuccess)e=cudaMalloc(&d_unifiedRestMetric,(size_t)7*g_T*sizeof(float));
         if(e==cudaSuccess)g_unifiedTetCapacity=g_T;
     }
+    // The PCG launches over the active nodes alone (UnifiedState::activeNodes): the other nodes keep the zero
+    // stencil row, residual, direction and step set here, which the kernels over all nodes read.
+    const bool clearCG=!d_cgStencil;
     if(e==cudaSuccess && !d_cgStencil)e=cudaMalloc(&d_cgStencil,g_N*sizeof(unsigned short));
     if(e==cudaSuccess && !d_cgZ)e=cudaMalloc(&d_cgZ,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgMatrix)e=cudaMalloc(&d_cgMatrix,(size_t)72*g_N*sizeof(__half));
+    if(e==cudaSuccess)e=allocateMultigrid();
     if(e==cudaSuccess && !d_cgScale)e=cudaMalloc(&d_cgScale,(size_t)8*g_N*sizeof(float));
     if(e==cudaSuccess && !d_cgR)e=cudaMalloc(&d_cgR,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgP)e=cudaMalloc(&d_cgP,g_N*sizeof(float3));
@@ -2849,6 +3099,11 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     if(e==cudaSuccess && !d_cgH)e=cudaMalloc(&d_cgH,g_N*sizeof(Symmetric3));
     if(e==cudaSuccess && !d_cgS)e=cudaMalloc(&d_cgS,g_N*sizeof(MaterialCGSum));
     if(e==cudaSuccess && !d_cgSearch)e=cudaMalloc(&d_cgSearch,g_N*sizeof(MaterialLineSearch));
+    if(e==cudaSuccess && clearCG){
+        e=cudaMemset(d_cgStencil,0,g_N*sizeof(unsigned short));
+        for(float3* v:{d_cgZ,d_cgR,d_cgP,d_cgQ,d_cgD,d_cgA})if(e==cudaSuccess)e=cudaMemset(v,0,g_N*sizeof(float3));
+        if(e==cudaSuccess)e=cudaMemset(d_cgH,0,g_N*sizeof(Symmetric3));
+    }
     if(e!=cudaSuccess)return -(int)e;
     // Store the correct inertial target. Component-wide coarse modes below
     // propagate gravity/support loads without requiring thousands of local sweeps.
@@ -2880,6 +3135,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     xpbd_section_mark("pre: tool, contact discovery, manifold");
     cudaMemcpyAsync(d_pos,d_prevPos,(size_t)g_N*sizeof(float3),cudaMemcpyDeviceToDevice);
     UnifiedState s={};s.componentSupport=d_fragmentSupported;s.coupledReady=true;s.component=d_unifiedComponents;s.graspComponents=d_graspComponents;s.safeCluster=d_safeCluster;s.safeAggregate=d_safeAggregate;s.safeJoined=d_safeJoined;s.n=g_N;s.nx=g_dimsX+1;s.ny=g_dimsY+1;s.nt=g_T;s.grips=g_embeddedGrip&&g_grasping?g_gripCount:0;
+    s.kuhn=d_kuhnTets;s.cellBase=d_tetCellBase;s.cells=std::max(g_tetCells,1);s.activeNodes=d_activeNodes;s.activeCount=g_activeNodes;
     s.offsets=d_incidentOffsets;s.incident=d_incidentTets;s.ids=d_tetIds;s.live=d_tetActive;s.contactIds=d_manifoldIds;s.contactCount=d_manifoldCount;
     s.degree=d_surfaceDegree;s.gripDegree=d_gripDegree;s.b0=d_tetBr0;s.b1=d_tetBr1;s.b2=d_tetBr2;s.previous=d_prevPos;s.target=d_unifiedTarget;
     s.attachRest=d_attachRest;s.mu=d_tetMuV;s.bulk=d_tetLambdaV;s.invMass=d_invMass;s.attach=d_attachStiffness;s.pos=d_pos;
@@ -2898,12 +3154,14 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     }
 
     e=cudaMemcpyAsync(d_unified,&s,sizeof(s),cudaMemcpyHostToDevice);if(e!=cudaSuccess)return -(int)e;
+    rebuildMultigrid();
     k_CacheUnifiedTetData<<<Gr(g_T),64>>>(d_unified,d_unifiedPreviousInverse,d_unifiedRestMetric,cacheRest);
+    if(cacheRest && g_T>0)k_KuhnTable<<<1,6>>>(d_unified,d_kuhnTets);
     k_UnifiedTargets<<<1,1>>>(d_unified);
     cudaMemsetAsync(d_graspComponents,0,g_N*sizeof(int));
     k_UnifiedPatchBasis<<<1,32>>>(d_unified);
     if(g_blade.enabled)k_MarkCoarseContact<<<128,64>>>(d_bladeState);
-    k_CoarseWeights<<<Gr(g_N),64>>>(d_unified);
+    k_CoarseWeights<<<Gr(g_activeNodes),64>>>(d_unified);
     const int predictorSites=((s.nx+1)/2)*((s.ny+1)/2)*((g_dimsZ+2)/2);
     cudaMemsetAsync(d_sweepCount,0,8*sizeof(int));
     k_SweepSites<<<Gr(g_N),64>>>(d_unified,SweepPredictor,predictorSites,d_sweepSites,d_sweepCount);
@@ -2970,31 +3228,26 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             if(it==0)k_MarkVolumeRecovery<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);
             xpbd_section_mark("loop: manifold, contact marks");
             if(it==0 || it==2)for(int mode=1;mode<=(it==0?4:1);mode++){
-                k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,mode);
-                k_InitSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
+                k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,mode);
+                k_InitSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
                 k_JoinSafeCoarse<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);
-                k_FlattenSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
-                k_AccumulateSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
-                k_FinishSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
-                k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
-                k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_FlattenSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                k_AccumulateSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                k_FinishSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
-                k_CoarseSolve<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
-                k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
                 if(mode>=1 && mode<=4){
-                    k_PressureLineClear<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                    k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                     for(int pass=0;pass<2;pass++){
-                        k_PressureLineNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
-                        k_PressureLineTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
-                        k_PressureLineContacts<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
+                        k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
                     }
-                    k_PressureLineSelect<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                    k_PressureLineSelect<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 }
-                k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             }
             xpbd_section_mark("loop: coarse modes");
             // Solve unconstrained material DOFs with contact/anchor witnesses
@@ -3016,24 +3269,29 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 }
                 k_MaterialRecoveryOnly<<<1,1,0,g_captureStream>>>(d_unified,nonlinear>0);
                 xpbd_section_mark("cg assembly: start");
-                k_MaterialStencilAssemble<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);
+                k_MaterialStencilAssemble<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);
                 xpbd_section_mark("cg assembly: stencil and residual");
-                k_MaterialStencilActiveMask<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil);
+                k_MaterialStencilActiveMask<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgStencil);
                 xpbd_section_mark("cg assembly: mask");
                 k_MaterialCGClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgS);
-                k_MaterialCGBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgR,d_cgH,d_cgZ,d_cgQ,d_cgD,d_cgS);
+                assembleMultigrid(g_captureStream);
+                k_MaterialCGBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgQ,d_cgD);
+                applyMultigrid(g_captureStream,d_cgR,d_cgZ,d_cgS,2);
                 xpbd_section_mark("cg: assembly");
-                for(int cg=0;cg<(nonlinear==0 && !loaded?MaterialFreeIterations:MaterialLoadedIterations);cg++){
+                const int iterations=nonlinear==0 && !loaded?MaterialFreeIterations:MaterialLoadedIterations;
+                for(int cg=0;cg<iterations;cg++){
                     float3* direction=cg%2?d_cgQ:d_cgP;const float3* previous=cg%2?d_cgP:d_cgQ;
-                    k_MaterialStencilProduct<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,previous,d_cgZ,direction,d_cgMatrix,d_cgScale,d_cgStencil,d_cgA,d_cgS,cg);
-                    k_MaterialCGAdvance<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgR,d_cgH,direction,d_cgA,d_cgD,d_cgZ,d_cgS,cg);
+                    k_MaterialStencilProduct<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,previous,d_cgZ,direction,d_cgMatrix,d_cgScale,d_cgStencil,d_cgA,d_cgS,cg);
+                    k_MaterialCGAdvance<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgR,direction,d_cgA,d_cgD,d_cgS,cg);
+                    // The last direction is formed by no further product.
+                    if(cg+1<iterations)applyMultigrid(g_captureStream,d_cgR,d_cgZ,d_cgS,cg%3);
                 }
                 xpbd_section_mark("cg: iterations");
                 // The trust region and the tangent-cone projection act on free recovering components alone. Without
                 // one at the query above none appears in this substep (component flags only gain bits, and the volume
                 // flags were raised on the same positions), so both would leave every direction unchanged.
                 if(recoveryRequested){
-                    k_MaterialRestrictionClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_coarseWeight);
+                    k_MaterialRestrictionClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseWeight);
                     k_RecoveryTrust<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgD,d_coarseWeight);
                     k_ApplyMaterialRestriction<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgD,d_coarseWeight,nullptr,d_unified);
                 }
@@ -3051,7 +3309,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                     int* changed=&d_cgSearch[feasible&1].invalid;
                     const int* previous=feasible?&d_cgSearch[(feasible-1)&1].invalid:nullptr;
                     cudaMemsetAsync(changed,0,sizeof(int),g_captureStream);
-                    k_MaterialRestrictionClear<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_coarseWeight);
+                    k_MaterialRestrictionClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseWeight);
                     k_RestrictMaterialDirection<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgD,d_coarseWeight,previous,changed);
                     k_ApplyMaterialRestriction<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_cgD,d_coarseWeight,changed,d_unified);
                 }
@@ -3086,27 +3344,22 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             // A tissue-only regional mode lets pressure move a finite patch
             // away from an operator-held jaw, complementing joint transport.
             if(it==0 || it==2){
-                k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,5);
-                k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,false);
-                k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,5);
+                k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
-                k_CoarseSolve<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse,true);
-                k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
-                k_PressureLineClear<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 for(int pass=0;pass<2;pass++){
-                    k_PressureLineNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
-                    k_PressureLineTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
-                    k_PressureLineContacts<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
+                    k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
                 }
-                k_PressureLineSelect<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_PressureLineSelect<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             }
             xpbd_section_mark("loop: regional mode");
-            k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,0);
+            k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,0);
             cudaMemsetAsync(d_sweepCount,0,8*sizeof(int),g_captureStream);
             k_SweepSites<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,SweepLocal,sites,d_sweepSites,d_sweepCount);
             for(int c=0;c<8;c++){k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);}
@@ -3116,33 +3369,30 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
             // The coupled tool/patch direction needs the same feasible basis
             // as the tissue-only modes. Otherwise one nearly collapsed tet
             // stalls the entire drive, then releases it after a local sweep.
-            k_InitSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
+            k_InitSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
             k_JoinSafeCoarse<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);
-            k_FlattenSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
-            k_AccumulateSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
-            k_FinishSafeCoarse<<<Gr(g_N),64,0,g_captureStream>>>(d_unified);
+            k_FlattenSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+            k_AccumulateSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+            k_FinishSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
             k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-            k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
-            k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,false);
-            k_CoarseContactGrip<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+            k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
             k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
-            k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock,true);
-            k_CoarseContactBound<<<128,64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+            k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,true);
-            k_CoarseApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+            k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
             xpbd_section_mark("loop: tool, safe and global coarse");
             { // Retain rotational inertia in every material/contact sweep.
-                k_CoarseWeights<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,7);
-                k_CoarseBegin<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_RigidCenters<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,7);
+                k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_RigidCenters<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 k_RigidContactKinds<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_RigidCenterFinish<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_RigidNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_CoarseSolve<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_RigidEnergy<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_RigidCenterFinish<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_RigidNodes<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_RigidEnergy<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 k_RigidFeasible<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
-                k_RigidApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                k_RigidApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
             }
             xpbd_section_mark("loop: rigid modes");
         }
@@ -3165,17 +3415,14 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     // elasticity cannot change their COM momentum. Components with supports,
     // contact or grasp remain in the coupled iteration above; a tissue-only
     // correction there would undo the tool/tissue contact balance.
-    k_CoarseWeights<<<Gr(g_N),64>>>(d_unified,6);
-    k_CoarseBegin<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
-    k_CoarseNodes<<<GrAccumulate(g_N),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
-    k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse,false);
-    k_CoarseContactGrip<<<128,64>>>(d_unified,d_globalCoarse);
+    k_CoarseWeights<<<Gr(g_activeNodes),64>>>(d_unified,6);
+    k_CoarseBegin<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
+    k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,false);
-    k_CoarseSolve<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
-    k_CoarseTets<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse,true);
-    k_CoarseContactBound<<<128,64>>>(d_unified,d_globalCoarse);
+    k_CoarseSolve<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
+    k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,true);
-    k_CoarseApply<<<Gr(g_N),64>>>(d_unified,d_globalCoarse);
+    k_CoarseApply<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
     xpbd_section_mark("post: free-component nullspace");
     e=solveFragmentContact();if(e!=cudaSuccess)return -(int)e;
     profileMark(g_substepIndex-1,1);profileMark(g_substepIndex-1,2);
@@ -3240,17 +3487,20 @@ extern "C" int xpbd_substep(void)
         if (g_E > refreshMax) refreshMax = g_E;
         if (g_B > refreshMax) refreshMax = g_B;
         if (g_T > refreshMax) refreshMax = g_T;
+        k_TopologyStale<<<1,1>>>(cut_topology_revision_device(), d_livenessRevision);
         k_RefreshLiveness<<<Gr(refreshMax), 64>>>(g_N, g_E, g_B, g_T,
             g_liveNbrIdx, d_edgeOwnerSlot, d_edgeI, d_edgeJ,
             g_liveBendPairs, d_bendSrcIdx,
             g_liveActive, g_livePinned, g_liveMass,
             d_tetIds, d_tetEdgeOwnerSlot,
-            d_edgeActive, d_bendActive, d_invMass, d_tetActive);
+            d_edgeActive, d_bendActive, d_invMass, d_tetActive, d_livenessRevision + 1);
     }
     bool fallbackEdges=g_bound && g_doStrainF && g_p.ks<=0.f && d_edgeTetSupport;
     if(fallbackEdges) {
-        cudaMemsetAsync(d_edgeTetSupport,0,(size_t)6*g_N*sizeof(int));
-        k_MarkTetEdgeSupport<<<Gr(g_T),64>>>(g_T,d_tetActive,d_tetEdgeOwnerSlot,d_edgeTetSupport);
+        // Its own record: the repair refreshes the liveness flags without it.
+        k_TopologyStale<<<1,1>>>(cut_topology_revision_device(), d_edgeSupportRevision);
+        k_ClearTetEdgeSupport<<<Gr(6*g_N),64>>>(6*g_N,d_edgeTetSupport,d_edgeSupportRevision+1);
+        k_MarkTetEdgeSupport<<<Gr(g_T),64>>>(g_T,d_tetActive,d_tetEdgeOwnerSlot,d_edgeTetSupport,d_edgeSupportRevision+1);
     }
     // A fresh fragment may already overlap the newly reconstructed cut lip.
     // Repair that starting state before ballistic prediction can carry it
@@ -3522,7 +3772,7 @@ extern "C" void xpbd_shutdown()
     freeBlade();
     cudaFree(d_toolClearance);d_toolClearance=nullptr;
     cudaFree(d_cgStencil);d_cgStencil=nullptr;cudaFree(d_cgZ);d_cgZ=nullptr;
-    cudaFree(d_cgMatrix);d_cgMatrix=nullptr;cudaFree(d_cgScale);d_cgScale=nullptr;
+    cudaFree(d_cgMatrix);d_cgMatrix=nullptr;cudaFree(d_cgScale);d_cgScale=nullptr;freeMultigrid();
     cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgQ);d_cgQ=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
     cudaFree(d_cgH);d_cgH=nullptr;cudaFree(d_cgS);d_cgS=nullptr;cudaFree(d_cgSearch);d_cgSearch=nullptr;
     if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_sweepSites);d_sweepSites=nullptr;cudaFree(d_sweepCount);d_sweepCount=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
@@ -3543,6 +3793,8 @@ extern "C" void xpbd_shutdown()
     cudaFree(d_invMass); d_invMass = nullptr;
     cudaFree(d_edgeOwnerSlot); d_edgeOwnerSlot = nullptr;
     g_liveRestNbr=nullptr; g_liveNbrIdx = nullptr; g_liveBendPairs = nullptr; g_liveActive = nullptr; g_livePinned = nullptr;
+    cudaFree(d_topologyRecords);
+    d_topologyRecords = d_componentRevision = d_livenessRevision = d_edgeSupportRevision = d_multigridRevision = nullptr;
     g_liveMass = nullptr; g_liveExtForce = nullptr; g_liveHapticForce = nullptr;
     g_dimsX = g_dimsY = g_dimsZ = 0; g_bound = false;
     cudaFree(d_edgeI);   d_edgeI = nullptr;
@@ -3557,6 +3809,8 @@ extern "C" void xpbd_shutdown()
     cudaFree(d_bendSrcIdx); d_bendSrcIdx = nullptr;
     // STEP 7 tet buffers.
     cudaFree(d_tetIds); d_tetIds = nullptr;
+    cudaFree(d_tetCellBase); d_tetCellBase = nullptr; cudaFree(d_kuhnTets); d_kuhnTets = nullptr; g_tetCells = 0;
+    cudaFree(d_activeNodes); d_activeNodes = nullptr; g_activeNodes = 0;
     cudaFree(d_tetBr0); d_tetBr0 = nullptr; cudaFree(d_tetBr1); d_tetBr1 = nullptr; cudaFree(d_tetBr2); d_tetBr2 = nullptr;
     cudaFree(d_tetMuV); d_tetMuV = nullptr; cudaFree(d_tetLambdaV); d_tetLambdaV = nullptr;
     cudaFree(d_tetAlphaDev); d_tetAlphaDev = nullptr; cudaFree(d_tetAlphaHyd); d_tetAlphaHyd = nullptr;
@@ -3565,6 +3819,7 @@ extern "C" void xpbd_shutdown()
     cudaFree(d_tetColorOrder); d_tetColorOrder = nullptr; g_tetColorOrder.clear();
     cudaFree(d_colorTetIds); d_colorTetIds = nullptr; cudaFree(d_colorTetDet); d_colorTetDet = nullptr;
     destroyFeasibleGraphs();
+    destroyFragmentPassGraphs();
     if(g_pressureGraph){cudaGraphExecDestroy(g_pressureGraph);g_pressureGraph=nullptr;}
     cudaFree(d_fiberLambda);d_fiberLambda=nullptr;g_tissueHardening=80.f;g_bulkDampingSeconds=.003125f;
     cudaFree(d_tetEdgeOwnerSlot); d_tetEdgeOwnerSlot = nullptr;

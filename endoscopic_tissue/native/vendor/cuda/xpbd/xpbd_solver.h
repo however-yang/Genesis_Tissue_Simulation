@@ -29,6 +29,8 @@
 #define XPBD_ERR_COLOR_OVERFLOW  (-1003)   // greedy colouring exhausted 64 colours (vertex degree >= 64):
                                            // FAIL LOUD rather than alias a used colour (no-atomics GS race)
 #define XPBD_ERR_BAD_ARG         (-1004)   // null pointer / count / index out of range
+#define XPBD_ERR_IRREGULAR_REST  (-1005)   // a rest tet differs from its Kuhn type beyond rounding: the solver bakes one
+                                           // rest shape per type, valid on a regular rest lattice only
 
 extern "C" {
 
@@ -393,6 +395,8 @@ extern "C" int xpbd_get_blade(float* values10);
 extern "C" const int* xpbd_blade_phase_device();
 
 extern "C" const float3* xpbd_blade_sweep_device();
+// cut.cu: the count of intact links severed since cut_init, on the device; null before cut_init.
+extern "C" const unsigned* cut_topology_revision_device();
 
 // Optional CPU diagnostic, one flag per material node (count must match N).
 // Bits 1/2/4: compressive shaft/upper/lower jaw contact in the accepted state.

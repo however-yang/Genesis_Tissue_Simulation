@@ -109,3 +109,5 @@ int cut_recompute_grasp_ring(const int* grasped, int nExempt);
 int  cut_selftest_tear_exempt();
 
 int cut_surface_revision(unsigned* revision);
+// The number of intact links severed since cut_init (0 before it). It changes exactly when the live topology does.
+int cut_topology_revision(unsigned* revision);

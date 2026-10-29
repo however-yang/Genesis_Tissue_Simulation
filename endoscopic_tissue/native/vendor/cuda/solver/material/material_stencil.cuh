@@ -34,7 +34,7 @@ __device__ __forceinline__ void materialRowAdd(float (&row)[72],int slot,const f
 // The same pass writes the PCG right-hand side, the residual: minus the gradient of the node's energy, with the terms
 // and the summation order of k_UnifiedVertex. A fixed node gets a zero residual and an identity diagonal.
 __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matrix,float* blockScale,float3* residual,Symmetric3* diagonal){
-    const auto& s=*state;int node=blockIdx.x*blockDim.x+threadIdx.x;if(node>=s.n)return;
+    const auto& s=*state;int node=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(node<0)return;
     if(materialCgFixed(s,node)){residual[node]=mkf3(0,0,0);diagonal[node]={1,1,1,0,0,0};return;}
     float3 p=s.pos[node];float inertia=1.f/(s.invMass[node]*s.h*s.h),row[72]={};
     float3 gradient=(p-s.target[node])*inertia;
@@ -56,22 +56,22 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
     }
     for(int k=s.offsets[node];k<s.offsets[node+1];k++){
         int t=s.incident[k];if(!s.live[t])continue;
-        const int* id=s.ids+4*t;int i=id[0]==node?0:id[1]==node?1:id[2]==node?2:3;
+        int id[4];unifiedTetIds(s,t,id);int i=id[0]==node?0:id[1]==node?1:id[2]==node?2:3;
         float3 e[3]={s.pos[id[1]]-s.pos[id[0]],s.pos[id[2]]-s.pos[id[0]],s.pos[id[3]]-s.pos[id[0]]};
-        float3 b[3]={s.b0[t],s.b1[t],s.b2[t]},q[4]={(b[0]+b[1]+b[2])*(-1.f),b[0],b[1],b[2]},F[3];
+        float3 b[3]={unifiedKuhn(s,t).b0,unifiedKuhn(s,t).b1,unifiedKuhn(s,t).b2},q[4]={(b[0]+b[1]+b[2])*(-1.f),b[0],b[1],b[2]},F[3];
         // The row node's shape vector, selected without indexing at run time.
         float3 qi=q[0];
         #pragma unroll
         for(int a=1;a<4;a++)if(i==a)qi=q[a];
-        float mu=s.mu[t];
+        float mu=unifiedKuhn(s,t).muV;
         // Its gradient: elasticity with the compression barrier, then strain damping, as k_UnifiedVertex evaluates them.
         // It goes first, before the curvature terms below hold their registers.
         {
-            float det=s.restMetric[7*t+6],J=dot3(e[0],cross3(e[1],e[2]))*det;
+            float det=unifiedKuhn(s,t).metric[6],J=dot3(e[0],cross3(e[1],e[2]))*det;
             float3 g1=cross3(e[1],e[2])*det,g2=cross3(e[2],e[0])*det,g3=cross3(e[0],e[1])*det;
             float3 g=i==0?(g1+g2+g3)*(-1.f):i==1?g1:i==2?g2:g3;
             float3 Fq=e[0]*dot3(b[0],qi)+e[1]*dot3(b[1],qi)+e[2]*dot3(b[2],qi);
-            float lambda=s.bulk[t]+mu/3.f,pressure=lambda*(J-1.f)-mu;
+            float lambda=unifiedKuhn(s,t).bulkV+mu/3.f,pressure=lambda*(J-1.f)-mu;
             gradient=gradient+Fq*mu+g*(pressure+unifiedCompressionBarrier(J,s.minimum,lambda).gradient);
             Symmetric3 unused={};unifiedStrainDamping(s,t,e[0],e[1],e[2],qi,gradient,unused);
         }
@@ -92,7 +92,7 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
                 pq[j]=r[0]*q[j].x+r[1]*q[j].y+r[2]*q[j].z;gq[j]=G[0]*pq[j].x+G[1]*pq[j].y+G[2]*pq[j].z;
             }
         }
-        float barrierCurvature=unifiedCompressionBarrier(dot3(F[0],cof[0]),s.minimum,s.bulk[t]+s.mu[t]/3.f).curvature;
+        float barrierCurvature=unifiedCompressionBarrier(dot3(F[0],cof[0]),s.minimum,unifiedKuhn(s,t).bulkV+unifiedKuhn(s,t).muV/3.f).curvature;
         float scale=.5f*mu*s.damping/s.h,fft[9]={},ggt[9]={};
         #pragma unroll
         for(int u=0;u<3;u++)
@@ -124,7 +124,7 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
                     #pragma unroll
                     for(int v=0;v<3;v++){
                         float H=mu*(dot*fft[3*u+v]+compF3(fq[j],u)*compF3(fqi,v)-(2.f/3.f)*compF3(fqi,u)*compF3(fq[j],v))
-                            +(s.bulk[t]+barrierCurvature)*compF3(gJi,u)*compF3(gJ[j],v);
+                            +(unifiedKuhn(s,t).bulkV+barrierCurvature)*compF3(gJi,u)*compF3(gJ[j],v);
                         if(s.damping>0)H+=scale*(pdot*ggt[3*u+v]+compF3(gq[j],u)*compF3(gqi,v));
                         float extra=axial*compF3(n,u)*compF3(n,v)+(u==v?tangent:0);
                         block[3*u+v]=H-extra;row[3*u+v]+=extra;
@@ -164,7 +164,7 @@ __global__ void k_MaterialStencilProduct(const UnifiedState* __restrict__ state,
     const float3* __restrict__ preconditioned,float3* __restrict__ direction,
     const __half* __restrict__ matrix,const float* __restrict__ blockScale,const unsigned short* __restrict__ stencil,
     float3* __restrict__ result,MaterialCGSum* sums,int iteration){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
+    const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0)return;
     unsigned mask=stencil[i];
     result[i]=mkf3(0,0,0);if(!(mask>>7&1)||(iteration>=MaterialLoadedIterations && (s.graspComponents[s.component[i]]&7)))return;
     // beta: the r'z of the previous iteration over its rho (materialRho), 0 at iteration 0.
@@ -200,7 +200,7 @@ __global__ void k_MaterialStencilProduct(const UnifiedState* __restrict__ state,
 // the same component. A fixed node keeps an empty mask, so bit 7, the node
 // itself, marks the nodes the PCG solves (materialCgNode).
 __global__ void k_MaterialStencilActiveMask(const UnifiedState* state,unsigned short* stencil){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=s.n)return;
+    const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0)return;
     unsigned mask=0;
     if(!materialCgFixed(s,i)){
         int x=i%s.nx,y=(i/s.nx)%s.ny,z=i/(s.nx*s.ny);

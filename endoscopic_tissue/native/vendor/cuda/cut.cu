@@ -48,6 +48,7 @@ static unsigned int*  d_voxelOccupied  = nullptr;  // [voxelCount] (1/0)
 static unsigned int*  d_voxelCutMask   = nullptr;  // [voxelCount] (cumulative, 12-bit)
 static CutPointGpu*   d_cutPoint       = nullptr;  // [cutPointCapacity]
 static unsigned int*  d_cutPointCounter= nullptr;  // [1] (cumulative)
+static unsigned int*  d_topologyRevision=nullptr;  // [1] intact links severed so far (cumulative), see SeverLink
 static float4*        d_cutFP          = nullptr;  // [8*voxelCount]
 static float*         d_edgeCutT       = nullptr;  // first cut fraction in each directed edge
 __device__ float*     edgeCutTDevice   = nullptr;
@@ -712,9 +713,12 @@ __global__ void k_CarveRimBridge(int cornerCount, const int* nbrIdxNow, const in
 // SeverLinks — one thread per grid edge. For cut edges: sever structural (NbrIdx=-1 both ways) +
 // bending pairs whose arm crosses the edge (alive=0). Paper SS2.1.2 line 367.
 // ─────────────────────────────────────────────────────────────────────────────────────────────
-// Parts the link from idA to idB, the next corner along the axis, and the bend pairs across it.
-__device__ inline void SeverLink(int idA, int idB, int axis, int* nbrIdx, BendPairGpuC* bendPairs)
+// Parts the link from idA to idB, the next corner along the axis, and the bend pairs across it. An intact link
+// advances the topology revision, which every user of the live topology compares to skip work on an unchanged one;
+// the cumulative cut mask makes k_SeverLinks visit severed links again at every tick, and those leave it as it is.
+__device__ inline void SeverLink(int idA, int idB, int axis, int* nbrIdx, BendPairGpuC* bendPairs, unsigned* revision)
 {
+    if (nbrIdx[6 * idA + 2 * axis + 1] >= 0) atomicAdd(revision, 1u);
     nbrIdx[6 * idA + 2 * axis + 1] = -1;   // idA's slot toward idB
     nbrIdx[6 * idB + 2 * axis] = -1;       // idB's slot toward idA
     for (int p = 0; p < 15; p++)
@@ -726,7 +730,7 @@ __device__ inline void SeverLink(int idA, int idB, int axis, int* nbrIdx, BendPa
     }
 }
 __global__ void k_SeverLinks(int gridEdgeCount, int3 dims, const GridEdgeGpu2* gridEdges,
-                             const unsigned int* voxelCutMask, int* nbrIdx, BendPairGpuC* bendPairs)
+                             const unsigned int* voxelCutMask, int* nbrIdx, BendPairGpuC* bendPairs, unsigned* revision)
 {
     int e = blockIdx.x * blockDim.x + threadIdx.x;
     if (e >= gridEdgeCount) return;
@@ -738,7 +742,7 @@ __global__ void k_SeverLinks(int gridEdgeCount, int3 dims, const GridEdgeGpu2* g
     if (!EdgeIsCut(axis, baseC, dims, voxelCutMask)) return;
 
     int3 axisDir = make_int3(axis == 0 ? 1 : 0, axis == 1 ? 1 : 0, axis == 2 ? 1 : 0);
-    SeverLink(CorIdCuda(baseC, dims), CorIdCuda(baseC + axisDir, dims), axis, nbrIdx, bendPairs);
+    SeverLink(CorIdCuda(baseC, dims), CorIdCuda(baseC + axisDir, dims), axis, nbrIdx, bendPairs, revision);
 }
 
 // Count isolated particles for diagnostics. A detached fragment remains dynamic.
@@ -1123,6 +1127,7 @@ int cut_init(const CutInitDesc* desc, const void* conn4096, const void* gridEdge
     CK(cudaMalloc(&d_voxelCutMask,    (size_t)vc     * sizeof(unsigned int)));
     CK(cudaMalloc(&d_cutPoint,        (size_t)cpc    * sizeof(CutPointGpu)));
     CK(cudaMalloc(&d_cutPointCounter,                  sizeof(unsigned int)));
+    CK(cudaMalloc(&d_topologyRevision,                 sizeof(unsigned int)));
     CK(cudaMalloc(&d_cutFP,           (size_t)slot   * sizeof(float4)));
     CK(cudaMalloc(&d_cornerInside,    (size_t)desc->cornerCount * sizeof(int)));
     CK(cudaMalloc(&d_cutFPAccumPos,   (size_t)3*slot * sizeof(float)));
@@ -1148,6 +1153,7 @@ int cut_init(const CutInitDesc* desc, const void* conn4096, const void* gridEdge
     // Zero the cumulative + scratch buffers (cut state starts uncut).
     CK(cudaMemset(d_voxelCutMask,    0, (size_t)vc     * sizeof(unsigned int)));
     CK(cudaMemset(d_cutPointCounter, 0,                  sizeof(unsigned int)));
+    CK(cudaMemset(d_topologyRevision,0,                  sizeof(unsigned int)));
     CK(cudaMemset(d_cutFP,           0, (size_t)slot   * sizeof(float4)));     // w=0 invalid
     CK(cudaMemcpy(d_cornerInside, cornerInside, (size_t)desc->cornerCount * sizeof(int), cudaMemcpyHostToDevice));
     CK(cudaMemset(d_cutFPAccumPos,   0, (size_t)3*slot * sizeof(float)));
@@ -1241,7 +1247,7 @@ int cut_detect()
     k_DetectCutQuad<<<Gc(gec), 64>>>(gec, t, g_cdesc.voxelL, g_cdims, g_cdesc.cutPointCapacity,
                                      d_cornerInside, c_cornerPos, d_gridEdges, d_voxelCutMask, d_voxelOccupied,
                                      d_cutPoint, d_cutPointCounter, c_particleRot);
-    k_SeverLinks<<<Gc(gec), 64>>>(gec, g_cdims, d_gridEdges, d_voxelCutMask, c_nbrIdx, c_bendPairs);
+    k_SeverLinks<<<Gc(gec), 64>>>(gec, g_cdims, d_gridEdges, d_voxelCutMask, c_nbrIdx, c_bendPairs, d_topologyRevision);
 
     cudaError_t e = cudaGetLastError();
     return (e == cudaSuccess) ? 0 : -(int)e;
@@ -1254,11 +1260,17 @@ int cut_surface_revision(unsigned* revision){
     if(!d_cutPointCounter){*revision=0;return 0;}
     return -(int)cudaMemcpy(revision,d_cutPointCounter,sizeof(unsigned),cudaMemcpyDeviceToHost);
 }
+int cut_topology_revision(unsigned* revision){
+    if(!d_topologyRevision){*revision=0;return 0;}
+    return -(int)cudaMemcpy(revision,d_topologyRevision,sizeof(unsigned),cudaMemcpyDeviceToHost);
+}
+// The device counter of cut_topology_revision, null before cut_init: the live topology cannot change without it.
+extern "C" const unsigned* cut_topology_revision_device(){return d_topologyRevision;}
 
 // Union-find over corners (unified_vertex.cuh), here joined through the links between material corners alone.
-__global__ void k_InitComponents(int n,int* parent);
-__global__ void k_JoinComponents(int n,const int* neighbors,const int* active,int* parent);
-__global__ void k_FlattenComponents(int n,int* parent);
+__global__ void k_InitComponents(int n,int* parent,const unsigned* stale);
+__global__ void k_JoinComponents(int n,const int* neighbors,const int* active,int* parent,const unsigned* stale);
+__global__ void k_FlattenComponents(int n,int* parent,const unsigned* stale);
 // The envelope corners around the material carry no tissue, yet their links and the envelope tets between them hold
 // as tissue does. Where two material pieces part close to each other, such as under the overhang of a tumor cut off
 // at its neck, the envelope between them keeps them tied. Each corner belongs to the material piece it reaches in the
@@ -1277,14 +1289,14 @@ __global__ void k_SpreadShellOwners(int n,const int* nbrIdx,unsigned long long* 
 // passes through it.
 __global__ void k_SeverPieceSeams(int n,const int* phase,const GridEdgeGpu2* edges,int3 dims,float D,float L,const float3* pos,
  int* nbrIdx,BendPairGpuC* bendPairs,const unsigned long long* owner,unsigned* mask,const unsigned* occupied,
- CutPointGpu* points,unsigned* count,int capacity,const RotGpu* rotations){
+ CutPointGpu* points,unsigned* count,int capacity,const RotGpu* rotations,unsigned* revision){
     int e=blockIdx.x*blockDim.x+threadIdx.x;if(e>=n || !bladeCommits(*phase))return;
     GridEdgeGpu2 ge=edges[e];int3 bc=make_int3(ge.bcX,ge.bcY,ge.bcZ),dir=make_int3(ge.axis==0,ge.axis==1,ge.axis==2);
     int a=CorIdCuda(bc,dims),b=CorIdCuda(bc+dir,dims);if(nbrIdx[6*a+2*ge.axis+1]<0)return;
     unsigned long long ka=owner[a],kb=owner[b];if(ka==~0ull || kb==~0ull || (unsigned)ka==(unsigned)kb)return;
     bool tissue=false;
     for(int k=0;k<4;k++){int3 vc=bc+ES_VoxelOffset(ge.axis,k);tissue|=VoxInBounds(vc,dims) && occupied[VoxId(vc,dims)]!=0u;}
-    if(!tissue){SeverLink(a,b,ge.axis,nbrIdx,bendPairs);return;}
+    if(!tissue){SeverLink(a,b,ge.axis,nbrIdx,bendPairs,revision);return;}
     float3 along=pos[b]-pos[a];along=along*rsqrtf(fmaxf(dot3(along,along),1e-20f));
     MarkAndEmit(e,ge.axis,bc,dir,a,b,.5f,pos[a]+.5f*(pos[b]-pos[a]),along,D,L,dims,pos,mask,occupied,points,count,capacity,rotations);
 }
@@ -1389,21 +1401,22 @@ int cut_ribbon_tick()
                                            d_voxelCutMask, d_voxelOccupied, d_cutPoint,
                                            d_cutPointCounter, g_cdesc.cutPointCapacity,
                                            c_particleRot, d_dbg, d_edgeWasExempt, d_edgeDecayTicks);
-    k_SeverLinks<<<Gc(gec), 64>>>(gec, g_cdims, d_gridEdges, d_voxelCutMask, c_nbrIdx, c_bendPairs);
+    k_SeverLinks<<<Gc(gec), 64>>>(gec, g_cdims, d_gridEdges, d_voxelCutMask, c_nbrIdx, c_bendPairs, d_topologyRevision);
     if(scissors){
         // Release the envelope between material pieces this snip has parted (k_SeedShellOwners). Envelope corners lie
         // within a few links of the material, and four passes give each of them its owner.
         cudaError_t err=cudaSuccess;
         if(!d_materialPieces)err=cudaMalloc(&d_materialPieces,cc*sizeof(int));if(err!=cudaSuccess)return -(int)err;
         if(!d_shellOwner)err=cudaMalloc(&d_shellOwner,cc*sizeof(unsigned long long));if(err!=cudaSuccess)return -(int)err;
-        k_InitComponents<<<Gc(cc),64>>>(cc,d_materialPieces);
-        k_JoinComponents<<<Gc(cc),64>>>(cc,c_nbrIdx,d_cornerInside,d_materialPieces);
-        k_FlattenComponents<<<Gc(cc),64>>>(cc,d_materialPieces);
+        k_InitComponents<<<Gc(cc),64>>>(cc,d_materialPieces,nullptr);
+        k_JoinComponents<<<Gc(cc),64>>>(cc,c_nbrIdx,d_cornerInside,d_materialPieces,nullptr);
+        k_FlattenComponents<<<Gc(cc),64>>>(cc,d_materialPieces,nullptr);
         k_SeedShellOwners<<<Gc(cc),64>>>(cc,d_cornerInside,d_materialPieces,d_shellOwner);
         for(int pass=0;pass<4;pass++)k_SpreadShellOwners<<<Gc(cc),64>>>(cc,c_nbrIdx,d_shellOwner);
         k_SeverPieceSeams<<<Gc(gec),64>>>(gec,phase,d_gridEdges,g_cdims,g_tool.d,g_cdesc.voxelL,c_cornerPos,c_nbrIdx,c_bendPairs,
-            d_shellOwner,d_voxelCutMask,d_voxelOccupied,d_cutPoint,d_cutPointCounter,g_cdesc.cutPointCapacity,c_particleRot);
-        k_SeverLinks<<<Gc(gec),64>>>(gec,g_cdims,d_gridEdges,d_voxelCutMask,c_nbrIdx,c_bendPairs);
+            d_shellOwner,d_voxelCutMask,d_voxelOccupied,d_cutPoint,d_cutPointCounter,g_cdesc.cutPointCapacity,c_particleRot,
+            d_topologyRevision);
+        k_SeverLinks<<<Gc(gec),64>>>(gec,g_cdims,d_gridEdges,d_voxelCutMask,c_nbrIdx,c_bendPairs,d_topologyRevision);
     }
 
     if(g_pressureCut){
@@ -1615,6 +1628,7 @@ void cut_shutdown()
     cudaFree(d_voxelCutMask);    d_voxelCutMask = nullptr;
     cudaFree(d_cutPoint);        d_cutPoint = nullptr;
     cudaFree(d_cutPointCounter); d_cutPointCounter = nullptr;
+    cudaFree(d_topologyRevision); d_topologyRevision = nullptr;
     cudaFree(d_cutFP);           d_cutFP = nullptr;
     cudaFree(d_edgeCutT);        d_edgeCutT = nullptr;
     cudaMemcpyToSymbol(edgeCutTDevice,&d_edgeCutT,sizeof(float*));

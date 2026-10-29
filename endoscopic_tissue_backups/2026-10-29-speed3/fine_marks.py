@@ -22,7 +22,7 @@ regions = [
     ("pre", 'xpbd_section_mark("pre: tool, contact discovery, manifold");', 'xpbd_section_mark("pre: predictor, recovery query");'),
     ("coarse", 'if(it==0 || it==2)for(int mode=1;mode<=(it==0?4:1);mode++){', 'xpbd_section_mark("loop: coarse modes");'),
     ("assembly", 'xpbd_section_mark("cg assembly: start");', 'xpbd_section_mark("cg: assembly");'),
-    ("cg", 'for(int cg=0;cg<(nonlinear==0', 'xpbd_section_mark("cg: iterations");'),
+    ("cg", 'for(int cg=0;cg<iterations;cg++){', 'xpbd_section_mark("cg: iterations");'),
     ("feasible", 'xpbd_section_mark("cg: trust, projection");', 'xpbd_section_mark("cg: feasible");'),
     ("line", 'xpbd_section_mark("cg: feasible");', 'xpbd_section_mark("cg: line search");'),
     ("discovery", 'xpbd_section_mark("cg: line search");', 'xpbd_section_mark("loop: contact discovery");'),
@@ -31,6 +31,8 @@ regions = [
     ("global", 'xpbd_section_mark("loop: local sweeps");', 'xpbd_section_mark("loop: tool, safe and global coarse");'),
     ("rigid", 'xpbd_section_mark("loop: tool, safe and global coarse");', 'xpbd_section_mark("loop: rigid modes");'),
     ("fragment", 'cudaMemsetAsync(d_fragmentLambda,0,6*g_N*sizeof(float));', 'e=finishFeasible();if(e!=cudaSuccess)return e;'),
+    ("mg-assemble", 'static void assembleMultigrid(cudaStream_t stream){', '// z = M^-1 r by one V(1,1) cycle'),
+    ("mg-apply", 'static void applyMultigrid(cudaStream_t stream,', '// Cut edges can change BETWEEN substeps'),
 ]
 # finishFeasible runs a captured graph, so it is timed as a whole from outside.
 FEASIBLE = 'e=finishFeasible();if(e!=cudaSuccess)return e;'

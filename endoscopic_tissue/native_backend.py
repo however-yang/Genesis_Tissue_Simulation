@@ -247,7 +247,7 @@ class NativeTissue:
             ("LCS_Step", (F,), I), ("LCS_Finalize", (), I),
             ("LCS_GetSurfaceCounts", (P, P), I), ("LCS_GetSurface", (P, P, P), I),
             ("LCS_GetSurfaceAux", (P,), I), ("LCS_GetCornerPos", (P,), I),
-            ("LCS_GetNbrIdx", (P,), I), ("LCS_GetGraspCoreFlags", (I, P), I),
+            ("LCS_GetNbrIdx", (P,), I), ("LCS_GetTopologyRevision", (P,), I), ("LCS_GetGraspCoreFlags", (I, P), I),
             ("LCS_GetSolvedTool", (P, P, P), I), ("LCS_GetSolvedJaw", (P,), I),
             ("LCS_GetPressureBlade", (P,), I), ("LCS_GetContactReaction", (P, P), I),
             ("LCS_GetJawLoad", (P,), I),
@@ -333,6 +333,9 @@ class NativeTissue:
         # Initialize at rest with zero body force before exposing observations.
         self.check("LCS_Step", s.dt)
         self.check("LCS_Finalize")
+        # The last neighbor table read, and the topology revision it was read at: observe reads it again only once a
+        # cut has moved the revision.
+        self.neighbors, self.topology_revision = None, None
         self.tick = 0
 
     def command(self, command: Command):
@@ -385,13 +388,19 @@ class NativeTissue:
     def observe(self):
         n = len(self.grid.positions)
         nodes = np.empty((n, 3), dtype=np.float32)
-        neighbors = np.empty((n, 6), dtype=np.int32)
         grip_flags = np.empty(n, dtype=np.int32)
         hinge, error, live, gap = V3(), F(), I(), F()
         blade = np.empty(10, dtype=np.float32)
         reaction, contacts = np.empty(3, dtype=np.float32), I()
         self.check("LCS_GetCornerPos", pointer(nodes))
-        self.check("LCS_GetNbrIdx", pointer(neighbors))
+        revision = ct.c_uint()
+        self.check("LCS_GetTopologyRevision", ct.byref(revision))
+        if revision.value != self.topology_revision:
+            neighbors = np.empty((n, 6), dtype=np.int32)
+            self.check("LCS_GetNbrIdx", pointer(neighbors))
+            # Observations share one table until the next cut, so no reader may write it.
+            neighbors.flags.writeable = False
+            self.neighbors, self.topology_revision = neighbors, revision.value
         self.check("LCS_GetGraspCoreFlags", n, pointer(grip_flags))
         self.check("LCS_GetSolvedTool", ct.byref(hinge), ct.byref(error), ct.byref(live))
         self.check("LCS_GetSolvedJaw", ct.byref(gap))
@@ -418,7 +427,7 @@ class NativeTissue:
         if (not np.isfinite(nodes).all() or not np.isfinite(blade).all() or not np.isfinite(reaction).all()
                 or not np.isfinite(jaw).all() or not np.isfinite((*hinge, gap.value, error.value)).all()):
             raise RuntimeError("Non-finite native state; simulation stopped")
-        return Observation(nodes, neighbors, grip_flags, np.array(hinge), gap.value, live.value,
+        return Observation(nodes, self.neighbors, grip_flags, np.array(hinge), gap.value, live.value,
                            error.value * METERS_PER_UNIT, blade, reaction * METERS_PER_UNIT, scissors,
                            tuple(float(v) for v in jaw[:2] * METERS_PER_UNIT))
 

@@ -15,11 +15,10 @@ __device__ bool pressureLineZeroStep(const CoarseBlock& b){
     return b.scale==0 || (b.step.x==0 && b.step.y==0 && b.step.z==0);
 }
 __global__ void k_PressureLineClear(const UnifiedState* state,CoarseBlock* blocks){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
+    const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);
     if(coarseRoot(s,i) && pressureLineActive(s))blocks[i].gradient=mkf3(0,0,0);
 }
-__global__ void k_PressureLineNodes(const UnifiedState* state,CoarseBlock* blocks,int pass=-1){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
+__device__ void pressureLineNode(const UnifiedState& s,CoarseBlock* blocks,int i,int pass){
     if(i>=s.n || !pressureLineActive(s) || (s.active&&!s.active[i]))return;
     CoarseBlock* b=blocks+s.component[i];float w=s.coarseWeight[i];
     if(pressureLineZeroStep(*b) || (pass==1 && b->gradient.x<=0))return;
@@ -46,10 +45,9 @@ __global__ void k_PressureLineNodes(const UnifiedState* state,CoarseBlock* block
         values[k]=(float)energy;
     }pressureLineAdd(b,values);
 }
-__global__ void k_PressureLineTets(const UnifiedState* state,CoarseBlock* blocks,int pass=-1){
-    const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
+__device__ void pressureLineTet(const UnifiedState& s,CoarseBlock* blocks,int t,int pass){
     if(t>=s.nt || !pressureLineActive(s) || !s.live[t])return;
-    const int* id=s.ids+4*t;float w[4];for(int j=0;j<4;j++)w[j]=s.coarseWeight[id[j]];
+    int id[4];unifiedTetIds(s,t,id);float w[4];for(int j=0;j<4;j++)w[j]=s.coarseWeight[id[j]];
     if(w[0]==w[1] && w[0]==w[2] && w[0]==w[3])return;
     CoarseBlock* b=blocks+s.component[id[0]];if(pressureLineZeroStep(*b) || (pass==1 && b->gradient.x<=0))return;
     float3 p[4],step[4];for(int j=0;j<4;j++)p[j]=s.pos[id[j]];float values[3]={};
@@ -66,9 +64,9 @@ __device__ float pressureFrictionEnergy(float distance,float stiffness,float pre
     float boundary=limit/stiffness;if(distance<=boundary)return .5f*stiffness*distance*distance;
     float slip=distance-boundary;return .5f*limit*boundary+pressure*(muD*slip+(muS-muD)*boundary*(1-boundary/distance));
 }
-__global__ void k_PressureLineContacts(const UnifiedState* state,CoarseBlock* blocks,int pass=-1){
-    const auto& s=*state;if(!pressureLineActive(s))return;
-    for(int i=blockIdx.x*blockDim.x+threadIdx.x;i<max(*s.contactCount,s.grips);i+=blockDim.x*gridDim.x){
+__device__ void pressureLineContacts(const UnifiedState& s,CoarseBlock* blocks,int pass,int start,int stride){
+    if(!pressureLineActive(s))return;
+    for(int i=start;i<max(*s.contactCount,s.grips);i+=stride){
         if(i<s.grips && s.points[i].valid){
             const auto& a=s.points[i];CoarseBlock* b=blocks+s.component[a.id[0]];if(!(pass==1 && b->gradient.x<=0)){float w=0;
             for(int j=0;j<a.count;j++)w+=a.weight[j]*s.coarseWeight[a.id[j]];
@@ -93,7 +91,14 @@ __global__ void k_PressureLineContacts(const UnifiedState* state,CoarseBlock* bl
         }pressureLineAdd(b,values);
     }
 }
+// One pressure-line pass in one launch: the first activeCount threads add the energy change of an active node, the
+// next nt that of a tet, and all of them then stride over the contacts and grips.
+__global__ void k_PressureLine(const UnifiedState* state,CoarseBlock* blocks,int pass){
+    const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
+    if(t<s.activeCount)pressureLineNode(s,blocks,s.activeNodes[t],pass);else pressureLineTet(s,blocks,t-s.activeCount,pass);
+    pressureLineContacts(s,blocks,pass,t,gridDim.x*blockDim.x);
+}
 __global__ void k_PressureLineSelect(const UnifiedState* state,CoarseBlock* blocks){
-    const auto& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;if(!coarseRoot(s,i) || !pressureLineActive(s))return;
+    const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(!coarseRoot(s,i) || !pressureLineActive(s))return;
     auto& b=blocks[i];float scale=b.gradient.x<=0?1.f:b.gradient.y<=0?.5f:b.gradient.z<=0?.25f:0.f;b.scale*=scale;
 }

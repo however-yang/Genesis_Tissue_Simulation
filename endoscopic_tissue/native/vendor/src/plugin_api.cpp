@@ -168,6 +168,8 @@ LCS_API int LCS_Finalize()
 // ── Diagnostics (Phase-1 evidence: split? gravity moving corners?) ───────────────────────────
 // Copy the LIVE post-sever nbrIdx[6*cornerCount] to host (for a connected-components check).
 LCS_API int LCS_GetNbrIdx(int* out) { return physics_readback_nbr_idx(out); }
+// LCS_GetNbrIdx returns the same table while this count stays the same.
+LCS_API int LCS_GetTopologyRevision(unsigned* revision) { return cut_topology_revision(revision); }
 // Copy the LIVE deformed cornerPos[3*cornerCount] floats to host (for a gravity-motion check).
 LCS_API int LCS_GetCornerPos(float* out) { return recon_readback_corner_pos(out); }
 // [DEBUG-CUT] (v4.1 P3): 16 per-frame debug counters + 2 raw atomic counters + runtime cutFPInterp.

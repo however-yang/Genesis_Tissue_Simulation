@@ -63,9 +63,9 @@ __device__ inline bool materialLineFeasible(float a,float floor,float j0,float j
 // authority for position updates. Contact and anchor witnesses stay fixed.
 __global__ void k_ProjectRecoveryDirection(const UnifiedState* state,const Symmetric3* H,const float3* direction,float3* correction,float* count){
     const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=s.nt||!s.live[t])return;
-    const int* id=s.ids+4*t;int flags=s.graspComponents[s.component[id[0]]];if(!(flags&8)||(flags&7))return;
+    int id[4];unifiedTetIds(s,t,id);int flags=s.graspComponents[s.component[id[0]]];if(!(flags&8)||(flags&7))return;
     float3 a=s.pos[id[0]],u=s.pos[id[1]]-a,v=s.pos[id[2]]-a,w=s.pos[id[3]]-a;
-    float det=s.restMetric[7*t+6],J=dot3(u,cross3(v,w))*det;if(J>s.minimum+.001f)return;
+    float det=unifiedKuhn(s,t).metric[6],J=dot3(u,cross3(v,w))*det;if(J>s.minimum+.001f)return;
     float3 g[4],h[4];g[1]=cross3(v,w)*det;g[2]=cross3(w,u)*det;g[3]=cross3(u,v)*det;g[0]=(g[1]+g[2]+g[3])*(-1.f);
     float dj=0,denom=0;for(int j=0;j<4;j++){dj+=dot3(g[j],direction[id[j]]);h[j]=materialCgFixed(s,id[j])?mkf3(0,0,0):H[id[j]].solve(g[j]);denom+=dot3(g[j],h[j]);}
     float violation=1e-5f-.9f*fmaxf(0.f,J-s.minimum)-dj;if(violation<=0||denom<=1e-20f)return;
@@ -81,16 +81,17 @@ __global__ void k_ApplyRecoveryDirection(int n,float3* direction,float3* correct
 // fraction of the direction, rather than toggling whole vertices between full
 // motion and zero as a tet approaches its volume floor. Recheck the entire
 // nonlinear path after neighboring restrictions have been combined.
-__global__ void k_MaterialRestrictionClear(int n,float* scale){
-    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i<n)scale[i]=1.f;
+// The restriction reuses the coarse weights, so it clears the active nodes alone: an inactive node keeps weight 0.
+__global__ void k_MaterialRestrictionClear(const UnifiedState* state,float* scale){
+    int i=unifiedActiveNode(*state,blockIdx.x*blockDim.x+threadIdx.x);if(i>=0)scale[i]=1.f;
 }
 __global__ void k_RestrictMaterialDirection(const UnifiedState* state,const float3* direction,float* blocked,const int* previousChanged=nullptr,int* changed=nullptr){
     if(previousChanged && !*previousChanged)return;
     const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=s.nt||!s.live[t])return;
-    const int* id=s.ids+4*t;float3 p[4],v[4];for(int j=0;j<4;j++){p[j]=s.pos[id[j]];v[j]=direction[id[j]];}
+    int id[4];unifiedTetIds(s,t,id);float3 p[4],v[4];for(int j=0;j<4;j++){p[j]=s.pos[id[j]];v[j]=direction[id[j]];}
     float3 e1=p[1]-p[0],e2=p[2]-p[0],e3=p[3]-p[0],d1=v[1]-v[0],d2=v[2]-v[0],d3=v[3]-v[0];
     if(dot3(d1,d1)+dot3(d2,d2)+dot3(d3,d3)==0)return; // Rigid translation preserves J exactly.
-    TetVolumePath J=unifiedVolumePath(e1,e2,e3,d1,d2,d3,s.restMetric[7*t+6]);
+    TetVolumePath J=unifiedVolumePath(e1,e2,e3,d1,d2,d3,unifiedKuhn(s,t).metric[6]);
     float j0=J.j0,j1=J.j1,j2=J.j2,j3=J.j3;
     if(!materialLineFeasible(1.f,fminf(s.minimum,j0),j0,j1,j2,j3)){
         float lo=0,hi=1,floor=fminf(s.minimum,j0);
@@ -116,10 +117,10 @@ __global__ void k_ApplyMaterialRestriction(int n,float3* direction,const float* 
 }
 __global__ void k_MaterialLineTets(const UnifiedState* state,const float3* start,MaterialLineSearch* search){
     const UnifiedState& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
-    if(t>=s.nt||!s.live[t])return;const int* id=s.ids+4*t;int root=s.component[id[0]];
+    if(t>=s.nt||!s.live[t])return;int id[4];unifiedTetIds(s,t,id);int root=s.component[id[0]];
 
     float3 p[4],v[4];for(int j=0;j<4;j++){p[j]=s.pos[id[j]];v[j]=start[id[j]];}
-    TetVolumePath J=unifiedVolumePath(p[1]-p[0],p[2]-p[0],p[3]-p[0],v[1]-v[0],v[2]-v[0],v[3]-v[0],s.restMetric[7*t+6]);
+    TetVolumePath J=unifiedVolumePath(p[1]-p[0],p[2]-p[0],p[3]-p[0],v[1]-v[0],v[2]-v[0],v[3]-v[0],unifiedKuhn(s,t).metric[6]);
     double values[5]={};
     for(int k=1;k<5;k++){
         // The change to the trial positions as k_MaterialLineApply writes them, rounded to float, rather than to p+a*v:
@@ -145,7 +146,7 @@ __global__ void k_MaterialLineApply(const UnifiedState* state,const float3* star
 // has to decrease the unchanged incremental potential and preserve every J.
 __global__ void k_RecoveryTrust(const UnifiedState* state,const float3* d,float* scale){
  const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=s.nt||!s.live[t])return;
- const int* id=s.ids+4*t;int root=s.component[id[0]],flags=s.graspComponents[root];if(!(flags&8)||(flags&7))return;
+ int id[4];unifiedTetIds(s,t,id);int root=s.component[id[0]],flags=s.graspComponents[root];if(!(flags&8)||(flags&7))return;
  float a=1;for(int j=0;j<4;j++)for(int k=j+1;k<4;k++){
   float change=len3(d[id[j]]-d[id[k]]),length=len3(s.pos[id[j]]-s.pos[id[k]]);
   if(change>0)a=fminf(a,.1f*length/change);
