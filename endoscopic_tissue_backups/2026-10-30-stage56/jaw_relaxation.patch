@@ -1,0 +1,71 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh b/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh
+index 5bebb72..ee44b06 100644
+--- a/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh
+@@ -475,16 +475,17 @@ __global__ void k_PredictorInteractionEnergy(const UnifiedState* state,CoarseBlo
+ __device__ inline int unifiedColor(const UnifiedState& s,int i){
+     return ((i%s.nx)&1)|((((i/s.nx)%s.ny)&1)<<1)|(((i/(s.nx*s.ny))&1)<<2);
+ }
+-// The vertex sets k_SweepSites lists: those of a local sweep, of a local sweep in a surface repair, and of the
+-// predictor.
+-enum SweepList{SweepLocal,SweepRepair,SweepPredictor};
++// The vertex sets k_SweepSites lists: those of a local sweep, of a local sweep in a surface repair, of the predictor,
++// and of a jaw relaxation round (JawRelaxationRounds).
++enum SweepList{SweepLocal,SweepRepair,SweepPredictor,SweepJaw};
+ // Lists, per lattice color, the vertices that a colored pass moves. A local sweep (k_UnifiedVertex) solves every
+ // movable vertex while the coupled material solve is off, otherwise the contact and anchor witnesses that solve holds
+-// fixed, and in a surface repair also the vertices the regional mode moves. The predictor (k_UnifiedPredictor) moves
+-// the movable vertices other than witnesses. Each color then launches warps for its listed vertices alone. For a sweep
+-// it also clears the interactions of every witness: the assembly of a color writes only the vertices of that color,
+-// so clearing them all before the sweep equals clearing each color before its assembly. Color c lists its vertices
+-// from sites+c*capacity on and counts them in count[c], zeroed before.
++// fixed, and in a surface repair also the vertices the regional mode moves. A jaw relaxation round solves the movable
++// witnesses of the grasper's contacts and anchors alone. The predictor (k_UnifiedPredictor) moves the movable vertices
++// other than witnesses. Each color then launches warps for its listed vertices alone. For a sweep it also clears the
++// interactions of every witness: the assembly of a color writes only the vertices of that color, so clearing them all
++// before the sweep equals clearing each color before its assembly. Color c lists its vertices from sites+c*capacity on
++// and counts them in count[c], zeroed before.
+ __global__ void k_SweepSites(const UnifiedState* state,SweepList list,int capacity,int* sites,int* count){
+     const UnifiedState& s=*state;int i=blockIdx.x*blockDim.x+threadIdx.x;
+     bool solved=false;int color=-1;
+@@ -492,7 +493,8 @@ __global__ void k_SweepSites(const UnifiedState* state,SweepList list,int capaci
+         bool witness=(s.degree[i]>0 || (s.secondary && s.secondary->degree[i]>0)) || (s.grips>0 && s.gripDegree[i]>0);
+         if(witness && list!=SweepPredictor)for(int j=0;j<9;j++)s.interaction[9*i+j]=0;
+         solved=s.invMass[i]>0 && (list==SweepPredictor?!witness:
+-            list==SweepRepair?(!(s.coarseWeight[i]<=0) || witness):!(s.coupledReady && !materialCgFixed(s,i)));
++            list==SweepRepair?(!(s.coarseWeight[i]<=0) || witness):
++            list==SweepJaw?(s.degree[i]>0 || (s.grips>0 && s.gripDegree[i]>0)):!(s.coupledReady && !materialCgFixed(s,i)));
+         if(solved)color=unifiedColor(s,i);
+     }
+     // One atomic per color present in the warp.
+@@ -701,6 +703,11 @@ __global__ void k_UnifiedTool(UnifiedState* state){
+     for(int i=3;i>=0;i--){float v=y[i];for(int j=i+1;j<4;j++)v-=L[j][i]*dx[j];dx[i]=v/L[i][i];}
+     b.pose=shiftTool(b.pose,mkf3(dx[0],dx[1],dx[2]));b.pose.jawGap=fminf(b.maxGap,fmaxf(0.f,b.pose.jawGap+dx[3]));
+ }
++// Rounds of a grasper witness sweep (SweepJaw) and a tool solve at the end of the third outer iteration. The tool solve
++// moves the jaws with their witnesses fixed and the sweep moves the witnesses with the jaws fixed, so through the stiff
++// jaw contact each pass transfers only part of the imbalance between them. Without these rounds the witnesses under a
++// loaded jaw stay pressed into a sharp fold, and the pad load jumps whenever another tool pushes the held tissue.
++static constexpr int JawRelaxationRounds=2;
+ __global__ void k_UnifiedTargets(UnifiedState* state,bool preserveDriveWork=true){
+     state->toolTarget=preserveDriveWork?state->tool->drivePrediction:state->tool->pose.jawHinge;
+     state->gapTarget=state->tool->pose.jawGap;
+diff --git a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+index 45170b3..a1ee46f 100644
+--- a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -3400,6 +3400,14 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
+                 k_RigidApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+             }
+             xpbd_section_mark("loop: rigid modes");
++            // The blade's interactions are assembled too: a grasper witness the blade also touches needs both.
++            if(it==2)for(int round=0;round<JawRelaxationRounds;round++){
++                cudaMemsetAsync(d_sweepCount,0,8*sizeof(int),g_captureStream);
++                k_SweepSites<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,SweepJaw,sites,d_sweepSites,d_sweepCount);
++                for(int c=0;c<8;c++){k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);}
++                k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);
++            }
++            xpbd_section_mark("loop: jaw relaxation");
+         }
+         if(direct)g_captureStream=captureStream;
+         else{

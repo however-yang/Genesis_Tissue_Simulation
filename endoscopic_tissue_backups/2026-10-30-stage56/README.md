@@ -25,3 +25,15 @@ Stage 5 (how far the current solve is from converged):
 - `scene_runs.sh <scene> <prefix> <builds>`: runs the flap or wall flow once per build and prints `scene_line.py`'s
   line.
 - `ab_montage.py`: composes the stage stills of render runs into one comparison image.
+
+Jaw contact convergence (section 13 of the plan, not adopted):
+
+- `variant_pass_pattern.py <sequence>`: patch script that runs the outer iterations as a given sequence of pass types,
+  for example `012553`. `build_ablation.sh <sequences>` builds one `bin-p<sequence>` per sequence from the committed
+  sources and restores them after each build.
+- `quick_probe.sh <prefix> <builds>`: the probed kidney flow through the blade approach (450 steps), summarized by
+  `grasp_line.py` (jaw gap and pad load at the end of close, lift and blade approach, and the held repair share).
+- `knife_runs.sh <prefix> <builds>`: the knife flow once per build.
+- `jaw_relaxation.patch`: the candidate, two rounds of a grasper witness sweep and a tool solve at the end of the third
+  outer iteration (built as bin-jaw2). `jaw_relaxation_noblade.patch` also leaves out the witnesses the blade touches
+  (bin-jaw2b). Apply either with `git apply` on the committed sources.
