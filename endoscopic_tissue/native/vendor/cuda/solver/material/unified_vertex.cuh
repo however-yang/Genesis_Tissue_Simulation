@@ -20,8 +20,9 @@ struct UnifiedState {
     const int* activeNodes;int activeCount;
     UnifiedState* secondary;const int *cutPhase,*cutContactCount;float cutResistance;
     const int* componentSupport;
-    int* component;int* graspComponents; // component flags: 1=anchor, 2=contact, 4=unheld jaw patch, 8=active-volume recovery
+    int* component;int* graspComponents; // component flags: 1=anchor, 2=contact, 4=unheld jaw patch, 8=active-volume recovery, 16=cutting tool contact
     int* safeCluster;SafeCoarseCluster* safeAggregate;int* safeJoined; // safeJoined: some tet joined a cluster (k_JoinSafeCoarse)
+    int* floorRecovery; // per component root: substeps left in floor recovery (materialFloorRecovery)
     const int *offsets,*incident,*ids,*live,*contactIds,*contactCount,*degree,*gripDegree,*neighbors,*edgeSupport,*active;
     const float3 *b0,*b1,*b2,*previous,*target,*attachRest,*restNeighbors;
     const float3* previousInverse;const float* restMetric;
@@ -37,6 +38,18 @@ struct UnifiedState {
 // restricted descent space for the extra material correction.
 __device__ inline bool materialFreeRecovery(const UnifiedState& s,int root){
     return s.graspComponents && (s.graspComponents[root]&8) && !(s.graspComponents[root]&7);
+}
+// A held piece, cut free of every pinned node, whose material step a tet of free tissue at the volume floor stopped
+// within the last few substeps (k_MaterialFloorRecovery). Its search direction slides along the floor
+// (materialFloorCurvature) and its step is scaled as a whole within a margin below the floor (MaterialFloorBand,
+// k_RestrictMaterialDirection).
+// UnifiedState::floorRecovery holds the substeps left, plus MaterialFloorRestricted once the floor cuts the component's
+// direction in the current substep. A component the cutting tool touches (MaterialCutterContact) keeps the ordinary
+// step: the tissue a blade presses is meant to reach the floor, and recovering it there changes where the cut runs.
+static constexpr int MaterialFloorRestricted=1<<30;
+static constexpr int MaterialCutterContact=16;
+__device__ inline bool materialFloorRecovery(const UnifiedState& s,int root){
+    return s.floorRecovery && (s.floorRecovery[root]&~MaterialFloorRestricted)>0 && !(s.graspComponents[root]&MaterialCutterContact);
 }
 // The material accelerator holds existing contact/anchor witnesses fixed.
 // The full V18 vertex/tool sweeps still solve those DOFs; this is only a
@@ -189,6 +202,17 @@ __device__ inline CompressionBarrier unifiedCompressionBarrier(double J,float mi
     b.energy+=double(b.gradient)*offset+.5*double(b.curvature)*offset*offset;
     b.gradient+=b.curvature*float(offset);
     return b;
+}
+// Extra volumetric curvature of the material search direction for a tet within twice the volume floor:
+// lambda*((floor/(J-floor))^2-1), zero at twice the floor and capped at 1e4*lambda at the floor. The PCG stencil adds
+// it in floor recovery (materialFloorRecovery) so that the direction slides along the floor instead of shrinking tets
+// that sit on it; the energy, its gradient and the line search keep the barrier above. Without it a pinched fold whose
+// tets reach the floor stays folded: every direction that would open it also shrinks one of them, and the restriction
+// of the step stops the whole component.
+__device__ inline float materialFloorCurvature(float J,float minimum,float lambda){
+    if(minimum<=0 || J>=2*minimum)return 0.f;
+    float r=minimum/fmaxf(J-minimum,1e-2f*minimum);
+    return lambda*(r*r-1.f);
 }
 __device__ inline double unifiedDot(float3 a,float3 b){return double(a.x)*b.x+double(a.y)*b.y+double(a.z)*b.z;}
 // The volume ratio J of a tet along the segment p+a*v, as the cubic j0+a*(j1+a*(j2+a*j3)) of the step length a. The
@@ -845,10 +869,10 @@ __global__ void k_InitSafeCoarse(const UnifiedState* state){
     if(k==0)*s.safeJoined=0;
     if(i<0)return;s.safeCluster[i]=i;s.safeAggregate[i]={};
 }
-__global__ void k_MarkCoarseContact(const UnifiedState* state){
+__global__ void k_MarkCoarseContact(const UnifiedState* state,int flags=2){
     const UnifiedState& s=*state;
     for(int k=blockIdx.x*blockDim.x+threadIdx.x;k<*s.contactCount;k+=blockDim.x*gridDim.x)
-        atomicOr(s.graspComponents+s.component[s.contacts[s.contactIds[k]].id[0]],2);
+        atomicOr(s.graspComponents+s.component[s.contacts[s.contactIds[k]].id[0]],flags);
 }
 // Preserve feasible collective elastic descent after contact releases.
 // Otherwise a collapsed local tet clips the PCG direction while the coarse

@@ -8,6 +8,7 @@ Displacements are taken from the stage snapshots relative to the end of settle. 
 nodes by their distance from the tumor axis, the close profile by their distance from the nearest node the jaws grip.
 """
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -15,7 +16,7 @@ from pathlib import Path
 import numpy as np
 from scipy.spatial import cKDTree
 
-OUTPUT = Path("D:/Simulation/genesis-world/endoscopic_tissue/outputs/stage3-runs")
+OUTPUT = Path(os.environ.get("PROBE_OUTPUT", "D:/Simulation/genesis-world/endoscopic_tissue/outputs/stage3-runs"))
 CREASE = Path(__file__).resolve().parents[1] / "2026-10-29-speed3" / "tumor_crease.py"
 GROUPS = {"held": ("close", "lift", "blade_approach"), "cutting": ("incise_1", "open_1", "reposition_2", "incise_2"),
           "post-excision": ("withdraw", "release", "extract", "hold")}

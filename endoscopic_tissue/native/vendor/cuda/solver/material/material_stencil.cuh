@@ -92,7 +92,9 @@ __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matr
                 pq[j]=r[0]*q[j].x+r[1]*q[j].y+r[2]*q[j].z;gq[j]=G[0]*pq[j].x+G[1]*pq[j].y+G[2]*pq[j].z;
             }
         }
-        float barrierCurvature=unifiedCompressionBarrier(dot3(F[0],cof[0]),s.minimum,unifiedKuhn(s,t).bulkV+unifiedKuhn(s,t).muV/3.f).curvature;
+        float tetJ=dot3(F[0],cof[0]),tetLambda=unifiedKuhn(s,t).bulkV+unifiedKuhn(s,t).muV/3.f;
+        float barrierCurvature=unifiedCompressionBarrier(tetJ,s.minimum,tetLambda).curvature;
+        if(materialFloorRecovery(s,s.component[node]))barrierCurvature+=materialFloorCurvature(tetJ,s.minimum,tetLambda);
         float scale=.5f*mu*s.damping/s.h,fft[9]={},ggt[9]={};
         #pragma unroll
         for(int u=0;u<3;u++)

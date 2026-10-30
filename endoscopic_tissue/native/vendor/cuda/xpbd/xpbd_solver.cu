@@ -115,6 +115,7 @@ static unsigned* d_edgeSupportRevision=nullptr;
 // A host write to the liveness flags or inverse masses: derive them, and the edge support, again.
 static void markLivenessStale(){if(d_livenessRevision)cudaMemset(d_livenessRevision,0xff,4*sizeof(unsigned));}
 static int* d_graspComponents=nullptr;
+static int* d_floorRecovery=nullptr;   // [N] floor recovery per component root (materialFloorRecovery)
 static int* d_safeCluster=nullptr;
 static SafeCoarseCluster* d_safeAggregate=nullptr;
 static int* d_safeJoined=nullptr;
@@ -2919,7 +2920,7 @@ extern "C" int xpbd_relax_reconstructed_contact(){
         cudaMemsetAsync(d_graspComponents,0,g_N*sizeof(int));
         k_UnifiedPatchBasis<<<1,32>>>(d_unified);
         k_MarkCoarseContact<<<128,64>>>(d_unified);
-        if(g_blade.enabled)k_MarkCoarseContact<<<128,64>>>(d_bladeState);
+        if(g_blade.enabled)k_MarkCoarseContact<<<128,64>>>(d_bladeState,2|MaterialCutterContact);
         k_MarkVolumeRecovery<<<Gr(g_T),64>>>(d_unified);
 
         // Reconstruction changes the embedded contact footprint. Continue the
@@ -2959,7 +2960,7 @@ extern "C" int xpbd_relax_reconstructed_contact(){
                 if(g_blade.enabled){
                     k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceCurrent,d_surfacePrevious);
                     findBlade(g_captureStream,true);
-                    k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState);
+                    k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);
                 }
             }
             cudaMemsetAsync(d_sweepCount,0,8*sizeof(int),g_captureStream);
@@ -3110,6 +3111,9 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     cudaMemcpyAsync(d_unifiedTarget,d_pos,(size_t)g_N*sizeof(float3),cudaMemcpyDeviceToDevice);
     if(e==cudaSuccess && !d_unifiedComponents)e=cudaMalloc(&d_unifiedComponents,g_N*sizeof(int));
     if(e==cudaSuccess && !d_graspComponents)e=cudaMalloc(&d_graspComponents,g_N*sizeof(int));
+    if(e==cudaSuccess && !d_floorRecovery){
+        e=cudaMalloc(&d_floorRecovery,g_N*sizeof(int));if(e==cudaSuccess)e=cudaMemset(d_floorRecovery,0,g_N*sizeof(int));
+    }
     if(e==cudaSuccess && !d_safeCluster)e=cudaMalloc(&d_safeCluster,g_N*sizeof(int));
     if(e==cudaSuccess && !d_safeAggregate)e=cudaMalloc(&d_safeAggregate,g_N*sizeof(SafeCoarseCluster));
     if(e==cudaSuccess && !d_safeJoined)e=cudaMalloc(&d_safeJoined,sizeof(int));
@@ -3134,7 +3138,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     e=prepareUnifiedManifold();if(e!=cudaSuccess)return -(int)e;
     xpbd_section_mark("pre: tool, contact discovery, manifold");
     cudaMemcpyAsync(d_pos,d_prevPos,(size_t)g_N*sizeof(float3),cudaMemcpyDeviceToDevice);
-    UnifiedState s={};s.componentSupport=d_fragmentSupported;s.coupledReady=true;s.component=d_unifiedComponents;s.graspComponents=d_graspComponents;s.safeCluster=d_safeCluster;s.safeAggregate=d_safeAggregate;s.safeJoined=d_safeJoined;s.n=g_N;s.nx=g_dimsX+1;s.ny=g_dimsY+1;s.nt=g_T;s.grips=g_embeddedGrip&&g_grasping?g_gripCount:0;
+    UnifiedState s={};s.componentSupport=d_fragmentSupported;s.coupledReady=true;s.component=d_unifiedComponents;s.graspComponents=d_graspComponents;s.floorRecovery=d_floorRecovery;s.safeCluster=d_safeCluster;s.safeAggregate=d_safeAggregate;s.safeJoined=d_safeJoined;s.n=g_N;s.nx=g_dimsX+1;s.ny=g_dimsY+1;s.nt=g_T;s.grips=g_embeddedGrip&&g_grasping?g_gripCount:0;
     s.kuhn=d_kuhnTets;s.cellBase=d_tetCellBase;s.cells=std::max(g_tetCells,1);s.activeNodes=d_activeNodes;s.activeCount=g_activeNodes;
     s.offsets=d_incidentOffsets;s.incident=d_incidentTets;s.ids=d_tetIds;s.live=d_tetActive;s.contactIds=d_manifoldIds;s.contactCount=d_manifoldCount;
     s.degree=d_surfaceDegree;s.gripDegree=d_gripDegree;s.b0=d_tetBr0;s.b1=d_tetBr1;s.b2=d_tetBr2;s.previous=d_prevPos;s.target=d_unifiedTarget;
@@ -3160,7 +3164,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     k_UnifiedTargets<<<1,1>>>(d_unified);
     cudaMemsetAsync(d_graspComponents,0,g_N*sizeof(int));
     k_UnifiedPatchBasis<<<1,32>>>(d_unified);
-    if(g_blade.enabled)k_MarkCoarseContact<<<128,64>>>(d_bladeState);
+    if(g_blade.enabled)k_MarkCoarseContact<<<128,64>>>(d_bladeState,2|MaterialCutterContact);
     k_CoarseWeights<<<Gr(g_activeNodes),64>>>(d_unified);
     const int predictorSites=((s.nx+1)/2)*((s.ny+1)/2)*((g_dimsZ+2)/2);
     cudaMemsetAsync(d_sweepCount,0,8*sizeof(int));
@@ -3223,7 +3227,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
                     d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);
             }
-            if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState);}
+            if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);}
             k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
             if(it==0)k_MarkVolumeRecovery<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);
             xpbd_section_mark("loop: manifold, contact marks");
@@ -3264,7 +3268,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 for(int nonlinear=0;nonlinear<(recoveryRequested?3:1);nonlinear++){
                 if(nonlinear>0){
                     if(g_surfaceCount>0)refreshJawManifold();
-                    if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState);}
+                    if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);}
                     k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
                 }
                 k_MaterialRecoveryOnly<<<1,1,0,g_captureStream>>>(d_unified,nonlinear>0);
@@ -3318,6 +3322,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 k_MaterialLineNodes<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgD,d_cgSearch);
                 k_MaterialLineTets<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_cgD,d_cgSearch);
                 k_MaterialLineApply<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,d_cgD,d_cgSearch);
+                k_MaterialFloorRecovery<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgSearch);
                 k_MaterialRecoveryOnly<<<1,1,0,g_captureStream>>>(d_unified,false);
                 k_MaterialReady<<<1,1,0,g_captureStream>>>(d_unified,true);
                 xpbd_section_mark("cg: line search");
@@ -3338,7 +3343,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
                     d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);
             }
-            if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState);}
+            if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);}
             k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
             xpbd_section_mark("loop: contact discovery");
             // A tissue-only regional mode lets pressure move a finite patch
@@ -3775,7 +3780,7 @@ extern "C" void xpbd_shutdown()
     cudaFree(d_cgMatrix);d_cgMatrix=nullptr;cudaFree(d_cgScale);d_cgScale=nullptr;freeMultigrid();
     cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgQ);d_cgQ=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
     cudaFree(d_cgH);d_cgH=nullptr;cudaFree(d_cgS);d_cgS=nullptr;cudaFree(d_cgSearch);d_cgSearch=nullptr;
-    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_sweepSites);d_sweepSites=nullptr;cudaFree(d_sweepCount);d_sweepCount=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
+    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_floorRecovery);d_floorRecovery=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_sweepSites);d_sweepSites=nullptr;cudaFree(d_sweepCount);d_sweepCount=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
     cudaFree(d_feasibleStart);d_feasibleStart=nullptr;cudaFree(d_feasibleTarget);d_feasibleTarget=nullptr;cudaFree(d_incidentOffsets);d_incidentOffsets=nullptr;cudaFree(d_incidentTets);d_incidentTets=nullptr;cudaFree(d_needFeasible);d_needFeasible=nullptr;
     cudaFree(d_captureInside);d_captureInside=nullptr;g_volumePasses=0;g_minTetVolume=0;g_captureWedge=false;
     destroyGripGraph();cudaFree(d_contactResidual);d_contactResidual=nullptr;cudaFree(d_coupledTool);d_coupledTool=nullptr;cudaFree(d_gripError);d_gripError=nullptr;

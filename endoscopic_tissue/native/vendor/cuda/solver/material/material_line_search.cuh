@@ -7,6 +7,13 @@
 // energy[0] estimates the energy at the start of the search, the scale of the tolerance in k_MaterialLineApply.
 // energy[k] for k>0 is the energy change of the step materialLineAlpha(k) (unifiedTetEnergyChange).
 struct MaterialLineSearch { double energy[5]; int invalid; };
+// In floor recovery (materialFloorRecovery) the material step keeps every tet at or above this fraction of the volume
+// floor, while the vertex sweeps bound compression at the floor itself. The margin lets a tet that sits on the floor
+// take the small compressions that the floor curvature of the stencil leaves in a direction (materialFloorCurvature):
+// without one, any of them stops the step of the whole component (k_RestrictMaterialDirection).
+static constexpr float MaterialFloorBand=.95f;
+// Substeps a piece stays in floor recovery after the floor stopped its material step (k_MaterialFloorRecovery).
+static constexpr int MaterialFloorRecoverySubsteps=6;
 __device__ inline float materialLineAlpha(int k){return k==0?0.f:k==1?1.f:k==2?.5f:k==3?.25f:.125f;}
 __device__ inline float3 materialLinePoint(const UnifiedState& s,const float3* start,int i,float a){
     return s.pos[i]+start[i]*a;
@@ -81,6 +88,10 @@ __global__ void k_ApplyRecoveryDirection(int n,float3* direction,float3* correct
 // fraction of the direction, rather than toggling whole vertices between full
 // motion and zero as a tet approaches its volume floor. Recheck the entire
 // nonlinear path after neighboring restrictions have been combined.
+// A free recovering component, and one in floor recovery, scales as a whole instead, within the margin of
+// MaterialFloorBand for the latter. Node by node, a tet held on the floor stops each node it shares, the nodes around
+// them strain the tets in between, and once the line search rejects every trial the component's step stays zero: a
+// fold pinched onto the floor never opens.
 // The restriction reuses the coarse weights, so it clears the active nodes alone: an inactive node keeps weight 0.
 __global__ void k_MaterialRestrictionClear(const UnifiedState* state,float* scale){
     int i=unifiedActiveNode(*state,blockIdx.x*blockDim.x+threadIdx.x);if(i>=0)scale[i]=1.f;
@@ -93,26 +104,28 @@ __global__ void k_RestrictMaterialDirection(const UnifiedState* state,const floa
     if(dot3(d1,d1)+dot3(d2,d2)+dot3(d3,d3)==0)return; // Rigid translation preserves J exactly.
     TetVolumePath J=unifiedVolumePath(e1,e2,e3,d1,d2,d3,unifiedKuhn(s,t).metric[6]);
     float j0=J.j0,j1=J.j1,j2=J.j2,j3=J.j3;
-    if(!materialLineFeasible(1.f,fminf(s.minimum,j0),j0,j1,j2,j3)){
-        float lo=0,hi=1,floor=fminf(s.minimum,j0);
-        int iterationFlags=s.graspComponents[s.component[id[0]]];
-        int iterations=(iterationFlags&8)&&!(iterationFlags&7)?24:12;
-        for(int k=0;k<iterations;k++){
+    int root=s.component[id[0]];bool whole=materialFreeRecovery(s,root)||materialFloorRecovery(s,root);
+    float floor=fminf((materialFloorRecovery(s,root)?MaterialFloorBand:1.f)*s.minimum,j0);
+    if(!materialLineFeasible(1.f,floor,j0,j1,j2,j3)){
+        float lo=0,hi=1;
+        for(int k=0;k<(whole?24:12);k++){
             float mid=.5f*(lo+hi);
             if(materialLineFeasible(mid,floor,j0,j1,j2,j3))lo=mid;else hi=mid;
         }
-        // A free recovering component must retain its coupled direction.
-        int root=s.component[id[0]],flags=s.graspComponents[root];
-        if((flags&8)&&!(flags&7))atomicMin((unsigned*)(blocked+root),__float_as_uint(lo));
+        if(whole)atomicMin((unsigned*)(blocked+root),__float_as_uint(lo));
         else for(int j=0;j<4;j++)atomicMin((unsigned*)(blocked+id[j]),__float_as_uint(lo));
+        // Tets against a jaw or a blade sit on the floor by design: only a tet of free tissue that cuts the direction as
+        // the PCG left it, before the cuts of earlier passes spread, makes a lock.
+        bool freeTissue=!previousChanged;for(int j=0;j<4;j++)freeTissue=freeTissue && !materialCgFixed(s,id[j]);
+        if(freeTissue)atomicOr(s.floorRecovery+root,MaterialFloorRestricted);
         if(changed)atomicExch(changed,1);
     }
 }
 __global__ void k_ApplyMaterialRestriction(int n,float3* direction,const float* blocked,const int* changed=nullptr,const UnifiedState* state=nullptr){
     if(changed && !*changed)return;
     int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=n)return;
-    int root=state?state->component[i]:i;int flags=state?state->graspComponents[root]:0;
-    float a=blocked[(flags&8)&&!(flags&7)?root:i];
+    int root=state?state->component[i]:i;
+    float a=blocked[state && (materialFreeRecovery(*state,root)||materialFloorRecovery(*state,root))?root:i];
     if(a<1)direction[i]=a>0?direction[i]*a:mkf3(0,0,0);
 }
 __global__ void k_MaterialLineTets(const UnifiedState* state,const float3* start,MaterialLineSearch* search){
@@ -128,7 +141,8 @@ __global__ void k_MaterialLineTets(const UnifiedState* state,const float3* start
         float a=materialLineAlpha(k),energy;float3 step[4];
         for(int j=0;j<4;j++)step[j]=(p[j]+v[j]*a)-p[j];
         values[k]=unifiedTetEnergyChange(s,t,p,step,&energy);values[0]=energy;
-        if(!materialLineFeasible(a,fminf(s.minimum,J.j0),J.j0,J.j1,J.j2,J.j3))atomicOr(&search[root].invalid,1<<k);
+        float floor=fminf((materialFloorRecovery(s,root)?MaterialFloorBand:1.f)*s.minimum,J.j0);
+        if(!materialLineFeasible(a,floor,J.j0,J.j1,J.j2,J.j3))atomicOr(&search[root].invalid,1<<k);
     }
     materialLineAdd(search+root,values);
 }
@@ -140,6 +154,20 @@ __global__ void k_MaterialLineApply(const UnifiedState* state,const float3* star
     // A rejected/nonfinite direction must leave the accepted position intact:
     // multiplying an invalid direction by zero would still propagate NaNs.
     if(best>0)s.pos[i]=materialLinePoint(s,start,i,materialLineAlpha(best));
+}
+// Puts a held or touched component with a tet at the floor into floor recovery for MaterialFloorRecoverySubsteps when the
+// volume floor cut its direction at a tet of free tissue (MaterialFloorRestricted) and its line search then found no
+// step, and counts the recovery of every other component down. A component at rest takes no step either, but nothing
+// cuts its direction. Only a piece cut free of every pinned node qualifies, and none that the cutting tool touches: the
+// grasp and cut of attached tissue keep the ordinary step they are tuned with.
+__global__ void k_MaterialFloorRecovery(const UnifiedState* state,const MaterialLineSearch* search){
+    const UnifiedState& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0 || s.component[i]!=i)return;
+    const auto& q=search[i];double tolerance=1e-10*fmax(1.,fabs(q.energy[0]));bool stepped=false;
+    for(int k=1;k<5;k++)stepped|=!(q.invalid&(1<<k))&&isfinite(q.energy[k])&&q.energy[k]<-tolerance;
+    int flags=s.graspComponents[i],left=s.floorRecovery[i]&~MaterialFloorRestricted;
+    bool locked=!stepped && (s.floorRecovery[i]&MaterialFloorRestricted) && (flags&7) && (flags&8) && !(flags&MaterialCutterContact)
+        && !(s.componentSupport[i]&1);
+    s.floorRecovery[i]=locked?MaterialFloorRecoverySubsteps:max(0,left-1);
 }
 
 // Bound the *trial* strain before tangent projection; the accepted update still
