@@ -1,0 +1,186 @@
+{
+  "baseline_commit": "c64c1a02ac0b6f004a36e370f14a6bfae7e76091",
+  "native_dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+  "collision_experiment": {
+    "baseline_mean_ms": 52.5925,
+    "candidate_mean_ms": 54.5,
+    "decision": "reverted"
+  },
+  "final_display": [
+    {
+      "run": "baseline-video-blas",
+      "frames": 1111,
+      "raw_mismatches": 13,
+      "update_ms": 17.726001263159453,
+      "render_ms": 30.482457129920192,
+      "total_ms": 48.208458393079646,
+      "p95_ms": 56.5290649945382
+    },
+    {
+      "run": "persistent-video-blas",
+      "frames": 1111,
+      "raw_mismatches": 0,
+      "update_ms": 15.906227256435336,
+      "render_ms": 21.042514710820747,
+      "total_ms": 36.94874196725608,
+      "p95_ms": 43.824250000761815
+    }
+  ],
+  "integrated": [
+    {
+      "run": "threaded-blas-baseline",
+      "steps": 1110,
+      "wall_s": 63.724148500012234,
+      "ms_per_step": 57.40914279280381,
+      "steps_hz": 17.41882827982844,
+      "frames": 1074,
+      "display_fps": 16.85389330859076,
+      "cut_edges": 211,
+      "stray_skin_cuts": 39,
+      "overlap_mm": 0.041569975796835607,
+      "squeeze_mm": 1.0046532616345967,
+      "pools_inside": [
+        1,
+        1
+      ],
+      "pools_after": [
+        24,
+        24
+      ]
+    },
+    {
+      "run": "threaded-blas-persistent-1",
+      "steps": 1110,
+      "wall_s": 62.68084700003965,
+      "ms_per_step": 56.46923153156725,
+      "steps_hz": 17.70875878558721,
+      "frames": 1110,
+      "display_fps": 17.70875878558721,
+      "cut_edges": 181,
+      "stray_skin_cuts": 35,
+      "overlap_mm": 0.07041259722030263,
+      "squeeze_mm": 1.2461430368223259,
+      "pools_inside": [
+        1,
+        1
+      ],
+      "pools_after": [
+        24,
+        24
+      ]
+    },
+    {
+      "run": "threaded-blas-persistent-2",
+      "steps": 1110,
+      "wall_s": 67.22499560000142,
+      "ms_per_step": 60.56305909910038,
+      "steps_hz": 16.511715472689097,
+      "frames": 1104,
+      "display_fps": 16.422462956620507,
+      "cut_edges": 195,
+      "stray_skin_cuts": 37,
+      "overlap_mm": 0.018323475669603795,
+      "squeeze_mm": 1.246550127507537,
+      "pools_inside": [
+        1,
+        1
+      ],
+      "pools_after": [
+        24,
+        24
+      ]
+    },
+    {
+      "run": "threaded-blas-persistent-3",
+      "steps": 1110,
+      "wall_s": 64.91041200002655,
+      "ms_per_step": 58.47784864867257,
+      "steps_hz": 17.100492290813776,
+      "frames": 1105,
+      "display_fps": 17.02346304626056,
+      "cut_edges": 198,
+      "stray_skin_cuts": 30,
+      "overlap_mm": 0.03249737231244998,
+      "squeeze_mm": 1.4814486816557737,
+      "pools_inside": [
+        1,
+        1
+      ],
+      "pools_after": [
+        24,
+        24
+      ]
+    },
+    {
+      "run": "threaded-blas-persistent-4",
+      "steps": 1110,
+      "wall_s": 67.41219309996814,
+      "ms_per_step": 60.73170549546679,
+      "steps_hz": 16.465863947697684,
+      "frames": 1110,
+      "display_fps": 16.465863947697684,
+      "cut_edges": 187,
+      "stray_skin_cuts": 45,
+      "overlap_mm": 0.050056474704419096,
+      "squeeze_mm": 1.3873160282491614,
+      "pools_inside": [
+        1,
+        1
+      ],
+      "pools_after": [
+        24,
+        24
+      ]
+    },
+    {
+      "run": "threaded-blas-persistent-5",
+      "steps": 1110,
+      "wall_s": 67.58924579998711,
+      "ms_per_step": 60.89121243242082,
+      "steps_hz": 16.422730966472948,
+      "frames": 1108,
+      "display_fps": 16.393140460227052,
+      "cut_edges": 178,
+      "stray_skin_cuts": 49,
+      "overlap_mm": 0.036634572797993314,
+      "squeeze_mm": 1.4622224840025788,
+      "pools_inside": [
+        1,
+        1
+      ],
+      "pools_after": [
+        24,
+        24
+      ]
+    },
+    {
+      "run": "threaded-blas-persistent-6",
+      "steps": 1110,
+      "wall_s": 63.65770260000136,
+      "ms_per_step": 57.34928162162284,
+      "steps_hz": 17.437010050060717,
+      "frames": 1109,
+      "display_fps": 17.4213010319976,
+      "cut_edges": 176,
+      "stray_skin_cuts": 49,
+      "overlap_mm": 0.05189758798337608,
+      "squeeze_mm": 0.8427605794482813,
+      "pools_inside": [
+        1,
+        1
+      ],
+      "pools_after": [
+        24,
+        24
+      ]
+    }
+  ],
+  "verification": {
+    "optimized_frames_equal_first_baseline": 1111,
+    "complete_byte_identical_videos": 6,
+    "video_sha256": "1ca2b386b19a85578748782fff27952fa1bd821f0eb6a45f39716f20baa802ff",
+    "boundary_checks_per_pass": 18,
+    "original_physics_acceptance_passed": false,
+    "note": "Baseline quality defects remain; matches do not certify surgical realism."
+  }
+}

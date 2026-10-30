@@ -19,6 +19,7 @@ import time
 import numpy as np
 
 import cv2
+from threadpoolctl import threadpool_limits
 
 from .grid import METERS_PER_UNIT, build_grid, to_genesis
 from .instrument_geometry import scissors_body_depths
@@ -334,6 +335,9 @@ def play_live(view: EndoscopicView, video, link: LiveLink, worker, shown, output
                 link.posted.clear()
 
 
+# The recorder and renderer both call BLAS. Keep its internal workers bounded
+# for the entire session, including thread shutdown, and restore them on exit.
+@threadpool_limits.wrap(limits=1, user_api="blas")
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--headless", action="store_true", help="Save camera frames without opening a window")
