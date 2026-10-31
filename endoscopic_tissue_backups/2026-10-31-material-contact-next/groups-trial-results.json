@@ -1,0 +1,76 @@
+[
+  {
+    "label": "diagnostic",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-material-contact-next\\check_contact_groups.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\diagnostic",
+      "--dll",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31-probe\\LiverCudaSim.dll",
+      "--tool",
+      "scissors"
+    ],
+    "exit_code": 1
+  },
+  {
+    "label": "timing",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\run_batch.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-material-contact-next\\groups-timing-jobs.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "captures",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\run_batch.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-material-contact-next\\groups-capture-jobs.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "render-baseline",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\replay_single_blas.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\baseline-capture\\replay.bin",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\baseline-video"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "render-groups",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\replay_single_blas.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-capture\\replay.bin",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-video"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "compare",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\make_review.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\baseline-video\\interactions.mp4",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-video\\interactions.mp4",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-review",
+      "CONTACT_GROUPS"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "motion",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-wrist-opt\\review_motion.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\baseline-capture\\motion.jsonl",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-capture\\motion.jsonl",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-review"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "section-diagnostics",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-material-contact-next\\run_sections.py"
+    ],
+    "exit_code": 0
+  }
+]

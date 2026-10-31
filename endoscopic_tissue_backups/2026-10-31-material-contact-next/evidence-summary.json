@@ -1,0 +1,3976 @@
+{
+  "base_commit": "fbcaf71dc0eec30e00b55d46bf5ae0eddac271b3",
+  "production_adopted": false,
+  "settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      0.6,
+      -0.8,
+      0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 2
+  },
+  "diagonal_regression": {
+    "cases": 1038,
+    "frozen_blocks": 12,
+    "old_max_relative_error": 5.3599432323337295,
+    "new_max_relative_error": 5.599823463175511e-08,
+    "old_cases_above_1e_minus4": 353,
+    "note": "GPU helper regression plus independent float64 solve; not a claim that every compiler context gives the same old rounding error."
+  },
+  "additive_frozen_checks": {
+    "states": 10,
+    "max_relative_error": 9.263124740901933e-08,
+    "max_symmetry_error": 1.159505536752406e-08,
+    "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/diagnostic-a3/additive-checks.json"
+  },
+  "contact_frozen_checks": {
+    "states": 270,
+    "triangle_queries": 153750112,
+    "valid_records": 22925,
+    "group_rejected_queries": 50271524,
+    "preload_bypasses": 0,
+    "unsafe_rejections": 0,
+    "record_differences": 0
+  },
+  "timing_scope": "Normal CUDA Graphs, no display; pipeline includes control/readback/recorder submission and possible backpressure. Stage boundaries and final drain excluded. Probes, captures, rendering and section timing are separate.",
+  "series": [
+    {
+      "name": "additive",
+      "runs": [
+        {
+          "name": "baseline-a1",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/baseline-a1",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "1e02cfadb06ae8c284cf3bfcddbb5db871c2feb972a1b768b853e6a58d316570",
+          "report_sha256": "37a9409e7c51054846a1e0817c727b5b3f48c33964c54729dee15a0e64bead86",
+          "core_ms": {
+            "mean": 44.11017873900238,
+            "p95": 53.71765500167385,
+            "maximum": 62.86340003134683,
+            "steps_over_33hz_budget": 1110
+          },
+          "pipeline_ms": {
+            "mean": 57.88022549544998,
+            "p95": 85.37694002443457,
+            "maximum": 115.029200038407,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 35.50227666273713,
+                "p95": 37.419614975806326,
+                "maximum": 38.64359995350242,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 41.483656666241586,
+                "p95": 45.25053999386728,
+                "maximum": 45.62129999976605,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 35.20710999404805,
+                "p95": 36.68463999929372,
+                "maximum": 38.51310000754893,
+                "steps_over_33hz_budget": 90
+              },
+              "pipeline_ms": {
+                "mean": 42.948453333358174,
+                "p95": 46.35566999204457,
+                "maximum": 49.188599979970604,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 37.23015778361716,
+                "p95": 43.675720039755106,
+                "maximum": 44.678299978841096,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 44.826880000376455,
+                "p95": 51.98223997140303,
+                "maximum": 52.807900006882846,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 42.98322222376656,
+                "p95": 44.317940005566925,
+                "maximum": 45.97749997628853,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 50.70176666680103,
+                "p95": 53.00300000235438,
+                "maximum": 54.25659997854382,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 42.723026668439466,
+                "p95": 44.47993497014977,
+                "maximum": 46.17599997436628,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 50.675371666632905,
+                "p95": 53.61437999235932,
+                "maximum": 58.96820005727932,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 43.843191668080784,
+                "p95": 47.660655007348396,
+                "maximum": 48.82339999312535,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 52.26063666632399,
+                "p95": 57.377395025105216,
+                "maximum": 60.55009999545291,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 52.854079999184854,
+                "p95": 58.74582998803817,
+                "maximum": 62.86340003134683,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 71.87961066684996,
+                "p95": 101.73156001546886,
+                "maximum": 115.029200038407,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 49.817460001213476,
+                "p95": 52.473249996546656,
+                "maximum": 56.145899987313896,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 58.056189998751506,
+                "p95": 62.72671499173156,
+                "maximum": 66.55309995403513,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 47.5234083365649,
+                "p95": 50.715419970219955,
+                "maximum": 51.74950003856793,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 56.12480333268953,
+                "p95": 62.914944998919964,
+                "maximum": 65.10680000064895,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 46.645481333058946,
+                "p95": 54.71473002107814,
+                "maximum": 59.786300000268966,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 67.83315199970578,
+                "p95": 93.17918501037639,
+                "maximum": 95.13749997131526,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 42.42480833587857,
+                "p95": 43.599210010143,
+                "maximum": 43.822199979331344,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 59.38231333323832,
+                "p95": 65.46247996739112,
+                "maximum": 75.25619998341426,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 42.41595555407306,
+                "p95": 44.52098000328987,
+                "maximum": 46.78420000709593,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 62.77137111173943,
+                "p95": 74.7409800067544,
+                "maximum": 76.37039996916428,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 42.4114333341519,
+                "p95": 43.51959000923671,
+                "maximum": 44.825099990703166,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 62.33750000052775,
+                "p95": 70.23646999150515,
+                "maximum": 74.26749996375293,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 42.65422999548415,
+                "p95": 43.78837996919174,
+                "maximum": 43.96390001056716,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 59.80265333394831,
+                "p95": 62.04314500500914,
+                "maximum": 62.449000019114465,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014002976007759571,
+            "edges_before_incision": 0,
+            "cut_edges": 187,
+            "observed_cut_edges": 187,
+            "retained_cut_edges": 187,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 238,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 4.050242686351596e-05,
+            "max_blade_body_overlap_m": 4.050242686351596e-05,
+            "peak_blade_force_n": 4.005399703979492,
+            "max_node_displacement_m": 0.025351054966449738,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.17984630167484283,
+            "fracture_right_n": 0.10398241877555847,
+            "two_blade_squeeze_m": 0.0014733102897913513,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.21921990811824799,
+                "fracture_right_n": 0.30669546127319336,
+                "two_blade_squeeze_m": 0.0014733102897913513
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.17984630167484283,
+                "fracture_right_n": 0.10398241877555847,
+                "two_blade_squeeze_m": 0.003619361722140491
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 48,
+            "slit_length_m": 0.008503863872337553,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "additive-b1",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/additive-b1",
+          "dll_sha256": "10d022f91d30c992b03d0592dce3a616457d005a7c7a130172d333cd74aebde6",
+          "rows_sha256": "2c1490cdfaf644b263b0953b3e6c910ce5b51269e0965350c928705d9d65ffd5",
+          "report_sha256": "deb79593a6ab1f209b25b0f9f0ac3bcba3330a8500a7f03f2487dc41c7c33767",
+          "core_ms": {
+            "mean": 41.66853279315841,
+            "p95": 51.87774999649263,
+            "maximum": 61.441299971193075,
+            "steps_over_33hz_budget": 1053
+          },
+          "pipeline_ms": {
+            "mean": 50.9731572073662,
+            "p95": 62.42040500219446,
+            "maximum": 72.72569998167455,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 30.536066663141053,
+                "p95": 32.70532001333777,
+                "maximum": 33.379699976649135,
+                "steps_over_33hz_budget": 18
+              },
+              "pipeline_ms": {
+                "mean": 37.696330000956856,
+                "p95": 40.37941997812595,
+                "maximum": 40.83350003929809,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 30.416082222169887,
+                "p95": 31.43474496609997,
+                "maximum": 32.79979998478666,
+                "steps_over_33hz_budget": 48
+              },
+              "pipeline_ms": {
+                "mean": 37.619498888832624,
+                "p95": 39.14570001070388,
+                "maximum": 40.89980002027005,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 32.92402444252124,
+                "p95": 39.92965999059379,
+                "maximum": 41.571700014173985,
+                "steps_over_33hz_budget": 42
+              },
+              "pipeline_ms": {
+                "mean": 40.418100000048675,
+                "p95": 49.37433999730274,
+                "maximum": 50.890900020021945,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 40.520002227276564,
+                "p95": 42.453339986968786,
+                "maximum": 42.659300030209124,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 47.96150444437646,
+                "p95": 50.293740013148636,
+                "maximum": 51.88930005533621,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 41.17251500089575,
+                "p95": 42.206720006652176,
+                "maximum": 51.72410001978278,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 49.21503166697221,
+                "p95": 51.57048500550445,
+                "maximum": 59.41659997915849,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 42.40562249954868,
+                "p95": 45.88440501538571,
+                "maximum": 46.98020004434511,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 50.59098333343476,
+                "p95": 55.37026996316854,
+                "maximum": 61.18469999637455,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 50.86450266845835,
+                "p95": 57.444080011919134,
+                "maximum": 61.441299971193075,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 59.48192200002571,
+                "p95": 68.04216502059714,
+                "maximum": 72.72569998167455,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 47.74657666566782,
+                "p95": 50.296645020716824,
+                "maximum": 50.69630005164072,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 56.15916333238905,
+                "p95": 59.14636004017666,
+                "maximum": 59.72530000144616,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 46.07263333455194,
+                "p95": 47.481579962186515,
+                "maximum": 48.47979999613017,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 54.74457166662129,
+                "p95": 58.692180007346906,
+                "maximum": 60.5580999981612,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 43.817864668089896,
+                "p95": 53.33184998889918,
+                "maximum": 60.453100013546646,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 59.53802266701435,
+                "p95": 67.27762498485389,
+                "maximum": 70.98750001750886,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 39.86854666776102,
+                "p95": 40.97303499584086,
+                "maximum": 41.89350001979619,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 49.80744416679954,
+                "p95": 53.83698502846528,
+                "maximum": 57.01049999333918,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 40.598824441743396,
+                "p95": 41.73121998319402,
+                "maximum": 42.56100003840402,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 49.23305333359167,
+                "p95": 52.82145998207852,
+                "maximum": 53.222800022922456,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 40.31778399832547,
+                "p95": 41.50195999536663,
+                "maximum": 41.95769998477772,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 48.24685200039918,
+                "p95": 50.444629980484024,
+                "maximum": 50.931100035086274,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 41.00224666375046,
+                "p95": 42.58912999066524,
+                "maximum": 42.73660003673285,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 49.214006667413436,
+                "p95": 51.16306001145858,
+                "maximum": 51.57599999802187,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014077580533921719,
+            "edges_before_incision": 0,
+            "cut_edges": 211,
+            "observed_cut_edges": 211,
+            "retained_cut_edges": 211,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 266,
+            "final_grip_points": 59,
+            "current_grip_points": 59,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 5.6100908535086094e-05,
+            "max_blade_body_overlap_m": 5.6100908535086094e-05,
+            "peak_blade_force_n": 18.63005828857422,
+            "max_node_displacement_m": 0.026313774287700653,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.11658002436161041,
+            "fracture_right_n": 0.28877896070480347,
+            "two_blade_squeeze_m": 0.0013028905722381212,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.2715447247028351,
+                "fracture_right_n": 0.28877896070480347,
+                "two_blade_squeeze_m": 0.0013028905722381212
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.11658002436161041,
+                "fracture_right_n": 0.32093238830566406,
+                "two_blade_squeeze_m": 0.002147716781720872
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 38,
+            "slit_length_m": 0.008832033204484111,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "additive-b2",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/additive-b2",
+          "dll_sha256": "10d022f91d30c992b03d0592dce3a616457d005a7c7a130172d333cd74aebde6",
+          "rows_sha256": "d7dc08df4cfe9036a66b6e4790e798cddfcbf7ae521c6923448b8f462f8818d4",
+          "report_sha256": "9fe973cd4dd83c3c1b494cbc5179ec6b516273767046e797922ec1285fc124f1",
+          "core_ms": {
+            "mean": 41.99224360426678,
+            "p95": 53.22311498748604,
+            "maximum": 60.057700029574335,
+            "steps_over_33hz_budget": 1066
+          },
+          "pipeline_ms": {
+            "mean": 53.003165135181064,
+            "p95": 71.78933499089908,
+            "maximum": 94.5936000207439,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 30.989559997882072,
+                "p95": 32.43372497963719,
+                "maximum": 33.94019999541342,
+                "steps_over_33hz_budget": 22
+              },
+              "pipeline_ms": {
+                "mean": 38.74991333383756,
+                "p95": 41.823870010557584,
+                "maximum": 43.09980000834912,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 30.564242223691608,
+                "p95": 31.462605023989454,
+                "maximum": 33.939899993129075,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 38.03158444417123,
+                "p95": 39.22640501987189,
+                "maximum": 47.5323999999091,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 32.876746668221635,
+                "p95": 39.27018000977114,
+                "maximum": 39.741599990520626,
+                "steps_over_33hz_budget": 39
+              },
+              "pipeline_ms": {
+                "mean": 40.41346000093553,
+                "p95": 47.36079997383058,
+                "maximum": 47.8618000051938,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 41.37612222952561,
+                "p95": 43.905439984519035,
+                "maximum": 44.822500029113144,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 49.85749777794505,
+                "p95": 54.553259967360646,
+                "maximum": 56.425400020089,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 40.946699997099735,
+                "p95": 41.90325001545716,
+                "maximum": 43.019199976697564,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 49.21813083346933,
+                "p95": 51.29259500536136,
+                "maximum": 52.606599987484515,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 42.485415001768466,
+                "p95": 46.14653500029817,
+                "maximum": 47.88520000874996,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 51.00335916649783,
+                "p95": 55.83203005080577,
+                "maximum": 58.13510000007227,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 51.95958733170604,
+                "p95": 56.411450015730225,
+                "maximum": 60.057700029574335,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 66.00302333361469,
+                "p95": 78.19860999006777,
+                "maximum": 86.29830001154914,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 48.69131333349893,
+                "p95": 52.29561000596732,
+                "maximum": 53.03240002831444,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 58.67038333284048,
+                "p95": 66.58538500778377,
+                "maximum": 67.46730004670098,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 46.605566666888386,
+                "p95": 49.99796501069795,
+                "maximum": 50.82649999530986,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 55.498328333487734,
+                "p95": 60.911954965558834,
+                "maximum": 64.45230002282187,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 44.20376333330447,
+                "p95": 54.94872000708709,
+                "maximum": 58.685600000899285,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 66.35032533357541,
+                "p95": 87.78125502576586,
+                "maximum": 94.5936000207439,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 39.79085583414417,
+                "p95": 42.14450500730891,
+                "maximum": 42.78689995408058,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 48.88001166643031,
+                "p95": 53.73681502824182,
+                "maximum": 84.15040001273155,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 42.1561266696598,
+                "p95": 43.54445998324081,
+                "maximum": 45.582499995362014,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 51.04760888886327,
+                "p95": 54.83506000600755,
+                "maximum": 58.03720001131296,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 40.50144000522172,
+                "p95": 42.10851000389084,
+                "maximum": 43.03490003803745,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 48.5957399996308,
+                "p95": 50.938979972852394,
+                "maximum": 51.90840002615005,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 39.55255000037141,
+                "p95": 40.29307500459254,
+                "maximum": 40.647200017701834,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 46.96545333329899,
+                "p95": 48.44703999697231,
+                "maximum": 49.2140999995172,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014084228314459324,
+            "edges_before_incision": 0,
+            "cut_edges": 209,
+            "observed_cut_edges": 209,
+            "retained_cut_edges": 209,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 256,
+            "final_grip_points": 59,
+            "current_grip_points": 59,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 7.546104766163381e-05,
+            "max_blade_body_overlap_m": 7.546104766163381e-05,
+            "peak_blade_force_n": 35.00281524658203,
+            "max_node_displacement_m": 0.025775697082281113,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.10723073780536652,
+            "fracture_right_n": 0.2253510057926178,
+            "two_blade_squeeze_m": 0.0014657715266717275,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.23963207006454468,
+                "fracture_right_n": 0.26699206233024597,
+                "two_blade_squeeze_m": 0.0015570412220618957
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.10723073780536652,
+                "fracture_right_n": 0.2253510057926178,
+                "two_blade_squeeze_m": 0.0014657715266717275
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 36,
+            "slit_length_m": 0.00831439506799862,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "baseline-a2",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/baseline-a2",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "9a5dfa76528ef3b86ddf2fbf1be9395f089a71853f061aad553cee4b2599f90a",
+          "report_sha256": "99be10e7775818d913d61f3c4083ae48cf26d537b6fdc69119ac5e700482e675",
+          "core_ms": {
+            "mean": 44.5928290986607,
+            "p95": 53.92425000318326,
+            "maximum": 62.733400030992925,
+            "steps_over_33hz_budget": 1110
+          },
+          "pipeline_ms": {
+            "mean": 56.170886396252136,
+            "p95": 89.12736497295553,
+            "maximum": 115.36100000375882,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 35.028866664894544,
+                "p95": 36.28498999169096,
+                "maximum": 37.717999948654324,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 43.363833332356684,
+                "p95": 46.43597501562908,
+                "maximum": 47.511099954135716,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 34.74526554992836,
+                "p95": 35.62403998512309,
+                "maximum": 35.97780002746731,
+                "steps_over_33hz_budget": 90
+              },
+              "pipeline_ms": {
+                "mean": 42.171997777445036,
+                "p95": 44.1257649770705,
+                "maximum": 44.973200012464076,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 37.04802666713173,
+                "p95": 43.66218000650406,
+                "maximum": 44.86999998334795,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 44.58414222269008,
+                "p95": 52.101140026934445,
+                "maximum": 53.37640002835542,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 43.43302000132907,
+                "p95": 45.65966003574431,
+                "maximum": 47.17530001653358,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 51.840002222969716,
+                "p95": 56.61700000055134,
+                "maximum": 59.089999995194376,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 42.562920832521435,
+                "p95": 43.67796499282122,
+                "maximum": 44.20350003056228,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 50.567456666613,
+                "p95": 52.8706650075037,
+                "maximum": 54.25770004512742,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 44.75860499806004,
+                "p95": 48.32703998545185,
+                "maximum": 50.14599999412894,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 53.24575249978807,
+                "p95": 58.40866501093842,
+                "maximum": 61.865099996794015,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 52.776074666762725,
+                "p95": 57.56376500357873,
+                "maximum": 62.733400030992925,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 80.77075666670378,
+                "p95": 105.57683002843986,
+                "maximum": 115.36100000375882,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 49.874203328120835,
+                "p95": 53.20676001138054,
+                "maximum": 53.756400011479855,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 64.22695999887462,
+                "p95": 90.29041500471064,
+                "maximum": 113.3704999811016,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 47.365711667225696,
+                "p95": 50.384024990489706,
+                "maximum": 51.62650003330782,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 56.20166000056391,
+                "p95": 59.56684504053555,
+                "maximum": 62.56679998477921,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 47.01098400284536,
+                "p95": 55.330934977973804,
+                "maximum": 59.22459997236729,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 55.85645066651826,
+                "p95": 65.873609969276,
+                "maximum": 70.63889998244122,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 43.978284999805815,
+                "p95": 45.415109978057444,
+                "maximum": 46.42769997008145,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 52.57933166625056,
+                "p95": 55.28543500404339,
+                "maximum": 56.07029999373481,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 44.61344667037742,
+                "p95": 47.23907998995855,
+                "maximum": 52.88000003201887,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 54.15605555495454,
+                "p95": 58.38075999636203,
+                "maximum": 63.58159997034818,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 44.30090266279876,
+                "p95": 45.78927998081781,
+                "maximum": 47.278699988964945,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 54.56205599941313,
+                "p95": 60.757969989208505,
+                "maximum": 65.26519998442382,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 43.53585333835023,
+                "p95": 44.274134989245795,
+                "maximum": 45.16500001773238,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 60.831050000463925,
+                "p95": 65.59447001782246,
+                "maximum": 66.61429995438084,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014005257748067379,
+            "edges_before_incision": 0,
+            "cut_edges": 195,
+            "observed_cut_edges": 195,
+            "retained_cut_edges": 195,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 250,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 2.641778835993619e-05,
+            "max_blade_body_overlap_m": 2.641778835993619e-05,
+            "peak_blade_force_n": 77.68721008300781,
+            "max_node_displacement_m": 0.025272466242313385,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.16353553533554077,
+            "fracture_right_n": 0.16231490671634674,
+            "two_blade_squeeze_m": 0.0015301741221070892,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.16353553533554077,
+                "fracture_right_n": 0.16231490671634674,
+                "two_blade_squeeze_m": 0.0015301741221070892
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.25851744413375854,
+                "fracture_right_n": 0.16299057006835938,
+                "two_blade_squeeze_m": 0.0019387680221165404
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 37,
+            "slit_length_m": 0.009280320980648184,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        }
+      ],
+      "means": {
+        "core_ms": {
+          "baseline": 44.35150391883154,
+          "candidate": 41.8303881987126,
+          "change_percent": -5.684397365042859,
+          "candidate_hz": 23.906065495963453
+        },
+        "pipeline_ms": {
+          "baseline": 57.02555594585105,
+          "candidate": 51.98816117127363,
+          "change_percent": -8.833574159909475,
+          "candidate_hz": 19.235148492856407
+        }
+      }
+    },
+    {
+      "name": "groups",
+      "runs": [
+        {
+          "name": "baseline-a1",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/baseline-a1",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "fb96ae4b598092817b8781c8568122ab7880219104352b0ee4c1bc2ac7a9bdd9",
+          "report_sha256": "6e8bc354e60189de1f773b4886b104deac5649669553812b90488b6175def143",
+          "core_ms": {
+            "mean": 44.22109216207278,
+            "p95": 53.70746997650713,
+            "maximum": 61.19069998385385,
+            "steps_over_33hz_budget": 1110
+          },
+          "pipeline_ms": {
+            "mean": 57.161001081007896,
+            "p95": 84.0801499580266,
+            "maximum": 89.9892000015825,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 34.88372666567253,
+                "p95": 36.95061997277662,
+                "maximum": 37.43300004862249,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 39.59792666525269,
+                "p95": 41.78705500380602,
+                "maximum": 42.2390999738127,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 34.778482223110686,
+                "p95": 35.344760020961985,
+                "maximum": 35.74209997896105,
+                "steps_over_33hz_budget": 90
+              },
+              "pipeline_ms": {
+                "mean": 39.38942777781954,
+                "p95": 40.137829989544116,
+                "maximum": 40.7184999785386,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 36.96464444639989,
+                "p95": 43.1462999782525,
+                "maximum": 43.474000005517155,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 41.68568222214364,
+                "p95": 47.97898001270369,
+                "maximum": 48.26219996903092,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 42.78705110644094,
+                "p95": 43.874919961672276,
+                "maximum": 44.30890001822263,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 47.727693332773114,
+                "p95": 48.71950001688674,
+                "maximum": 48.84070000844076,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 42.41969333282517,
+                "p95": 43.3506050350843,
+                "maximum": 43.743500020354986,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 47.48507333327628,
+                "p95": 48.498155013658106,
+                "maximum": 49.22540002735332,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 43.92276583239436,
+                "p95": 48.48030003195163,
+                "maximum": 51.34190001990646,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 49.60411749974204,
+                "p95": 57.18847500102129,
+                "maximum": 69.50429995777085,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 52.61937200130584,
+                "p95": 56.291124984272756,
+                "maximum": 61.19069998385385,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 59.23651133353511,
+                "p95": 66.57703499367923,
+                "maximum": 79.26610001595691,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 48.807830000684284,
+                "p95": 52.74076498753857,
+                "maximum": 52.82689997693524,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 54.101633332902566,
+                "p95": 57.81504998449236,
+                "maximum": 58.24009998468682,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 46.010368334827945,
+                "p95": 49.256505028461106,
+                "maximum": 50.14369997661561,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 51.353424999979325,
+                "p95": 54.7565199813107,
+                "maximum": 55.382999998982996,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 46.64867600038027,
+                "p95": 54.34460502001457,
+                "maximum": 58.13179997494444,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 62.74849333334714,
+                "p95": 81.13600998185568,
+                "maximum": 88.75290001742542,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 43.95308583092022,
+                "p95": 45.00550498487428,
+                "maximum": 45.56389997014776,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 68.3112525002798,
+                "p95": 88.04588500352111,
+                "maximum": 89.95460002915934,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 43.92264444613829,
+                "p95": 44.981160026509315,
+                "maximum": 45.42170005152002,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 79.91779555514869,
+                "p95": 89.08783997176215,
+                "maximum": 89.9892000015825,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 43.69325999791423,
+                "p95": 44.89342001033947,
+                "maximum": 45.47610000008717,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 80.45064800030862,
+                "p95": 87.70593999070115,
+                "maximum": 88.69529998628423,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 43.86559000510412,
+                "p95": 44.700175026082434,
+                "maximum": 46.263900003395975,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 73.73217333224602,
+                "p95": 83.62658000551164,
+                "maximum": 84.06089997151867,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.013987284153699875,
+            "edges_before_incision": 0,
+            "cut_edges": 182,
+            "observed_cut_edges": 182,
+            "retained_cut_edges": 182,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 254,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 5.3812331596698185e-05,
+            "max_blade_body_overlap_m": 5.3812331596698185e-05,
+            "peak_blade_force_n": 70.89912414550781,
+            "max_node_displacement_m": 0.025529934093356133,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.21462325751781464,
+            "fracture_right_n": 0.14240533113479614,
+            "two_blade_squeeze_m": 0.001484254042341605,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.21462325751781464,
+                "fracture_right_n": 0.20341357588768005,
+                "two_blade_squeeze_m": 0.001484254042341605
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.23933829367160797,
+                "fracture_right_n": 0.14240533113479614,
+                "two_blade_squeeze_m": 0.0017222164434154397
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 39,
+            "slit_length_m": 0.007607288550027169,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "groups-b1",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/groups-b1",
+          "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+          "rows_sha256": "a315e619c167c938a024f1459470883fbff7a14cca79c4e3060733517bb201ed",
+          "report_sha256": "036438a371cea12c56072e376b531a0f1fedc49b2c69ce108c0241b18d3fcc21",
+          "core_ms": {
+            "mean": 102.33645162163386,
+            "p95": 230.4646799893817,
+            "maximum": 238.34270000224933,
+            "steps_over_33hz_budget": 1110
+          },
+          "pipeline_ms": {
+            "mean": 116.21183810807001,
+            "p95": 295.87755998654757,
+            "maximum": 474.1639999556355,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 34.618713336143024,
+                "p95": 35.83586000022478,
+                "maximum": 37.467800022568554,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 39.21942999974514,
+                "p95": 40.57741000142414,
+                "maximum": 42.16460004681721,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 34.62401666846644,
+                "p95": 35.182859990163706,
+                "maximum": 35.937200009357184,
+                "steps_over_33hz_budget": 90
+              },
+              "pipeline_ms": {
+                "mean": 39.23247777727536,
+                "p95": 39.858575008111075,
+                "maximum": 40.4895999818109,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 36.78225332793469,
+                "p95": 43.336999986786395,
+                "maximum": 43.66309999022633,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 41.376764444996496,
+                "p95": 48.12542002182454,
+                "maximum": 48.714400036260486,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 42.79349778209709,
+                "p95": 43.99356000358239,
+                "maximum": 44.90490001626313,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 47.68670888928076,
+                "p95": 48.846780008170754,
+                "maximum": 49.339699966367334,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 42.42903583217412,
+                "p95": 43.34806497208774,
+                "maximum": 44.48260000208393,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 47.455898333282676,
+                "p95": 48.593689981498756,
+                "maximum": 49.599300022237,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 44.07700333443548,
+                "p95": 47.943214981933124,
+                "maximum": 48.93889999948442,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 49.223463333328255,
+                "p95": 52.990095008863136,
+                "maximum": 58.1242999760434,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 53.129681335606925,
+                "p95": 56.58687502727843,
+                "maximum": 61.74179998924956,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 70.4173433330531,
+                "p95": 97.3713549959939,
+                "maximum": 108.92160004004836,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 49.108366668224335,
+                "p95": 52.98681499552913,
+                "maximum": 53.22909995447844,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 55.64230000018142,
+                "p95": 63.90574000251945,
+                "maximum": 64.42949996562675,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 45.9632849941651,
+                "p95": 48.993735006661154,
+                "maximum": 49.75120001472533,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 51.27693833298205,
+                "p95": 54.76996497891378,
+                "maximum": 55.327300040517,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 158.20124466825897,
+                "p95": 231.56657999788877,
+                "maximum": 232.69639996578917,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 197.08050933356085,
+                "p95": 299.11203497904353,
+                "maximum": 474.1639999556355,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 224.43545249843737,
+                "p95": 232.91997996566352,
+                "maximum": 237.2464999789372,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 253.3280350001102,
+                "p95": 299.60878499259707,
+                "maximum": 302.071199985221,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 215.2252688887529,
+                "p95": 229.2241599992849,
+                "maximum": 229.69089995604008,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 220.39602666627616,
+                "p95": 234.17670000344515,
+                "maximum": 234.8053000168875,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 221.15907066501677,
+                "p95": 233.53697001584806,
+                "maximum": 238.34270000224933,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 226.56484666668499,
+                "p95": 239.62485999800265,
+                "maximum": 246.46480003139004,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 211.4032066621197,
+                "p95": 230.4487799963681,
+                "maximum": 232.3467000387609,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 216.60475333337672,
+                "p95": 235.78618000610732,
+                "maximum": 237.6574000227265,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.013992459513247013,
+            "edges_before_incision": 0,
+            "cut_edges": 181,
+            "observed_cut_edges": 181,
+            "retained_cut_edges": 181,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 232,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 6.773357703006855e-05,
+            "max_blade_body_overlap_m": 6.773357703006855e-05,
+            "peak_blade_force_n": 55.4504280090332,
+            "max_node_displacement_m": 0.025301452726125717,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.2616601586341858,
+            "fracture_right_n": 0.10463474690914154,
+            "two_blade_squeeze_m": 0.0012698079334534757,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.2616601586341858,
+                "fracture_right_n": 0.2663593888282776,
+                "two_blade_squeeze_m": 0.0012698079334534757
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.4961225092411041,
+                "fracture_right_n": 0.10463474690914154,
+                "two_blade_squeeze_m": 0.0032012194210983423
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 39,
+            "slit_length_m": 0.007607288550027169,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "groups-b2",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/groups-b2",
+          "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+          "rows_sha256": "13b65d4b13a253edc3bd8ba103df50782294680cf7f471954c4b6fa82bd90547",
+          "report_sha256": "21a8dabdf4294f474aaf5dc504ddad6e0647771aabfa09759f7f6e89067e6f05",
+          "core_ms": {
+            "mean": 44.70233846862742,
+            "p95": 53.53076496394351,
+            "maximum": 60.188000032212585,
+            "steps_over_33hz_budget": 1110
+          },
+          "pipeline_ms": {
+            "mean": 61.80416594578272,
+            "p95": 90.28655000729486,
+            "maximum": 110.76810001395643,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 34.81419999928524,
+                "p95": 36.67029997741337,
+                "maximum": 37.84179996000603,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 39.50326333288103,
+                "p95": 41.57390998443588,
+                "maximum": 42.7800000179559,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 34.90230667003844,
+                "p95": 35.70067499822471,
+                "maximum": 36.45819996017963,
+                "steps_over_33hz_budget": 90
+              },
+              "pipeline_ms": {
+                "mean": 39.65275222176893,
+                "p95": 40.628470029332675,
+                "maximum": 41.72950005158782,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 37.19342444738787,
+                "p95": 43.788119964301586,
+                "maximum": 43.98010001750663,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 41.98151333257556,
+                "p95": 48.741599987261,
+                "maximum": 49.19980000704527,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 43.25407777343773,
+                "p95": 45.093860023189336,
+                "maximum": 46.17240000516176,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 48.3309488885829,
+                "p95": 50.298960017971694,
+                "maximum": 52.85790003836155,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 42.76045749817664,
+                "p95": 43.75313501514029,
+                "maximum": 44.423700019251555,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 47.906155833334196,
+                "p95": 49.30320998246316,
+                "maximum": 49.71469996962696,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 44.6845941686964,
+                "p95": 48.72686004382558,
+                "maximum": 49.24299998674542,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 50.206465833374146,
+                "p95": 54.64517497457564,
+                "maximum": 63.65740002365783,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 52.646093330501266,
+                "p95": 56.83223002124578,
+                "maximum": 60.05129998084158,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 78.34578933310695,
+                "p95": 102.1439300267957,
+                "maximum": 110.76810001395643,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 50.39066000802753,
+                "p95": 52.50011499738321,
+                "maximum": 53.10349998762831,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 69.17453333347414,
+                "p95": 86.04233502410352,
+                "maximum": 89.71400000154972,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 47.96095000056084,
+                "p95": 49.78429999900982,
+                "maximum": 51.03249999228865,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 53.3294083327443,
+                "p95": 55.28006498643663,
+                "maximum": 56.52619997272268,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 47.288738668818645,
+                "p95": 55.229439976392314,
+                "maximum": 60.188000032212585,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 67.86701666656882,
+                "p95": 88.60067498171702,
+                "maximum": 92.34909998485819,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 44.09497250065518,
+                "p95": 45.38714000664186,
+                "maximum": 46.576599997933954,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 80.8177775000028,
+                "p95": 90.40121496946085,
+                "maximum": 93.72030000668019,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 44.37475555265943,
+                "p95": 46.039240004029125,
+                "maximum": 46.98310000821948,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 83.52202222191005,
+                "p95": 91.22344000497833,
+                "maximum": 92.17270003864542,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 43.952837333393596,
+                "p95": 45.425220020115376,
+                "maximum": 46.975100005511194,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 72.74283333293472,
+                "p95": 88.24978999909945,
+                "maximum": 91.87840000959113,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 45.20310666024064,
+                "p95": 46.78909501817543,
+                "maximum": 47.07149998284876,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 63.06483333464712,
+                "p95": 76.65993999107741,
+                "maximum": 77.56290002726018,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.013989385217428207,
+            "edges_before_incision": 0,
+            "cut_edges": 191,
+            "observed_cut_edges": 191,
+            "retained_cut_edges": 191,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 248,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 7.932961089230251e-05,
+            "max_blade_body_overlap_m": 7.932961089230251e-05,
+            "peak_blade_force_n": 80.18541717529297,
+            "max_node_displacement_m": 0.025488905608654022,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.10277915000915527,
+            "fracture_right_n": 0.16361014544963837,
+            "two_blade_squeeze_m": 0.0015031815021697376,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.240360826253891,
+                "fracture_right_n": 0.30285194516181946,
+                "two_blade_squeeze_m": 0.0015031815021697376
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.10277915000915527,
+                "fracture_right_n": 0.16361014544963837,
+                "two_blade_squeeze_m": 0.001977992203817128
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 40,
+            "slit_length_m": 0.009539140087457975,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "baseline-a2",
+          "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/baseline-a2",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "fa5bd68618859a4983dedd419f685af37a116af978106abb497113a84c55aadf",
+          "report_sha256": "1346b7d2ed3b765a9c364c03d8a435934ef6ff696eecb2b4ad60d84b35fc6efa",
+          "core_ms": {
+            "mean": 44.48502756862876,
+            "p95": 53.87870999984443,
+            "maximum": 82.35490001970902,
+            "steps_over_33hz_budget": 1110
+          },
+          "pipeline_ms": {
+            "mean": 58.72889720711035,
+            "p95": 89.63737000594847,
+            "maximum": 107.08879999583587,
+            "steps_over_33hz_budget": 1110
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 34.813400000954665,
+                "p95": 36.06024500040803,
+                "maximum": 37.003699981141835,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 41.977529999955244,
+                "p95": 43.09034998295829,
+                "maximum": 44.152399990707636,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 34.812803335565455,
+                "p95": 35.640490014338866,
+                "maximum": 35.92009999556467,
+                "steps_over_33hz_budget": 90
+              },
+              "pipeline_ms": {
+                "mean": 42.18929000004815,
+                "p95": 43.857550009852275,
+                "maximum": 45.88039999362081,
+                "steps_over_33hz_budget": 90
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 37.296760007221664,
+                "p95": 45.83503996254876,
+                "maximum": 47.31679998803884,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 45.141124444651524,
+                "p95": 55.6379999849014,
+                "maximum": 60.84669998381287,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 43.00005555851385,
+                "p95": 44.53480001538992,
+                "maximum": 44.94639998301864,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 50.7061200009452,
+                "p95": 52.71247997879982,
+                "maximum": 52.98459995537996,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 42.56261332969492,
+                "p95": 43.75482503382955,
+                "maximum": 44.32769998675212,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 50.531625833536964,
+                "p95": 52.315449973684736,
+                "maximum": 53.36149997310713,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 44.00474083280036,
+                "p95": 47.56397498131264,
+                "maximum": 48.2845000224188,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 53.891759166435804,
+                "p95": 77.56462502293289,
+                "maximum": 83.5541000124067,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 52.91933666487845,
+                "p95": 58.102850028080866,
+                "maximum": 61.627999995835125,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 65.64903399984662,
+                "p95": 78.41453998989891,
+                "maximum": 85.61910002026707,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 49.71779000091677,
+                "p95": 52.637644979404286,
+                "maximum": 52.7330000186339,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 58.6478733321807,
+                "p95": 67.83128499519079,
+                "maximum": 70.5300000263378,
+                "steps_over_33hz_budget": 30
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 46.86647500396551,
+                "p95": 49.241705020540394,
+                "maximum": 49.55270001664758,
+                "steps_over_33hz_budget": 60
+              },
+              "pipeline_ms": {
+                "mean": 52.12801166635472,
+                "p95": 54.47697502677329,
+                "maximum": 55.03160000080243,
+                "steps_over_33hz_budget": 60
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 47.593648004112765,
+                "p95": 55.73809000488834,
+                "maximum": 82.35490001970902,
+                "steps_over_33hz_budget": 150
+              },
+              "pipeline_ms": {
+                "mean": 55.58779733333116,
+                "p95": 63.31578998069744,
+                "maximum": 87.77579996967688,
+                "steps_over_33hz_budget": 150
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 43.99227666823814,
+                "p95": 45.310999965295196,
+                "maximum": 45.91640003491193,
+                "steps_over_33hz_budget": 120
+              },
+              "pipeline_ms": {
+                "mean": 80.57778166645828,
+                "p95": 99.10598495043814,
+                "maximum": 107.08879999583587,
+                "steps_over_33hz_budget": 120
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 43.259086669422686,
+                "p95": 44.05237999744713,
+                "maximum": 44.500599964521825,
+                "steps_over_33hz_budget": 45
+              },
+              "pipeline_ms": {
+                "mean": 78.78287555520527,
+                "p95": 91.74161999253556,
+                "maximum": 93.93219999037683,
+                "steps_over_33hz_budget": 45
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 43.79568266837547,
+                "p95": 46.217359974980354,
+                "maximum": 47.6321000023745,
+                "steps_over_33hz_budget": 75
+              },
+              "pipeline_ms": {
+                "mean": 66.58087733279292,
+                "p95": 72.86950000561774,
+                "maximum": 84.32809996884316,
+                "steps_over_33hz_budget": 75
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 43.616963331199564,
+                "p95": 45.15316500037443,
+                "maximum": 45.40959995938465,
+                "steps_over_33hz_budget": 30
+              },
+              "pipeline_ms": {
+                "mean": 66.93370333329464,
+                "p95": 78.7473299948033,
+                "maximum": 87.87050005048513,
+                "steps_over_33hz_budget": 30
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.013989923521876335,
+            "edges_before_incision": 0,
+            "cut_edges": 199,
+            "observed_cut_edges": 199,
+            "retained_cut_edges": 199,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 248,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 6.285827327477858e-05,
+            "max_blade_body_overlap_m": 6.285827327477858e-05,
+            "peak_blade_force_n": 20.251811981201172,
+            "max_node_displacement_m": 0.02552422694861889,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.16140297055244446,
+            "fracture_right_n": 0.1287992000579834,
+            "two_blade_squeeze_m": 0.0014595246056242712,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.267968088388443,
+                "fracture_right_n": 0.2568300664424896,
+                "two_blade_squeeze_m": 0.0014595246056242712
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.16140297055244446,
+                "fracture_right_n": 0.1287992000579834,
+                "two_blade_squeeze_m": 0.002127130176839689
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 35,
+            "slit_length_m": 0.009280320980648184,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        }
+      ],
+      "means": {
+        "core_ms": {
+          "baseline": 44.35305986535077,
+          "candidate": 73.51939504513064,
+          "change_percent": 65.75946567908613,
+          "candidate_hz": 13.601852944874475
+        },
+        "pipeline_ms": {
+          "baseline": 57.94494914405912,
+          "candidate": 89.00800202692636,
+          "change_percent": 53.60786978281784,
+          "candidate_hz": 11.23494491762082
+        }
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "additive/baseline",
+      "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/baseline-capture",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "quality_passed": false,
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.01400273572653532,
+        "edges_before_incision": 0,
+        "cut_edges": 187,
+        "observed_cut_edges": 187,
+        "retained_cut_edges": 187,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 234,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 2.50092801093163e-05,
+        "max_blade_body_overlap_m": 2.50092801093163e-05,
+        "peak_blade_force_n": 64.39404296875,
+        "max_node_displacement_m": 0.025025032460689545,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.21654635667800903,
+        "fracture_right_n": 0.10341218113899231,
+        "two_blade_squeeze_m": 0.001286388741637561,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.21654635667800903,
+            "fracture_right_n": 0.23218251764774323,
+            "two_blade_squeeze_m": 0.001286388741637561
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.5200738310813904,
+            "fracture_right_n": 0.10341218113899231,
+            "two_blade_squeeze_m": 0.002135736053640432
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 38,
+        "slit_length_m": 0.008503863872337553,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "motion_sha256": "92eab0ef816f5732be4107266c8341be9dbee0e07c4c0059e47be386455e0960",
+      "report_sha256": "ff5f2c089f0e723a21a03ddbfc0da8fc3ce8388655c0bf846fc097daafeab3dd",
+      "peak_loads_by_stage": {
+        "initial": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "settle": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "approach": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "bite": {
+          "jaw_load_n": [
+            5.643876033190054e-09,
+            0.05779103934764862
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "close": {
+          "jaw_load_n": [
+            2.913067579269409,
+            1.882033348083496
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "lift": {
+          "jaw_load_n": [
+            3.1306169033050537,
+            1.902079701423645
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "blade_approach": {
+          "jaw_load_n": [
+            1.8140910863876343,
+            7.134866237640381
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.013177918270230293
+          ]
+        },
+        "incise_1": {
+          "jaw_load_n": [
+            0.3185643255710602,
+            4.666451454162598
+          ],
+          "scissors_load_n": [
+            1.802351951599121,
+            1.5675628185272217
+          ]
+        },
+        "open_1": {
+          "jaw_load_n": [
+            0.3701779842376709,
+            4.600259780883789
+          ],
+          "scissors_load_n": [
+            0.8327204585075378,
+            0.7101560235023499
+          ]
+        },
+        "reposition_2": {
+          "jaw_load_n": [
+            0.41248568892478943,
+            9.081361770629883
+          ],
+          "scissors_load_n": [
+            0.05144498869776726,
+            0.014126471243798733
+          ]
+        },
+        "incise_2": {
+          "jaw_load_n": [
+            0.705735445022583,
+            3.7779147624969482
+          ],
+          "scissors_load_n": [
+            2.3954906463623047,
+            1.054423213005066
+          ]
+        },
+        "withdraw": {
+          "jaw_load_n": [
+            0.7212430238723755,
+            3.7871336936950684
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "release": {
+          "jaw_load_n": [
+            0.676706075668335,
+            3.388270854949951
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "extract": {
+          "jaw_load_n": [
+            0.704879105091095,
+            3.2724907398223877
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "hold": {
+          "jaw_load_n": [
+            0.5638179779052734,
+            3.157465696334839
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "topology_audit": {
+        "recorded_nonmanifold_edges": 2,
+        "positional_nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0
+      },
+      "video": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/baseline-video/interactions.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 16008661,
+        "sha256": "5f3f017422266b0f24ddd6497e820a9c71538bf756b00fd05d2d6b7cfb9fbbad",
+        "note": "Simulation-time playback, not execution FPS."
+      }
+    },
+    {
+      "name": "additive/additive",
+      "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/additive-capture",
+      "dll_sha256": "10d022f91d30c992b03d0592dce3a616457d005a7c7a130172d333cd74aebde6",
+      "quality_passed": false,
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.014088141731917858,
+        "edges_before_incision": 0,
+        "cut_edges": 216,
+        "observed_cut_edges": 216,
+        "retained_cut_edges": 216,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 280,
+        "final_grip_points": 59,
+        "current_grip_points": 59,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 7.837327268657227e-05,
+        "max_blade_body_overlap_m": 7.837327268657227e-05,
+        "peak_blade_force_n": 6.920467376708984,
+        "max_node_displacement_m": 0.026409149169921875,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.14194534718990326,
+        "fracture_right_n": 0.16218014061450958,
+        "two_blade_squeeze_m": 0.0013380714263212473,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.2543871998786926,
+            "fracture_right_n": 0.20986782014369965,
+            "two_blade_squeeze_m": 0.0013380714263212473
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.14194534718990326,
+            "fracture_right_n": 0.16218014061450958,
+            "two_blade_squeeze_m": 0.0026373076561016073
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 30,
+        "slit_length_m": 0.008832033204484111,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "motion_sha256": "d6434e4399245844e38063990ee7fc9ca2b35caf519baf657d98d9692c25c511",
+      "report_sha256": "cd0dd1341fb927d6022c236dfd97b33a62e9cabbd27a9f82391158b71838b8dc",
+      "peak_loads_by_stage": {
+        "initial": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "settle": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "approach": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "bite": {
+          "jaw_load_n": [
+            5.497813315713529e-09,
+            0.05455160513520241
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "close": {
+          "jaw_load_n": [
+            3.3547544479370117,
+            2.754981279373169
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "lift": {
+          "jaw_load_n": [
+            3.5720250606536865,
+            2.760247230529785
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "blade_approach": {
+          "jaw_load_n": [
+            1.9264861345291138,
+            10.886978149414062
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.02320878952741623
+          ]
+        },
+        "incise_1": {
+          "jaw_load_n": [
+            0.33692771196365356,
+            8.059228897094727
+          ],
+          "scissors_load_n": [
+            2.8311266899108887,
+            2.9083123207092285
+          ]
+        },
+        "open_1": {
+          "jaw_load_n": [
+            0.3556545674800873,
+            3.9668121337890625
+          ],
+          "scissors_load_n": [
+            1.1358301639556885,
+            1.0448098182678223
+          ]
+        },
+        "reposition_2": {
+          "jaw_load_n": [
+            0.055996764451265335,
+            13.742531776428223
+          ],
+          "scissors_load_n": [
+            0.04441962018609047,
+            0.15968699753284454
+          ]
+        },
+        "incise_2": {
+          "jaw_load_n": [
+            0.44266584515571594,
+            5.812150955200195
+          ],
+          "scissors_load_n": [
+            4.598052978515625,
+            1.9746710062026978
+          ]
+        },
+        "withdraw": {
+          "jaw_load_n": [
+            0.616670548915863,
+            5.5701165199279785
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "release": {
+          "jaw_load_n": [
+            0.5879992246627808,
+            5.124116897583008
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "extract": {
+          "jaw_load_n": [
+            0.6241310834884644,
+            5.058543682098389
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "hold": {
+          "jaw_load_n": [
+            0.7677925229072571,
+            4.438950061798096
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "topology_audit": {
+        "recorded_nonmanifold_edges": 3,
+        "positional_nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0
+      },
+      "video": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/additive-video/interactions.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 16433779,
+        "sha256": "3e32fc296f4105a3b70340cf9b8e808583e5d327fceb21c664e3a16ca7687788",
+        "note": "Simulation-time playback, not execution FPS."
+      },
+      "comparison": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/additive-review/comparison.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 34316345,
+        "sha256": "8bf007e565c0c4f133efa726d7e83531119b2409a07fa350bbcaca65a7699790",
+        "note": "Simulation-time playback, not execution FPS."
+      },
+      "motion_comparison": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/additive/additive-review/motion-comparison.json",
+        "sha256": "aae33a57f834e4b1f66e687eaccee39cf5b063e39a5b068dd77c63d0102b823e"
+      }
+    },
+    {
+      "name": "groups/baseline",
+      "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/baseline-capture",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "quality_passed": false,
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.014006496407091618,
+        "edges_before_incision": 0,
+        "cut_edges": 182,
+        "observed_cut_edges": 182,
+        "retained_cut_edges": 182,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 252,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 4.9610604652254035e-05,
+        "max_blade_body_overlap_m": 4.9610604652254035e-05,
+        "peak_blade_force_n": 17.895673751831055,
+        "max_node_displacement_m": 0.02511751838028431,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.28781208395957947,
+        "fracture_right_n": 0.24737244844436646,
+        "two_blade_squeeze_m": 0.0010316712688086154,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.28781208395957947,
+            "fracture_right_n": 0.314371794462204,
+            "two_blade_squeeze_m": 0.0014505924954474941
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.5461730360984802,
+            "fracture_right_n": 0.24737244844436646,
+            "two_blade_squeeze_m": 0.0010316712688086154
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 49,
+        "slit_length_m": 0.007607288550027169,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "motion_sha256": "815d955decf1aa38e42fdffd2be9be9582c0a96c65d37ab8206138c1d1e19f99",
+      "report_sha256": "add6f34fc9072897ad4cbb18b4a0a3bd6af54549416e1253f6ad6d0f86f81cd4",
+      "peak_loads_by_stage": {
+        "initial": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "settle": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "approach": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "bite": {
+          "jaw_load_n": [
+            5.6421445293608485e-09,
+            0.05780259147286415
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "close": {
+          "jaw_load_n": [
+            2.912432909011841,
+            1.9359747171401978
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "lift": {
+          "jaw_load_n": [
+            3.151197671890259,
+            1.8879985809326172
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "blade_approach": {
+          "jaw_load_n": [
+            1.9156290292739868,
+            11.856772422790527
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.008917263709008694
+          ]
+        },
+        "incise_1": {
+          "jaw_load_n": [
+            0.24451006948947906,
+            11.47535228729248
+          ],
+          "scissors_load_n": [
+            2.094525098800659,
+            2.0257339477539062
+          ]
+        },
+        "open_1": {
+          "jaw_load_n": [
+            0.2755934000015259,
+            4.532587051391602
+          ],
+          "scissors_load_n": [
+            0.8511030673980713,
+            0.9265865087509155
+          ]
+        },
+        "reposition_2": {
+          "jaw_load_n": [
+            0.08072372525930405,
+            8.144621849060059
+          ],
+          "scissors_load_n": [
+            0.06692157685756683,
+            0.015381033532321453
+          ]
+        },
+        "incise_2": {
+          "jaw_load_n": [
+            0.32097357511520386,
+            6.678378105163574
+          ],
+          "scissors_load_n": [
+            2.3969695568084717,
+            0.9869710803031921
+          ]
+        },
+        "withdraw": {
+          "jaw_load_n": [
+            0.5253835916519165,
+            5.464206218719482
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "release": {
+          "jaw_load_n": [
+            0.3994256258010864,
+            4.472878456115723
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "extract": {
+          "jaw_load_n": [
+            0.43663695454597473,
+            4.288589000701904
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "hold": {
+          "jaw_load_n": [
+            0.4630441963672638,
+            4.249625205993652
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "topology_audit": {
+        "recorded_nonmanifold_edges": 3,
+        "positional_nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0
+      },
+      "video": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/baseline-video/interactions.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 16306301,
+        "sha256": "0343d9f41e24097e2601db43c6f170811cadcfac13d7857d5f12e437f98d1bb8",
+        "note": "Simulation-time playback, not execution FPS."
+      }
+    },
+    {
+      "name": "groups/groups",
+      "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/groups-capture",
+      "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+      "quality_passed": false,
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.01400029193609953,
+        "edges_before_incision": 0,
+        "cut_edges": 180,
+        "observed_cut_edges": 180,
+        "retained_cut_edges": 180,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 248,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 4.6705775911101836e-05,
+        "max_blade_body_overlap_m": 4.6705775911101836e-05,
+        "peak_blade_force_n": 33.98380661010742,
+        "max_node_displacement_m": 0.025151260197162628,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.24744880199432373,
+        "fracture_right_n": 0.13575200736522675,
+        "two_blade_squeeze_m": 0.0010595143875573448,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.24744880199432373,
+            "fracture_right_n": 0.26169711351394653,
+            "two_blade_squeeze_m": 0.0011913828039897352
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.4138733446598053,
+            "fracture_right_n": 0.13575200736522675,
+            "two_blade_squeeze_m": 0.0010595143875573448
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 44,
+        "slit_length_m": 0.007607288550027169,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "motion_sha256": "4fb3c4ef9d7a8fa4cc364346b9885f50d4f9262dc4d8c7828995d4513e39b6c7",
+      "report_sha256": "78ae30510f4e6d53816433550bb6bb11fcb638571a9b0a7351367159245f860b",
+      "peak_loads_by_stage": {
+        "initial": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "settle": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "approach": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "bite": {
+          "jaw_load_n": [
+            5.652436740888334e-09,
+            0.057810332626104355
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "close": {
+          "jaw_load_n": [
+            2.928710460662842,
+            1.9495676755905151
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "lift": {
+          "jaw_load_n": [
+            3.1809799671173096,
+            1.9188235998153687
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "blade_approach": {
+          "jaw_load_n": [
+            1.897279143333435,
+            24.188209533691406
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.05704333260655403
+          ]
+        },
+        "incise_1": {
+          "jaw_load_n": [
+            0.3333768844604492,
+            25.27935791015625
+          ],
+          "scissors_load_n": [
+            2.1061391830444336,
+            2.07894229888916
+          ]
+        },
+        "open_1": {
+          "jaw_load_n": [
+            0.41102445125579834,
+            3.8880770206451416
+          ],
+          "scissors_load_n": [
+            0.8615884184837341,
+            0.895392894744873
+          ]
+        },
+        "reposition_2": {
+          "jaw_load_n": [
+            0.5664821863174438,
+            10.306724548339844
+          ],
+          "scissors_load_n": [
+            0.036504220217466354,
+            0.011056510731577873
+          ]
+        },
+        "incise_2": {
+          "jaw_load_n": [
+            0.24376003444194794,
+            5.764595031738281
+          ],
+          "scissors_load_n": [
+            1.5518052577972412,
+            0.5569760203361511
+          ]
+        },
+        "withdraw": {
+          "jaw_load_n": [
+            1.0838886499404907,
+            5.576884746551514
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "release": {
+          "jaw_load_n": [
+            1.1001460552215576,
+            4.3055853843688965
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "extract": {
+          "jaw_load_n": [
+            0.7799917459487915,
+            4.561370849609375
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "hold": {
+          "jaw_load_n": [
+            0.5602001547813416,
+            4.487510681152344
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "topology_audit": {
+        "recorded_nonmanifold_edges": 3,
+        "positional_nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0
+      },
+      "video": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/groups-video/interactions.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 16080549,
+        "sha256": "0232127ea3bbc03ab7063f9becb52b6fdce4bb91e301806071662322747bb9bc",
+        "note": "Simulation-time playback, not execution FPS."
+      },
+      "comparison": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/groups-review/comparison.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 34450463,
+        "sha256": "51f82b347ffac01fe04f7afbae26d53fa2e72a1e586dfc60e9b3337a216a68fc",
+        "note": "Simulation-time playback, not execution FPS."
+      },
+      "motion_comparison": {
+        "path": "endoscopic_tissue/outputs/material-contact-next-20261031/groups/groups-review/motion-comparison.json",
+        "sha256": "65c772b16aa62e62a3ea2eda062a18eff96f4d149f0235ad9e4da96142b8fbe4"
+      }
+    }
+  ],
+  "slow_graph_diagnostics": [
+    {
+      "repeat": 1,
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\graph-diagnostic-1",
+      "dll_sha256": "a7fe44d15c388bf9751a014f349b225231dc4c71e1c8b860f4badef56454199b",
+      "steps": 1110,
+      "exit_code": 1,
+      "graphs": {
+        "loaded": 1719,
+        "free": 1611,
+        "recovery": 0
+      },
+      "slow_unprofiled_steps": [],
+      "maximum_unprofiled_ms": 63.06260003475472,
+      "profile_triggered": false,
+      "rows_sha256": "966deb359fb201605d39e35376f0010b83a5a7e662faa14ad87247e7d90a9a04"
+    },
+    {
+      "repeat": 2,
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\graph-diagnostic-2",
+      "dll_sha256": "a7fe44d15c388bf9751a014f349b225231dc4c71e1c8b860f4badef56454199b",
+      "steps": 1110,
+      "exit_code": 1,
+      "graphs": {
+        "loaded": 1714,
+        "free": 1616,
+        "recovery": 0
+      },
+      "slow_unprofiled_steps": [],
+      "maximum_unprofiled_ms": 60.316799965221435,
+      "profile_triggered": false,
+      "rows_sha256": "f51e2c753b909352c5137456acb50a4b74420bb46cd103892a6ed79c575d7644"
+    },
+    {
+      "repeat": 3,
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\graph-diagnostic-3",
+      "dll_sha256": "a7fe44d15c388bf9751a014f349b225231dc4c71e1c8b860f4badef56454199b",
+      "steps": 1110,
+      "exit_code": 1,
+      "graphs": {
+        "loaded": 1719,
+        "free": 1611,
+        "recovery": 0
+      },
+      "slow_unprofiled_steps": [],
+      "maximum_unprofiled_ms": 65.12479996308684,
+      "profile_triggered": false,
+      "rows_sha256": "f03866c396236d5e6218463f853c7784d3bd071ebb22cf4f06f12ac5f7fb863a"
+    }
+  ],
+  "section_diagnostics": {
+    "note": "Graphs disabled; includes launch gaps; nested assembly sections overlap. Do not sum all sections or use as runtime FPS.",
+    "runs": {
+      "baseline": {
+        "steps": 1110,
+        "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+        "sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 1.581725045045045,
+          "cg assembly: mask": 0.10729324324324323,
+          "cg assembly: start": 0.017355945945945948,
+          "cg assembly: stencil and residual": 2.3938786486486485,
+          "cg: assembly": 2.7164587387387393,
+          "cg: feasible": 0.8273148648648649,
+          "cg: iterations": 5.27601135135135,
+          "cg: line search": 1.3726794594594594,
+          "cg: trust, projection": 0.03460936936936936,
+          "loop: coarse modes": 4.284878018018017,
+          "loop: contact discovery": 4.841337117117116,
+          "loop: local sweeps": 5.655968738738738,
+          "loop: manifold, contact marks": 3.2639228828828823,
+          "loop: regional mode": 1.7592506306306306,
+          "loop: rigid modes": 1.1478045945945947,
+          "loop: tool, safe and global coarse": 3.310862432432432,
+          "post: blade and contact reactions, velocity": 0.38050612612612617,
+          "post: fragment contact": 2.455653063063063,
+          "post: free-component nullspace": 0.40307702702702697,
+          "pre: predictor, recovery query": 2.3455928828828827,
+          "pre: tool, contact discovery, manifold": 2.418312972972973,
+          "substep prologue: liveness, fragment contact, predict": 2.7729415315315316
+        },
+        "rows_sha256": "7b6fd4c2c815fe802632b9a74b89f63ddbb47218f2215f9dcf8439ff7765be89"
+      },
+      "additive": {
+        "steps": 1110,
+        "dll_sha256": "10d022f91d30c992b03d0592dce3a616457d005a7c7a130172d333cd74aebde6",
+        "sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 1.5610269369369372,
+          "cg assembly: mask": 0.10715216216216215,
+          "cg assembly: start": 0.01596855855855856,
+          "cg assembly: stencil and residual": 2.393273963963964,
+          "cg: assembly": 2.150065045045046,
+          "cg: feasible": 0.8671402702702704,
+          "cg: iterations": 2.930322702702703,
+          "cg: line search": 1.384537927927928,
+          "cg: trust, projection": 0.034580810810810804,
+          "loop: coarse modes": 4.265244864864865,
+          "loop: contact discovery": 5.0688969369369365,
+          "loop: local sweeps": 5.646656846846847,
+          "loop: manifold, contact marks": 3.2962807207207208,
+          "loop: regional mode": 1.7625385585585585,
+          "loop: rigid modes": 1.1354618918918917,
+          "loop: tool, safe and global coarse": 3.3973009009009014,
+          "post: blade and contact reactions, velocity": 0.39570558558558566,
+          "post: fragment contact": 2.4988284684684685,
+          "post: free-component nullspace": 0.4105060360360361,
+          "pre: predictor, recovery query": 2.3391354054054054,
+          "pre: tool, contact discovery, manifold": 2.621854054054054,
+          "substep prologue: liveness, fragment contact, predict": 2.753785945945946
+        },
+        "rows_sha256": "23d07bbd09a079cfb9c6381077f26dc4984efa47a5efba18d8b10403e024ed43"
+      },
+      "groups": {
+        "steps": 1110,
+        "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+        "sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 1.5740512612612612,
+          "cg assembly: mask": 0.10695090090090091,
+          "cg assembly: start": 0.015155315315315316,
+          "cg assembly: stencil and residual": 2.43509027027027,
+          "cg: assembly": 2.761643243243243,
+          "cg: feasible": 0.8394927027027027,
+          "cg: iterations": 5.2920100900900895,
+          "cg: line search": 1.3831294594594592,
+          "cg: trust, projection": 0.034910990990990994,
+          "loop: coarse modes": 4.247359279279279,
+          "loop: contact discovery": 4.758666036036035,
+          "loop: local sweeps": 5.6711890990991005,
+          "loop: manifold, contact marks": 3.228675765765766,
+          "loop: regional mode": 1.7778327027027023,
+          "loop: rigid modes": 1.1100874774774774,
+          "loop: tool, safe and global coarse": 3.3399977477477476,
+          "post: blade and contact reactions, velocity": 0.3502235135135136,
+          "post: fragment contact": 2.494648018018018,
+          "post: free-component nullspace": 0.4142710810810811,
+          "pre: predictor, recovery query": 2.342645135135135,
+          "pre: tool, contact discovery, manifold": 2.433404954954955,
+          "substep prologue: liveness, fragment contact, predict": 2.7852487387387392
+        },
+        "rows_sha256": "899931638b11646cee6363942b3bae3c782963093e7c54f73731e15dceb523ee"
+      }
+    }
+  },
+  "build_manifest_sha256": "ec77d91664579fc4788c10778fa9f25a9497c2d789a04fb6dbb22db2804f53c6",
+  "patches": {
+    "initial_additive.patch": "c30f6f22b1c0fc6873d14aa7607f6770dd688428d55713e354df7aa0b6da899d",
+    "initial_additive-probe.patch": "6c543258b18e363b6b25489afc46ebeac5e2a5dbaedc3806ae2ffc6f863d1d21",
+    "additive.patch": "c30f6f22b1c0fc6873d14aa7607f6770dd688428d55713e354df7aa0b6da899d",
+    "additive-probe.patch": "6c543258b18e363b6b25489afc46ebeac5e2a5dbaedc3806ae2ffc6f863d1d21",
+    "contact-groups.patch": "0c0de670d0566c765482311b39532c816ff95a6fea01c577a30f9a13597bf328",
+    "contact-groups-probe.patch": "c8d8a70d27f84c1c0369eef97d47dee9cd2361f7dd658cd7409cfe9530b597b4",
+    "contact-groups-graphs.patch": "b8cfbd60daa4b2e23e2f66fd8c036e5e65b8db1e1fba397088493d43a58894d7"
+  },
+  "protected_dll_sha256": {
+    "bin-scissors": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+    "bin": "2632a926b385d9c9a81d5f7d7ebb75fe0501917a9cf83d0c19d3a29c62af961b"
+  },
+  "initial_additive_failure": {
+    "snapshot": {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/material-contact-next-20261031/additive/diagnostic-a2/additive-0800.bin",
+      "sha256": "4ce6874c7824b00ae4a07201638f3817d89a11b3cc9246f79f64b921135b016b",
+      "bytes": 28391968,
+      "stage": "initial additive frozen hierarchy, check at step 800",
+      "expected_relative_error": 0.00012003242520314012,
+      "threshold": 0.0001,
+      "tracked_fixture": "diagonal-frozen-inputs.json",
+      "note": "Full frozen hierarchy is local only. The 12 cut-rim blocks are committed for a compact actual-GPU old/new solve regression. Dynamic reruns need not fail at the same step."
+    },
+    "localization": {
+      "snapshot": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\diagnostic-a2\\additive-0800.bin",
+      "relative_error": 0.00012003242520314012,
+      "error_norm": 0.056484487844933755,
+      "fine32_error_norm": 0.015961670442772177,
+      "gpu_vs_fine32_plus_coarse_error_norm": 0.0406150880876107,
+      "worst": [
+        {
+          "node": 131154,
+          "error": 0.05645367482305693,
+          "h": [
+            2.0130085945129395,
+            21.69925880432129,
+            6.2919840812683105,
+            3.582547426223755,
+            3.5567188262939453,
+            6.50437593460083
+          ],
+          "eigenvalues": [
+            0.0014177736845176685,
+            5.001474726926374,
+            25.001358979491638
+          ],
+          "condition": 17634.238279727833,
+          "det64": 0.17728361775863277,
+          "det32": 0.177276611328125,
+          "gpu": [
+            -346.1773376464844,
+            -2.1371078491210938,
+            207.6990509033203
+          ],
+          "reference": [
+            -346.12832261021,
+            -2.136806239304915,
+            207.67104282142301
+          ],
+          "fine64": [
+            -347.50067973427053,
+            -2.163034255183003,
+            198.7125166041079
+          ],
+          "fine32": [
+            -347.5144348144531,
+            -2.1631178855895996,
+            198.7203826904297
+          ],
+          "coarse": [
+            1.3723571240605588,
+            0.02622801587808786,
+            8.958526217315137
+          ]
+        },
+        {
+          "node": 131159,
+          "error": 0.0016317909414656265,
+          "h": [
+            3.7850663661956787,
+            22.459991455078125,
+            3.7690348625183105,
+            -5.315161228179932,
+            -3.772343873977661,
+            5.296054840087891
+          ],
+          "eigenvalues": [
+            0.004696178222798407,
+            4.427339553803062,
+            25.58205695176627
+          ],
+          "condition": 5447.42037846551,
+          "det64": 0.5318912710521317,
+          "det32": 0.5318756103515625,
+          "gpu": [
+            34.32737350463867,
+            -0.027646945789456367,
+            28.050457000732422
+          ],
+          "reference": [
+            34.32622329173931,
+            -0.027646808198089626,
+            28.049299524191035
+          ],
+          "fine64": [
+            30.337677177804668,
+            -0.001431335084933982,
+            30.37534648699843
+          ],
+          "fine32": [
+            30.33856773376465,
+            -0.0014319798210635781,
+            30.376243591308594
+          ],
+          "coarse": [
+            3.9885461139346448,
+            -0.026215473113155644,
+            -2.326046962807398
+          ]
+        },
+        {
+          "node": 228675,
+          "error": 0.0008200084410942552,
+          "h": [
+            11.071192741394043,
+            15.035969734191895,
+            3.904299020767212,
+            -0.33161091804504395,
+            -6.570233345031738,
+            0.207230344414711
+          ],
+          "eigenvalues": [
+            0.003820655144889887,
+            14.611564615756334,
+            15.396076225451925
+          ],
+          "condition": 4029.695337998624,
+          "det64": 0.8594974950152618,
+          "det32": 0.85943603515625,
+          "gpu": [
+            36.77078628540039,
+            -0.00840110145509243,
+            62.08085250854492
+          ],
+          "reference": [
+            36.77036629034434,
+            -0.008401155044708212,
+            62.08014822309605
+          ],
+          "fine64": [
+            10.24342412027247,
+            -0.004272458863157079,
+            17.297192866293535
+          ],
+          "fine32": [
+            10.244157791137695,
+            -0.004272630903869867,
+            17.29842758178711
+          ],
+          "coarse": [
+            26.52694217007187,
+            -0.004128696181551133,
+            44.78295535680252
+          ]
+        },
+        {
+          "node": 140009,
+          "error": 0.0003689918102392125,
+          "h": [
+            2.0274858474731445,
+            21.714635848999023,
+            6.307046890258789,
+            3.6539394855499268,
+            3.556838274002075,
+            6.452185153961182
+          ],
+          "eigenvalues": [
+            0.016390187012634467,
+            5.023969007141474,
+            25.008809392576854
+          ],
+          "condition": 1525.8403929923627,
+          "det64": 2.0593201881044365,
+          "det32": 2.0593109130859375,
+          "gpu": [
+            28.949668884277344,
+            -0.026919672265648842,
+            -6.547338485717773
+          ],
+          "reference": [
+            28.949346944712605,
+            -0.026918774253129683,
+            -6.547158183010492
+          ],
+          "fine64": [
+            27.576989820652045,
+            -0.05314679013121754,
+            -15.50568440032563
+          ],
+          "fine32": [
+            27.577116012573242,
+            -0.05314726382493973,
+            -15.505755424499512
+          ],
+          "coarse": [
+            1.3723571240605588,
+            0.02622801587808786,
+            8.958526217315137
+          ]
+        },
+        {
+          "node": 131160,
+          "error": 5.866960150191949e-05,
+          "h": [
+            7.504889965057373,
+            30.031442642211914,
+            7.493622779846191,
+            -0.008023738861083984,
+            -7.4892683029174805,
+            -0.0030188560485839844
+          ],
+          "eigenvalues": [
+            0.009983920508541178,
+            14.988525960263523,
+            30.031445506343395
+          ],
+          "condition": 3007.9812314845526,
+          "det64": 4.494033191093422,
+          "det32": 4.4940185546875,
+          "gpu": [
+            -1.7325490713119507,
+            0.01679377444088459,
+            -1.6490391492843628
+          ],
+          "reference": [
+            -1.732591349839974,
+            0.016793866557542086,
+            -1.6490798265473372
+          ],
+          "fine64": [
+            -1.7192823160014579,
+            0.007678593859173455,
+            -1.6668387175738244
+          ],
+          "fine32": [
+            -1.7192864418029785,
+            0.007678762078285217,
+            -1.6668459177017212
+          ],
+          "coarse": [
+            -0.013309033838516235,
+            0.009115272698368631,
+            0.017758891026487304
+          ]
+        },
+        {
+          "node": 157842,
+          "error": 5.433264621846282e-05,
+          "h": [
+            7.487442493438721,
+            30.061534881591797,
+            7.521030426025391,
+            -0.00012445449829101562,
+            -7.480881690979004,
+            0.00013780593872070312
+          ],
+          "eigenvalues": [
+            0.023335918234979935,
+            14.985136998944965,
+            30.06153488387595
+          ],
+          "condition": 1288.2087853226633,
+          "det64": 10.512276204834052,
+          "det32": 10.5123291015625,
+          "gpu": [
+            -4.109786033630371,
+            -0.008738171309232712,
+            -4.019856929779053
+          ],
+          "reference": [
+            -4.10982448444277,
+            -0.008738356122481578,
+            -4.019895316460532
+          ],
+          "fine64": [
+            -4.10244325357938,
+            -0.012955982530701337,
+            -4.020947296925052
+          ],
+          "fine32": [
+            -4.102422714233398,
+            -0.012955826707184315,
+            -4.020925521850586
+          ],
+          "coarse": [
+            -0.007381230863390187,
+            0.004217626408219759,
+            0.001051980464519534
+          ]
+        },
+        {
+          "node": 140014,
+          "error": 4.499496376419975e-05,
+          "h": [
+            3.797593593597412,
+            22.47252082824707,
+            3.781564474105835,
+            -5.30927038192749,
+            -3.7723445892333984,
+            5.298231601715088
+          ],
+          "eigenvalues": [
+            0.017225929181571762,
+            4.4417348234595595,
+            25.592718143309188
+          ],
+          "condition": 1485.7090072499025,
+          "det64": 1.958175886742879,
+          "det32": 1.958160400390625,
+          "gpu": [
+            -3.0875556468963623,
+            -0.05773037672042847,
+            -9.3668794631958
+          ],
+          "reference": [
+            -3.08752346766672,
+            -0.057730338927210564,
+            -9.366848014149465
+          ],
+          "fine64": [
+            -7.076069581601365,
+            -0.03151486581405492,
+            -7.040801051342066
+          ],
+          "fine32": [
+            -7.076125621795654,
+            -0.03151487931609154,
+            -7.040856838226318
+          ],
+          "coarse": [
+            3.9885461139346448,
+            -0.026215473113155644,
+            -2.326046962807398
+          ]
+        },
+        {
+          "node": 166813,
+          "error": 1.1658095129468041e-05,
+          "h": [
+            6.175378799438477,
+            13.733649253845215,
+            10.113923072814941,
+            0.8319213390350342,
+            -7.887846946716309,
+            -0.5609755516052246
+          ],
+          "eigenvalues": [
+            0.0076508763284205234,
+            13.42169390441363,
+            16.593606345356573
+          ],
+          "condition": 2168.8504209267703,
+          "det64": 1.7039596051791932,
+          "det32": 1.7039794921875,
+          "gpu": [
+            1.9250863790512085,
+            -0.10638315975666046,
+            1.4453802108764648
+          ],
+          "reference": [
+            1.9250774977487992,
+            -0.10638232816935086,
+            1.4453727047381695
+          ],
+          "fine64": [
+            1.916853694364503,
+            -0.09922471229311383,
+            1.4572355302172213
+          ],
+          "fine32": [
+            1.9168308973312378,
+            -0.09922394156455994,
+            1.4572192430496216
+          ],
+          "coarse": [
+            0.008223803384296369,
+            -0.007157615876237028,
+            -0.011862825479051726
+          ]
+        },
+        {
+          "node": 148987,
+          "error": 9.935122107379506e-06,
+          "h": [
+            0.003119396511465311,
+            15.003119468688965,
+            0.0031193923205137253,
+            -0.00025031110271811485,
+            7.08605563115583e-10,
+            -4.2463489080546424e-05
+          ],
+          "eigenvalues": [
+            0.003119392200303866,
+            0.0031193923344221227,
+            15.003119472986217
+          ],
+          "condition": 4809.629091053296,
+          "det64": 0.00014598947613442316,
+          "det32": 0.0001459894992876798,
+          "gpu": [
+            -114.2489242553711,
+            0.009087813086807728,
+            -64.87895202636719
+          ],
+          "reference": [
+            -114.24893418864184,
+            0.009087812573041358,
+            -64.87895221815693
+          ],
+          "fine64": [
+            -114.24155295777845,
+            0.004870186164821599,
+            -64.88000419862145
+          ],
+          "fine32": [
+            -114.24153137207031,
+            0.004870185628533363,
+            -64.87998962402344
+          ],
+          "coarse": [
+            -0.007381230863390187,
+            0.004217626408219759,
+            0.001051980464519534
+          ]
+        },
+        {
+          "node": 140130,
+          "error": 1.4301367958819077e-06,
+          "h": [
+            15.014504432678223,
+            15.004332542419434,
+            0.009418467991054058,
+            -0.24906077980995178,
+            0.0005309812841005623,
+            0.0002959140110760927
+          ],
+          "eigenvalues": [
+            0.009418443006954144,
+            14.760305807425414,
+            15.258531192656344
+          ],
+          "condition": 1620.0693874125634,
+          "det64": 2.1212272586564573,
+          "det32": 2.121227264404297,
+          "gpu": [
+            -0.012180759571492672,
+            0.040995724499225616,
+            69.04267883300781
+          ],
+          "reference": [
+            -0.012180759754869184,
+            0.04099572768378919,
+            69.04267740287457
+          ],
+          "fine64": [
+            0.001128274083647052,
+            0.03188045498542055,
+            69.02491851184809
+          ],
+          "fine32": [
+            0.0011282741324976087,
+            0.0318804532289505,
+            69.0249252319336
+          ],
+          "coarse": [
+            -0.013309033838516235,
+            0.009115272698368631,
+            0.017758891026487304
+          ]
+        },
+        {
+          "node": 140131,
+          "error": 2.6739920955608524e-07,
+          "h": [
+            15.00802993774414,
+            14.9982271194458,
+            0.0031305886805057526,
+            -0.24396458268165588,
+            0.0005321363569237292,
+            0.0002378854260314256
+          ],
+          "eigenvalues": [
+            0.0031305657542851344,
+            14.759114734547005,
+            15.247142345569157
+          ],
+          "condition": 4870.411146834655,
+          "det64": 0.7044847459121475,
+          "det32": 0.7044847011566162,
+          "gpu": [
+            -0.034248434007167816,
+            0.023784171789884567,
+            -168.0893096923828
+          ],
+          "reference": [
+            -0.03424843279290001,
+            0.023784171929422695,
+            -168.0893094249864
+          ],
+          "fine64": [
+            -0.020939398954383775,
+            0.014668899231054064,
+            -168.10706831601289
+          ],
+          "fine32": [
+            -0.020939400419592857,
+            0.014668900519609451,
+            -168.10707092285156
+          ],
+          "coarse": [
+            -0.013309033838516235,
+            0.009115272698368631,
+            0.017758891026487304
+          ]
+        },
+        {
+          "node": 131153,
+          "error": 5.7541968598749965e-08,
+          "h": [
+            8.028619766235352,
+            28.84886360168457,
+            8.127005577087402,
+            -2.8881607055664062,
+            6.951647758483887,
+            2.7924575805664062
+          ],
+          "eigenvalues": [
+            0.5556579518712349,
+            15.029443698892965,
+            29.41938729424312
+          ],
+          "condition": 52.94513863280537,
+          "det64": 245.68806691406303,
+          "det32": 245.6881103515625,
+          "gpu": [
+            -0.27707022428512573,
+            -0.01597268134355545,
+            0.30209511518478394
+          ],
+          "reference": [
+            -0.27707026534150353,
+            -0.015972694506028794,
+            0.30209515329254283
+          ],
+          "fine64": [
+            -0.27106541916619564,
+            -0.034481110905578434,
+            0.28693997978160346
+          ],
+          "fine32": [
+            -0.271065354347229,
+            -0.03448110818862915,
+            0.28693991899490356
+          ],
+          "coarse": [
+            -0.006004846175307896,
+            0.01850841639954964,
+            0.015155173510939372
+          ]
+        }
+      ]
+    }
+  },
+  "visual_reviews": {
+    "additive": {
+      "candidate": "additive",
+      "inspected": [
+        "baseline-1.png",
+        "candidate-1.png",
+        "baseline-2.png",
+        "candidate-2.png",
+        "baseline-3.png",
+        "candidate-3.png",
+        "motion-comparison.png"
+      ],
+      "observations": [
+        "Matched contact sheets cover grasp, lift, first snip, second snip, withdrawal, scissor opening, extraction and hold. Large-scale attachment/stretching and two snips occur in both; this is not proof of tissue realism.",
+        "At step 750 the candidate and baseline have visibly different local attachment/separation geometry. The motion plot shows different grasper opening and blade-load trajectories.",
+        "Both complete videos preserve all 1111 states. Motion statistics read every state; visual inspection uses the listed matched contact sheets and full-trajectory plot, not an assertion that every pixel of every frame was manually reviewed.",
+        "The hold-stage tumor RMS speed peak is 0.1596 vs 1.0536 mm/s; candidate non-cutting overlap is 0.0784 vs 0.0250 mm. Neither statistic alone establishes clinical realism.",
+        "Acceptance remains false; no default adoption. The scripted release only opens scissors."
+      ]
+    },
+    "groups": {
+      "candidate": "groups",
+      "inspected": [
+        "baseline-1.png",
+        "candidate-1.png",
+        "baseline-2.png",
+        "candidate-2.png",
+        "baseline-3.png",
+        "candidate-3.png",
+        "motion-comparison.png"
+      ],
+      "observations": [
+        "Matched sheets show maintained grasp/lift, two snips and extraction in both recordings. Local neck/cut shapes and grasper opening differ during snips; whole-trajectory plot shows an appreciable first-snip jaw-gap difference.",
+        "Baseline/candidate first-snip mean jaw gap: 3.0703 / 1.9552 mm. Second-snip tumor RMS speed peak: 32.8386 / 27.6239 mm/s; hold peak: 0.7853 / 0.1620 mm/s. These are descriptive differences, not realism pass criteria.",
+        "Fresh baselines from the two experiment sequences also differ: first-snip mean jaw gap 2.0895 vs 3.0703 mm. No cause for this repeat variability is established.",
+        "All 1111 states are preserved in the videos and read in motion statistics. Visual inspection covers the listed sheets and full plot; not a claim that every video pixel was manually inspected.",
+        "Both quality reports remain false, and normal timing gives no reliable gain, including an unexplained post-cut slow run. Not adopted."
+      ]
+    }
+  },
+  "playback_videos": [
+    {
+      "candidate": "additive",
+      "source": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-review\\comparison.mp4",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-review\\comparison-h264.mp4",
+      "source_sha256": "8bf007e565c0c4f133efa726d7e83531119b2409a07fa350bbcaca65a7699790",
+      "sha256": "add0f1d116d39318c353c7abb033acc77a46d4db67cee0bed57a0f0326bd2c93",
+      "frames": 1111,
+      "fps": 30,
+      "width": 2560,
+      "height": 1008,
+      "codec": "H.264 yuv420p",
+      "crf": 17,
+      "bytes": 19392068,
+      "note": "Playback encoding only; original videos and all simulation states retained."
+    },
+    {
+      "candidate": "groups",
+      "source": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-review\\comparison.mp4",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\groups\\groups-review\\comparison-h264.mp4",
+      "source_sha256": "51f82b347ffac01fe04f7afbae26d53fa2e72a1e586dfc60e9b3337a216a68fc",
+      "sha256": "91527ba3a0e2d34a3f8536293cf3502fe2bb79e54aeec1359d1c58b42c239194",
+      "frames": 1111,
+      "fps": 30,
+      "width": 2560,
+      "height": 1008,
+      "codec": "H.264 yuv420p",
+      "crf": 17,
+      "bytes": 19160966,
+      "note": "Playback encoding only; original videos and all simulation states retained."
+    }
+  ]
+}
