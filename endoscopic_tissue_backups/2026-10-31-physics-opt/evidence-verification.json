@@ -1,0 +1,39 @@
+{
+  "evidence_checks_passed": true,
+  "branch": "dev",
+  "protected_files": {
+    "endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh": "7b085042098df47ab9b6367c83e344af09c81ba6872e8f1f046a2093e9dcb0b8",
+    "endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh": "df1d0e7b2f92ee105386dd6c322c4e0bc3cd6993e8b70f9ac4a08dad97840fc6",
+    "endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu": "dbb15f8955eec84e87c85ab206d93dddcec8bb7c09044d1e2e31738d77f57ad5",
+    "endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh": "bb84bebe8d5cbdb0371de2fb7c91ff8f9d4b382e7c0b237f9b4d5a29a7ae2dd5",
+    "endoscopic_tissue/native/bin/LiverCudaSim.dll": "2632a926b385d9c9a81d5f7d7ebb75fe0501917a9cf83d0c19d3a29c62af961b",
+    "endoscopic_tissue/native/bin-scissors/LiverCudaSim.dll": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225"
+  },
+  "timing_runs": 12,
+  "timing_steps": 13320,
+  "frozen_probes": {
+    "contact-equivalence-02": {
+      "probes": 74,
+      "queries": 1184,
+      "triangle_queries": 42059264,
+      "valid_records": 4703
+    },
+    "contact-control": {
+      "probes": 74,
+      "queries": 1184,
+      "triangle_queries": 42073600,
+      "valid_records": 4763
+    }
+  },
+  "videos": {
+    "baseline-video\\interactions.mp4": "139fa414e8961970329181c9af0745f7aa85feac02fbcce08c2f86e19fc8c56f",
+    "retain-video\\interactions.mp4": "4b23a0845ffe6e8ca057786feb4dca453b1f3d081f867cb61aa35ceb2e01f157",
+    "retain-review\\comparison.mp4": "4ba84292dbbfedec54c7d598fda0ec97c03742aa6f8c9f94bad0c904287a6777",
+    "coarse-election-video\\interactions.mp4": "5c5053098c469345950ef7ac2189d31051f26282f6ecfcba58dffd4f6afa4be7",
+    "coarse-election-review\\comparison.mp4": "4940ac1b061718f557818d6b8093e2dea7299013abe7088a76322209788bba74",
+    "coarse-partial-video\\interactions.mp4": "51a7c25da07d72736366757918df82e2d1658d0f3d9642ebe20452228d82c8ab",
+    "coarse-partial-review\\comparison.mp4": "b1b48341c1a48b9dfe6039de78d8740f1f24604e240676271923ab30951b5007"
+  },
+  "physical_quality_passed": false,
+  "note": "All candidate changes rejected/rolled back. Evidence integrity passed; existing kidney quality failures remain."
+}

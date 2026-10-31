@@ -1,0 +1,1874 @@
+{
+  "note": "Normal CUDA Graph runs, no concurrent GPU work or video rendering. Pipeline excludes stage-boundary file saving; not live display FPS.",
+  "runs": {
+    "baseline-01": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013997333124279976,
+        "edges_before_incision": 0,
+        "cut_edges": 193,
+        "observed_cut_edges": 193,
+        "retained_cut_edges": 193,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 252,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 4.368645016143119e-05,
+        "max_blade_body_overlap_m": 4.368645016143119e-05,
+        "peak_blade_force_n": 5.152137279510498,
+        "max_node_displacement_m": 0.02551976777613163,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.24398288130760193,
+        "fracture_right_n": 0.11858024448156357,
+        "two_blade_squeeze_m": 0.0012673442861082047,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.29342028498649597,
+            "fracture_right_n": 0.2503525912761688,
+            "two_blade_squeeze_m": 0.0012673442861082047
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.24398288130760193,
+            "fracture_right_n": 0.11858024448156357,
+            "two_blade_squeeze_m": 0.0015143440773899952
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 47,
+        "slit_length_m": 0.008503863872337553,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 54.2836491892173,
+        "core_ms": 43.033339368150074,
+        "repair_ms": 1.3962738738219078,
+        "p95_pipeline_ms": 69.93609998608008
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 42.56697333185002,
+          "core_ms": 33.82029332957851,
+          "repair_ms": 0.18417332709456483,
+          "p95_pipeline_ms": 44.80040003545582
+        },
+        "approach": {
+          "pipeline_ms": 43.73569888929423,
+          "core_ms": 33.89088555704802,
+          "repair_ms": 0.1829788877835704,
+          "p95_pipeline_ms": 46.96419998072088
+        },
+        "bite": {
+          "pipeline_ms": 46.747877778640635,
+          "core_ms": 36.38714888883341,
+          "repair_ms": 0.21356666952164638,
+          "p95_pipeline_ms": 53.10329998610541
+        },
+        "close": {
+          "pipeline_ms": 51.624282223120744,
+          "core_ms": 41.732708883420045,
+          "repair_ms": 0.21079333576684198,
+          "p95_pipeline_ms": 55.61040004249662
+        },
+        "lift": {
+          "pipeline_ms": 51.05067833307354,
+          "core_ms": 41.11040083468348,
+          "repair_ms": 0.23175916770317903,
+          "p95_pipeline_ms": 55.19320000894368
+        },
+        "blade_approach": {
+          "pipeline_ms": 52.60475500011429,
+          "core_ms": 42.326299165627766,
+          "repair_ms": 0.2633066668446797,
+          "p95_pipeline_ms": 57.21519998041913
+        },
+        "incise_1": {
+          "pipeline_ms": 69.10743933365059,
+          "core_ms": 50.74036999799622,
+          "repair_ms": 8.340740665250147,
+          "p95_pipeline_ms": 92.9986999835819
+        },
+        "open_1": {
+          "pipeline_ms": 60.491840000031516,
+          "core_ms": 48.676129999027275,
+          "repair_ms": 2.492053337239971,
+          "p95_pipeline_ms": 67.32480000937358
+        },
+        "reposition_2": {
+          "pipeline_ms": 56.28334499973183,
+          "core_ms": 46.22160833096132,
+          "repair_ms": 0.33742833281091106,
+          "p95_pipeline_ms": 61.41279998701066
+        },
+        "incise_2": {
+          "pipeline_ms": 55.48066133322815,
+          "core_ms": 45.51492399924124,
+          "repair_ms": 0.2596686652395874,
+          "p95_pipeline_ms": 66.59510004101321
+        },
+        "withdraw": {
+          "pipeline_ms": 52.99827499984531,
+          "core_ms": 42.65535583059924,
+          "repair_ms": 0.2391400000002856,
+          "p95_pipeline_ms": 58.39040002319962
+        },
+        "release": {
+          "pipeline_ms": 52.86490444430254,
+          "core_ms": 42.89756666532614,
+          "repair_ms": 0.23062444912890592,
+          "p95_pipeline_ms": 55.67829997744411
+        },
+        "extract": {
+          "pipeline_ms": 53.265230666535594,
+          "core_ms": 42.64579466311261,
+          "repair_ms": 0.24532800307497382,
+          "p95_pipeline_ms": 63.84659995092079
+        },
+        "hold": {
+          "pipeline_ms": 52.08840999985114,
+          "core_ms": 41.83594333590008,
+          "repair_ms": 0.22744665814874074,
+          "p95_pipeline_ms": 53.7457000464201
+        }
+      }
+    },
+    "baseline-02": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013996871188282967,
+        "edges_before_incision": 0,
+        "cut_edges": 191,
+        "observed_cut_edges": 191,
+        "retained_cut_edges": 191,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 254,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 4.41799767378373e-05,
+        "max_blade_body_overlap_m": 4.41799767378373e-05,
+        "peak_blade_force_n": 13.701395034790039,
+        "max_node_displacement_m": 0.025330325588583946,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.23749728500843048,
+        "fracture_right_n": 0.12122233211994171,
+        "two_blade_squeeze_m": 0.0012535688684650232,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.23749728500843048,
+            "fracture_right_n": 0.22772645950317383,
+            "two_blade_squeeze_m": 0.0012535688684650232
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.25553736090660095,
+            "fracture_right_n": 0.12122233211994171,
+            "two_blade_squeeze_m": 0.003307731712961629
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 38,
+        "slit_length_m": 0.008503863872337553,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 52.051042792699846,
+        "core_ms": 43.806798828069354,
+        "repair_ms": 3.195538377884339,
+        "p95_pipeline_ms": 74.58620000397786
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 39.829573332099244,
+          "core_ms": 34.975299993917965,
+          "repair_ms": 0.13548332693365714,
+          "p95_pipeline_ms": 40.9798999899067
+        },
+        "approach": {
+          "pipeline_ms": 39.73939333292138,
+          "core_ms": 34.87048444415753,
+          "repair_ms": 0.12842889215486744,
+          "p95_pipeline_ms": 40.753800014499575
+        },
+        "bite": {
+          "pipeline_ms": 41.856817776958145,
+          "core_ms": 36.95974666625261,
+          "repair_ms": 0.14452888992511564,
+          "p95_pipeline_ms": 48.0286999954842
+        },
+        "close": {
+          "pipeline_ms": 47.99639777823662,
+          "core_ms": 42.99628888386198,
+          "repair_ms": 0.2277266648080614,
+          "p95_pipeline_ms": 49.388499988708645
+        },
+        "lift": {
+          "pipeline_ms": 47.64143833308481,
+          "core_ms": 42.36863333547566,
+          "repair_ms": 0.2403008310163083,
+          "p95_pipeline_ms": 48.933600017335266
+        },
+        "blade_approach": {
+          "pipeline_ms": 49.2221183332731,
+          "core_ms": 43.72344332950888,
+          "repair_ms": 0.45003333361819386,
+          "p95_pipeline_ms": 53.13659994862974
+        },
+        "incise_1": {
+          "pipeline_ms": 65.64240533315267,
+          "core_ms": 51.646416002186015,
+          "repair_ms": 8.603317333230128,
+          "p95_pipeline_ms": 81.41709998017177
+        },
+        "open_1": {
+          "pipeline_ms": 56.5795266670951,
+          "core_ms": 49.18051333127854,
+          "repair_ms": 2.329183319428315,
+          "p95_pipeline_ms": 63.53859999217093
+        },
+        "reposition_2": {
+          "pipeline_ms": 50.83328333372871,
+          "core_ms": 45.38179832840493,
+          "repair_ms": 0.38930667118014145,
+          "p95_pipeline_ms": 53.434899949934334
+        },
+        "incise_2": {
+          "pipeline_ms": 64.33351666666567,
+          "core_ms": 46.03223199917314,
+          "repair_ms": 13.091059998065854,
+          "p95_pipeline_ms": 87.97419996699318
+        },
+        "withdraw": {
+          "pipeline_ms": 49.195562500002175,
+          "core_ms": 43.842837502112765,
+          "repair_ms": 0.4033175006043166,
+          "p95_pipeline_ms": 50.19029998220503
+        },
+        "release": {
+          "pipeline_ms": 48.57748444450812,
+          "core_ms": 43.34160666524743,
+          "repair_ms": 0.2606222212004165,
+          "p95_pipeline_ms": 49.6625000378117
+        },
+        "extract": {
+          "pipeline_ms": 47.74576266684259,
+          "core_ms": 42.39287733177965,
+          "repair_ms": 0.23820266438027224,
+          "p95_pipeline_ms": 48.60729997744784
+        },
+        "hold": {
+          "pipeline_ms": 47.46819333328555,
+          "core_ms": 42.259139996410035,
+          "repair_ms": 0.21503667424743375,
+          "p95_pipeline_ms": 48.471700050868094
+        }
+      }
+    },
+    "retain-01": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "113ca11db03233adc724b65f5cd6223cae0fcd71c8174623d550ba67e9793840",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.014015712775290012,
+        "edges_before_incision": 0,
+        "cut_edges": 191,
+        "observed_cut_edges": 191,
+        "retained_cut_edges": 191,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 250,
+        "final_grip_points": 53,
+        "current_grip_points": 53,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 2.0233291382639047e-05,
+        "max_blade_body_overlap_m": 2.0233291382639047e-05,
+        "peak_blade_force_n": 75.40604400634766,
+        "max_node_displacement_m": 0.02566135860979557,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.25473353266716003,
+        "fracture_right_n": 0.2257194221019745,
+        "two_blade_squeeze_m": 0.001384752574929698,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.25473353266716003,
+            "fracture_right_n": 0.2719855010509491,
+            "two_blade_squeeze_m": 0.001384752574929698
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.38957586884498596,
+            "fracture_right_n": 0.2257194221019745,
+            "two_blade_squeeze_m": 0.0016217861473467499
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 48,
+        "slit_length_m": 0.008503863872337553,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 50.154932792904695,
+        "core_ms": 43.61250612602636,
+        "repair_ms": 1.6548072074976254,
+        "p95_pipeline_ms": 66.53230002848431
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 38.82329666715426,
+          "core_ms": 34.30134332544791,
+          "repair_ms": 0.10815332837713261,
+          "p95_pipeline_ms": 39.34290003962815
+        },
+        "approach": {
+          "pipeline_ms": 38.70619777784062,
+          "core_ms": 34.13857889115914,
+          "repair_ms": 0.11080111402811275,
+          "p95_pipeline_ms": 39.46709999581799
+        },
+        "bite": {
+          "pipeline_ms": 40.72424666697366,
+          "core_ms": 36.18993999229537,
+          "repair_ms": 0.13737110938462946,
+          "p95_pipeline_ms": 47.04659996787086
+        },
+        "close": {
+          "pipeline_ms": 46.907615555553804,
+          "core_ms": 42.144373330908515,
+          "repair_ms": 0.1961711069775952,
+          "p95_pipeline_ms": 47.8424999746494
+        },
+        "lift": {
+          "pipeline_ms": 46.46965583330408,
+          "core_ms": 41.52356166644798,
+          "repair_ms": 0.2206875016175521,
+          "p95_pipeline_ms": 47.4458999815397
+        },
+        "blade_approach": {
+          "pipeline_ms": 48.20500750017042,
+          "core_ms": 43.177476668885596,
+          "repair_ms": 0.2505633368855342,
+          "p95_pipeline_ms": 51.41770001500845
+        },
+        "incise_1": {
+          "pipeline_ms": 65.16216800004865,
+          "core_ms": 51.21656466896335,
+          "repair_ms": 8.783742000426477,
+          "p95_pipeline_ms": 85.3175999945961
+        },
+        "open_1": {
+          "pipeline_ms": 57.9513999982737,
+          "core_ms": 49.17325333226472,
+          "repair_ms": 3.9241533260792494,
+          "p95_pipeline_ms": 68.04980000015348
+        },
+        "reposition_2": {
+          "pipeline_ms": 51.393206666883394,
+          "core_ms": 46.09115332908308,
+          "repair_ms": 0.3199816632938261,
+          "p95_pipeline_ms": 53.934100025799125
+        },
+        "incise_2": {
+          "pipeline_ms": 51.906614000132926,
+          "core_ms": 46.46802533068694,
+          "repair_ms": 0.27540599888501066,
+          "p95_pipeline_ms": 59.81040000915527
+        },
+        "withdraw": {
+          "pipeline_ms": 50.30273500015028,
+          "core_ms": 43.46499000142406,
+          "repair_ms": 1.849515836511273,
+          "p95_pipeline_ms": 54.43710001418367
+        },
+        "release": {
+          "pipeline_ms": 49.9855333331248,
+          "core_ms": 44.719028897169565,
+          "repair_ms": 0.2309399889782071,
+          "p95_pipeline_ms": 52.042199997231364
+        },
+        "extract": {
+          "pipeline_ms": 48.29069733386859,
+          "core_ms": 43.001588000915945,
+          "repair_ms": 0.22977200414364538,
+          "p95_pipeline_ms": 49.35680003836751
+        },
+        "hold": {
+          "pipeline_ms": 47.646470001200214,
+          "core_ms": 42.41903999548716,
+          "repair_ms": 0.22323333929913738,
+          "p95_pipeline_ms": 48.37109998334199
+        }
+      }
+    },
+    "retain-02": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "113ca11db03233adc724b65f5cd6223cae0fcd71c8174623d550ba67e9793840",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.014004542492330074,
+        "edges_before_incision": 0,
+        "cut_edges": 196,
+        "observed_cut_edges": 196,
+        "retained_cut_edges": 196,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 246,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 0.00010356106809410931,
+        "max_blade_body_overlap_m": 0.00010356106809410931,
+        "peak_blade_force_n": 33.71944808959961,
+        "max_node_displacement_m": 0.025412224233150482,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.13831067085266113,
+        "fracture_right_n": 0.12619467079639435,
+        "two_blade_squeeze_m": 0.0014692442993995082,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.23541522026062012,
+            "fracture_right_n": 0.2716354727745056,
+            "two_blade_squeeze_m": 0.0014692442993995082
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.13831067085266113,
+            "fracture_right_n": 0.12619467079639435,
+            "two_blade_squeeze_m": 0.001981020652859665
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 37,
+        "slit_length_m": 0.009539140087457975,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 59.86385351337434,
+        "core_ms": 43.89575549657247,
+        "repair_ms": 10.833883513843322,
+        "p95_pipeline_ms": 89.74779996788129
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 38.78795000103613,
+          "core_ms": 34.229983327289425,
+          "repair_ms": 0.10357000476991136,
+          "p95_pipeline_ms": 39.50299997814
+        },
+        "approach": {
+          "pipeline_ms": 38.897558888937866,
+          "core_ms": 34.34573666567707,
+          "repair_ms": 0.11515666847117245,
+          "p95_pipeline_ms": 39.595099980942905
+        },
+        "bite": {
+          "pipeline_ms": 41.07288222164951,
+          "core_ms": 36.44967777395828,
+          "repair_ms": 0.166322215874162,
+          "p95_pipeline_ms": 47.26429999573156
+        },
+        "close": {
+          "pipeline_ms": 47.21902444337805,
+          "core_ms": 42.410597775597125,
+          "repair_ms": 0.20012667066314155,
+          "p95_pipeline_ms": 48.34069998469204
+        },
+        "lift": {
+          "pipeline_ms": 47.128844166581985,
+          "core_ms": 41.929494165136326,
+          "repair_ms": 0.2241274996777065,
+          "p95_pipeline_ms": 48.25919994618744
+        },
+        "blade_approach": {
+          "pipeline_ms": 48.83305666686889,
+          "core_ms": 43.14025916828541,
+          "repair_ms": 0.8584058363339864,
+          "p95_pipeline_ms": 56.684200011659414
+        },
+        "incise_1": {
+          "pipeline_ms": 76.14730999999058,
+          "core_ms": 51.221344671600185,
+          "repair_ms": 19.662449997849762,
+          "p95_pipeline_ms": 98.04960002657026
+        },
+        "open_1": {
+          "pipeline_ms": 55.39869333345754,
+          "core_ms": 48.30825333095466,
+          "repair_ms": 2.0980000030249357,
+          "p95_pipeline_ms": 62.301899946760386
+        },
+        "reposition_2": {
+          "pipeline_ms": 51.68625166600881,
+          "core_ms": 46.47002500423696,
+          "repair_ms": 0.32216333590137464,
+          "p95_pipeline_ms": 53.14340000040829
+        },
+        "incise_2": {
+          "pipeline_ms": 75.88280933327042,
+          "core_ms": 46.48291133460589,
+          "repair_ms": 24.164683999260888,
+          "p95_pipeline_ms": 89.75669997744262
+        },
+        "withdraw": {
+          "pipeline_ms": 76.9890016662733,
+          "core_ms": 44.60447000504549,
+          "repair_ms": 26.95345916727092,
+          "p95_pipeline_ms": 89.0586999594234
+        },
+        "release": {
+          "pipeline_ms": 67.66620444444318,
+          "core_ms": 44.11274222139683,
+          "repair_ms": 17.516860004980117,
+          "p95_pipeline_ms": 71.35079998988658
+        },
+        "extract": {
+          "pipeline_ms": 62.31399733340368,
+          "core_ms": 44.00117333047092,
+          "repair_ms": 12.232413333064565,
+          "p95_pipeline_ms": 69.13940003141761
+        },
+        "hold": {
+          "pipeline_ms": 59.03438999860858,
+          "core_ms": 43.94682334192718,
+          "repair_ms": 8.976686658570543,
+          "p95_pipeline_ms": 59.515400032978505
+        }
+      }
+    },
+    "baseline-03": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013992803171277046,
+        "edges_before_incision": 0,
+        "cut_edges": 193,
+        "observed_cut_edges": 193,
+        "retained_cut_edges": 193,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 256,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 5.5100096151932124e-05,
+        "max_blade_body_overlap_m": 5.5100096151932124e-05,
+        "peak_blade_force_n": 43.902732849121094,
+        "max_node_displacement_m": 0.025242170318961143,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.11504161357879639,
+        "fracture_right_n": 0.15570016205310822,
+        "two_blade_squeeze_m": 0.0014636815102704842,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.24608013033866882,
+            "fracture_right_n": 0.3064812421798706,
+            "two_blade_squeeze_m": 0.0014636815102704842
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.11504161357879639,
+            "fracture_right_n": 0.15570016205310822,
+            "two_blade_squeeze_m": 0.002076346149226035
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 43,
+        "slit_length_m": 0.009280320980648184,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 53.75383819829933,
+        "core_ms": 44.01169333303859,
+        "repair_ms": 3.7721976572291105,
+        "p95_pipeline_ms": 66.59950001630932
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 45.17702666732172,
+          "core_ms": 39.59519999334589,
+          "repair_ms": 0.13857333494039872,
+          "p95_pipeline_ms": 46.13420000532642
+        },
+        "approach": {
+          "pipeline_ms": 40.75753999964541,
+          "core_ms": 34.9652400026874,
+          "repair_ms": 0.17674110778090027,
+          "p95_pipeline_ms": 43.87640004279092
+        },
+        "bite": {
+          "pipeline_ms": 42.89968888947947,
+          "core_ms": 37.00342222323848,
+          "repair_ms": 0.30910888583295876,
+          "p95_pipeline_ms": 48.59489999944344
+        },
+        "close": {
+          "pipeline_ms": 48.78953555598855,
+          "core_ms": 42.607024447837226,
+          "repair_ms": 0.2263600006699562,
+          "p95_pipeline_ms": 50.75679998844862
+        },
+        "lift": {
+          "pipeline_ms": 48.33634416669762,
+          "core_ms": 42.48713916846706,
+          "repair_ms": 0.22851083291849741,
+          "p95_pipeline_ms": 50.39659998146817
+        },
+        "blade_approach": {
+          "pipeline_ms": 49.97990000022886,
+          "core_ms": 43.556807497225236,
+          "repair_ms": 0.3994416707428172,
+          "p95_pipeline_ms": 53.9303999976255
+        },
+        "incise_1": {
+          "pipeline_ms": 66.94335866680679,
+          "core_ms": 51.5130166670618,
+          "repair_ms": 9.13129733176902,
+          "p95_pipeline_ms": 87.71489997161552
+        },
+        "open_1": {
+          "pipeline_ms": 58.40945333475247,
+          "core_ms": 49.602453327194475,
+          "repair_ms": 2.7372100041247904,
+          "p95_pipeline_ms": 64.4486999954097
+        },
+        "reposition_2": {
+          "pipeline_ms": 52.89332666725386,
+          "core_ms": 47.1850950018658,
+          "repair_ms": 0.3197883246078466,
+          "p95_pipeline_ms": 54.83250005636364
+        },
+        "incise_2": {
+          "pipeline_ms": 55.44057000001582,
+          "core_ms": 46.03494866595914,
+          "repair_ms": 3.6273006656362363,
+          "p95_pipeline_ms": 60.365699988324195
+        },
+        "withdraw": {
+          "pipeline_ms": 55.99234749970492,
+          "core_ms": 43.2497316665831,
+          "repair_ms": 6.508710834896192,
+          "p95_pipeline_ms": 64.35939995571971
+        },
+        "release": {
+          "pipeline_ms": 52.71068000001833,
+          "core_ms": 43.36350888608851,
+          "repair_ms": 3.2587999956578844,
+          "p95_pipeline_ms": 61.001399997621775
+        },
+        "extract": {
+          "pipeline_ms": 61.0053399996832,
+          "core_ms": 42.92369466585418,
+          "repair_ms": 11.369565334171057,
+          "p95_pipeline_ms": 66.09490001574159
+        },
+        "hold": {
+          "pipeline_ms": 58.97904333348075,
+          "core_ms": 43.28437999550564,
+          "repair_ms": 9.070770005928352,
+          "p95_pipeline_ms": 60.72500004665926
+        }
+      }
+    },
+    "baseline-04": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013991258107125759,
+        "edges_before_incision": 0,
+        "cut_edges": 174,
+        "observed_cut_edges": 174,
+        "retained_cut_edges": 174,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 220,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 5.155504606360897e-05,
+        "max_blade_body_overlap_m": 5.155504606360897e-05,
+        "peak_blade_force_n": 7.217121601104736,
+        "max_node_displacement_m": 0.025367047637701035,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.2580786943435669,
+        "fracture_right_n": 0.1643275022506714,
+        "two_blade_squeeze_m": 0.00114946984575995,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.2580786943435669,
+            "fracture_right_n": 0.2440582811832428,
+            "two_blade_squeeze_m": 0.001246953703966487
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.2808317542076111,
+            "fracture_right_n": 0.1643275022506714,
+            "two_blade_squeeze_m": 0.00114946984575995
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 49,
+        "slit_length_m": 0.007607288550027169,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 51.628337387385706,
+        "core_ms": 44.26952495500823,
+        "repair_ms": 1.053701982642566,
+        "p95_pipeline_ms": 65.04880002466962
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 45.31590666738339,
+          "core_ms": 39.15884666494094,
+          "repair_ms": 0.14424000207024315,
+          "p95_pipeline_ms": 46.13429994788021
+        },
+        "approach": {
+          "pipeline_ms": 41.08290222227677,
+          "core_ms": 34.92126333229761,
+          "repair_ms": 0.24639666856577,
+          "p95_pipeline_ms": 43.06880000513047
+        },
+        "bite": {
+          "pipeline_ms": 44.23136888847997,
+          "core_ms": 37.223242225849795,
+          "repair_ms": 0.34780000310598147,
+          "p95_pipeline_ms": 49.36740000266582
+        },
+        "close": {
+          "pipeline_ms": 49.42911111154697,
+          "core_ms": 43.10277555939845,
+          "repair_ms": 0.25617333465359277,
+          "p95_pipeline_ms": 52.39530000835657
+        },
+        "lift": {
+          "pipeline_ms": 49.06044249995224,
+          "core_ms": 42.76573499907196,
+          "repair_ms": 0.2630324980903727,
+          "p95_pipeline_ms": 51.33730004308745
+        },
+        "blade_approach": {
+          "pipeline_ms": 50.692117499905486,
+          "core_ms": 43.89673500166585,
+          "repair_ms": 0.40826583523691323,
+          "p95_pipeline_ms": 54.186000023037195
+        },
+        "incise_1": {
+          "pipeline_ms": 64.53144933329895,
+          "core_ms": 51.93694932890745,
+          "repair_ms": 5.680769331520423,
+          "p95_pipeline_ms": 78.50990002043545
+        },
+        "open_1": {
+          "pipeline_ms": 57.666266666880496,
+          "core_ms": 49.45885999865519,
+          "repair_ms": 2.0998800076389066,
+          "p95_pipeline_ms": 64.59510000422597
+        },
+        "reposition_2": {
+          "pipeline_ms": 53.44897499987079,
+          "core_ms": 46.86145500454586,
+          "repair_ms": 0.3300250032528614,
+          "p95_pipeline_ms": 55.88749999878928
+        },
+        "incise_2": {
+          "pipeline_ms": 53.78738133314376,
+          "core_ms": 46.754700001329184,
+          "repair_ms": 0.26996933738701046,
+          "p95_pipeline_ms": 62.5195000320673
+        },
+        "withdraw": {
+          "pipeline_ms": 50.188973333570175,
+          "core_ms": 43.77613083294515,
+          "repair_ms": 0.22161500091897324,
+          "p95_pipeline_ms": 52.41669999668375
+        },
+        "release": {
+          "pipeline_ms": 50.134602221401614,
+          "core_ms": 43.5705044410295,
+          "repair_ms": 0.22929777494735187,
+          "p95_pipeline_ms": 53.03379998076707
+        },
+        "extract": {
+          "pipeline_ms": 48.674296000196286,
+          "core_ms": 42.90273466768364,
+          "repair_ms": 0.2228479964348177,
+          "p95_pipeline_ms": 50.38090003654361
+        },
+        "hold": {
+          "pipeline_ms": 48.38100333387653,
+          "core_ms": 42.553746671183035,
+          "repair_ms": 0.21123999419311681,
+          "p95_pipeline_ms": 49.87380001693964
+        }
+      }
+    },
+    "coarse-election-01": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "f2f279cd2596e92d5c6db4b7727bf663354f0d8108690b0544c947fee277c7de",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013994072563946247,
+        "edges_before_incision": 0,
+        "cut_edges": 184,
+        "observed_cut_edges": 184,
+        "retained_cut_edges": 184,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 252,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 3.3461603620658364e-05,
+        "max_blade_body_overlap_m": 3.3461603620658364e-05,
+        "peak_blade_force_n": 13.21467113494873,
+        "max_node_displacement_m": 0.025222646072506905,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.2489243447780609,
+        "fracture_right_n": 0.10300561785697937,
+        "two_blade_squeeze_m": 0.001290811743316012,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.2489243447780609,
+            "fracture_right_n": 0.2591994106769562,
+            "two_blade_squeeze_m": 0.001290811743316012
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.3150929808616638,
+            "fracture_right_n": 0.10300561785697937,
+            "two_blade_squeeze_m": 0.002048429185274969
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 51,
+        "slit_length_m": 0.007607288550027169,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 56.53433288287094,
+        "core_ms": 44.03647009020059,
+        "repair_ms": 6.906661170960597,
+        "p95_pipeline_ms": 88.05970003595576
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 44.79794333456084,
+          "core_ms": 38.98058999911882,
+          "repair_ms": 0.22514333638052145,
+          "p95_pipeline_ms": 45.84480001358315
+        },
+        "approach": {
+          "pipeline_ms": 40.578641111238134,
+          "core_ms": 35.07521000056941,
+          "repair_ms": 0.21412111366064185,
+          "p95_pipeline_ms": 42.595099948812276
+        },
+        "bite": {
+          "pipeline_ms": 42.53413333402326,
+          "core_ms": 37.34859554873159,
+          "repair_ms": 0.20039777866461211,
+          "p95_pipeline_ms": 48.2783000334166
+        },
+        "close": {
+          "pipeline_ms": 47.622979998899005,
+          "core_ms": 42.66067332872707,
+          "repair_ms": 0.2416111140822371,
+          "p95_pipeline_ms": 48.54220000561327
+        },
+        "lift": {
+          "pipeline_ms": 47.37823583321491,
+          "core_ms": 42.27886166772805,
+          "repair_ms": 0.21392249764176086,
+          "p95_pipeline_ms": 48.89790003653616
+        },
+        "blade_approach": {
+          "pipeline_ms": 49.35917250016549,
+          "core_ms": 43.68568333399404,
+          "repair_ms": 0.6022349974955432,
+          "p95_pipeline_ms": 53.47729998175055
+        },
+        "incise_1": {
+          "pipeline_ms": 77.78522533325788,
+          "core_ms": 51.728257330444954,
+          "repair_ms": 20.180934668751433,
+          "p95_pipeline_ms": 103.4421999938786
+        },
+        "open_1": {
+          "pipeline_ms": 60.60063999999935,
+          "core_ms": 49.34122999547981,
+          "repair_ms": 5.737746666030337,
+          "p95_pipeline_ms": 78.10460001928732
+        },
+        "reposition_2": {
+          "pipeline_ms": 53.42404000014843,
+          "core_ms": 46.686263339749225,
+          "repair_ms": 0.31024999722527963,
+          "p95_pipeline_ms": 56.788999994751066
+        },
+        "incise_2": {
+          "pipeline_ms": 58.46624066665148,
+          "core_ms": 46.533730670344085,
+          "repair_ms": 6.064775998238474,
+          "p95_pipeline_ms": 71.67239999398589
+        },
+        "withdraw": {
+          "pipeline_ms": 63.535559166727275,
+          "core_ms": 42.80337833430773,
+          "repair_ms": 15.019314164237585,
+          "p95_pipeline_ms": 73.8001000136137
+        },
+        "release": {
+          "pipeline_ms": 61.143893333307155,
+          "core_ms": 43.206297780852765,
+          "repair_ms": 12.0785088925105,
+          "p95_pipeline_ms": 70.01950003905222
+        },
+        "extract": {
+          "pipeline_ms": 60.180806666612625,
+          "core_ms": 43.24924133097132,
+          "repair_ms": 10.457590667841336,
+          "p95_pipeline_ms": 67.31389998458326
+        },
+        "hold": {
+          "pipeline_ms": 58.035003331800304,
+          "core_ms": 43.10132999865649,
+          "repair_ms": 8.825516667760288,
+          "p95_pipeline_ms": 59.682600025553256
+        }
+      }
+    },
+    "coarse-election-02": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "f2f279cd2596e92d5c6db4b7727bf663354f0d8108690b0544c947fee277c7de",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.014004640281200409,
+        "edges_before_incision": 0,
+        "cut_edges": 189,
+        "observed_cut_edges": 189,
+        "retained_cut_edges": 189,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 244,
+        "final_grip_points": 53,
+        "current_grip_points": 53,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 5.771868485335424e-05,
+        "max_blade_body_overlap_m": 5.771868485335424e-05,
+        "peak_blade_force_n": 6.404862403869629,
+        "max_node_displacement_m": 0.025348156690597534,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.20746146142482758,
+        "fracture_right_n": 0.1567385345697403,
+        "two_blade_squeeze_m": 0.0012952346654066078,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.20746146142482758,
+            "fracture_right_n": 0.19312867522239685,
+            "two_blade_squeeze_m": 0.0013789263499229044
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.3911983370780945,
+            "fracture_right_n": 0.1567385345697403,
+            "two_blade_squeeze_m": 0.0012952346654066078
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 44,
+        "slit_length_m": 0.00902150195097248,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 55.1023597297309,
+        "core_ms": 43.97559837880754,
+        "repair_ms": 5.697963694068561,
+        "p95_pipeline_ms": 80.31469996785745
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 44.87684666722392,
+          "core_ms": 39.236953330691904,
+          "repair_ms": 0.13864666689187288,
+          "p95_pipeline_ms": 44.70930004026741
+        },
+        "approach": {
+          "pipeline_ms": 40.25144777778122,
+          "core_ms": 35.09436888982438,
+          "repair_ms": 0.20022333547886875,
+          "p95_pipeline_ms": 42.73560002911836
+        },
+        "bite": {
+          "pipeline_ms": 42.747117776889354,
+          "core_ms": 37.14439999570863,
+          "repair_ms": 0.21513777448692256,
+          "p95_pipeline_ms": 48.63459995249286
+        },
+        "close": {
+          "pipeline_ms": 47.5878888896356,
+          "core_ms": 42.697460002576314,
+          "repair_ms": 0.20643332973122597,
+          "p95_pipeline_ms": 48.65449998760596
+        },
+        "lift": {
+          "pipeline_ms": 48.08003583311802,
+          "core_ms": 42.51478083606344,
+          "repair_ms": 0.23418333585141227,
+          "p95_pipeline_ms": 50.2808999735862
+        },
+        "blade_approach": {
+          "pipeline_ms": 49.01460250014983,
+          "core_ms": 43.60847083153203,
+          "repair_ms": 0.3089191692803676,
+          "p95_pipeline_ms": 52.948599972296506
+        },
+        "incise_1": {
+          "pipeline_ms": 72.18083866677868,
+          "core_ms": 51.641098000109196,
+          "repair_ms": 14.666465998549635,
+          "p95_pipeline_ms": 97.26549999322742
+        },
+        "open_1": {
+          "pipeline_ms": 59.63673666701652,
+          "core_ms": 49.327350000385195,
+          "repair_ms": 4.869596667898198,
+          "p95_pipeline_ms": 77.91849999921396
+        },
+        "reposition_2": {
+          "pipeline_ms": 52.20956999983173,
+          "core_ms": 46.41237666461772,
+          "repair_ms": 0.6002450002900636,
+          "p95_pipeline_ms": 54.20549999689683
+        },
+        "incise_2": {
+          "pipeline_ms": 63.08093000009345,
+          "core_ms": 46.25160400134822,
+          "repair_ms": 11.025745333172381,
+          "p95_pipeline_ms": 79.68899997649714
+        },
+        "withdraw": {
+          "pipeline_ms": 54.82695083337603,
+          "core_ms": 42.91190416600633,
+          "repair_ms": 6.444400835122603,
+          "p95_pipeline_ms": 59.99399995198473
+        },
+        "release": {
+          "pipeline_ms": 58.631342221310156,
+          "core_ms": 42.99822666863393,
+          "repair_ms": 10.129713331763115,
+          "p95_pipeline_ms": 60.31610001809895
+        },
+        "extract": {
+          "pipeline_ms": 57.76950000009189,
+          "core_ms": 43.10589066784208,
+          "repair_ms": 9.31876533354322,
+          "p95_pipeline_ms": 59.107700013555586
+        },
+        "hold": {
+          "pipeline_ms": 57.23176999987724,
+          "core_ms": 42.795986674415566,
+          "repair_ms": 8.480343331272403,
+          "p95_pipeline_ms": 59.395199990831316
+        }
+      }
+    },
+    "baseline-05": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.014071956276893616,
+        "edges_before_incision": 0,
+        "cut_edges": 199,
+        "observed_cut_edges": 199,
+        "retained_cut_edges": 199,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 246,
+        "final_grip_points": 53,
+        "current_grip_points": 53,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 7.574660413695256e-05,
+        "max_blade_body_overlap_m": 7.574660413695256e-05,
+        "peak_blade_force_n": 31.717689514160156,
+        "max_node_displacement_m": 0.025523649528622627,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.22436396777629852,
+        "fracture_right_n": 0.1947828233242035,
+        "two_blade_squeeze_m": 0.001276894636673378,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.22436396777629852,
+            "fracture_right_n": 0.22268356382846832,
+            "two_blade_squeeze_m": 0.001276894636673378
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.3174871802330017,
+            "fracture_right_n": 0.1947828233242035,
+            "two_blade_squeeze_m": 0.002269886873391186
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 42,
+        "slit_length_m": 0.009280320980648184,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 51.203711891886655,
+        "core_ms": 44.17829270163123,
+        "repair_ms": 0.6644736942919055,
+        "p95_pipeline_ms": 60.256099968682975
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 45.87402333466647,
+          "core_ms": 39.10304666690839,
+          "repair_ms": 0.2030966687016189,
+          "p95_pipeline_ms": 47.21280001103878
+        },
+        "approach": {
+          "pipeline_ms": 43.54077111088878,
+          "core_ms": 35.23898000518481,
+          "repair_ms": 0.2691766635204355,
+          "p95_pipeline_ms": 46.527600032277405
+        },
+        "bite": {
+          "pipeline_ms": 44.818813333080875,
+          "core_ms": 37.11125111181496,
+          "repair_ms": 0.3073288916817142,
+          "p95_pipeline_ms": 50.06629996933043
+        },
+        "close": {
+          "pipeline_ms": 51.26237333234813,
+          "core_ms": 43.45038666700324,
+          "repair_ms": 0.30381333652055925,
+          "p95_pipeline_ms": 55.48759998055175
+        },
+        "lift": {
+          "pipeline_ms": 47.955787500056125,
+          "core_ms": 42.41784249995059,
+          "repair_ms": 0.22448500288495174,
+          "p95_pipeline_ms": 50.010900013148785
+        },
+        "blade_approach": {
+          "pipeline_ms": 48.97524083353346,
+          "core_ms": 43.26268583002578,
+          "repair_ms": 0.30304416771590087,
+          "p95_pipeline_ms": 52.37569997552782
+        },
+        "incise_1": {
+          "pipeline_ms": 58.71389000016885,
+          "core_ms": 51.77651266101748,
+          "repair_ms": 0.7297100018089017,
+          "p95_pipeline_ms": 63.730499998200685
+        },
+        "open_1": {
+          "pipeline_ms": 56.54736333332645,
+          "core_ms": 49.61626667063683,
+          "repair_ms": 0.3579533251468092,
+          "p95_pipeline_ms": 58.995400031562895
+        },
+        "reposition_2": {
+          "pipeline_ms": 53.354868333553895,
+          "core_ms": 46.82398666336667,
+          "repair_ms": 0.3501683386275545,
+          "p95_pipeline_ms": 55.39240001235157
+        },
+        "incise_2": {
+          "pipeline_ms": 55.58504466665909,
+          "core_ms": 46.52597799586753,
+          "repair_ms": 2.5918773317243904,
+          "p95_pipeline_ms": 61.73590000253171
+        },
+        "withdraw": {
+          "pipeline_ms": 50.32343166676583,
+          "core_ms": 43.51343750167871,
+          "repair_ms": 0.453091663075611,
+          "p95_pipeline_ms": 53.090999950654805
+        },
+        "release": {
+          "pipeline_ms": 50.459737776933856,
+          "core_ms": 43.67817110744201,
+          "repair_ms": 0.215186671509097,
+          "p95_pipeline_ms": 52.04519996186718
+        },
+        "extract": {
+          "pipeline_ms": 49.819890666597836,
+          "core_ms": 43.35647200311845,
+          "repair_ms": 0.2139919980739554,
+          "p95_pipeline_ms": 51.56290001468733
+        },
+        "hold": {
+          "pipeline_ms": 49.910276666438826,
+          "core_ms": 43.473393332290776,
+          "repair_ms": 0.21171668001140156,
+          "p95_pipeline_ms": 51.04739998932928
+        }
+      }
+    },
+    "baseline-06": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013997980393469334,
+        "edges_before_incision": 0,
+        "cut_edges": 193,
+        "observed_cut_edges": 193,
+        "retained_cut_edges": 193,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 252,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 3.448856040175321e-05,
+        "max_blade_body_overlap_m": 3.448856040175321e-05,
+        "peak_blade_force_n": 75.13748168945312,
+        "max_node_displacement_m": 0.02535657398402691,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.17739076912403107,
+        "fracture_right_n": 0.11648185551166534,
+        "two_blade_squeeze_m": 0.0012583682927065332,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.17739076912403107,
+            "fracture_right_n": 0.2352575659751892,
+            "two_blade_squeeze_m": 0.0012583682927065332
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.34436988830566406,
+            "fracture_right_n": 0.11648185551166534,
+            "two_blade_squeeze_m": 0.0033211721647676898
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 42,
+        "slit_length_m": 0.008245044823378327,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 54.87426990991341,
+        "core_ms": 44.67672207203971,
+        "repair_ms": 4.241116665752588,
+        "p95_pipeline_ms": 85.04870004253462
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 45.25448666730275,
+          "core_ms": 39.77297332991535,
+          "repair_ms": 0.1689266626878331,
+          "p95_pipeline_ms": 46.61839996697381
+        },
+        "approach": {
+          "pipeline_ms": 40.90844000004128,
+          "core_ms": 35.27775444349067,
+          "repair_ms": 0.19844999640352196,
+          "p95_pipeline_ms": 42.96779999276623
+        },
+        "bite": {
+          "pipeline_ms": 42.66209999978956,
+          "core_ms": 37.416982221313646,
+          "repair_ms": 0.22264444657290974,
+          "p95_pipeline_ms": 48.66369999945164
+        },
+        "close": {
+          "pipeline_ms": 48.270077778336905,
+          "core_ms": 42.971506664374225,
+          "repair_ms": 0.21697111401913893,
+          "p95_pipeline_ms": 50.12369999894872
+        },
+        "lift": {
+          "pipeline_ms": 48.075288333348,
+          "core_ms": 42.713288336138554,
+          "repair_ms": 0.21719333114257702,
+          "p95_pipeline_ms": 49.873200012370944
+        },
+        "blade_approach": {
+          "pipeline_ms": 49.12012916659781,
+          "core_ms": 43.883127499429975,
+          "repair_ms": 0.2634133314131759,
+          "p95_pipeline_ms": 53.08129999320954
+        },
+        "incise_1": {
+          "pipeline_ms": 72.52505733321111,
+          "core_ms": 52.10880600342838,
+          "repair_ms": 14.731421330555653,
+          "p95_pipeline_ms": 104.48360000737011
+        },
+        "open_1": {
+          "pipeline_ms": 57.23291999893263,
+          "core_ms": 49.881029998262726,
+          "repair_ms": 1.313726664132749,
+          "p95_pipeline_ms": 63.220599957276136
+        },
+        "reposition_2": {
+          "pipeline_ms": 54.30074666704362,
+          "core_ms": 47.614381665092274,
+          "repair_ms": 0.3202783331895868,
+          "p95_pipeline_ms": 57.04370001330972
+        },
+        "incise_2": {
+          "pipeline_ms": 62.92706666669498,
+          "core_ms": 46.96244333211022,
+          "repair_ms": 9.145254668934891,
+          "p95_pipeline_ms": 88.46650004852563
+        },
+        "withdraw": {
+          "pipeline_ms": 58.51086666662013,
+          "core_ms": 44.01197832873246,
+          "repair_ms": 7.4361158336008275,
+          "p95_pipeline_ms": 67.76170001830906
+        },
+        "release": {
+          "pipeline_ms": 53.65480666773187,
+          "core_ms": 45.91892000494732,
+          "repair_ms": 1.1323355578093066,
+          "p95_pipeline_ms": 61.95150001440197
+        },
+        "extract": {
+          "pipeline_ms": 51.859351999592036,
+          "core_ms": 44.82313999983793,
+          "repair_ms": 0.22747066415225467,
+          "p95_pipeline_ms": 54.7929999884218
+        },
+        "hold": {
+          "pipeline_ms": 49.91915333278788,
+          "core_ms": 43.01390000618994,
+          "repair_ms": 0.22588333037371436,
+          "p95_pipeline_ms": 51.49360001087189
+        }
+      }
+    },
+    "coarse-partial-01": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "35f6e2bc15ddd80d5014adccb2e3ea65d69cb3c28b5aedaca3bfb96a6eebe633",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013992439955472946,
+        "edges_before_incision": 0,
+        "cut_edges": 193,
+        "observed_cut_edges": 193,
+        "retained_cut_edges": 193,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 248,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 6.600575784044341e-05,
+        "max_blade_body_overlap_m": 6.600575784044341e-05,
+        "peak_blade_force_n": 4.944606304168701,
+        "max_node_displacement_m": 0.02571289986371994,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.271719366312027,
+        "fracture_right_n": 0.27311867475509644,
+        "two_blade_squeeze_m": 0.0012469363520942523,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.27364107966423035,
+            "fracture_right_n": 0.2895134389400482,
+            "two_blade_squeeze_m": 0.0012469363520942523
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.271719366312027,
+            "fracture_right_n": 0.27311867475509644,
+            "two_blade_squeeze_m": 0.002133664908227232
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 42,
+        "slit_length_m": 0.008503863872337553,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 51.80903108111952,
+        "core_ms": 44.301880811244615,
+        "repair_ms": 1.4577038722481948,
+        "p95_pipeline_ms": 64.46709996089339
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 45.274189999327064,
+          "core_ms": 39.69593999402908,
+          "repair_ms": 0.20639666084510586,
+          "p95_pipeline_ms": 45.88789999252185
+        },
+        "approach": {
+          "pipeline_ms": 41.26647666691699,
+          "core_ms": 35.4045122260383,
+          "repair_ms": 0.20450666326925987,
+          "p95_pipeline_ms": 43.88239997206256
+        },
+        "bite": {
+          "pipeline_ms": 42.70415333384234,
+          "core_ms": 37.36832222332143,
+          "repair_ms": 0.1778155552326805,
+          "p95_pipeline_ms": 47.90790000697598
+        },
+        "close": {
+          "pipeline_ms": 48.07198444355486,
+          "core_ms": 42.743959999643266,
+          "repair_ms": 0.23369777223302257,
+          "p95_pipeline_ms": 49.37740002060309
+        },
+        "lift": {
+          "pipeline_ms": 47.86356166684224,
+          "core_ms": 42.43739749993741,
+          "repair_ms": 0.21297832718119025,
+          "p95_pipeline_ms": 49.71809999551624
+        },
+        "blade_approach": {
+          "pipeline_ms": 49.54239750028743,
+          "core_ms": 43.4116033303629,
+          "repair_ms": 0.5661991681942405,
+          "p95_pipeline_ms": 55.62519998056814
+        },
+        "incise_1": {
+          "pipeline_ms": 61.052799333507814,
+          "core_ms": 52.077742664841935,
+          "repair_ms": 2.6484119977491596,
+          "p95_pipeline_ms": 66.87919999239966
+        },
+        "open_1": {
+          "pipeline_ms": 57.47571000053237,
+          "core_ms": 49.40101666725241,
+          "repair_ms": 0.9271033302259942,
+          "p95_pipeline_ms": 63.21550003485754
+        },
+        "reposition_2": {
+          "pipeline_ms": 53.663078332707904,
+          "core_ms": 46.5922916715499,
+          "repair_ms": 0.33620666654314846,
+          "p95_pipeline_ms": 56.74690002342686
+        },
+        "incise_2": {
+          "pipeline_ms": 56.42899333305346,
+          "core_ms": 46.92857200357442,
+          "repair_ms": 2.9311193335646144,
+          "p95_pipeline_ms": 64.47409995598719
+        },
+        "withdraw": {
+          "pipeline_ms": 52.819065833561275,
+          "core_ms": 43.307947504217736,
+          "repair_ms": 3.0812374995245286,
+          "p95_pipeline_ms": 57.30580003000796
+        },
+        "release": {
+          "pipeline_ms": 51.8419066663935,
+          "core_ms": 43.45698888646439,
+          "repair_ms": 2.264302221333815,
+          "p95_pipeline_ms": 60.35039998823777
+        },
+        "extract": {
+          "pipeline_ms": 51.65364933355401,
+          "core_ms": 43.71792132811,
+          "repair_ms": 1.5683933331941564,
+          "p95_pipeline_ms": 59.720000019297004
+        },
+        "hold": {
+          "pipeline_ms": 51.68841000025471,
+          "core_ms": 44.36643666898211,
+          "repair_ms": 0.24158666686465344,
+          "p95_pipeline_ms": 53.90709999483079
+        }
+      }
+    },
+    "coarse-partial-02": {
+      "state": "complete",
+      "steps": 1110,
+      "status": "failed",
+      "dll_sha256": "35f6e2bc15ddd80d5014adccb2e3ea65d69cb3c28b5aedaca3bfb96a6eebe633",
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013982398435473442,
+        "edges_before_incision": 0,
+        "cut_edges": 191,
+        "observed_cut_edges": 191,
+        "retained_cut_edges": 191,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 244,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 5.046523786916196e-05,
+        "max_blade_body_overlap_m": 5.046523786916196e-05,
+        "peak_blade_force_n": 16.491966247558594,
+        "max_node_displacement_m": 0.025305313989520073,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.15527057647705078,
+        "fracture_right_n": 0.12601187825202942,
+        "two_blade_squeeze_m": 0.0016140194138945679,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.17369957268238068,
+            "fracture_right_n": 0.21276137232780457,
+            "two_blade_squeeze_m": 0.0016140194138945679
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.15527057647705078,
+            "fracture_right_n": 0.12601187825202942,
+            "two_blade_squeeze_m": 0.0028463302623655696
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 50,
+        "slit_length_m": 0.008503863872337553,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "timing": {
+        "pipeline_ms": 57.25586018011158,
+        "core_ms": 44.125557026871995,
+        "repair_ms": 6.685244053526706,
+        "p95_pipeline_ms": 90.518000011798
+      },
+      "stages": {
+        "settle": {
+          "pipeline_ms": 45.550149999326095,
+          "core_ms": 39.609926665434614,
+          "repair_ms": 0.23653999475451806,
+          "p95_pipeline_ms": 45.52919999696314
+        },
+        "approach": {
+          "pipeline_ms": 40.5169366664874,
+          "core_ms": 35.35110333468765,
+          "repair_ms": 0.20182444196608332,
+          "p95_pipeline_ms": 42.272399994544685
+        },
+        "bite": {
+          "pipeline_ms": 43.39984444409816,
+          "core_ms": 37.431768889331984,
+          "repair_ms": 0.24203333046494258,
+          "p95_pipeline_ms": 49.762000038754195
+        },
+        "close": {
+          "pipeline_ms": 49.424088888594675,
+          "core_ms": 42.91473999748834,
+          "repair_ms": 0.2661622181120846,
+          "p95_pipeline_ms": 51.710299972910434
+        },
+        "lift": {
+          "pipeline_ms": 49.472397500358056,
+          "core_ms": 42.539732499183934,
+          "repair_ms": 0.26774583481407416,
+          "p95_pipeline_ms": 52.04869998851791
+        },
+        "blade_approach": {
+          "pipeline_ms": 50.864244166587014,
+          "core_ms": 43.71404499931183,
+          "repair_ms": 0.5397733296073662,
+          "p95_pipeline_ms": 56.80800002301112
+        },
+        "incise_1": {
+          "pipeline_ms": 82.35322199994698,
+          "core_ms": 51.623388665805884,
+          "repair_ms": 23.44310600232954,
+          "p95_pipeline_ms": 107.18950000591576
+        },
+        "open_1": {
+          "pipeline_ms": 67.1839233332624,
+          "core_ms": 49.025913331812866,
+          "repair_ms": 12.102366661808142,
+          "p95_pipeline_ms": 96.31090000038967
+        },
+        "reposition_2": {
+          "pipeline_ms": 53.49365333289219,
+          "core_ms": 46.923650005677096,
+          "repair_ms": 0.3526133339619264,
+          "p95_pipeline_ms": 56.3265000237152
+        },
+        "incise_2": {
+          "pipeline_ms": 57.71419266665665,
+          "core_ms": 46.88622999936342,
+          "repair_ms": 4.329578000276039,
+          "p95_pipeline_ms": 64.31029998930171
+        },
+        "withdraw": {
+          "pipeline_ms": 60.764532499888446,
+          "core_ms": 43.047799167591926,
+          "repair_ms": 11.221682501006095,
+          "p95_pipeline_ms": 67.23929999861866
+        },
+        "release": {
+          "pipeline_ms": 60.00414222297776,
+          "core_ms": 42.74492000307267,
+          "repair_ms": 10.554153331193245,
+          "p95_pipeline_ms": 69.1594000090845
+        },
+        "extract": {
+          "pipeline_ms": 57.89408533290649,
+          "core_ms": 42.721446667176984,
+          "repair_ms": 8.536076000891626,
+          "p95_pipeline_ms": 61.3152000005357
+        },
+        "hold": {
+          "pipeline_ms": 58.475540000169225,
+          "core_ms": 42.91399998861986,
+          "repair_ms": 8.790483333480855,
+          "p95_pipeline_ms": 65.71200001053512
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "retained_plane": {
+      "state": "complete",
+      "baseline": [
+        "baseline-01",
+        "baseline-02"
+      ],
+      "candidate": [
+        "retain-01",
+        "retain-02"
+      ],
+      "pipeline_ms": {
+        "baseline": 53.16734599095857,
+        "candidate": 55.00939315313951,
+        "change_percent": 3.4646212404399357
+      },
+      "core_ms": {
+        "baseline": 43.420069098109714,
+        "candidate": 43.75413081129942,
+        "change_percent": 0.7693716756527413
+      },
+      "repair_ms": {
+        "baseline": 2.2959061258531235,
+        "candidate": 6.244345360670474,
+        "change_percent": 171.97738140753341
+      }
+    },
+    "warp_election": {
+      "state": "complete",
+      "baseline": [
+        "baseline-03",
+        "baseline-04"
+      ],
+      "candidate": [
+        "coarse-election-01",
+        "coarse-election-02"
+      ],
+      "pipeline_ms": {
+        "baseline": 52.69108779284252,
+        "candidate": 55.818346306300924,
+        "change_percent": 5.9350805695137065
+      },
+      "core_ms": {
+        "baseline": 44.140609144023415,
+        "candidate": 44.006034234504064,
+        "change_percent": -0.304877780640167
+      },
+      "repair_ms": {
+        "baseline": 2.412949819935838,
+        "candidate": 6.302312432514579,
+        "change_percent": 161.18704916466774
+      }
+    },
+    "two_stage_reduction": {
+      "state": "complete",
+      "baseline": [
+        "baseline-05",
+        "baseline-06"
+      ],
+      "candidate": [
+        "coarse-partial-01",
+        "coarse-partial-02"
+      ],
+      "pipeline_ms": {
+        "baseline": 53.03899090090003,
+        "candidate": 54.532445630615555,
+        "change_percent": 2.8157676161410183
+      },
+      "core_ms": {
+        "baseline": 44.42750738683547,
+        "candidate": 44.21371891905831,
+        "change_percent": -0.4812074328538918
+      },
+      "repair_ms": {
+        "baseline": 2.452795180022247,
+        "candidate": 4.07147396288745,
+        "change_percent": 65.99323074544373
+      }
+    }
+  },
+  "default_dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225"
+}

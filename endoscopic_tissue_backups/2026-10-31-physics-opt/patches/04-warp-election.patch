@@ -1,0 +1,19 @@
+--- a/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh
+@@ -140,7 +140,15 @@
+     if(threadIdx.x==0)first=0;
+     for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
+     __syncthreads();
+-    if(target)atomicCAS(&first,0ull,(unsigned long long)target);
++    if(target){
++        // A warp with one destination only needs one attempt to publish it.
++        // Mixed destinations retain the original per-thread election.
++        unsigned mask=__activemask();int leader=__ffs(mask)-1;
++        unsigned long long address=(unsigned long long)target;
++        unsigned long long head=__shfl_sync(mask,address,leader);
++        if(!__all_sync(mask,address==head) || (threadIdx.x&31)==leader)
++            atomicCAS(&first,0ull,address);
++    }
+     __syncthreads();
+     if(target && (unsigned long long)target==first){
+         auto group=cooperative_groups::coalesced_threads();
