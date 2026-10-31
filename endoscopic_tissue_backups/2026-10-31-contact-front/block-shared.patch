@@ -1,0 +1,43 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+index efceb1f..4a6323a 100644
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -328,9 +328,24 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     SurfaceContact* contacts,int* degree,int* active,int* activeCount,const float4* current,const float3* previous,
+     const CoupledTool* body=nullptr,float thickness=0,float minGap=0,bool stationary=false,
+     const int* cacheSlots=nullptr,const SurfaceContact* cache=nullptr,const int* bladePhase=nullptr,int stride=3,bool cacheComponents=false){
++    // The body pose is read-only during this launch. Share only its exact
++    // shapes and conservative sweep bounds within this block; no cross-call cache.
++    struct SharedShapes { ContactShape from,to; float3 lo,hi,l0,h0; };
++    __shared__ SharedShapes shared;
++    if(threadIdx.x==0){
++    if(body){from=bodyContactShape(body,stationary?body->pose:body->previous,kind,thickness,minGap);to=bodyContactShape(body,body->pose,kind,thickness,minGap);}
++    float3 lo,hi,l0,h0;shapeBounds(to,skin,lo,hi);shapeBounds(from,skin,l0,h0);
++    // Endpoint OBB bounds alone miss intermediate rotational sweeps.
++    if(!to.capsule && (len3(to.u-from.u)+len3(to.n-from.n)>1e-5f)){
++        float r=len3(to.half)+skin;float3 extent=mkf3(r,r,r);lo=to.center-extent;hi=to.center+extent;l0=from.center-extent;h0=from.center+extent;
++    }
++        shared.from=from;shared.to=to;
++        shared.lo=lo;shared.hi=hi;shared.l0=l0;shared.h0=h0;
++    }
++    __syncthreads();
++    from=shared.from;to=shared.to;
+     int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=triangles)return;
+     int slot=stride*t+kind;
+-    if(body){from=bodyContactShape(body,stationary?body->pose:body->previous,kind,thickness,minGap);to=bodyContactShape(body,body->pose,kind,thickness,minGap);}
+     // Reject distant triangles before reading/probing the material-contact
+     // cache or copying a 24-node witness. This is the dominant no-contact path.
+     if(to.capsule?to.radius<=0:to.half.x<=0||to.half.z<=0){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
+@@ -361,11 +376,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         if(preload){preloadPlane.normal=normal;preloadPlane.target=end+normal*skin;
+             preloadPlane.motion=end-witnessAt(to,from,end);preloadPlane.valid=1;}
+     }
+-    float3 lo,hi,l0,h0;shapeBounds(to,skin,lo,hi);shapeBounds(from,skin,l0,h0);
+-    // Endpoint OBB bounds alone miss intermediate rotational sweeps.
+-    if(!to.capsule && (len3(to.u-from.u)+len3(to.n-from.n)>1e-5f)){
+-        float r=len3(to.half)+skin;float3 extent=mkf3(r,r,r);lo=to.center-extent;hi=to.center+extent;l0=from.center-extent;h0=from.center+extent;
+-    }
++    float3 lo=shared.lo,hi=shared.hi,l0=shared.l0,h0=shared.h0;
+     for(int ax=0;ax<3;ax++){
+         float mn=1e30f,mx=-1e30f;for(int k=0;k<3;k++){mn=fminf(mn,fminf(compF3(q[k],ax),compF3(p[k],ax)));mx=fmaxf(mx,fmaxf(compF3(q[k],ax),compF3(p[k],ax)));}
+         if(!preload && (mx<fminf(compF3(lo,ax),compF3(l0,ax)) || mn>fmaxf(compF3(hi,ax),compF3(h0,ax)))){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}

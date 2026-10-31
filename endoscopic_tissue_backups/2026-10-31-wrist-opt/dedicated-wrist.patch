@@ -1,0 +1,163 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+index efceb1f..b83f857 100644
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -226,6 +226,25 @@ __device__ inline float3 bladeTriangleWitness(ContactShape shape,const float3* q
+     }
+     return best;
+ }
++// Use the finite-segment solution for a non-cutting wrist only where the
++// closest-point geometry is well conditioned. Keep the existing witness for
++// degenerate/parallel configurations and undefined normals near the capsule axis.
++__device__ inline float3 wristTriangleWitness(ContactShape shape,const float3* q){
++    float3 a=q[1]-q[0],b=q[2]-q[0],axis=shape.b-shape.a,normal=cross3(a,b);
++    float axis2=dot3(axis,axis),area2=dot3(normal,normal);
++    float edge2=fmaxf(dot3(a,a),fmaxf(dot3(b,b),dot3(b-a,b-a))),projection=dot3(axis,normal);
++    if(!(axis2>1e-20f && area2>1e-6f*edge2*edge2) ||
++       projection*projection<=1e-8f*axis2*area2)
++        return triangleWitness(shape,q[0],q[1],q[2]);
++    float3 bary=bladeTriangleWitness(shape,q),n,s;
++    if(!isfinite(bary.x) || !isfinite(bary.y) || !isfinite(bary.z) ||
++       bary.x<0 || bary.y<0 || bary.z<0 || fabsf(bary.x+bary.y+bary.z-1)>1e-4f)
++        return triangleWitness(shape,q[0],q[1],q[2]);
++    float distance=shapeDistance(shape,q[0]*bary.x+q[1]*bary.y+q[2]*bary.z,n,s);
++    if(!isfinite(distance) || distance<=-shape.radius+fmaxf(1e-6f,1e-4f*shape.radius))
++        return triangleWitness(shape,q[0],q[1],q[2]);
++    return bary;
++}
+ __device__ inline void shapeBounds(ContactShape s,float radius,float3& lo,float3& hi){
+     float3 center=s.capsule?(s.a+s.b)*.5f:s.center;
+     float3 e=s.capsule?mkf3(fabsf(s.b.x-s.a.x)*.5f+s.radius,fabsf(s.b.y-s.a.y)*.5f+s.radius,fabsf(s.b.z-s.a.z)*.5f+s.radius):
+@@ -323,17 +342,20 @@ __global__ void k_UpdateSurfacePoints(int count,const SurfaceVertex* vertices,co
+     float3 q=surfacePoint(v,pos);current[i]=make_float4(q.x,q.y,q.z,1);
+     previous[i]=surfacePoint(v,prev);
+ }
++// Only findBlade dispatches Wrist=true, for scissors kind 5 with no cutting phase.
++template<bool Wrist=false>
+ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactShape to,float skin,
+     const SurfaceVertex* vertices,const unsigned* masks,const float3* prev,const float3* pos,
+     SurfaceContact* contacts,int* degree,int* active,int* activeCount,const float4* current,const float3* previous,
+     const CoupledTool* body=nullptr,float thickness=0,float minGap=0,bool stationary=false,
+     const int* cacheSlots=nullptr,const SurfaceContact* cache=nullptr,const int* bladePhase=nullptr,int stride=3,bool cacheComponents=false){
+     int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=triangles)return;
++    if constexpr(Wrist){kind=5;bladePhase=nullptr;}
+     int slot=stride*t+kind;
+     if(body){from=bodyContactShape(body,stationary?body->pose:body->previous,kind,thickness,minGap);to=bodyContactShape(body,body->pose,kind,thickness,minGap);}
+     // Reject distant triangles before reading/probing the material-contact
+     // cache or copying a 24-node witness. This is the dominant no-contact path.
+-    if(to.capsule?to.radius<=0:to.half.x<=0||to.half.z<=0){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
++    if((Wrist || to.capsule)?to.radius<=0:to.half.x<=0||to.half.z<=0){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
+     float3 q[3],p[3];
+     for(int k=0;k<3;k++){
+         float4 point=current[3*t+k];if(point.w==0){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
+@@ -344,7 +366,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     // preload at K*radius, then reverses the normal and lets the blade through.
+     // Carry this material witness until fracture or separation, including cut
+     // components. Rebind its interpolation below to the current reconstruction.
+-    bool preload=body && to.capsule && bladePhase && (*bladePhase==0 || *bladePhase==4) && contacts[slot].count>0;
++    bool preload=body && (Wrist || to.capsule) && bladePhase && (*bladePhase==0 || *bladePhase==4) && contacts[slot].count>0;
+     for(int k=0;k<3 && preload;k++)preload=contacts[slot].owner[k]==vertices[3*t+k].voxel &&
+         contacts[slot].mask[k]==vertices[3*t+k].mask && contacts[slot].component[k]==vertices[3*t+k].component;
+     ContactRecord preloadPlane={};float3 preloadBary=mkf3(0,0,0);
+@@ -363,7 +385,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     }
+     float3 lo,hi,l0,h0;shapeBounds(to,skin,lo,hi);shapeBounds(from,skin,l0,h0);
+     // Endpoint OBB bounds alone miss intermediate rotational sweeps.
+-    if(!to.capsule && (len3(to.u-from.u)+len3(to.n-from.n)>1e-5f)){
++    if(!(Wrist || to.capsule) && (len3(to.u-from.u)+len3(to.n-from.n)>1e-5f)){
+         float r=len3(to.half)+skin;float3 extent=mkf3(r,r,r);lo=to.center-extent;hi=to.center+extent;l0=from.center-extent;h0=from.center+extent;
+     }
+     for(int ax=0;ax<3;ax++){
+@@ -415,11 +437,11 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         for(int j=0;j<retained.count;j++){x=x+pos[retained.id[j]]*retained.weight[j];old=old+prev[retained.id[j]]*retained.weight[j];}
+         float3 normal=retained.plane.normal;
+         float3 start=witnessAt(retained.referenceShape,from,retained.plane.target-normal*skin);
+-        if(!to.capsule)normal=contactUnit(from.u*dot3(normal,retained.referenceShape.u)+from.n*dot3(normal,retained.referenceShape.n)+from.w*dot3(normal,retained.referenceShape.w),normal);
++        if(!(Wrist || to.capsule))normal=contactUnit(from.u*dot3(normal,retained.referenceShape.u)+from.n*dot3(normal,retained.referenceShape.n)+from.w*dot3(normal,retained.referenceShape.w),normal);
+         float3 fromNormal=normal;
+         float3 end=witnessAt(from,to,start),nn,ss;
+         float distance=shapeDistance(to,x,nn,ss);
+-        if(to.capsule)normal=rotateShaftVector(from,to,normal);
++        if((Wrist || to.capsule))normal=rotateShaftVector(from,to,normal);
+         else normal=contactUnit(to.u*dot3(normal,from.u)+to.n*dot3(normal,from.n)+to.w*dot3(normal,from.w),normal);
+         // Only retain while within the current finite tool. No infinite-plane
+         // adhesion when the witness slides off a jaw edge or withdraws.
+@@ -428,7 +450,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         // based on that one witness lets a nearest-face query flip through a
+         // thin blade. Retain a box contact using the whole finite triangle;
+         // release still occurs when its finite overlap disappears.
+-        float finiteDistance=to.capsule?distance:triangleBoxGap(to,q[0],q[1],q[2]);
++        float finiteDistance=(Wrist || to.capsule)?distance:triangleBoxGap(to,q[0],q[1],q[2]);
+         // The inertial predictor may leave the finite face, then be rejected by
+         // the material solve. Keep its entry side for the complete swept pair;
+         // inspecting only the predicted endpoint discards the accepted contact
+@@ -437,9 +459,9 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         // triangles sharing one node. The finite manifold still drops samples
+         // outside the CURRENT footprint and positive gaps exert no force.
+         float signedDistance=dot3(x-end,normal);
+-        if(!to.capsule)signedDistance=fminf(dot3(q[0]-end,normal),fminf(dot3(q[1]-end,normal),dot3(q[2]-end,normal)));
++        if(!(Wrist || to.capsule))signedDistance=fminf(dot3(q[0]-end,normal),fminf(dot3(q[1]-end,normal),dot3(q[2]-end,normal)));
+         bool startContact=false;
+-        if(!to.capsule){
++        if(!(Wrist || to.capsule)){
+             float startDistance=fminf(dot3(p[0]-start,fromNormal),fminf(dot3(p[1]-start,fromNormal),dot3(p[2]-start,fromNormal)));
+             startContact=triangleBoxGap(from,p[0],p[1],p[2])<=2.f*skin && startDistance<=2.f*skin;
+         }
+@@ -453,7 +475,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     SurfaceContact out={};out.kind=kind;
+     float3 bary=mkf3(0,0,0);
+     if(preload){bary=preloadBary;out.plane=preloadPlane;}
+-    else if(retainedPlane.valid && !to.capsule){
++    else if(retainedPlane.valid && !(Wrist || to.capsule)){
+         bary=triangleWitness(to,q[0],q[1],q[2]);
+         out.plane=retainedPlane;out.stick=retained.stick;
+         float3 normal=out.plane.normal;
+@@ -465,8 +487,9 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         float3 surface=x+normal*(support-dot3(x-to.center,normal));
+         out.plane.target=surface+normal*skin;
+         out.plane.motion=surface-witnessAt(to,from,surface);
+-    }else if(to.capsule){
+-        bary=bladePhase?bladeTriangleWitness(to,q):triangleWitness(to,q[0],q[1],q[2]);
++    }else if((Wrist || to.capsule)){
++        if constexpr(Wrist)bary=wristTriangleWitness(to,q);
++        else bary=bladePhase?bladeTriangleWitness(to,q):triangleWitness(to,q[0],q[1],q[2]);
+         out.plane=traceToolContact(from,to,skin,p[0]*bary.x+p[1]*bary.y+p[2]*bary.z,q[0]*bary.x+q[1]*bary.y+q[2]*bary.z);
+         // The swept endpoint witness is not the first point on a face hit by
+         // a grazing capsule. Its radial TOI normal can be almost tangential,
+@@ -493,7 +516,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     float3 x=q[0]*bary.x+q[1]*bary.y+q[2]*bary.z;
+     float3 old=p[0]*bary.x+p[1]*bary.y+p[2]*bary.z;
+     if(!out.plane.valid)return;
+-    if(body && !to.capsule){
++    if(body && !(Wrist || to.capsule)){
+         // A finite face manifold must use an actual OBB face, not a corner SDF
+         // diagonal extended into an artificial slanted supporting half-space.
+         float3 axes[3]={to.u,to.n,to.w};int face=0;
+diff --git a/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh b/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
+index 0141f4b..4f264c8 100644
+--- a/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
+@@ -412,13 +412,20 @@ __global__ void k_CountCutContacts(const SurfaceContact* contacts,const int* ids
+     for(int k=blockIdx.x*blockDim.x+threadIdx.x;k<*count;k+=blockDim.x*gridDim.x)
+         if(contacts[ids[k]].kind<3)atomicAdd(edges,1);
+ }
++// A dedicated instantiation prevents wrist search from increasing register use
++// for the grasper, cutting edges and scissor backs. All contact response is shared.
++template<bool Wrist=false>
++static void findBladeShape(int kind,cudaStream_t stream,bool stationary){
++    if(g_surfaceCount>0)k_FindSurface<Wrist><<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
++        contactShape(g_bladeInitial,0,0,0),contactShape(g_bladeCommand,0,0,0),kind>=3?g_contactRadius:0,
++        d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious,d_bladeBody,0,0,stationary,kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3);
++}
+ static void findBlade(cudaStream_t stream=0,bool stationary=false){
+     cudaMemsetAsync(d_bladeCount,0,sizeof(int),stream);cudaMemsetAsync(d_bladeDegree,0,g_N*sizeof(int),stream);
+     for(int index=0;index<bladeShapeCount();index++){
+     int kind=bladeShapeKind(index);
+-    if(g_surfaceCount>0)k_FindSurface<<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
+-        contactShape(g_bladeInitial,0,0,0),contactShape(g_bladeCommand,0,0,0),kind>=3?g_contactRadius:0,
+-        d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious,d_bladeBody,0,0,stationary,kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3);
++    if(kind==5)findBladeShape<true>(kind,stream,stationary);
++    else findBladeShape(kind,stream,stationary);
+     }
+     cudaMemsetAsync(d_bladeBackCacheSlots,0xff,CONTACT_CACHE_SIZE*sizeof(int),stream);
+     if(g_surfaceCount>0)k_CacheBladeBackContacts<<<Gr(BLADE_KIND_SLOTS*g_surfaceCount),64,0,stream>>>(d_bladeContacts,d_bladeIds,d_bladeCount,d_bladeBackCacheSlots,d_bladeBackCache);
