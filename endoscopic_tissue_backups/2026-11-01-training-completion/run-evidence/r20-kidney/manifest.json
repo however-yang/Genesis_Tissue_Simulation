@@ -1,0 +1,493 @@
+{
+  "case": "kidney-reference",
+  "scene": "kidney",
+  "kind": "cut",
+  "settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      0.6,
+      -0.8,
+      0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 2
+  },
+  "dll": "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\package\\artifacts\\release-r20-support-cache\\bin\\LiverCudaSim.dll",
+  "dll_sha256": "6c89212852ddace0420767d1ed677cb7e0935f92d92f048634a7dd44bc945800",
+  "material_nodes": 102710,
+  "active_nodes": 121260,
+  "total_grid_nodes": 354200,
+  "cell_size_cm": [
+    0.10000000149011612,
+    0.10000000149011612,
+    0.10000000149011612
+  ],
+  "stages": [
+    {
+      "name": "settle",
+      "steps": 30,
+      "command": {
+        "hinge": [
+          -2.374,
+          7.382,
+          0.0
+        ],
+        "closure": 0,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "approach",
+      "steps": 90,
+      "command": {
+        "hinge": [
+          -1.374,
+          6.182,
+          0.0
+        ],
+        "closure": 0,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "bite",
+      "steps": 45,
+      "command": {
+        "hinge": [
+          -0.894,
+          5.542,
+          0.0
+        ],
+        "closure": 0,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "close",
+      "steps": 45,
+      "command": {
+        "hinge": [
+          -0.894,
+          5.542,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "lift",
+      "steps": 120,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "blade_approach",
+      "steps": 120,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.2774079978861174,
+          3.6968,
+          0.8213776940828174
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "incise_1",
+      "steps": 150,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.2774079978861174,
+          3.6968,
+          0.8213776940828174
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 1,
+        "scissors_cutting": true,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 0.5
+    },
+    {
+      "name": "open_1",
+      "steps": 30,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.2774079978861174,
+          3.6968,
+          0.8213776940828174
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "reposition_2",
+      "steps": 60,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.14799847533485705,
+          3.6968,
+          0.33841478093828326
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "incise_2",
+      "steps": 150,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.14799847533485705,
+          3.6968,
+          0.33841478093828326
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 1,
+        "scissors_cutting": true,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 0.5
+    },
+    {
+      "name": "withdraw",
+      "steps": 120,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 1,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "release",
+      "steps": 45,
+      "command": {
+        "hinge": [
+          -0.894,
+          7.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "extract",
+      "steps": 75,
+      "command": {
+        "hinge": [
+          -0.894,
+          8.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "hold",
+      "steps": 30,
+      "command": {
+        "hinge": [
+          -0.894,
+          8.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "side_pull",
+      "steps": 60,
+      "command": {
+        "hinge": [
+          -0.494,
+          8.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "side_hold",
+      "steps": 45,
+      "command": {
+        "hinge": [
+          -0.494,
+          8.142,
+          0.0
+        ],
+        "closure": 1,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "jaw_open",
+      "steps": 45,
+      "command": {
+        "hinge": [
+          -0.494,
+          8.142,
+          0.0
+        ],
+        "closure": 0,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    },
+    {
+      "name": "open_retract",
+      "steps": 60,
+      "command": {
+        "hinge": [
+          -0.494,
+          9.142,
+          0.0
+        ],
+        "closure": 0,
+        "blade_center": [
+          0.6656365655398986,
+          3.6968,
+          2.27026643351642
+        ],
+        "blade_enabled": true,
+        "scissors_closure": 0.0,
+        "scissors_cutting": false,
+        "scissors_pitch_deg": 0.0,
+        "scissors_roll_deg": 90.0,
+        "scissors_yaw_deg": -75.0
+      },
+      "ramp": 1.0
+    }
+  ],
+  "capture": true,
+  "replay_storage": "rdx",
+  "note": "Diagnostics continue past recorded quality failures. Replay follows simulation time, not achieved FPS."
+}

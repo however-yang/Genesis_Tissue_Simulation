@@ -113,7 +113,10 @@ class EpisodeWriter:
                   "t_sim_s": result.before.metadata["t_sim_s"], "dt_s": result.before.metadata["dt_s"],
                   "action": result.action, "terminated": result.terminated, "truncated": result.truncated,
                   "reason": result.reason, "timings_ms": result.timings_ms,
-                  "reward": None, "task_success": None, "task_failure": None}
+                  "reward": result.task['reward'] if result.task is not None else None,
+                  "task_success": result.task['success'] if result.task is not None else None,
+                  "task_failure": result.task['failure'] if result.task is not None else None,
+                  "task": result.task, "bootstrap_allowed": result.bootstrap_allowed}
         # Native failures preserve an attempted action, not a fabricated next state.
         new_topology = after is not None and after.topology["revision"] not in self.queued_topologies
         value = (json.loads(json.dumps(record, allow_nan=False)), owned_state(after, new_topology) if after is not None else None,

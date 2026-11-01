@@ -1,0 +1,26 @@
+{
+  "schema": "tissue_experiment_v1",
+  "purpose": "collection",
+  "dll": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+  "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+  "episode_timeout_s": 600,
+  "min_free_disk_bytes": 1073741824,
+  "episodes": [
+    {
+      "id": "rgbd-wall",
+      "scene": "wall-traction",
+      "preparation": "held",
+      "seed": 3500,
+      "steps": 6,
+      "cutting_enabled": false,
+      "policy": {
+        "kind": "hold"
+      },
+      "vision": {
+        "width": 640,
+        "height": 480,
+        "every_steps": 1
+      }
+    }
+  ]
+}

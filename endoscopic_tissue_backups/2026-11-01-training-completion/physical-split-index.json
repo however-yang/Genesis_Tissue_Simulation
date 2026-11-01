@@ -1,0 +1,3630 @@
+{
+  "schema": "physical_geometry_split_v1",
+  "inputs": [
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\friction-pilot\\results.json",
+      "sha256": "eadfc682583a0c5e8e8913ce4085e15e509cf2cb2e1706639d4fc8c1309b768d"
+    },
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\frozen-evaluation\\results.json",
+      "sha256": "baa701997483fe0217d256a57fcbcf68120a560bafcfb9d6a6a398d043733657"
+    },
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\policy-pilot\\results.json",
+      "sha256": "a3241aebd2f7fcc25d6d06525b4ca44d076b3150240ccb66a7fd45a7a88a96f3"
+    },
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\sensitivity-screen\\results.json",
+      "sha256": "8130270fdc7ce47edfe33f99918fb134d17fec654e58a6920b09b57fa861f215"
+    },
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\vision-pilot\\results.json",
+      "sha256": "0d4a17648a0b1c1fd07b3c3f054ad1e5ce42199fb528689128b851573b2dd66c"
+    },
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\results.json",
+      "sha256": "8a2c78941625b1f116dae6e7a1403b03ef81855255936a986232b2310986d54c"
+    },
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-positive\\positive-hold-control\\results.json",
+      "sha256": "dcc48fc9e4d02071400113500f712e03d1963acd5c24b8e3b8c3a795c71d9454"
+    }
+  ],
+  "grouping": "source-verified geometry recipe; conservative across policies, contact modes, preparation and spacing",
+  "geometry_source_sha256": {
+    "endoscopic_tissue/scenario.py": "3d86fcc7ba618dfd02665b8fa18c4971d0060cd9d0b4b07a8f82185c77cb69e3",
+    "endoscopic_tissue/grid.py": "724244986bfbe174cb0a397672ccbe8455a2b921522e3aae3a35440c8311e6ce",
+    "endoscopic_tissue/kidney.py": "8581ebc3de6a0aabde31d23f22391b7942915c1207f8d057e39a26d40673a980"
+  },
+  "validation_fraction_requested": 0.2,
+  "collection_groups": {
+    "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3": "train"
+  },
+  "evaluation_scope": "repeatability",
+  "evaluation_collection_geometry_overlap": [
+    "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3"
+  ],
+  "episodes_by_split": {
+    "train": 111,
+    "repeatability": 4
+  },
+  "has_held_out_validation": false,
+  "collection_failures_preserved": [
+    {
+      "results": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\sensitivity-screen\\results.json",
+      "case": "fine-spacing",
+      "status": "reset_failure",
+      "error": "ValueError('spacing must be 0.1..0.7 native units (1..7 mm)')"
+    }
+  ],
+  "episodes": [
+    {
+      "episode_id": "182b77a6797746b0b3565f06b6b52d0f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\friction-pilot\\friction-preparation\\episode",
+      "context_sha256": "5390bc034ae5e63f9d29fa974bb4c515550c7974042eb226aa59d1faa87bdc49",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "679e79b93ce140fdacc766b3330e569e",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\frozen-evaluation\\eval-00\\episode",
+      "context_sha256": "a979342d8c36a6cb2c164124241b61dabc51a2cf124a50e042a3c4e408cda643",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "evaluation",
+      "historical_seed_split": "evaluation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "repeatability"
+    },
+    {
+      "episode_id": "0d1cb0e3442a497eac24c44d31df3ab7",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\frozen-evaluation\\eval-01\\episode",
+      "context_sha256": "5ce7b7e158b30e7907da17f48df7ba642fed2d63d08eb814f58ada3124ab724d",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "evaluation",
+      "historical_seed_split": "evaluation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "repeatability"
+    },
+    {
+      "episode_id": "861fceaaf32d4879a91a71ad89237732",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\frozen-evaluation\\eval-02\\episode",
+      "context_sha256": "22968b24e5f30a573c8e4fe3c1fe8fc03231bf05b36bde2ae60a8469ba7da3a6",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "evaluation",
+      "historical_seed_split": "evaluation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 40,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "repeatability"
+    },
+    {
+      "episode_id": "644e57c7af2741e8a92f0a920f49927f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\frozen-evaluation\\eval-03\\episode",
+      "context_sha256": "5088884a5f3abb2b586a37bf595d5c7d2a3a273b8429c92b6310cb5433e5a9b7",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "evaluation",
+      "historical_seed_split": "evaluation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "repeatability"
+    },
+    {
+      "episode_id": "8ae302e2b331428e9580a488924a0ac2",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\policy-pilot\\pilot-00\\episode",
+      "context_sha256": "6de7deeac9bf82500e86aaa7f28329ba9cc580c2db6e4dc58d10e14b57465f29",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "65948851d3804a52b4beccb49286685f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\policy-pilot\\pilot-01\\episode",
+      "context_sha256": "ad1cdec9f0ea38f2abaafeb9d5b2a6918b3ca0d4fcdaac0b83eb92ef7bb98f29",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "d0e27727d2c9476c9f99d30f5f751239",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\policy-pilot\\pilot-02\\episode",
+      "context_sha256": "1522edaa28227f11a7217a0b831dc7d2f5c4329eb26282fad33e62903d91510e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 40,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "aac8f229e89d4c94b52e479f8cd5a5f5",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\policy-pilot\\pilot-03\\episode",
+      "context_sha256": "256e7feea46fbf2cb85e04f5a524409751dedb30932a288fd50b3906f2d68027",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 59,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "2d18ae5fcbb84f418b8e44fe4036f98c",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\sensitivity-screen\\nominal\\episode",
+      "context_sha256": "be8bb43528b54a63c366531ba28e952bf60bbcf6a6045966496733e5a7d916f1",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 20,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "2567fe62f10b420085ca65b7a2dc788c",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\sensitivity-screen\\half-dt\\episode",
+      "context_sha256": "d1a40f0650b503ea0e51518cfd7cc6e29139b76d2c462ea35e42da4c2349ba8c",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 40,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "82c5dcb5c0b340ff8184901dda057c9f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\sensitivity-screen\\six-substeps\\episode",
+      "context_sha256": "ec4ff7702d03bd5babaf7a679b6738aa9b505acd5a7a3ee187c46cd7c41fd3f0",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 20,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "dd8bf8e437134c80b507b5f1ced2db93",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\sensitivity-screen\\coarse-spacing\\episode",
+      "context_sha256": "9a9ca08cfde32f7c64c9974c56bb31a4454d649ba73cc174fb5e8e49e465f760",
+      "material_reference_sha256": "a940c52f3f995b2b7f1b54ae104c8bded81be11ca8d9935d6e2e64eb6d8190bc",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 20,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "482099a68ce64de5955063f12f61f0fe",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\vision-pilot\\rgbd-wall\\episode",
+      "context_sha256": "d0d844d4db502787aa2ea32220312b5aeb628489110a462040eb9f9a79a36004",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 6,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "18fbbd176e5a4f80973803adfe5e7701",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-00\\episode",
+      "context_sha256": "4c75a3f26a52a44d98358300bdce65c2eefd75f913e9f0c31c11cc6be0826dd5",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "ad0edecc4e024f15ab70c08f4f42926f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-01\\episode",
+      "context_sha256": "e93ede429b66973ab36f1dc9847c6a9b397382ab7d3225a0d82ed346dbf788e3",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "5b9f159869834eee945aed536b96bd66",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-02\\episode",
+      "context_sha256": "80b6d95efd966f64162f91d2da4309e21db05b82f553d61f9ef8c36de0928d6d",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "ba75ab1fffd749d2984618c70dfb3031",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-03\\episode",
+      "context_sha256": "2b548cb08377ec5e4d53c822efb28ea3380ee94b916e20146fb0d521e012b4c8",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "c5c6fecd291b40a59863bcf42bacc232",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-04\\episode",
+      "context_sha256": "897d5c3a4fc54eb9f6066ae0fb4610bc8792449db3a349de2ce1237a4e840050",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "b62c51766e754bdfbc0d5fd62787901c",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-05\\episode",
+      "context_sha256": "56d09c1d2b732bbd4444ea517bcd2dc6332c25ecf60d8760324725e86e857c0d",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "be2cc59c117a41538b6b6d064e4f3efa",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-06\\episode",
+      "context_sha256": "b0b3b5a4d5b745a963871c0f2628b52dc1c2a56c1164a45fcb8e46fb1bcf3325",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "fd8c09ae3d3546aa997de967bc0231c4",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-07\\episode",
+      "context_sha256": "ff583f5ff48e34fa3cfdb7dd52b875bb86e0933fda107db948dab5a5aeb00812",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "07c9c7654b344a2d8b19b826fd336607",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-08\\episode",
+      "context_sha256": "a3889913b8868e7629b349ca0838270933697172f8767eb01e894e586ba8155b",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "8c4269019c83402db8b933a642b8e303",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-09\\episode",
+      "context_sha256": "77a76e7d9151c0939724099114895dbb0a3c77e89ca20967ab930d07b7cddadd",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "238ae637f77243ba821ab5b6f1d01d4b",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-10\\episode",
+      "context_sha256": "1eab2e72a5b016e4567c69131a52a209137d45ed5f4a0f8341770542cc078dfb",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "9079aa00e9314da3a9ca6fdf6b5801d3",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-11\\episode",
+      "context_sha256": "4e88e6d7ffe35bcb7cb2e03d0784e794a80136e61ba564ade6a867dfca82fe66",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "610b0cf99f2944f681c4d009c20c637d",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-12\\episode",
+      "context_sha256": "c73a2a202d69ad285ba8813e717882c104d22ab9788d467b1d786b4690277c3d",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "c56353ef20f04fc0bf4210331b818548",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-13\\episode",
+      "context_sha256": "83decc5ac3556f5da89d29673347f7ad8a8f16385c900bd4ea88b8a347f5f845",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "6281d4f2766f4293a30ccc8221207d9b",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-14\\episode",
+      "context_sha256": "d9e50b40cab42893779f10eb4c4fa37e90cc6f01ea703be0390dadf54cbc0338",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "b6d0a70dcb60494f819aa34c11fb4572",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-15\\episode",
+      "context_sha256": "e72bb9cf0bf92b2104bb332c4e19691c32323bca2dc59d3bd44df45e0763eff7",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "64b819530fb7437885c39d72597d3664",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-16\\episode",
+      "context_sha256": "1d95a4455b5ab42dec35ad23e2262c76abfa657081ddb9af6ccff975f75233c3",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "736c9d168e534999bd7e89cb537df831",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-17\\episode",
+      "context_sha256": "641b46f99cc17c9c22bb2e476f35a250af6ae78105725bd6c6d94ae58cbafa8e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "994f3c3bd816475b9135a8ec0af0fe6e",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-18\\episode",
+      "context_sha256": "c1d993e742acf5115028a3a7e387cf76c48f90010aa8043689fd7287fb21fb00",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "f5c2e8e1524b46e1a8d37d6a61d50016",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-0-19\\episode",
+      "context_sha256": "365999ec0ae2b234f25c5759a3633c0f61439ad46e1cfecaadd5e31872c695e1",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 30,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "db3185e2563c4a248e3d7e8683a38dfe",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-00\\episode",
+      "context_sha256": "e6aeb164a2d53e2355b7000c052d582475996e02a71b0895ac6c7af3be5d6c54",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "3b996b103b844ca683a7d79ac48b9348",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-01\\episode",
+      "context_sha256": "62455fef1cb0efcd74f1e4049c99bba0d9b1117a26898c7f6d115a3d30fed3f8",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "904c222cd56a461893c62f96f82f8dbb",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-02\\episode",
+      "context_sha256": "1a1ecdc979a2fc37067afda814b4d7d4ee97c2de4085d28e6b1a9f661bf6d3dc",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "f8925c476ed7450db12c13dc3a85f8f2",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-03\\episode",
+      "context_sha256": "c3a1ba9b90a52e18d2e044ed120d391ca28a92c047f4705baabb93baa61d1cc4",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "9375c10d45294415a0c10f8d6b0ca969",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-04\\episode",
+      "context_sha256": "c494a6d3a7b22fc83c472c12f6e68dbbff7eb17362aeed681613511ab39aff78",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "0d3b1fa48b634930a9d04ec9b82680a6",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-05\\episode",
+      "context_sha256": "a2b078b3cdde0484ca755ce3abae6a6d640ad4e9443a552b35a9c1df5b5ea733",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "ce8216449dac4ce18b6ddf341a3bbf00",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-06\\episode",
+      "context_sha256": "14fbf2012f7940ef12584af30c08c515c73aac57fc1287f84e60a186352cdaa7",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "3db94ce93205460d8cb7af278f53b07d",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-07\\episode",
+      "context_sha256": "aec67b4f315b1c8576066e98779ec31821a152a3d58a01d5a75deda9997da0df",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "a23c43a362a84816a925a509581dfbd5",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-08\\episode",
+      "context_sha256": "44ec229d39b5e93cd3f42732f4470eecdfb1ece32bc6a8640948c96d37be63e5",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "b0737339bf9e4417b93bdddcc2ee90b9",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-09\\episode",
+      "context_sha256": "087ee4d4c78b31f2fd795482d45f9955dbdb849ab15b6a7970cd144704515954",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "312df896787447bda97ec5e4c5e74910",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-10\\episode",
+      "context_sha256": "40e6123e2f82d5ebfd3a928dc6fbaad5d0dfe4855377f9ae9363b025ab7cf2f2",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "bf4c616a8b5b4dde870fb894b6f07a3c",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-11\\episode",
+      "context_sha256": "21a609d7f5755bcbc230c7793da88e92fefca39dc252f3d6fe350ecead187b92",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "41fb4d0be9794c5d8be6b70d0209c378",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-12\\episode",
+      "context_sha256": "856640c6e39cf803bc1954343736c0565a194dd24736cb89b6e2174faea0a198",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "8789e32d96ef4c75ae2175b8e4e1903c",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-13\\episode",
+      "context_sha256": "34804ad6c4cee6a15cf9b1fa99af43f07b0a76772f4ff89cc58cba4a66ab1b25",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "1b8436f5c4c8498f800759a2fb11817b",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-14\\episode",
+      "context_sha256": "7003471bfb90d6b03b60c3a8db67871254e09f0281c18ab693c7e00e42cd6ceb",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "4f44b0d4ce2b4cc6bbf5622f32f117a2",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-15\\episode",
+      "context_sha256": "d3172ec3aea76d63aa8f959c68685870fee70b16d5a6bacf02aaa10484f47b79",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "0655e44e383741f89ac48b2f4ec0065c",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-16\\episode",
+      "context_sha256": "a6e44b91d7608b0172576bae7bd4e87794be032e34b84384f7fabc7d751fcbed",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "aeb6cad36d60458aa1db180ae6cda8d0",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-17\\episode",
+      "context_sha256": "c3e13eaa92df5d283e9c4b5ff287ed63d48215e25e17efece21a7ecdb9dc3594",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "0ee88c149f3c48bdab8dc73b3a120cd1",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-18\\episode",
+      "context_sha256": "b2616cdb565bf07145b586e84395fb5a95b2717b887b296dbe9fdab4bfdfa0ae",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "4bf803c65bd64e669d5da90c564973f2",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-1-19\\episode",
+      "context_sha256": "1b308b2690969d5ef1e8e735e8b82e388d9e9d9423495a6ad07bab4ae8ee952f",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "56ced432c26a4e0bb40522bf36cdb30f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-00\\episode",
+      "context_sha256": "675f9c26a3257823593f687df20cc7ede3790ba039f64b6bddb6b58fb45a3682",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 37,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "72850b069c8d436c995237daf2dfa69f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-01\\episode",
+      "context_sha256": "15f7ff4333470c20af6d4b448b2e887d8f58572e1f129def8c7344fcecf8b8d4",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 38,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "04c8643e2fef403f9e1ff33e52d1768e",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-02\\episode",
+      "context_sha256": "221169d73a74ee788778e58d1ff750c919271455cf7eb7cfd964ce88affdf6b7",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 39,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "7036c0e537934597a07dd63c944171cc",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-03\\episode",
+      "context_sha256": "5ffe4c3b67cf24183bbe4d134c5211724625b0803107213db083f13cd226a111",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 34,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "639da6ce13c645c1ab530857da5a4f57",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-04\\episode",
+      "context_sha256": "7c2a023c1889549bb9be598d56c447f4b32e490ec43c64fde4476d81ac591b1b",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 35,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "e664eabb48fa4bdab9ff1155569ea7ab",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-05\\episode",
+      "context_sha256": "b39bfb7255afc5ae224206d47c6ab76d6a827fe2416a5fcc463bdc371de9439e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 39,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "b5f3f3dfa8244ee6a68bfc9b54fd4072",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-06\\episode",
+      "context_sha256": "fdbd383ee4efdd993db4c3ead59af6d0e019b8b4f0d82f35c5ea545261a26141",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 35,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "df29c93a76c94ca89a46e14cb0e9f8ec",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-07\\episode",
+      "context_sha256": "c27bc488798ebe0c456b2482057e34d83d57f5ec5bd8fa7ffda9b736d08f2f4e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 35,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "25795a4dc3524a15b9ebf22741cd9219",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-08\\episode",
+      "context_sha256": "1d1a79631d3294921deaba7b90b29581368d477bd1de8106573f9f45e87f70cf",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 38,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "b0efcec85c4447d4be734528a1762b43",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-09\\episode",
+      "context_sha256": "1d1e1e735586839e11575e870dc5a3cb4e3aae3e4c103607248a6a69531732fc",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 40,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "3a472ca5c00a486ba4471808168a17b5",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-10\\episode",
+      "context_sha256": "340e0737bfbcd1e602ee74f33a86b7cd238b3e74ed3bdb53458733eea9f49a07",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 40,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "4ce15867fe2940a883dea91f2719f054",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-11\\episode",
+      "context_sha256": "dc69e6601af817d55115093b6a118ab776e2ef3e3c8abd252a038d12391a83b7",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 35,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "1f7a7c1aeab246a397492bf3903b2315",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-12\\episode",
+      "context_sha256": "250b9e07bacb4ff74360ddec5b63bebc79911c9674bd9f97086bc5818264a101",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 35,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "ca670cfc22fa46099bf12d860249e8dd",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-13\\episode",
+      "context_sha256": "73c97bc6a70b69cfe27934e15ba12887658ce8667b5065919f8f98a4a9fadfe4",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 35,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "95dbb806dabb4fe883ce3864e8f55577",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-14\\episode",
+      "context_sha256": "b422344f2d8ff8c0ec710a176256189ad6eb8e31de120c385706138b8f965559",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 37,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "4e1f555d2b5f4745883955758c7d3d97",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-15\\episode",
+      "context_sha256": "55d898eba969cc537273e55a311fdfb9119d6b6cca746598fb10b5db2c9527d0",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 36,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "c24e16b083aa4dcebf63cb553ba95715",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-16\\episode",
+      "context_sha256": "7e7078ac0dc25c9234808ccff5a69831114e278c47eec305d34f0da42fe9daca",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 35,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "f2800847cee349218da12f0aaed75459",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-17\\episode",
+      "context_sha256": "494d8d59708978ff04555554af5a3126b6fa09a06ff0fecd00a60e799ba7d9b9",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 38,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "3b1d9443552b4a49be2b919c085c4b18",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-18\\episode",
+      "context_sha256": "3b15df16860c85d35bc7157aa475d2dbffd4e92daf5177a715f798cfb1284336",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 38,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "bfa3d76247474c379296569a25fc0ba4",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-2-19\\episode",
+      "context_sha256": "209ce03b6cedc8fd47a198c85de6b2976c63fd9a8abd77b0574180d4d3a1e837",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 40,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "0a3d522c5ecc462ab832e9aa8ef463d4",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-00\\episode",
+      "context_sha256": "46e9179f07d10613f0707f2c262a05041efc85c545e1ff644a5628afd2fc0356",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 57,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "c4920092d4f648e092d841d39a7914cc",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-01\\episode",
+      "context_sha256": "1faa0f3fa565dbfe35ba069bde6a84b0fbdda503d03af526f585bdf9037ee080",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 60,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "a96dd24e39974f7d928354ab20d62ba9",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-02\\episode",
+      "context_sha256": "438133fd37c995ad24b6448042ffa979f1a218a7d9bba50d2f97cf2f6cff3c82",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 62,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "b914690efdfd4ccd892507668745a40a",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-03\\episode",
+      "context_sha256": "294963e97e080415300c313be4ee30dac348e15a3a339da17fdce9eb6bd500a4",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "2ddfcb754c094beea6620088eef2ae13",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-04\\episode",
+      "context_sha256": "37eaf8958eac10b5e5f68e996e086ab1a03e5ae40eca60cf0d08e7a70ecbaf37",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 60,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "dbe9ce5e06104f42bc96cd8a78f4bad1",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-05\\episode",
+      "context_sha256": "368f4ae46591908af1483bc63ff6dba0b990be3805184685f0e729283743628e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 63,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "46734ad5e30b4456852d9b443a6684a6",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-06\\episode",
+      "context_sha256": "6e31098ce6b2ca11f308817ad89d31195dfd693c3069922d1927ce0ff7c887df",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "ac29aa5bbc454e378dd5bf182c255462",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-07\\episode",
+      "context_sha256": "26077f643c82d6ff0f5fe62e170fb7ecd71b76a7aa7eaeef32512c039bdff956",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 62,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "c12361db3db44968bf4dc1563e9e72d2",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-08\\episode",
+      "context_sha256": "7b469cc9cd2075121ce8dbfb05808054df13c69e91269f710675c293a02b0ca2",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 60,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "d227377bbbea4a48ad443bc5fc4dde5b",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-09\\episode",
+      "context_sha256": "88f290c3bd22a14478a5524881d5c76e85c9c31bb8a792b44d9fc89fc312e9e3",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 62,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "a728d422c3eb43a6bcb145afba96c70e",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-10\\episode",
+      "context_sha256": "cc21630dc2de669892ced4fa1ac087f45f2df671d4b859f8bde8deaa4ed4e2ee",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 60,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "74d12d31dacc45648b26842889dc99fc",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-11\\episode",
+      "context_sha256": "401ef7273097f61319a949e92e5de727883b2bd8d381af8d12f9ea04beb569a2",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "2b7e5a11de8842c0927110ed61094b57",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-12\\episode",
+      "context_sha256": "3160046614312b7ff1e08ae433264529bc6157416bd099b6b271516d9734ac76",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "80d1a74ae1dc4b69af7b135ec8303567",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-13\\episode",
+      "context_sha256": "07fa0a3c4d709a500c3450ab7d797f5a3301e0d28c59ee2a9a23e49cd6510822",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 60,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "1a4525489829443abf497609ab909e69",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-14\\episode",
+      "context_sha256": "71a5aef7f6c24be14568a583dfff9a80fa2c0553f5431c8e9afdfd5a5553741d",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "2e04987a1a0d40d8a749309b57c2fe08",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-15\\episode",
+      "context_sha256": "006f550383f1606c117d192b74e6bd8fb007378a723055491e234de0f94bfa70",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 60,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "a8168bb676a44d4ab2f68d24b2b97aee",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-16\\episode",
+      "context_sha256": "3d9a99696a6afb48d57a88f9dedbf105cc718787f277eeec2827ab3f5559296b",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 63,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "bf816015b92f4cb39a53c6544551422e",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-17\\episode",
+      "context_sha256": "32e5f797fefb1e18662c9663f89a1f6fc3d6bb2eb24787d2b5387346aead9295",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "3282c87b7e844f778ba3c330ce2c6bf6",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-18\\episode",
+      "context_sha256": "3a2ff23e20db3c1c0a2bcdf774681dbd0137d09b513a879a6f8f2672d52a588e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 61,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "feca2832a2cc4cae85f7c1ea03e7638c",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-3-19\\episode",
+      "context_sha256": "8d0c734246c64d933219cf8b0ded2e5355c2d8212847552072908390f9bfec9c",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_failure:outside_target_material_damage",
+      "transitions": 59,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "b2783e1b8a55408c9cf4bb76ab1a809e",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-00\\episode",
+      "context_sha256": "a9f2131b1818dcf7a1c7a553965b5d43299da2a0556c8ffe08650f086ff63ef5",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "01b28ca637e24f6ab423849d097229cc",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-01\\episode",
+      "context_sha256": "34423747d03f3de6e2a4e87ffdd0911ee6abc6fd758e55fed92ba8fb8c2052f2",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "fb6bbb5b76094fe0a5cb5ec71a1d2a44",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-02\\episode",
+      "context_sha256": "296e3e0effc1844b9a7a5d36c27bd58ffbc4fc2955a15c079fd035a2e953b40b",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "c7a5476738054d02a1c38d1de5ada7dd",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-03\\episode",
+      "context_sha256": "750ab8b1440af9d4e684d65dc5a20612fcc096157f768a599bbdbb976c6f3aa7",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "f18c1389a4144e56ae716dcea04691d1",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-04\\episode",
+      "context_sha256": "beb578c48cc9a92fde2e2fb433dc88955a3fa053ff51687192b94f79f333c9d9",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "db3f0c643d154afca942692329d41f39",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-05\\episode",
+      "context_sha256": "602892c3b2312d5ef967b9a29ee30d6b0a33b7f8753bdb458eda5e32b74c2852",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "81967ee3a3b7466c82b525d1779f3ee5",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-06\\episode",
+      "context_sha256": "268602c7ceb8f5400446b386622bff3f1656781063fdf3038cb6d5b58ec02df6",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "55b7b963bfb442e0b020bc8c402952f2",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-07\\episode",
+      "context_sha256": "7970d1fa9ccd0aa709143163c84b8c4bee69222de0a61af1dbd97913428d2ed1",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "7dcafa80f7764dd0ba9721b0669ceef8",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-08\\episode",
+      "context_sha256": "7c9395049b0d35f7cce0182ec972d194fa636ecaecfe1a5e77bcb26e9cf4c800",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "2e9082e889744477a223d76de039b2dd",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-09\\episode",
+      "context_sha256": "27c0ff9a3ea6281e5dc8f99ba332c8c6269bd0d84ad9895f22d6774fc15eebc5",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "36463eaf55a54e6f8603994508d2e246",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-10\\episode",
+      "context_sha256": "85a0a2564d15342bd85cd60aad0f609cc3c7dd6566d6dd82f757348914f6eb22",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "d1d960df49264a579768e27471ca6b7b",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-11\\episode",
+      "context_sha256": "1391b17a6f16059d2952d7fa8408b219cbc5710b09a458145dcfa8cb4b49670a",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "ae2a98f047e048cd92ea2f385e35d74a",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-12\\episode",
+      "context_sha256": "b3a9238fdade4eac23489a430de2b3b493c10cb488602b94b451576fae6bc76e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "5a498cb0bdd6407c8ed273e9a451efba",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-13\\episode",
+      "context_sha256": "62116cd94dd4d4ceeb63d116d0e0ac5000fb071fbe52c6ad80477e65179bb03b",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "9885664cafca4276a95c65a5d0b133be",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-14\\episode",
+      "context_sha256": "2015c0785af6f5f628dd7f1585bd234bc15438975e90935df21c868ea21e3f08",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "d1f87c26d10246e89ad8961c5b4e3a1b",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-15\\episode",
+      "context_sha256": "f33600ff29b290bbe262bfdb4b9a83e82a87e8b11e756099b2d25f7405e678d9",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "c9a1fc0f691f4f769d7c5a2f33317152",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-16\\episode",
+      "context_sha256": "7b7302a30f701d8ea32e20a9e02e77120659e3db7f32160c583fa4bb299fd405",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "03b1de9bcf7f49b58dd5869419cf4d39",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-17\\episode",
+      "context_sha256": "8f42f401f19436d5070198eb8aaeb5744c2cb2f9752204792e5f1b36342a777a",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "5ebaa9c7c92a4817b92d11d23b690170",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-18\\episode",
+      "context_sha256": "53baebe55703e5097a3c704d9c1e30a1e58e200d77cf36b93c0bb86265b54227",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "df5728273de149338ebf0a344c2a9a4f",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\screen-4-19\\episode",
+      "context_sha256": "144fb48c780adbb57fa699ad01ce28abb1a9de75e94fcef3e382e9186096d13e",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "validation",
+      "status": "recorded",
+      "reason": "time_limit",
+      "transitions": 90,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    },
+    {
+      "episode_id": "de0bc91737d342e1a8e8d3e225cdd281",
+      "path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-positive\\positive-hold-control\\friction-hold-success\\episode",
+      "context_sha256": "ec7317cdaac774c1ffaf9b3f0383ba03f4001f7137ca4c242e0437d7d81b014c",
+      "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+      "geometry_group": "4ec5af712a019d1cf70021518b93b07e3ed7e6c43c354c6187ca303d7e242bf3",
+      "geometry_recipe": {
+        "kind": "block_with_tab",
+        "tab": {
+          "low": [
+            0.0,
+            0.7,
+            1.6
+          ],
+          "high": [
+            2.5,
+            1.4,
+            2.0
+          ],
+          "attached": 1
+        }
+      },
+      "purpose": "collection",
+      "historical_seed_split": "train",
+      "status": "recorded",
+      "reason": "task_success",
+      "transitions": 15,
+      "failed_attempts": 0,
+      "training_domain_approved": false,
+      "split": "train"
+    }
+  ],
+  "training_domain_approved": false,
+  "reader_requirement": "Use EpisodeReader hash/quality checks for windows. This index does not approve any physical domain or make corrupt/numerically invalid transitions trainable.",
+  "index_sha256": "0b27e334c3db34158cdb9b9e84b9e9653378b8c10b858ed078a11001b0c50dc8"
+}

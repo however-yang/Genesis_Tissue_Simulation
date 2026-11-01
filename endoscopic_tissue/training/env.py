@@ -7,22 +7,38 @@ from uuid import uuid4
 import numpy as np
 
 from ..native_backend import NativeTissue
-from ..scenario import SCISSORS_SCENES, drive_command, interpolate, scissors_settings, stage_start
+from ..scenario import SCISSORS_SCENES, SCISSORS_SPACING, drive_command, interpolate, scissors_settings, stage_start
+from ..grid import build_grid
 from .actions import ActionBounds, action_to_command, command_to_action
 from .provenance import json_hash, manifest, pinned_dll
 from .quality import QualityLimits, QualityMonitor
+from .grasp import GraspMonitor
+from .tasks import TaskGoal, TaskMonitor
+from .cutting import cut_origin_bracket
 
 
 @dataclass(frozen=True)
 class SceneConfig:
     scene: str = "wall-traction"
     preparation: str = "held"
+    contact_model: int | None = None
+    dt_s: float | None = None
+    substeps: int | None = None
+    spacing_scale: float = 1.
 
     def __post_init__(self):
         if self.scene not in SCISSORS_SCENES or self.preparation not in ("settled", "held", "cut_ready"):
             raise ValueError("Unknown scene or preparation")
         if self.scene == "wall" and self.preparation == "cut_ready":
             raise ValueError("The wall scene approaches the scissors before grasping; use wall-traction for cut_ready")
+        if self.contact_model not in (None, 1, 2):
+            raise ValueError("Contact model must be 1 (pure friction) or 2 (assisted)")
+        if self.dt_s is not None and (not np.isfinite(self.dt_s) or self.dt_s <= 0):
+            raise ValueError('Invalid sensitivity time step')
+        if self.substeps is not None and (not isinstance(self.substeps,int) or self.substeps < 1):
+            raise ValueError('Invalid sensitivity substeps')
+        if not np.isfinite(self.spacing_scale) or not .5 <= self.spacing_scale <= 2:
+            raise ValueError('Sensitivity spacing scale must be within [0.5,2]')
 
 
 @dataclass(frozen=True)
@@ -59,6 +75,8 @@ class StepResult:
     reason: str | None
     timings_ms: dict
     failure_nodes_native_cm: np.ndarray | None = None
+    task: dict | None = None
+    bootstrap_allowed: bool = False
 
 
 class ResetFailure(RuntimeError):
@@ -83,6 +101,7 @@ class NativeEnvironment:
         self.last_reset_diagnostic = None
         self.last_reset_failure_arrays = None
         self.done = True
+        self.task = None
 
     def reset(self, seed=0, scene_config=None, goal=None):
         reset_start = time.perf_counter()
@@ -97,9 +116,22 @@ class NativeEnvironment:
         self.episode_id = uuid4().hex
         self.scene_config = scene_config
         scene = SCISSORS_SCENES[scene_config.scene]
-        self.settings = replace(scissors_settings(), young_pa=scene.young_pa, contact_model=scene.contact_model)
-        self.grid = scene.build_grid(self.settings.density_kg_m3)
+        contact_model = scene.contact_model if scene_config.contact_model is None else scene_config.contact_model
+        self.settings = replace(scissors_settings(), young_pa=scene.young_pa, contact_model=contact_model)
+        base_dt = self.settings.dt
+        self.settings = replace(self.settings,
+                                dt=scene_config.dt_s if scene_config.dt_s is not None else self.settings.dt,
+                                substeps=scene_config.substeps if scene_config.substeps is not None else self.settings.substeps)
+        if scene_config.spacing_scale == 1:
+            self.grid = scene.build_grid(self.settings.density_kg_m3)
+        else:
+            geometry = {'shape':scene.shape} if scene.shape is not None else {'tab':scene.tab}
+            self.grid = build_grid(SCISSORS_SPACING*scene_config.spacing_scale,
+                                   vertical_spacing=scene.vertical_spacing*scene_config.spacing_scale,
+                                   density=self.settings.density_kg_m3, **geometry)
         self.quality = QualityMonitor(self.grid, self.config.limits)
+        self.grasp = GraspMonitor(self.settings, self.grid.inside)
+        self.task = None
         self.preparation = []
         self.step_id = 0
         self.last_surface = None
@@ -115,9 +147,10 @@ class NativeEnvironment:
             requested = scene.stages[0].command
             for stage in scene.stages:
                 start = stage_start(stage.name, requested, self.observed)
-                for index in range(stage.steps):
+                stage_steps = max(1,round(stage.steps*base_dt/self.settings.dt))
+                for index in range(stage_steps):
                     preparation_start = time.perf_counter()
-                    requested = interpolate(start, stage.command, (index + 1) / (stage.steps * stage.ramp))
+                    requested = interpolate(start, stage.command, (index + 1) / (stage_steps * stage.ramp))
                     executed = drive_command(requested, self.observed, self.settings)
                     previous = self.observed
                     self.observed = self.native.step(executed)
@@ -132,19 +165,35 @@ class NativeEnvironment:
                     if self._invalid(assessed) and not self.config.diagnostic_continue:
                         raise ResetFailure({"episode_id": self.episode_id, "seed": int(seed),
                                             "failure": assessed, "preparation": self.preparation})
+                if stage.name == 'close':
+                    # Bind witnesses before lifting, as the original Sequence diagnostic does.
+                    self.preparation[-1]['grasp'] = self.grasp.assess_native(self.observed)
                 if stage.name == stop_stage:
                     break
             else:
                 raise ValueError("Preparation end stage is missing")
-            if scene_config.preparation in ("held", "cut_ready") and self.observed.grip_points == 0:
-                raise ResetFailure({"episode_id": self.episode_id, "seed": int(seed),
-                                    "failure": "assisted_hold_not_acquired", "preparation": self.preparation})
             self.previous_action = command_to_action(requested)
             # Check the declared domain before exposing s0; no hidden clamping at reset.
             self.config.bounds.process(self.previous_action, self.previous_action, self.settings.dt)
             self.state = self._snapshot(previous, assessed)
+            if scene_config.preparation in ("held", "cut_ready"):
+                grasp = self.state.metadata['grasp']
+                acquired = (self.observed.grip_points > 0 if contact_model == 2
+                            else grasp['friction_hold_evidence'])
+                if not acquired:
+                    raise ResetFailure({"episode_id": self.episode_id, "seed": int(seed),
+                                        "failure": "hold_not_acquired", "contact_model": contact_model,
+                                        "grasp": grasp, "preparation": self.preparation})
+            if goal is not None:
+                goal = goal if isinstance(goal, TaskGoal) else TaskGoal(**goal)
+                self.task = TaskMonitor(goal, self.static_arrays(), self.state)
+                goal = self.task.goal.to_dict()
             self.context = manifest(self.native, self.settings, asdict(scene_config), self.config.bounds)
             self.context.update(episode_id=self.episode_id, seed=int(seed), goal=goal,
+                                physical_defaults_changed=(contact_model != scene.contact_model or
+                                    self.settings.dt != base_dt or self.settings.substeps != scissors_settings().substeps
+                                    or scene_config.spacing_scale != 1),
+                                sensitivity_overrides_are_not_default_replacements=True,
                                 cutting_enabled=self.config.cutting_enabled,
                                 diagnostic_continue=self.config.diagnostic_continue,
                                 full_surface_checks=self.config.full_surface_checks,
@@ -210,12 +259,15 @@ class NativeEnvironment:
                     "t_sim_s": self.step_id*self.settings.dt, "dt_s": self.settings.dt,
                     "native_tick": self.native.tick, "gravity_fraction": min(1, self.native.tick*self.settings.dt/.5),
                     "topology_revision": int(self._topology_revision), "tools": tools, "quality": quality}
-        return State(metadata, arrays, self._topology)
+        state = State(metadata, arrays, self._topology)
+        metadata['grasp'] = self.grasp.assess(state)
+        return state
 
     def step(self, action):
         if self.done or self.native is None:
             raise RuntimeError("Call reset before step, and after every terminal result")
         limited, record = self.config.bounds.process(action, self.previous_action, self.settings.dt)
+        record['previous_target_si'] = self.previous_action.tolist()
         command = action_to_command(limited, cutting_enabled=self.config.cutting_enabled)
         result = self._advance(command, record)
         self.previous_action = limited.copy()
@@ -258,6 +310,8 @@ class NativeEnvironment:
             timings.update(quality_timings)
             snapshot_start = time.perf_counter()
             next_state = self._snapshot(previous, quality)
+            if quality['metrics']['new_cut_edges']:
+                next_state.metadata['cut_origin_bracket'] = cut_origin_bracket(before,next_state,self.grid.inside)
         except (RuntimeError, OSError, ValueError) as error:
             # A completed physics step with a failed observation is not an accepted s(t+1).
             self.done = True
@@ -272,9 +326,17 @@ class NativeEnvironment:
         reason = ("numerical_failure" if not quality["checked_metrics_passed"] else "outside_local_scope") if terminated else None
         if truncated:
             reason = "time_limit"
+        task = None
+        if self.task is not None:
+            task = self.task.evaluate(before, self.state, action_record, self.config.bounds)
+            if not invalid and (task['success'] or task['failure'] is not None):
+                terminated, truncated = True, False
+                reason = 'task_success' if task['success'] else 'task_failure:'+task['failure']
         self.done = terminated or truncated
         timings["total"] = (time.perf_counter()-started)*1000
-        return StepResult(before, self.state, action_record, terminated, truncated, reason, timings)
+        bootstrap = not invalid and not terminated
+        return StepResult(before, self.state, action_record, terminated, truncated, reason, timings,
+                          task=task, bootstrap_allowed=bootstrap)
 
     def static_arrays(self):
         if self.native is None:

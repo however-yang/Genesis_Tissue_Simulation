@@ -1,0 +1,81 @@
+[
+  {
+    "name": "final-positive-hold",
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "-m",
+      "endoscopic_tissue.training.experiment",
+      "--spec",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\positive-hold-control.json",
+      "--output",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-positive\\positive-hold-control"
+    ],
+    "exit_code": 0,
+    "wall_s": 42.79599999997299
+  },
+  {
+    "name": "cpu-final",
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\run_cpu_checks.py",
+      "endoscopic_tissue.test_core",
+      "endoscopic_tissue.training.test_contract",
+      "endoscopic_tissue.training.test_tasks",
+      "endoscopic_tissue.training.test_splits"
+    ],
+    "exit_code": 0,
+    "wall_s": 15.64100000000326
+  },
+  {
+    "name": "batch-metadata-audit",
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\audit_training_batch.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen",
+      "--output",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\batch-metadata-audit.json"
+    ],
+    "exit_code": 0,
+    "wall_s": 27.59299999999348
+  },
+  {
+    "name": "physical-split-index",
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "-m",
+      "endoscopic_tissue.training.splits",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\friction-pilot\\results.json",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\frozen-evaluation\\results.json",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\policy-pilot\\results.json",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\sensitivity-screen\\results.json",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-v1\\vision-pilot\\results.json",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-screen\\hundred-screen\\results.json",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-completion-20261101\\final-positive\\positive-hold-control\\results.json",
+      "--evaluation-scope",
+      "repeatability",
+      "--output",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\physical-split-index.json"
+    ],
+    "exit_code": 0,
+    "wall_s": 7.48399999999674
+  },
+  {
+    "name": "evidence-summary",
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\summarize_evidence.py"
+    ],
+    "exit_code": 0,
+    "wall_s": 20.54700000002049
+  }
+]
