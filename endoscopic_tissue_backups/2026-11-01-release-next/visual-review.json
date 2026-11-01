@@ -1,0 +1,33 @@
+{
+  "scope": "R24/R25 complete videos were encoded and decoded. Visual inspection covered eight full-trajectory storyboards at 15-step spacing and every one of the 77 free-release frames. This is not a claim that every held-phase frame was visually inspected.",
+  "reference": "endoscopic_tissue/outputs/interaction-fixes-20261031/release-baseline/review/interactions-h264.mp4",
+  "cases": [
+    {
+      "revision": "r24",
+      "video": "endoscopic_tissue/outputs/release-next-20261101/r24-kidney/review/interactions-h264.mp4",
+      "storyboards_viewed": 8,
+      "free_release_frames_viewed": 77,
+      "observations": [
+        "Local grasp indentation, traction of the pedicle, first partial cut and separation on the second cut remain visible.",
+        "No baseline-like pointed collapse during free release in the reviewed frames.",
+        "Repeated small bounces after contact, followed by sliding toward the back; the piece is still partly visible at step 1320."
+      ],
+      "limitation": "Surface grouping was incorrectly used as true-cut contact identity; R24 is diagnostic only.",
+      "realism_certified": false
+    },
+    {
+      "revision": "r25",
+      "video": "endoscopic_tissue/outputs/release-next-20261101/r25-kidney/review/interactions-h264.mp4",
+      "storyboards_viewed": 8,
+      "free_release_frames_viewed": 77,
+      "observations": [
+        "The initial grasp, traction and blade compression are similar in gross shape to the retained baseline and R24.",
+        "The second snip separates the tissue; the held piece relaxes after separation. No straight-line wound construction was added.",
+        "Free release reaches the organ surface without the baseline-like pointed collapse. Repeated small bounces and subsequent backward sliding remain visible; the piece is still partly visible at step 1320."
+      ],
+      "limitation": "This fixture uses inherited assisted contact model 2 before release. It does not validate pure-friction grasping or clinical realism.",
+      "realism_certified": false
+    }
+  ],
+  "default_replaced": false
+}
