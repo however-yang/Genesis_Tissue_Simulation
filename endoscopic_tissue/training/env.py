@@ -15,6 +15,8 @@ from .quality import QualityLimits, QualityMonitor
 from .grasp import GraspMonitor
 from .tasks import TaskGoal, TaskMonitor
 from .cutting import cut_origin_bracket
+from .physics import PhysicsOverrides, resolve_physics
+from .native import TrainingNativeTissue
 
 
 @dataclass(frozen=True)
@@ -25,8 +27,11 @@ class SceneConfig:
     dt_s: float | None = None
     substeps: int | None = None
     spacing_scale: float = 1.
+    physics: PhysicsOverrides | None = None
 
     def __post_init__(self):
+        if self.physics is not None and not isinstance(self.physics, PhysicsOverrides):
+            raise TypeError("physics must be PhysicsOverrides or None")
         if self.scene not in SCISSORS_SCENES or self.preparation not in ("settled", "held", "cut_ready"):
             raise ValueError("Unknown scene or preparation")
         if self.scene == "wall" and self.preparation == "cut_ready":
@@ -122,6 +127,7 @@ class NativeEnvironment:
         self.settings = replace(self.settings,
                                 dt=scene_config.dt_s if scene_config.dt_s is not None else self.settings.dt,
                                 substeps=scene_config.substeps if scene_config.substeps is not None else self.settings.substeps)
+        self.settings, self.native_parameters = resolve_physics(self.settings, scene_config.physics)
         if scene_config.spacing_scale == 1:
             self.grid = scene.build_grid(self.settings.density_kg_m3)
         else:
@@ -141,7 +147,11 @@ class NativeEnvironment:
         self.last_reset_failure_arrays = None
         stop_stage = {"settled": "settle", "held": "lift", "cut_ready": "blade_approach"}[scene_config.preparation]
         try:
-            self.native = NativeTissue(self.grid, self.settings, dll, scene.stages[0].command)
+            if scene_config.physics is None:
+                self.native = NativeTissue(self.grid, self.settings, dll, scene.stages[0].command)
+            else:
+                self.native = TrainingNativeTissue(self.grid, self.settings, dll, scene.stages[0].command,
+                                                  native_parameters=self.native_parameters)
             self.observed = self.native.observe()
             previous = None
             requested = scene.stages[0].command
@@ -188,11 +198,9 @@ class NativeEnvironment:
                 goal = goal if isinstance(goal, TaskGoal) else TaskGoal(**goal)
                 self.task = TaskMonitor(goal, self.static_arrays(), self.state)
                 goal = self.task.goal.to_dict()
-            self.context = manifest(self.native, self.settings, asdict(scene_config), self.config.bounds)
+            self.context = manifest(self.native, self.settings, asdict(scene_config), self.config.bounds,
+                                    self.native_parameters)
             self.context.update(episode_id=self.episode_id, seed=int(seed), goal=goal,
-                                physical_defaults_changed=(contact_model != scene.contact_model or
-                                    self.settings.dt != base_dt or self.settings.substeps != scissors_settings().substeps
-                                    or scene_config.spacing_scale != 1),
                                 sensitivity_overrides_are_not_default_replacements=True,
                                 cutting_enabled=self.config.cutting_enabled,
                                 diagnostic_continue=self.config.diagnostic_continue,

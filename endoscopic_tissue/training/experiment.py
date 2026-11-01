@@ -24,6 +24,7 @@ from .env import EnvironmentConfig, NativeEnvironment, SceneConfig
 from .policies import Policy, observation
 from .provenance import json_hash, sha256
 from .tasks import recompute_episode
+from .physics import PhysicsOverrides
 
 
 def group_key(case):
@@ -33,8 +34,10 @@ def group_key(case):
 
 
 def scene_configuration(case):
+    physics = case.get('physics')
     return SceneConfig(case.get('scene','wall-traction'),case.get('preparation','cut_ready'),
-                       case.get('contact_model'),case.get('dt_s'),case.get('substeps'),case.get('spacing_scale',1.))
+                       case.get('contact_model'),case.get('dt_s'),case.get('substeps'),case.get('spacing_scale',1.),
+                       PhysicsOverrides(**physics) if physics is not None else None)
 
 
 def validate_spec(spec):

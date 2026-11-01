@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 
 from .. import native_backend as abi
+from .physics import canonical_settings, native_defaults, physical_differences
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -30,7 +31,7 @@ def pinned_dll(path, expected_sha256):
     return path
 
 
-def manifest(native, settings, scene_config, bounds):
+def manifest(native, settings, scene_config, bounds, native_parameters=None):
     package = ROOT / "endoscopic_tissue"
     sources = [package / p for p in ("native_backend.py", "scenario.py", "grid.py", "kidney.py",
                                      "instrument_geometry.py", "surface_diagnostics.py")]
@@ -47,6 +48,10 @@ def manifest(native, settings, scene_config, bounds):
                                      ("LCS_PressureBladeAbiVersion", abi.Blade),
                                      ("LCS_ScissorsAbiVersion", abi.ScissorsControl),
                                      ("LCS_ScissorsResultAbiVersion", abi.ScissorsResult))}
+    native_parameters = dict(native_parameters or native_defaults())
+    differences = physical_differences(settings, scene_config, native_parameters)
+    physics_configuration = {"settings": asdict(settings), "native_parameters": native_parameters,
+                             "scene_config": scene_config}
     return {"schema": "native_training_transition_v1", "git_commit": commit,
             "dll_path": str(native.dll_path.resolve()), "dll_sha256": sha256(native.dll_path),
             "binary_source_binding": "unverified_prebuilt_binary_kept_as_independent_baseline",
@@ -58,4 +63,8 @@ def manifest(native, settings, scene_config, bounds):
             "observation_completeness": "partial; internal velocity and contact/fracture history not fully exported",
             "velocity_source": "finite_difference_of_accepted_positions_not_internal_solver_velocity",
             "domain_validation": "unvalidated; interface checks do not approve a physics training domain",
-            "physical_defaults_changed": False}
+            "native_physics_parameters": native_parameters,
+            "canonical_settings": canonical_settings(scene_config['scene']),
+            "overridden_fields": differences,
+            "physics_config_sha256": json_hash(physics_configuration),
+            "physical_defaults_changed": bool(differences)}
