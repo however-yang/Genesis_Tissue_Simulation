@@ -1,5 +1,6 @@
 """Optional synchronous vision; no Genesis import on the headless training path."""
 import time
+import weakref
 
 import cv2
 import numpy as np
@@ -28,7 +29,7 @@ class SynchronizedVision:
         self.every = int(config.get('every_steps',1))
         if width < 64 or height < 64 or self.every < 1:
             raise ValueError('Invalid image dimensions or sampling period')
-        scene = SCISSORS_SCENES[env.scene_config.scene]
+        scene = getattr(env,'scene',SCISSORS_SCENES[env.scene_config.scene])
         self.view = EndoscopicView(env.settings,width,height,supersample=1,kidney=scene.shape,camera=scene.shot)
         camera = self.view.camera
         # Coordinates of each final image pixel in the upright pinhole image.
@@ -51,6 +52,8 @@ class SynchronizedVision:
                          'drop_policy':'no silent drops; capture error terminates observation',
                          'source_sha256':{p:sha256(ROOT/p) for p in
                              ('endoscopic_tissue/rendering.py','genesis/vis/camera.py')}}
+        self._environment = weakref.ref(env)
+        env._snapshot_vision = self
 
     def capture(self, env, state):
         step = state.metadata['step_id']
@@ -82,3 +85,6 @@ class SynchronizedVision:
 
     def close(self):
         self.view.close()
+        env = self._environment()
+        if env is not None and getattr(env, '_snapshot_vision', None) is self:
+            env._snapshot_vision = None

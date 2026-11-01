@@ -98,4 +98,6 @@ def physical_differences(settings, scene_config, native_parameters=None):
             changes[f"native.{key}"] = {"canonical": default, "actual": native[key]}
     if scene_config.get("spacing_scale", 1.) != 1.:
         changes["scene.spacing_scale"] = {"canonical": 1., "actual": scene_config["spacing_scale"]}
+    if scene_config.get('geometry') is not None:
+        changes['scene.geometry'] = {'canonical':None, 'actual':scene_config['geometry']}
     return changes

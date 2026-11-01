@@ -246,7 +246,11 @@ def recompute_episode(reader):
         metadata, arrays, topology = reader.state(i)
         return State(metadata, arrays, {**topology, 'revision': metadata['topology_revision']})
     before = get_state(0)
-    monitor = TaskMonitor(goal, static, before)
+    if reader.context.get('task_snapshot_initial') is not None:
+        from .snapshot import decode_task_history
+        monitor = decode_task_history(reader.context['task_snapshot_initial'],static,before,goal)
+    else:
+        monitor = TaskMonitor(goal, static, before)
     bounds = ActionBounds(**reader.context['action_bounds'])
     rows = []
     for record in reader.transitions:

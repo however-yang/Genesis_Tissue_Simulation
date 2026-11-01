@@ -12,12 +12,13 @@ from .actions import ActionBounds, command_to_action
 from .data import EpisodeReader, EpisodeWriter, atomic_json, save_arrays
 from .env import EnvironmentConfig, NativeEnvironment, SceneConfig
 from .provenance import json_hash
+from .geometry import scene_for_config
 
 
 def local_bounds(scene_config):
     """Small screening box around the scripted prepared target, not a certified domain."""
     end = {"settled": "settle", "held": "lift", "cut_ready": "blade_approach"}[scene_config.preparation]
-    command = next(s.command for s in SCISSORS_SCENES[scene_config.scene].stages if s.name == end)
+    command = next(s.command for s in scene_for_config(scene_config).stages if s.name == end)
     center = command_to_action(command)
     span = np.array([.0005]*3 + [0] + [.0005]*3 + [np.radians(2)]*3 + [0])
     lo, hi = center-span, center+span

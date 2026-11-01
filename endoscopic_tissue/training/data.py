@@ -11,6 +11,7 @@ import numpy as np
 import zstandard
 
 from .provenance import json_hash, sha256
+from .lineage import episode_lineage
 
 
 def atomic_json(path, value):
@@ -51,6 +52,7 @@ def owned_state(state, include_topology=True):
 class EpisodeWriter:
     """An episode directory is never reused. Backpressure is measured, never dropped."""
     def __init__(self, directory, context, initial_state, static_arrays, preparation=(), queue_size=4):
+        episode_lineage(context)
         if queue_size < 1:
             raise ValueError("queue_size must be positive")
         if initial_state.metadata["step_id"] != 0 or initial_state.metadata["episode_id"] != context["episode_id"]:
@@ -221,6 +223,7 @@ class EpisodeReader:
         self.directory = Path(directory)
         self.manifest = json.loads((self.directory / "manifest.json").read_text(encoding="utf-8"))
         self.context = json.loads((self.directory / "context.json").read_text(encoding="utf-8"))
+        self.lineage = episode_lineage(self.context)
         if self.manifest["status"] != "closed":
             raise ValueError("Incomplete or failed recording cannot supply training windows")
         expected = self.context["context_sha256"]

@@ -25,6 +25,7 @@ from .policies import Policy, observation
 from .provenance import json_hash, sha256
 from .tasks import recompute_episode
 from .physics import PhysicsOverrides
+from .geometry import WallGeometry
 
 
 def group_key(case):
@@ -35,9 +36,11 @@ def group_key(case):
 
 def scene_configuration(case):
     physics = case.get('physics')
+    geometry = case.get('geometry')
     return SceneConfig(case.get('scene','wall-traction'),case.get('preparation','cut_ready'),
                        case.get('contact_model'),case.get('dt_s'),case.get('substeps'),case.get('spacing_scale',1.),
-                       PhysicsOverrides(**physics) if physics is not None else None)
+                       PhysicsOverrides(**physics) if physics is not None else None,
+                       WallGeometry(**geometry) if geometry is not None else None)
 
 
 def validate_spec(spec):
@@ -83,7 +86,7 @@ def run_episode(spec, case, directory):
     bounds = ActionBounds(**case['bounds']) if 'bounds' in case else local_bounds(scene)
     config = EnvironmentConfig(spec['dll'], spec['dll_sha256'], bounds, scene,
                                cutting_enabled=bool(case.get('cutting_enabled', False)),
-                               max_steps=int(case.get('steps', 120)))
+                               max_steps=int(case.get('steps', 120)),failure_telemetry=case.get('failure_telemetry',False))
     record = {'id': case['id'], 'seed': int(case['seed']), 'group': group_key(case),
               'status': 'initializing', 'training_domain_approved': False, 'config': asdict(config)}
     record['split'] = 'evaluation' if spec['purpose'] == 'evaluation' else ('validation' if int(record['group'][:8],16)%5==0 else 'train')

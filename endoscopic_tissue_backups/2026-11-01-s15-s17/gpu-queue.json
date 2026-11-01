@@ -1,0 +1,126 @@
+{
+  "closed": false,
+  "jobs": [
+    {
+      "name": "snapshot-settle-r1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_native_snapshot.py",
+        "--name",
+        "settle-r1",
+        "--stage",
+        "settle"
+      ]
+    },
+    {
+      "name": "damage-observe-lift-r1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "observe-lift-r1",
+        "--telemetry",
+        "--stop-after",
+        "lift"
+      ]
+    },
+    {
+      "name": "timing-a1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-a1",
+        "--variant",
+        "original",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "timing-b1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-b1",
+        "--variant",
+        "new",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "timing-b2",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-b2",
+        "--variant",
+        "new",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "timing-a2",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-a2",
+        "--variant",
+        "original",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "video-wall-a",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-a",
+        "--variant",
+        "original",
+        "--scene",
+        "wall-traction",
+        "--capture"
+      ]
+    },
+    {
+      "name": "video-wall-b",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-b",
+        "--variant",
+        "new",
+        "--scene",
+        "wall-traction",
+        "--capture"
+      ]
+    },
+    {
+      "name": "video-wall-postcut-a",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-postcut-a",
+        "--variant",
+        "original",
+        "--scene",
+        "wall",
+        "--capture"
+      ]
+    },
+    {
+      "name": "video-wall-postcut-b",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-postcut-b",
+        "--variant",
+        "new",
+        "--scene",
+        "wall",
+        "--capture"
+      ]
+    }
+  ]
+}

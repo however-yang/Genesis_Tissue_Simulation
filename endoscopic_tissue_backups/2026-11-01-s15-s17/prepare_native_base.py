@@ -29,7 +29,11 @@ for old, relative in {
     'group_pressure_blade.cuh': 'vendor/cuda/cutting/pressure_blade.cuh',
     'contact_groups.cuh': 'vendor/cuda/contact/contact_groups.cuh',
 }.items():
-    data = (OLD/old).read_bytes()
+    frozen = HERE/'native-reference'/old
+    data = (frozen if frozen.exists() else OLD/old).read_bytes()
+    if frozen.exists():
+        entry = next(x for x in json.loads((HERE/'native-reference/manifest.json').read_text(encoding='utf8')) if x['name']==old)
+        assert hashlib.sha256(data).hexdigest()==entry['sha256'],'Frozen reference source changed'
     if old == 'group_xpbd_solver.cu':
         before = b'../../../../../endoscopic_tissue_backups/2026-10-31-material-contact-next/contact_groups.cuh'
         assert data.count(before) == 1

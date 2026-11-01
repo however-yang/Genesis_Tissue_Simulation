@@ -13,6 +13,9 @@ TEMP = OUT/'cpu-temp'
 TEMP.mkdir(exist_ok=True)
 tempfile.tempdir = str(TEMP)
 names = sys.argv[1:] or ['endoscopic_tissue.training.test_physics',
+                        'endoscopic_tissue.training.test_damage',
+                        'endoscopic_tissue.training.test_snapshot',
+                        'endoscopic_tissue.training.test_geometry',
                         'endoscopic_tissue.training.test_contract',
                         'endoscopic_tissue.training.test_tasks',
                         'endoscopic_tissue.training.test_splits']

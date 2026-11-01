@@ -44,12 +44,13 @@ def wait_idle():
         time.sleep(15)
 
 
-def load_original():
-    path = HERE/'baseline-env.py'
+def load_entry(variant):
+    commit = 'b3d301cf4c85774d214669ecebbab98b56325419' if variant=='original' else '1d3e518'
+    path = HERE/('baseline-env.py' if variant=='original' else 's17-checkpoint-env.py')
     if not path.exists():
         path.write_bytes(subprocess.check_output(['git', 'show',
-            'b3d301cf4c85774d214669ecebbab98b56325419:endoscopic_tissue/training/env.py'], cwd=ROOT))
-    name = 'endoscopic_tissue.training._s17_original_env'
+            commit+':endoscopic_tissue/training/env.py'], cwd=ROOT))
+    name = 'endoscopic_tissue.training._s17_'+variant+'_env'
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
@@ -66,7 +67,7 @@ def stats(values):
 def worker(name, variant, scene_name, capture):
     directory = OUT/name
     directory.mkdir(parents=True, exist_ok=False)
-    module = load_original() if variant == 'original' else current
+    module = load_entry(variant)
     scene = SCISSORS_SCENES[scene_name]
     trajectory, stages, timings = [], [], []
     active_stage = {'name': scene.stages[0].name}
@@ -95,7 +96,9 @@ def worker(name, variant, scene_name, capture):
         module.NativeTissue = Recorder
     scene_config = module.SceneConfig(scene_name, 'settled')
     center = command_to_action(scene.stages[0].command)
-    bounds = ActionBounds(tuple(center-np.array([.2]*11)), tuple(center+np.array([.2]*11)), (10.,)*11)
+    lower, upper = center-.2, center+.2
+    lower[[3,10]], upper[[3,10]] = 0., 1.
+    bounds = ActionBounds(tuple(lower), tuple(upper), (10.,)*11)
     cfg = module.EnvironmentConfig(str(DLL),SHA,bounds,scene_config,cutting_enabled=True,
                                     max_steps=sum(s.steps for s in scene.stages),diagnostic_continue=True)
     started = time.perf_counter()
@@ -124,6 +127,8 @@ def worker(name, variant, scene_name, capture):
         atomic_json(directory/'preparation.json', env.preparation)
         result = {'name':name,'variant':variant,'scene':scene_name,'capture':capture,
                   'baseline_commit':'b3d301cf4c85774d214669ecebbab98b56325419',
+                  'entry_source_sha256':sha256(Path(module.__file__)),
+                  'candidate_entry_commit':'1d3e518',
                   'default_dll_sha256':sha256(DLL),'context_hash':context['context_sha256'],
                   'expected_total_steps':sum(s.steps for s in scene.stages),'total_steps':env.native.tick,
                   'episode_transitions':len(rows),'complete':env.native.tick==sum(s.steps for s in scene.stages),
@@ -156,7 +161,7 @@ def main():
     jobs=[('timing-a1','original','wall-traction',False),('timing-b1','new','wall-traction',False),
           ('timing-b2','new','wall-traction',False),('timing-a2','original','wall-traction',False),
           ('video-wall-a','original','wall-traction',True),('video-wall-b','new','wall-traction',True),
-          ('video-friction-a','original','wall',True),('video-friction-b','new','wall',True)]
+          ('video-wall-postcut-a','original','wall',True),('video-wall-postcut-b','new','wall',True)]
     records=[]
     for name,variant,scene,capture in jobs:
         wait_idle()

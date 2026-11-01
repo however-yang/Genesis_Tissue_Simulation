@@ -1,0 +1,3845 @@
+{
+  "schema": "native_state_catalog_v1",
+  "review_complete": false,
+  "note": "Host classifications generated/reviewed; GPU layout audit and runtime T1-T8 pending",
+  "fields": [
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 29,
+      "name": "d_cornerPos",
+      "declaration": "static float3*       d_cornerPos        = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 30,
+      "name": "d_voxelCorner",
+      "declaration": "static int*          d_voxelCorner      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 31,
+      "name": "d_voxelIsectOffset",
+      "declaration": "static int*          d_voxelIsectOffset = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 32,
+      "name": "d_voxelIsectCount",
+      "declaration": "static int*          d_voxelIsectCount  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 33,
+      "name": "d_isect",
+      "declaration": "static IsectGpu*     d_isect            = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 34,
+      "name": "d_surfaceEdgeT",
+      "declaration": "static float*        d_surfaceEdgeT     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 35,
+      "name": "d_surfaceEdges",
+      "declaration": "static GridEdgeGpu*  d_surfaceEdges     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 36,
+      "name": "d_isectWorld",
+      "declaration": "static float3*       d_isectWorld       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 37,
+      "name": "d_voxelExternalFP",
+      "declaration": "static float4*       d_voxelExternalFP  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 38,
+      "name": "d_tri",
+      "declaration": "static int*          d_tri              = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 39,
+      "name": "d_triCounter",
+      "declaration": "static unsigned int* d_triCounter       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 40,
+      "name": "d_extNormalFixed",
+      "declaration": "static int*          d_extNormalFixed   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 41,
+      "name": "d_extNormalF",
+      "declaration": "static float3*       d_extNormalF       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 43,
+      "name": "d_expandPos",
+      "declaration": "static float3*       d_expandPos        = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 44,
+      "name": "d_expandNrm",
+      "declaration": "static float3*       d_expandNrm        = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 51,
+      "name": "d_voxelExternalFPRest",
+      "declaration": "static float4*       d_voxelExternalFPRest = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 52,
+      "name": "d_cornerPosRest",
+      "declaration": "static float3*       d_cornerPosRest       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 53,
+      "name": "d_expandAux",
+      "declaration": "static float4*       d_expandAux           = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 57,
+      "name": "d_cut_voxelCutMask",
+      "declaration": "static unsigned int* d_cut_voxelCutMask = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 58,
+      "name": "d_cut_voxelOccupied",
+      "declaration": "static unsigned int* d_cut_voxelOccupied= nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 59,
+      "name": "d_cut_conn4096",
+      "declaration": "static Conn4096Gpu*  d_cut_conn4096     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 60,
+      "name": "d_cut_cutFP",
+      "declaration": "static float4*       d_cut_cutFP        = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 61,
+      "name": "d_cut_cutFPNormalF",
+      "declaration": "static float3*       d_cut_cutFPNormalF = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 62,
+      "name": "d_cut_cutFPNormal",
+      "declaration": "static int*          d_cut_cutFPNormal  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 63,
+      "name": "g_cutActive",
+      "declaration": "static int           g_cutActive        = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 65,
+      "name": "g_desc",
+      "declaration": "static ReconInitDesc g_desc = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 66,
+      "name": "g_dims",
+      "declaration": "static int3          g_dims = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 67,
+      "name": "g_ready",
+      "declaration": "static bool          g_ready = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 68,
+      "name": "g_haveRestSurface",
+      "declaration": "static bool          g_haveRestSurface = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "line": 74,
+      "name": "STENCIL_OFF",
+      "declaration": "__device__ const int3 STENCIL_OFF[12] =\n{\n    // axis 0 = x\n    { 0, 0, 0}, { 0,-1, 0}, { 0,-1,-1}, { 0, 0,-1},\n    // axis 1 = y\n    { 0, 0, 0}, { 0, 0,-1}, {-1, 0,-1}, {-1, 0, 0},\n    // axis 2 = z\n    { 0, 0, 0}, {-1, 0, 0}, {-1,-1, 0}, { 0,-1, 0},\n};",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "line": 5,
+      "declaration": "__device__ void operator=(float4 a){x=a.x;",
+      "category": "immutable_or_function",
+      "reason": "local constexpr tet table or operator method; pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "line": 10,
+      "name": "d_render",
+      "declaration": "static RenderVertex* d_render=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "line": 11,
+      "name": "d_renderNormal",
+      "declaration": "static float3 *d_renderNormal=nullptr,*d_renderTangent=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "line": 11,
+      "name": "d_renderTangent",
+      "declaration": "static float3 *d_renderNormal=nullptr,*d_renderTangent=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "line": 12,
+      "name": "d_renderBounds",
+      "declaration": "static float* d_renderBounds=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "line": 13,
+      "name": "d_renderCounts",
+      "declaration": "static int* d_renderCounts=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "line": 14,
+      "name": "g_renderCapacity",
+      "declaration": "static int g_renderCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/surface_cleanup.cuh",
+      "line": 3,
+      "name": "d_faceTable",
+      "declaration": "static int4* d_faceTable=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/surface_cleanup.cuh",
+      "line": 4,
+      "name": "d_cleanTriangles",
+      "declaration": "static int* d_cleanTriangles=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/surface_cleanup.cuh",
+      "line": 5,
+      "name": "g_faceCapacity",
+      "declaration": "static int g_faceCapacity=0,g_cleanCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/surface_cleanup.cuh",
+      "line": 5,
+      "name": "g_cleanCapacity",
+      "declaration": "static int g_faceCapacity=0,g_cleanCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 67,
+      "name": "d_vel",
+      "declaration": "static float3*       d_vel         = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 68,
+      "name": "d_mass",
+      "declaration": "static float*        d_mass        = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 69,
+      "name": "d_pinned",
+      "declaration": "static int*          d_pinned      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 70,
+      "name": "d_active",
+      "declaration": "static int*          d_active      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 71,
+      "name": "d_extForce",
+      "declaration": "static float3*       d_extForce    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 72,
+      "name": "d_hapticForce",
+      "declaration": "static float3*       d_hapticForce = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 73,
+      "name": "d_nbrIdx",
+      "declaration": "static int*          d_nbrIdx      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 74,
+      "name": "d_restNbr",
+      "declaration": "static float3*       d_restNbr     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 75,
+      "name": "d_bendPairs",
+      "declaration": "static BendPairGpu*  d_bendPairs   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 76,
+      "name": "d_particleRot",
+      "declaration": "static RotGpu*       d_particleRot = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 77,
+      "name": "d_particleRotPrev",
+      "declaration": "static RotGpu*       d_particleRotPrev = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 79,
+      "name": "g_pdesc",
+      "declaration": "static PhysicsInitDesc g_pdesc = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 80,
+      "name": "g_phys_ready",
+      "declaration": "static bool            g_phys_ready = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/physics.cu",
+      "line": 81,
+      "name": "g_graspNExempt",
+      "declaration": "static int             g_graspNExempt = 1;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 44,
+      "name": "d_gridEdges",
+      "declaration": "static GridEdgeGpu2*  d_gridEdges      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 45,
+      "name": "d_prevCorner",
+      "declaration": "static float3*        d_prevCorner     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 46,
+      "name": "d_conn4096",
+      "declaration": "static Conn4096Gpu*   d_conn4096       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 47,
+      "name": "d_voxelOccupied",
+      "declaration": "static unsigned int*  d_voxelOccupied  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 48,
+      "name": "d_voxelCutMask",
+      "declaration": "static unsigned int*  d_voxelCutMask   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 49,
+      "name": "d_cutPoint",
+      "declaration": "static CutPointGpu*   d_cutPoint       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 50,
+      "name": "d_cutPointCounter",
+      "declaration": "static unsigned int*  d_cutPointCounter= nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 51,
+      "name": "d_topologyRevision",
+      "declaration": "static unsigned int*  d_topologyRevision=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 52,
+      "name": "d_cutFP",
+      "declaration": "static float4*        d_cutFP          = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 53,
+      "name": "d_edgeCutT",
+      "declaration": "static float*         d_edgeCutT       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 54,
+      "name": "edgeCutTDevice",
+      "declaration": "__device__ float*     edgeCutTDevice   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 55,
+      "name": "edgeSkinTDevice",
+      "declaration": "__device__ const float* edgeSkinTDevice = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 56,
+      "name": "edgeInsideDevice",
+      "declaration": "__device__ const int* edgeInsideDevice = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 57,
+      "name": "materialRestDevice",
+      "declaration": "__device__ const float3* materialRestDevice = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 59,
+      "name": "d_cornerInside",
+      "declaration": "static int*           d_cornerInside   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 60,
+      "name": "d_cutFPAccumPos",
+      "declaration": "static float*         d_cutFPAccumPos  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 61,
+      "name": "d_cutFPAccumCnt",
+      "declaration": "static int*           d_cutFPAccumCnt  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 62,
+      "name": "d_voxelFPCount",
+      "declaration": "static unsigned int*  d_voxelFPCount   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 63,
+      "name": "d_cutFPNormal",
+      "declaration": "static int*           d_cutFPNormal    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 64,
+      "name": "d_cutFPNormalF",
+      "declaration": "static float3*        d_cutFPNormalF   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 66,
+      "name": "d_cutNrmAccum",
+      "declaration": "static int*           d_cutNrmAccum    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 67,
+      "name": "d_dbg",
+      "declaration": "static unsigned int*  d_dbg            = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 68,
+      "name": "d_graspRing",
+      "declaration": "static int*           d_graspRing      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 73,
+      "name": "d_graspRingTmp",
+      "declaration": "static int*           d_graspRingTmp   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 74,
+      "name": "d_nbrIdxAtInit",
+      "declaration": "static int*           d_nbrIdxAtInit   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 78,
+      "name": "d_edgeWasExempt",
+      "declaration": "static int*           d_edgeWasExempt  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 81,
+      "name": "d_edgeDecayTicks",
+      "declaration": "static int*           d_edgeDecayTicks = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 83,
+      "name": "TEAR_DECAY_TIMEOUT_TICKS",
+      "declaration": "static const int      TEAR_DECAY_TIMEOUT_TICKS = 2000;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 92,
+      "name": "c_cornerPos",
+      "declaration": "static float3*       c_cornerPos       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 93,
+      "name": "c_cornerRest",
+      "declaration": "static const float3* c_cornerRest      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 94,
+      "name": "c_isect",
+      "declaration": "static IsectGpu*     c_isect           = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 95,
+      "name": "c_isectWorld",
+      "declaration": "static float3*       c_isectWorld      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 96,
+      "name": "c_voxelIsectOffset",
+      "declaration": "static int*          c_voxelIsectOffset= nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 97,
+      "name": "c_voxelIsectCount",
+      "declaration": "static int*          c_voxelIsectCount = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 98,
+      "name": "c_voxelCorner",
+      "declaration": "static int*          c_voxelCorner     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 99,
+      "name": "c_tri",
+      "declaration": "static int*          c_tri             = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 100,
+      "name": "c_triCounter",
+      "declaration": "static unsigned int* c_triCounter      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 101,
+      "name": "c_particleRot",
+      "declaration": "static RotGpu*       c_particleRot     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 102,
+      "name": "c_nbrIdx",
+      "declaration": "static int*          c_nbrIdx          = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 103,
+      "name": "c_bendPairs",
+      "declaration": "static BendPairGpuC* c_bendPairs       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 104,
+      "name": "c_active",
+      "declaration": "static int*          c_active          = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 106,
+      "name": "g_cdesc",
+      "declaration": "static CutInitDesc g_cdesc = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 107,
+      "name": "g_cdims",
+      "declaration": "static int3        g_cdims = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 108,
+      "name": "g_tool",
+      "declaration": "static CutToolDesc g_tool  = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 111,
+      "name": "g_pressureCut",
+      "declaration": "static int g_pressureCut=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 112,
+      "name": "d_pendingCrossings",
+      "declaration": "static float4* d_pendingCrossings=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 114,
+      "name": "d_materialPieces",
+      "declaration": "static int* d_materialPieces=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 115,
+      "name": "d_shellOwner",
+      "declaration": "static unsigned long long* d_shellOwner=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 120,
+      "name": "d_entryCorner",
+      "declaration": "static float3* d_entryCorner=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 121,
+      "name": "d_entryRotation",
+      "declaration": "static RotGpu* d_entryRotation=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 122,
+      "name": "d_entryState",
+      "declaration": "static int* d_entryState=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 128,
+      "name": "d_columnLevel",
+      "declaration": "static unsigned* d_columnLevel=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 129,
+      "name": "d_columnAxis",
+      "declaration": "static int* d_columnAxis=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 157,
+      "name": "g_cut_ready",
+      "declaration": "static bool        g_cut_ready = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 165,
+      "name": "g_toolSet",
+      "declaration": "static bool   g_toolSet        = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 166,
+      "name": "g_havePrevCorner",
+      "declaration": "static bool   g_havePrevCorner = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 167,
+      "name": "g_emitNcut",
+      "declaration": "static float3 g_emitNcut  = { 0.f, 1.f, 0.f };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 168,
+      "name": "d_trainingTearCause",
+      "declaration": "static unsigned char* d_trainingTearCause=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 169,
+      "name": "d_trainingGraspNeighborhood",
+      "declaration": "static int* d_trainingGraspNeighborhood=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cut.cu",
+      "line": 170,
+      "name": "g_tearLen2",
+      "declaration": "static float  g_tearLen2  = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 111,
+      "name": "d_triVms",
+      "declaration": "static float4*       d_triVms = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 112,
+      "name": "d_vmsKey",
+      "declaration": "static unsigned int* d_vmsKey = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 113,
+      "name": "d_vmsTri",
+      "declaration": "static int*          d_vmsTri = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 114,
+      "name": "d_contactDisp",
+      "declaration": "static float3*       d_contactDisp = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 116,
+      "name": "d_penCount",
+      "declaration": "static int*          d_penCount = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 117,
+      "name": "d_depthSum",
+      "declaration": "static float*        d_depthSum = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 118,
+      "name": "g_triCap",
+      "declaration": "static int           g_triCap = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 121,
+      "name": "d_toolTri",
+      "declaration": "static float3*       d_toolTri     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 122,
+      "name": "g_toolTriCap",
+      "declaration": "static int           g_toolTriCap  = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 123,
+      "name": "g_toolTriCount",
+      "declaration": "static int           g_toolTriCount = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 124,
+      "name": "g_toolCenter",
+      "declaration": "static float3        g_toolCenter  = { 0, 0, 0 };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 125,
+      "name": "g_toolBoundR",
+      "declaration": "static float         g_toolBoundR  = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 127,
+      "name": "g_hp",
+      "declaration": "static HapticParams  g_hp = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 128,
+      "name": "g_cornerCount",
+      "declaration": "static int           g_cornerCount = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 129,
+      "name": "g_physS",
+      "declaration": "static float3        g_physS, g_physE, g_physPos;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 129,
+      "name": "g_physE",
+      "declaration": "static float3        g_physS, g_physE, g_physPos;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 129,
+      "name": "g_physPos",
+      "declaration": "static float3        g_physS, g_physE, g_physPos;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 130,
+      "name": "g_physQuat",
+      "declaration": "static float4        g_physQuat  = { 0, 0, 0, 1 };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 131,
+      "name": "g_linVel",
+      "declaration": "static float3        g_linVel, g_angVel;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 131,
+      "name": "g_angVel",
+      "declaration": "static float3        g_linVel, g_angVel;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 132,
+      "name": "g_proxyS",
+      "declaration": "static float3        g_proxyS, g_proxyE, g_proxyPos_dev;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 132,
+      "name": "g_proxyE",
+      "declaration": "static float3        g_proxyS, g_proxyE, g_proxyPos_dev;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 132,
+      "name": "g_proxyPos_dev",
+      "declaration": "static float3        g_proxyS, g_proxyE, g_proxyPos_dev;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 133,
+      "name": "g_proxyQuat",
+      "declaration": "static float4        g_proxyQuat = { 0, 0, 0, 1 };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 134,
+      "name": "g_hasProxy",
+      "declaration": "static bool          g_hasProxy = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 135,
+      "name": "g_prevPhysPos",
+      "declaration": "static float3        g_prevPhysPos = { 0, 0, 0 };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 136,
+      "name": "g_havePrev",
+      "declaration": "static bool          g_havePrev = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 139,
+      "name": "g_stickAnchor",
+      "declaration": "static float3        g_stickAnchor = { 0, 0, 0 };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 140,
+      "name": "g_slipping",
+      "declaration": "static bool          g_slipping    = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 141,
+      "name": "g_lastNormal",
+      "declaration": "static float3        g_lastNormal  = { 0, 1, 0 };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 142,
+      "name": "g_graspMu",
+      "declaration": "static float         g_graspMu     = 1.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 143,
+      "name": "g_toolRadius",
+      "declaration": "static float         g_toolRadius = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 144,
+      "name": "g_force",
+      "declaration": "static float3        g_force, g_torque;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 144,
+      "name": "g_torque",
+      "declaration": "static float3        g_force, g_torque;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 145,
+      "name": "g_inContact",
+      "declaration": "static bool          g_inContact = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 146,
+      "name": "g_minTri",
+      "declaration": "static int           g_minTri = -1;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 148,
+      "name": "c_cornerPos",
+      "declaration": "static float3*       c_cornerPos   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 149,
+      "name": "c_hapticForce",
+      "declaration": "static float3*       c_hapticForce = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 150,
+      "name": "c_active",
+      "declaration": "static int*          c_active      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 151,
+      "name": "c_pinned",
+      "declaration": "static int*          c_pinned      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 152,
+      "name": "c_vel",
+      "declaration": "static float3*       c_vel         = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "line": 153,
+      "name": "g_ready",
+      "declaration": "static bool          g_ready = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 14,
+      "name": "g_trainingFlags",
+      "declaration": "static int g_trainingFlags=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 20,
+      "name": "g_profile",
+      "declaration": "static bool g_profile=false;",
+      "category": "recompute",
+      "reason": "profiling events/statistics do not enter physical equations; snapshot rejects active profiling"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 21,
+      "name": "g_profileEvents",
+      "declaration": "static std::vector<cudaEvent_t> g_profileEvents;",
+      "category": "recompute",
+      "reason": "profiling events/statistics do not enter physical equations; snapshot rejects active profiling"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 38,
+      "name": "g_sectionProfile",
+      "declaration": "static bool g_sectionProfile=false;",
+      "category": "recompute",
+      "reason": "profiling events/statistics do not enter physical equations; snapshot rejects active profiling"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 39,
+      "name": "g_sectionMarks",
+      "declaration": "static std::vector<std::pair<const char*,cudaEvent_t>> g_sectionMarks;",
+      "category": "recompute",
+      "reason": "profiling events/statistics do not enter physical equations; snapshot rejects active profiling"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 40,
+      "name": "g_sectionPool",
+      "declaration": "static std::vector<cudaEvent_t> g_sectionPool;",
+      "category": "recompute",
+      "reason": "profiling events/statistics do not enter physical equations; snapshot rejects active profiling"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 41,
+      "name": "g_sectionTotals",
+      "declaration": "static std::vector<std::pair<std::string,double>> g_sectionTotals;",
+      "category": "recompute",
+      "reason": "profiling events/statistics do not enter physical equations; snapshot rejects active profiling"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 82,
+      "name": "d_fragmentVertices",
+      "declaration": "static FragmentVertex* d_fragmentVertices=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 83,
+      "name": "d_fragmentSupported",
+      "declaration": "static int* d_fragmentSupported=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 84,
+      "name": "d_fragmentDegree",
+      "declaration": "static int* d_fragmentDegree=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 85,
+      "name": "d_fragmentLambda",
+      "declaration": "static float* d_fragmentLambda=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 86,
+      "name": "d_fragmentBefore",
+      "declaration": "static float3* d_fragmentBefore=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 87,
+      "name": "d_fragmentStart",
+      "declaration": "static float3* d_fragmentStart=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 88,
+      "name": "d_fragmentQueries",
+      "declaration": "static int *d_fragmentQueries=nullptr,*d_fragmentQueryCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 88,
+      "name": "d_fragmentQueryCount",
+      "declaration": "static int *d_fragmentQueries=nullptr,*d_fragmentQueryCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 89,
+      "name": "g_fragmentCapacity",
+      "declaration": "static int g_fragmentCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 97,
+      "name": "d_cgMatrix",
+      "declaration": "static __half* d_cgMatrix=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 98,
+      "name": "d_cgScale",
+      "declaration": "static float* d_cgScale=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 99,
+      "name": "d_cgStencil",
+      "declaration": "static unsigned short* d_cgStencil=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 102,
+      "name": "d_cgR",
+      "declaration": "static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 102,
+      "name": "d_cgP",
+      "declaration": "static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 102,
+      "name": "d_cgQ",
+      "declaration": "static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 102,
+      "name": "d_cgD",
+      "declaration": "static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 102,
+      "name": "d_cgA",
+      "declaration": "static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 102,
+      "name": "d_cgZ",
+      "declaration": "static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 103,
+      "name": "d_cgH",
+      "declaration": "static Symmetric3* d_cgH=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 104,
+      "name": "d_cgS",
+      "declaration": "static MaterialCGSum* d_cgS=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 105,
+      "name": "d_cgSearch",
+      "declaration": "static MaterialLineSearch* d_cgSearch=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 106,
+      "name": "d_unified",
+      "declaration": "static UnifiedState* d_unified=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 107,
+      "name": "d_unifiedTarget",
+      "declaration": "static float3* d_unifiedTarget=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 108,
+      "name": "d_unifiedPreviousInverse",
+      "declaration": "static float3* d_unifiedPreviousInverse=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 109,
+      "name": "d_unifiedRestMetric",
+      "declaration": "static float* d_unifiedRestMetric=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 110,
+      "name": "g_unifiedTetCapacity",
+      "declaration": "static int g_unifiedTetCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 111,
+      "name": "d_unifiedComponents",
+      "declaration": "static int* d_unifiedComponents=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 116,
+      "name": "d_topologyRecords",
+      "declaration": "static unsigned* d_topologyRecords=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 117,
+      "name": "d_multigridRevision",
+      "declaration": "static unsigned* d_multigridRevision=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 118,
+      "name": "d_componentRevision",
+      "declaration": "static unsigned* d_componentRevision=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 119,
+      "name": "d_livenessRevision",
+      "declaration": "static unsigned* d_livenessRevision=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 120,
+      "name": "d_edgeSupportRevision",
+      "declaration": "static unsigned* d_edgeSupportRevision=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 123,
+      "name": "d_graspComponents",
+      "declaration": "static int* d_graspComponents=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 124,
+      "name": "d_floorRecovery",
+      "declaration": "static int* d_floorRecovery=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 125,
+      "name": "d_safeCluster",
+      "declaration": "static int* d_safeCluster=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 126,
+      "name": "d_safeAggregate",
+      "declaration": "static SafeCoarseCluster* d_safeAggregate=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 127,
+      "name": "d_safeJoined",
+      "declaration": "static int* d_safeJoined=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 129,
+      "name": "d_coarseWeight",
+      "declaration": "static float* d_coarseWeight=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 130,
+      "name": "d_unifiedInteraction",
+      "declaration": "static float* d_unifiedInteraction=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 132,
+      "name": "d_sweepSites",
+      "declaration": "static int *d_sweepSites=nullptr,*d_sweepCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 132,
+      "name": "d_sweepCount",
+      "declaration": "static int *d_sweepSites=nullptr,*d_sweepCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 133,
+      "name": "d_coarseBlock",
+      "declaration": "static CoarseBlock* d_coarseBlock=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 134,
+      "name": "d_globalCoarse",
+      "declaration": "static CoarseBlock* d_globalCoarse=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 135,
+      "name": "d_manifold",
+      "declaration": "static SurfaceContact* d_manifold=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 136,
+      "name": "d_manifoldIds",
+      "declaration": "static int *d_manifoldIds=nullptr,*d_manifoldCount=nullptr,*d_manifoldOwners=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 136,
+      "name": "d_manifoldCount",
+      "declaration": "static int *d_manifoldIds=nullptr,*d_manifoldCount=nullptr,*d_manifoldOwners=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 136,
+      "name": "d_manifoldOwners",
+      "declaration": "static int *d_manifoldIds=nullptr,*d_manifoldCount=nullptr,*d_manifoldOwners=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 137,
+      "name": "d_manifoldQuadrature",
+      "declaration": "static float* d_manifoldQuadrature=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 138,
+      "name": "g_manifoldCapacity",
+      "declaration": "static int g_manifoldCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 139,
+      "name": "g_unifiedGraph",
+      "declaration": "static cudaGraphExec_t g_unifiedGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 140,
+      "name": "g_unifiedGraphDirty",
+      "declaration": "static bool g_unifiedGraphDirty=false;",
+      "category": "recompute",
+      "reason": "graph cache metadata; all associated graphs invalidated on restore"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 141,
+      "name": "g_unifiedRecoveryGraph",
+      "declaration": "static cudaGraphExec_t g_unifiedRecoveryGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 142,
+      "name": "g_unifiedRecoveryGraphDirty",
+      "declaration": "static bool g_unifiedRecoveryGraphDirty=false;",
+      "category": "recompute",
+      "reason": "graph cache metadata; all associated graphs invalidated on restore"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 144,
+      "name": "g_unifiedLoadedGraph",
+      "declaration": "static cudaGraphExec_t g_unifiedLoadedGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 145,
+      "name": "g_unifiedLoadedGraphDirty",
+      "declaration": "static bool g_unifiedLoadedGraphDirty=false;",
+      "category": "recompute",
+      "reason": "graph cache metadata; all associated graphs invalidated on restore"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 146,
+      "name": "d_substepQuery",
+      "declaration": "static int* d_substepQuery=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 147,
+      "name": "g_unifiedContactGraph",
+      "declaration": "static cudaGraphExec_t g_unifiedContactGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 148,
+      "name": "g_unifiedContactGraphDirty",
+      "declaration": "static bool g_unifiedContactGraphDirty=false;",
+      "category": "recompute",
+      "reason": "graph cache metadata; all associated graphs invalidated on restore"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 151,
+      "name": "d_pos",
+      "declaration": "static float3* d_pos      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 152,
+      "name": "d_prevPos",
+      "declaration": "static float3* d_prevPos  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 153,
+      "name": "d_attachStiffness",
+      "declaration": "static float* d_attachStiffness = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 154,
+      "name": "d_attachRest",
+      "declaration": "static float3* d_attachRest = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 155,
+      "name": "d_attachLambda",
+      "declaration": "static float3* d_attachLambda = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 156,
+      "name": "d_vel",
+      "declaration": "static float3* d_vel      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 157,
+      "name": "d_invMass",
+      "declaration": "static float*  d_invMass  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 158,
+      "name": "d_edgeI",
+      "declaration": "static int*    d_edgeI    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 159,
+      "name": "d_edgeJ",
+      "declaration": "static int*    d_edgeJ    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 160,
+      "name": "d_restLen",
+      "declaration": "static float*  d_restLen  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 161,
+      "name": "d_lambda",
+      "declaration": "static float*  d_lambda   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 162,
+      "name": "d_edgeActive",
+      "declaration": "static int*    d_edgeActive = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 167,
+      "name": "g_N",
+      "declaration": "static int     g_N = 0, g_E = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 167,
+      "name": "g_E",
+      "declaration": "static int     g_N = 0, g_E = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 168,
+      "name": "g_colorOff",
+      "declaration": "static std::vector<int> g_colorOff, g_colorCnt;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 168,
+      "name": "g_colorCnt",
+      "declaration": "static std::vector<int> g_colorOff, g_colorCnt;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 169,
+      "name": "g_numColors",
+      "declaration": "static int     g_numColors = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 170,
+      "name": "g_ready",
+      "declaration": "static bool    g_ready = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 177,
+      "name": "d_edgeSrcIdx",
+      "declaration": "static int* d_edgeSrcIdx = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 178,
+      "name": "g_edgeSlotOfInput",
+      "declaration": "static std::vector<int> g_edgeSlotOfInput;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 182,
+      "name": "g_hFrame",
+      "declaration": "static float g_hFrame = 0.f, g_alphaTildeF = 0.f, g_velScaleF = 1.f, g_betaGammaHSF = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 182,
+      "name": "g_alphaTildeF",
+      "declaration": "static float g_hFrame = 0.f, g_alphaTildeF = 0.f, g_velScaleF = 1.f, g_betaGammaHSF = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 182,
+      "name": "g_velScaleF",
+      "declaration": "static float g_hFrame = 0.f, g_alphaTildeF = 0.f, g_velScaleF = 1.f, g_betaGammaHSF = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 182,
+      "name": "g_betaGammaHSF",
+      "declaration": "static float g_hFrame = 0.f, g_alphaTildeF = 0.f, g_velScaleF = 1.f, g_betaGammaHSF = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 183,
+      "name": "g_alphaBF",
+      "declaration": "static float g_alphaBF = 0.f, g_betaGammaHBF = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 183,
+      "name": "g_betaGammaHBF",
+      "declaration": "static float g_alphaBF = 0.f, g_betaGammaHBF = 0.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 184,
+      "name": "g_itersF",
+      "declaration": "static int   g_itersF = 1;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 185,
+      "name": "g_doBendF",
+      "declaration": "static bool  g_doBendF = false, g_frameReady = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 185,
+      "name": "g_frameReady",
+      "declaration": "static bool  g_doBendF = false, g_frameReady = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 186,
+      "name": "g_doStrainF",
+      "declaration": "static bool  g_doStrainF = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 189,
+      "name": "d_bendI",
+      "declaration": "static int*    d_bendI = nullptr, *d_bendJ = nullptr, *d_bendK = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 189,
+      "name": "d_bendJ",
+      "declaration": "static int*    d_bendI = nullptr, *d_bendJ = nullptr, *d_bendK = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 189,
+      "name": "d_bendK",
+      "declaration": "static int*    d_bendI = nullptr, *d_bendJ = nullptr, *d_bendK = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 190,
+      "name": "d_bendTheta0",
+      "declaration": "static float*  d_bendTheta0 = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 191,
+      "name": "d_bendActive",
+      "declaration": "static int*    d_bendActive = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 192,
+      "name": "d_bendLambda",
+      "declaration": "static float*  d_bendLambda = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 193,
+      "name": "g_B",
+      "declaration": "static int     g_B = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 194,
+      "name": "g_bColorOff",
+      "declaration": "static std::vector<int> g_bColorOff, g_bColorCnt;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 194,
+      "name": "g_bColorCnt",
+      "declaration": "static std::vector<int> g_bColorOff, g_bColorCnt;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 195,
+      "name": "g_bNumColors",
+      "declaration": "static int     g_bNumColors = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 196,
+      "name": "d_bendSrcIdx",
+      "declaration": "static int*    d_bendSrcIdx = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 197,
+      "name": "g_bendSlotOfInput",
+      "declaration": "static std::vector<int> g_bendSlotOfInput;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 205,
+      "name": "d_tetIds",
+      "declaration": "static int*    d_tetIds     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 206,
+      "name": "d_tetBr0",
+      "declaration": "static float3* d_tetBr0     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 207,
+      "name": "d_tetBr1",
+      "declaration": "static float3* d_tetBr1     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 208,
+      "name": "d_tetBr2",
+      "declaration": "static float3* d_tetBr2     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 209,
+      "name": "d_tetMuV",
+      "declaration": "static float*  d_tetMuV     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 210,
+      "name": "d_tetLambdaV",
+      "declaration": "static float*  d_tetLambdaV = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 211,
+      "name": "d_tetAlphaDev",
+      "declaration": "static float*  d_tetAlphaDev= nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 212,
+      "name": "d_tetAlphaHyd",
+      "declaration": "static float*  d_tetAlphaHyd= nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 213,
+      "name": "d_tetLambdaDevL",
+      "declaration": "static float*  d_tetLambdaDevL = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 214,
+      "name": "d_tetLambdaHydL",
+      "declaration": "static float*  d_tetLambdaHydL = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 215,
+      "name": "d_tetActive",
+      "declaration": "static int*    d_tetActive  = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 216,
+      "name": "d_tetEdgeOwnerSlot",
+      "declaration": "static int*    d_tetEdgeOwnerSlot = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 217,
+      "name": "d_edgeTetSupport",
+      "declaration": "static int*    d_edgeTetSupport = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 218,
+      "name": "d_tetCellBase",
+      "declaration": "static int*    d_tetCellBase = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 219,
+      "name": "d_kuhnTets",
+      "declaration": "static KuhnTet* d_kuhnTets   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 220,
+      "name": "g_T",
+      "declaration": "static int     g_T = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 221,
+      "name": "g_tetCells",
+      "declaration": "static int     g_tetCells = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 222,
+      "name": "d_activeNodes",
+      "declaration": "static int*    d_activeNodes = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 223,
+      "name": "g_activeNodes",
+      "declaration": "static int     g_activeNodes = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 224,
+      "name": "g_tColorOff",
+      "declaration": "static std::vector<int> g_tColorOff, g_tColorCnt;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 224,
+      "name": "g_tColorCnt",
+      "declaration": "static std::vector<int> g_tColorOff, g_tColorCnt;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 225,
+      "name": "g_tNumColors",
+      "declaration": "static int     g_tNumColors = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 227,
+      "name": "g_tetColorOrder",
+      "declaration": "static std::vector<int> g_tetColorOrder;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 228,
+      "name": "d_tetColorOrder",
+      "declaration": "static int* d_tetColorOrder=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 230,
+      "name": "d_colorTetIds",
+      "declaration": "static int4* d_colorTetIds=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 231,
+      "name": "d_colorTetDet",
+      "declaration": "static float* d_colorTetDet=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 232,
+      "name": "d_localTets",
+      "declaration": "static int* d_localTets=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 233,
+      "name": "g_localOff",
+      "declaration": "static std::vector<int> g_localOff,g_localCount;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 233,
+      "name": "g_localCount",
+      "declaration": "static std::vector<int> g_localOff,g_localCount;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 234,
+      "name": "g_localPasses",
+      "declaration": "static int g_localPasses=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 235,
+      "name": "g_minTetVolume",
+      "declaration": "static float g_minTetVolume=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 236,
+      "name": "g_volumePasses",
+      "declaration": "static int g_volumePasses=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 237,
+      "name": "g_pressureGraph",
+      "declaration": "static cudaGraphExec_t g_pressureGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 238,
+      "name": "g_tissueHardening",
+      "declaration": "static float g_tissueHardening=80.f,g_bulkDampingSeconds=.003125f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 238,
+      "name": "g_bulkDampingSeconds",
+      "declaration": "static float g_tissueHardening=80.f,g_bulkDampingSeconds=.003125f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 239,
+      "name": "d_fiberLambda",
+      "declaration": "static float* d_fiberLambda=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 240,
+      "name": "d_captureInside",
+      "declaration": "static int* d_captureInside=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 241,
+      "name": "g_captureWedge",
+      "declaration": "static bool g_captureWedge=false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 242,
+      "name": "d_feasibleStart",
+      "declaration": "static float3* d_feasibleStart=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 243,
+      "name": "d_feasibleTarget",
+      "declaration": "static float3* d_feasibleTarget=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 244,
+      "name": "d_incidentOffsets",
+      "declaration": "static int* d_incidentOffsets=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 245,
+      "name": "d_incidentTets",
+      "declaration": "static int* d_incidentTets=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 246,
+      "name": "d_needFeasible",
+      "declaration": "static int* d_needFeasible=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 248,
+      "name": "g_haveTets",
+      "declaration": "static bool    g_haveTets = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 249,
+      "name": "g_tetGraph",
+      "declaration": "static cudaGraphExec_t g_tetGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 250,
+      "name": "g_captureStream",
+      "declaration": "static cudaStream_t g_captureStream=nullptr;",
+      "category": "recompute",
+      "reason": "idle CUDA scheduling resource, no physical state; all work synchronized at boundary"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 251,
+      "name": "g_feasibleGraphs",
+      "declaration": "static cudaGraphExec_t g_feasibleGraphs[8]={};",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 253,
+      "name": "g_graphOmega",
+      "declaration": "static float g_graphOmega=0,g_graphDamping=0,g_graphH=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 253,
+      "name": "g_graphDamping",
+      "declaration": "static float g_graphOmega=0,g_graphDamping=0,g_graphH=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 253,
+      "name": "g_graphH",
+      "declaration": "static float g_graphOmega=0,g_graphDamping=0,g_graphH=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 254,
+      "name": "g_graphTetCount",
+      "declaration": "static int g_graphTetCount=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 260,
+      "name": "d_grasped",
+      "declaration": "static int*    d_grasped          = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 261,
+      "name": "d_graspCore",
+      "declaration": "static int*    d_graspCore        = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 262,
+      "name": "d_coreOffU",
+      "declaration": "static float*  d_coreOffU         = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 263,
+      "name": "d_coreOffN",
+      "declaration": "static float*  d_coreOffN         = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 264,
+      "name": "d_coreOffW",
+      "declaration": "static float*  d_coreOffW         = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 265,
+      "name": "d_coreComplianceScale",
+      "declaration": "static float* d_coreComplianceScale=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 266,
+      "name": "d_coreLambda",
+      "declaration": "static float3* d_coreLambda       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 267,
+      "name": "d_coreForceEMA",
+      "declaration": "static float*  d_coreForceEMA     = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 271,
+      "name": "d_candScratch",
+      "declaration": "static int*    d_candScratch = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 272,
+      "name": "d_uScratch",
+      "declaration": "static float*  d_uScratch    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 273,
+      "name": "d_vScratch",
+      "declaration": "static float*  d_vScratch    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 274,
+      "name": "d_nScratch",
+      "declaration": "static float*  d_nScratch    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 275,
+      "name": "d_slabLambda",
+      "declaration": "static float*  d_slabLambda       = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 276,
+      "name": "d_slabLambdaPrev",
+      "declaration": "static float*  d_slabLambdaPrev   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 277,
+      "name": "d_jawContactLambda",
+      "declaration": "static float*  d_jawContactLambda = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 278,
+      "name": "d_shaftContactLambda",
+      "declaration": "static float*  d_shaftContactLambda = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 279,
+      "name": "d_coulombAnchorU",
+      "declaration": "static float*  d_coulombAnchorU   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 280,
+      "name": "d_coulombAnchorW",
+      "declaration": "static float*  d_coulombAnchorW   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 281,
+      "name": "g_grasping",
+      "declaration": "static bool    g_grasping = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 282,
+      "name": "g_toolArmed",
+      "declaration": "static bool    g_toolArmed = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 288,
+      "name": "g_tool",
+      "declaration": "static XpbdToolState  g_tool = {}, g_toolFrom = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 288,
+      "name": "g_toolFrom",
+      "declaration": "static XpbdToolState  g_tool = {}, g_toolFrom = {};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 289,
+      "name": "g_substepIndex",
+      "declaration": "static int g_substepIndex = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 290,
+      "name": "g_gp",
+      "declaration": "static XpbdGraspParams g_gp = { 0.5f, 0.3f, 0.02f, 0.55f, 0.3f, 1.0e-7f, 0.02f,\n                                /*ccdVelThresh*/0.5f, /*ccdMaxDisp*/0.045f, /*ccdOmega*/0.25f,\n                                /*omegaGrasp*/0.25f, /*coreAlpha*/1.0e-7f, /*coreBreakForce*/150.f,\n                                /*graspMaxDisp*/0.045f, /*nExemptRings*/1 };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 294,
+      "name": "g_frictionContact",
+      "declaration": "static bool g_frictionContact=false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 295,
+      "name": "g_anchorAssist",
+      "declaration": "static bool g_anchorAssist=false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 296,
+      "name": "g_embeddedGrip",
+      "declaration": "static bool g_embeddedGrip=false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 297,
+      "name": "d_coupledTool",
+      "declaration": "static CoupledTool* d_coupledTool=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 298,
+      "name": "g_guidedInstrument",
+      "declaration": "static int g_guidedInstrument=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 299,
+      "name": "g_toolMass",
+      "declaration": "static float g_toolMass=.02f,g_toolStiffness=300.f,g_toolDamping=5.f,g_toolMaxTravel=.1f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 299,
+      "name": "g_toolStiffness",
+      "declaration": "static float g_toolMass=.02f,g_toolStiffness=300.f,g_toolDamping=5.f,g_toolMaxTravel=.1f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 299,
+      "name": "g_toolDamping",
+      "declaration": "static float g_toolMass=.02f,g_toolStiffness=300.f,g_toolDamping=5.f,g_toolMaxTravel=.1f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 299,
+      "name": "g_toolMaxTravel",
+      "declaration": "static float g_toolMass=.02f,g_toolStiffness=300.f,g_toolDamping=5.f,g_toolMaxTravel=.1f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 300,
+      "name": "g_jawMass",
+      "declaration": "static float g_jawMass=.005f,g_jawStiffness=0,g_jawDamping=2.f,g_jawSpeed=1.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 300,
+      "name": "g_jawStiffness",
+      "declaration": "static float g_jawMass=.005f,g_jawStiffness=0,g_jawDamping=2.f,g_jawSpeed=1.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 300,
+      "name": "g_jawDamping",
+      "declaration": "static float g_jawMass=.005f,g_jawStiffness=0,g_jawDamping=2.f,g_jawSpeed=1.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 300,
+      "name": "g_jawSpeed",
+      "declaration": "static float g_jawMass=.005f,g_jawStiffness=0,g_jawDamping=2.f,g_jawSpeed=1.f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 301,
+      "name": "g_openJawGap",
+      "declaration": "static float g_openJawGap=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 302,
+      "name": "d_contactMobility",
+      "declaration": "static float3* d_contactMobility=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 303,
+      "name": "d_gripError",
+      "declaration": "static float* d_gripError=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 304,
+      "name": "d_contactResidual",
+      "declaration": "static float* d_contactResidual=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 305,
+      "name": "d_gripPoints",
+      "declaration": "static GripPoint* d_gripPoints=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 306,
+      "name": "d_gripStep",
+      "declaration": "static GripSolveStep* d_gripStep=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 307,
+      "name": "d_gripPatch",
+      "declaration": "static GripPatch* d_gripPatch=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 308,
+      "name": "d_gripPatchWeights",
+      "declaration": "static float* d_gripPatchWeights=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 309,
+      "name": "g_gripGraph",
+      "declaration": "static cudaGraphExec_t g_gripGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 311,
+      "name": "g_gripCount",
+      "declaration": "static int g_gripCount=0,g_gripCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 311,
+      "name": "g_gripCapacity",
+      "declaration": "static int g_gripCount=0,g_gripCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 312,
+      "name": "d_gripCounter",
+      "declaration": "static int *d_gripCounter=nullptr,*d_gripLive=nullptr,*d_gripDegree=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 312,
+      "name": "d_gripLive",
+      "declaration": "static int *d_gripCounter=nullptr,*d_gripLive=nullptr,*d_gripDegree=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 312,
+      "name": "d_gripDegree",
+      "declaration": "static int *d_gripCounter=nullptr,*d_gripLive=nullptr,*d_gripDegree=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 313,
+      "name": "d_gripMoments",
+      "declaration": "static float* d_gripMoments=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 314,
+      "name": "g_gripSigma",
+      "declaration": "static float g_gripSigma=.15f,g_gripCompliance=1.f/8000.f,g_gripDamping=.02f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 314,
+      "name": "g_gripCompliance",
+      "declaration": "static float g_gripSigma=.15f,g_gripCompliance=1.f/8000.f,g_gripDamping=.02f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 314,
+      "name": "g_gripDamping",
+      "declaration": "static float g_gripSigma=.15f,g_gripCompliance=1.f/8000.f,g_gripDamping=.02f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 315,
+      "name": "g_pressureH",
+      "declaration": "static float g_pressureH=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 317,
+      "name": "g_muStatic",
+      "declaration": "static float g_muStatic=.5f,g_muDynamic=.3f,g_jawThickness=.1f,g_contactRadius=.02f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 317,
+      "name": "g_muDynamic",
+      "declaration": "static float g_muStatic=.5f,g_muDynamic=.3f,g_jawThickness=.1f,g_contactRadius=.02f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 317,
+      "name": "g_jawThickness",
+      "declaration": "static float g_muStatic=.5f,g_muDynamic=.3f,g_jawThickness=.1f,g_contactRadius=.02f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 317,
+      "name": "g_contactRadius",
+      "declaration": "static float g_muStatic=.5f,g_muDynamic=.3f,g_jawThickness=.1f,g_contactRadius=.02f;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 318,
+      "name": "d_contacts",
+      "declaration": "static ContactRecord* d_contacts=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 319,
+      "name": "d_contactNormalLambda",
+      "declaration": "static float* d_contactNormalLambda=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 320,
+      "name": "d_contactTangentLambda",
+      "declaration": "static float3* d_contactTangentLambda=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 322,
+      "name": "g_surfaceCount",
+      "declaration": "static int g_surfaceCount=0,g_surfaceCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 322,
+      "name": "g_surfaceCapacity",
+      "declaration": "static int g_surfaceCount=0,g_surfaceCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 323,
+      "name": "d_toolClearance",
+      "declaration": "static float* d_toolClearance=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 324,
+      "name": "g_previousAcceptedTool",
+      "declaration": "static XpbdToolState g_previousAcceptedTool={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 325,
+      "name": "g_surfaceGraph",
+      "declaration": "static cudaGraphExec_t g_surfaceGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 326,
+      "name": "g_velocityGraph",
+      "declaration": "static cudaGraphExec_t g_velocityGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 327,
+      "name": "g_repairGraph",
+      "declaration": "static cudaGraphExec_t g_repairGraph=nullptr;",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 329,
+      "name": "g_velocityH",
+      "declaration": "static float g_velocityH=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 330,
+      "name": "g_graphClosing",
+      "declaration": "static int g_graphClosing=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 331,
+      "name": "g_graphAlpha",
+      "declaration": "static float g_graphAlpha=0,g_graphMuS=0,g_graphMuD=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 331,
+      "name": "g_graphMuS",
+      "declaration": "static float g_graphAlpha=0,g_graphMuS=0,g_graphMuD=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 331,
+      "name": "g_graphMuD",
+      "declaration": "static float g_graphAlpha=0,g_graphMuS=0,g_graphMuD=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 333,
+      "name": "g_surfaceRest",
+      "declaration": "static const float3* g_surfaceRest=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 334,
+      "name": "g_surfaceMaterialFP",
+      "declaration": "static const float4* g_surfaceMaterialFP=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 335,
+      "name": "g_surfaceTags",
+      "declaration": "static const int *g_surfaceTags=nullptr,*g_surfaceCorners=nullptr,*g_surfaceConn=nullptr;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 335,
+      "name": "g_surfaceCorners",
+      "declaration": "static const int *g_surfaceTags=nullptr,*g_surfaceCorners=nullptr,*g_surfaceConn=nullptr;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 335,
+      "name": "g_surfaceConn",
+      "declaration": "static const int *g_surfaceTags=nullptr,*g_surfaceCorners=nullptr,*g_surfaceConn=nullptr;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 336,
+      "name": "g_surfaceMasks",
+      "declaration": "static const unsigned* g_surfaceMasks=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 337,
+      "name": "g_surfaceExpanded",
+      "declaration": "static const float3* g_surfaceExpanded=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 338,
+      "name": "d_surfaceVertices",
+      "declaration": "static SurfaceVertex* d_surfaceVertices=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 339,
+      "name": "d_jawLoad",
+      "declaration": "static float4* d_jawLoad=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 340,
+      "name": "d_contactGroups",
+      "declaration": "static ContactGroupBounds* d_contactGroups=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 341,
+      "name": "d_contactGroupRejected",
+      "declaration": "static unsigned char* d_contactGroupRejected=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 342,
+      "name": "d_surfaceCurrent",
+      "declaration": "static float4* d_surfaceCurrent=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 343,
+      "name": "d_surfacePrevious",
+      "declaration": "static float3* d_surfacePrevious=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 344,
+      "name": "d_surfaceContacts",
+      "declaration": "static SurfaceContact* d_surfaceContacts=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 345,
+      "name": "d_contactCache",
+      "declaration": "static SurfaceContact* d_contactCache=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 346,
+      "name": "d_contactCacheSlots",
+      "declaration": "static int* d_contactCacheSlots=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 347,
+      "name": "d_surfaceDegree",
+      "declaration": "static int* d_surfaceDegree=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 348,
+      "name": "d_surfaceActive",
+      "declaration": "static int *d_surfaceActive=nullptr,*d_surfaceActiveCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 348,
+      "name": "d_surfaceActiveCount",
+      "declaration": "static int *d_surfaceActive=nullptr,*d_surfaceActiveCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 349,
+      "name": "d_surfaceDelta",
+      "declaration": "static float3* d_surfaceDelta=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 350,
+      "name": "d_contactReaction",
+      "declaration": "static float4* d_contactReaction=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 352,
+      "name": "g_jawW",
+      "declaration": "static float3  g_jawW = { 1.f, 0.f, 0.f };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 354,
+      "name": "g_p",
+      "declaration": "static XpbdParams g_p = { /*numSubsteps*/20, /*iters*/1, /*omega*/1.0f, /*damping*/0.02f,\n                          /*ks*/7.5e4f, /*gx*/0.f, /*gy*/-9.81f, /*gz*/0.f, /*kb*/2.0e4f,\n                          /*alpha*/0.f, /*betaS*/0.f, /*betaB*/0.f,\n                          /*youngE*/0.f, /*poisson*/0.45f };",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 365,
+      "name": "g_bound",
+      "declaration": "static bool  g_bound         = false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 366,
+      "name": "d_edgeOwnerSlot",
+      "declaration": "static int*  d_edgeOwnerSlot = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 367,
+      "name": "g_liveRestNbr",
+      "declaration": "static const float3* g_liveRestNbr=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 368,
+      "name": "g_liveNbrIdx",
+      "declaration": "static const int*             g_liveNbrIdx      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 369,
+      "name": "g_liveBendPairs",
+      "declaration": "static const XpbdBendPairGpu* g_liveBendPairs   = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 370,
+      "name": "g_liveActive",
+      "declaration": "static const int*             g_liveActive      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 371,
+      "name": "g_livePinned",
+      "declaration": "static const int*             g_livePinned      = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 372,
+      "name": "g_liveMass",
+      "declaration": "static const float*           g_liveMass        = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 373,
+      "name": "g_liveExtForce",
+      "declaration": "static const float3*          g_liveExtForce    = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 374,
+      "name": "g_liveHapticForce",
+      "declaration": "static const float3*          g_liveHapticForce = nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 375,
+      "name": "g_dimsX",
+      "declaration": "static int g_dimsX = 0, g_dimsY = 0, g_dimsZ = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 375,
+      "name": "g_dimsY",
+      "declaration": "static int g_dimsX = 0, g_dimsY = 0, g_dimsZ = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 375,
+      "name": "g_dimsZ",
+      "declaration": "static int g_dimsX = 0, g_dimsY = 0, g_dimsZ = 0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 385,
+      "name": "g_sweepBlocks",
+      "declaration": "static int g_sweepBlocks=0,g_predictorBlocks=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 385,
+      "name": "g_predictorBlocks",
+      "declaration": "static int g_sweepBlocks=0,g_predictorBlocks=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 1632,
+      "declaration": "static const int TET_TABLE[6][4] = { {0,1,3,7}, {0,3,2,7}, {0,2,6,7}, {0,6,4,7}, {0,4,5,7}, {0,5,1,7} };",
+      "category": "immutable_or_function",
+      "reason": "local constexpr tet table or operator method; pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2647,
+      "name": "g_multigridLevels",
+      "declaration": "static int g_multigridLevels=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2648,
+      "name": "g_multigrid",
+      "declaration": "static MultigridLevel g_multigrid[MG_MAX_LEVELS+1]={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2650,
+      "name": "d_multigridDense",
+      "declaration": "static float *d_multigridDense=nullptr,*d_multigridFactorInverse=nullptr,*d_multigridInverse=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2650,
+      "name": "d_multigridFactorInverse",
+      "declaration": "static float *d_multigridDense=nullptr,*d_multigridFactorInverse=nullptr,*d_multigridInverse=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2650,
+      "name": "d_multigridInverse",
+      "declaration": "static float *d_multigridDense=nullptr,*d_multigridFactorInverse=nullptr,*d_multigridInverse=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2652,
+      "name": "d_multigridFine",
+      "declaration": "static float3* d_multigridFine=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2788,
+      "name": "g_fragmentPassGraph",
+      "declaration": "static cudaGraphExec_t g_fragmentPassGraph[2]={};",
+      "category": "recompute",
+      "reason": "destroy on restore; next use recaptures graphs with restored pointers and parameters"
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "line": 2789,
+      "name": "g_fragmentPassKey",
+      "declaration": "static FragmentPassKey g_fragmentPassKey[2]={};",
+      "category": "recompute",
+      "reason": "graph cache metadata; all associated graphs invalidated on restore"
+    },
+    {
+      "file": "cuda/contact/friction_contact.cuh",
+      "line": 12,
+      "name": "h_jawMeshBounds",
+      "declaration": "static JawMeshBounds h_jawMeshBounds[2]={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/contact/friction_contact.cuh",
+      "line": 13,
+      "name": "c_jawMeshBounds",
+      "declaration": "__constant__ JawMeshBounds c_jawMeshBounds[2];",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 4,
+      "name": "d_bladeState",
+      "declaration": "static UnifiedState* d_bladeState=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 5,
+      "name": "d_bladeBody",
+      "declaration": "static CoupledTool* d_bladeBody=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 6,
+      "name": "d_bladeContacts",
+      "declaration": "static SurfaceContact* d_bladeContacts=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 7,
+      "name": "d_bladeBackCache",
+      "declaration": "static SurfaceContact* d_bladeBackCache=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 8,
+      "name": "d_bladeBackCacheSlots",
+      "declaration": "static int* d_bladeBackCacheSlots=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 9,
+      "name": "d_bladeIds",
+      "declaration": "static int *d_bladeIds=nullptr,*d_bladeCount=nullptr,*d_bladeDegree=nullptr,*d_bladePhase=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 9,
+      "name": "d_bladeCount",
+      "declaration": "static int *d_bladeIds=nullptr,*d_bladeCount=nullptr,*d_bladeDegree=nullptr,*d_bladePhase=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 9,
+      "name": "d_bladeDegree",
+      "declaration": "static int *d_bladeIds=nullptr,*d_bladeCount=nullptr,*d_bladeDegree=nullptr,*d_bladePhase=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 9,
+      "name": "d_bladePhase",
+      "declaration": "static int *d_bladeIds=nullptr,*d_bladeCount=nullptr,*d_bladeDegree=nullptr,*d_bladePhase=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 10,
+      "name": "d_bladeManifold",
+      "declaration": "static SurfaceContact* d_bladeManifold=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 11,
+      "name": "d_bladeManifoldIds",
+      "declaration": "static int *d_bladeManifoldIds=nullptr,*d_bladeManifoldCount=nullptr,*d_bladeOwners=nullptr,*d_bladeEdgeCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 11,
+      "name": "d_bladeManifoldCount",
+      "declaration": "static int *d_bladeManifoldIds=nullptr,*d_bladeManifoldCount=nullptr,*d_bladeOwners=nullptr,*d_bladeEdgeCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 11,
+      "name": "d_bladeOwners",
+      "declaration": "static int *d_bladeManifoldIds=nullptr,*d_bladeManifoldCount=nullptr,*d_bladeOwners=nullptr,*d_bladeEdgeCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 11,
+      "name": "d_bladeEdgeCount",
+      "declaration": "static int *d_bladeManifoldIds=nullptr,*d_bladeManifoldCount=nullptr,*d_bladeOwners=nullptr,*d_bladeEdgeCount=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 12,
+      "name": "d_bladeQuadrature",
+      "declaration": "static float* d_bladeQuadrature=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 17,
+      "name": "d_bladeSweep",
+      "declaration": "static float3* d_bladeSweep=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 19,
+      "name": "d_bladeHistory",
+      "declaration": "static BladeHistory* d_bladeHistory=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 23,
+      "name": "d_bladeResult",
+      "declaration": "static float* d_bladeResult=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 26,
+      "name": "d_scissorsLoads",
+      "declaration": "static float* d_scissorsLoads=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 27,
+      "name": "g_bladeCapacity",
+      "declaration": "static int g_bladeCapacity=0;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 28,
+      "name": "g_blade",
+      "declaration": "static XpbdBladeState g_blade={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 29,
+      "name": "g_scissors",
+      "declaration": "static XpbdScissorsState g_scissors={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 30,
+      "name": "g_scissorsMode",
+      "declaration": "static bool g_scissorsMode=false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 31,
+      "name": "g_knifeBody",
+      "declaration": "static bool g_knifeBody=false;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 32,
+      "name": "g_knifeBoxes",
+      "declaration": "static XpbdScissorsBackBox g_knifeBoxes[2]={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 34,
+      "name": "g_scissorsWrist",
+      "declaration": "static float g_scissorsWrist[3]={0,0,0};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 84,
+      "name": "g_bladeCommand",
+      "declaration": "static XpbdToolState g_bladeCommand={},g_bladeInitial={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "line": 84,
+      "name": "g_bladeInitial",
+      "declaration": "static XpbdToolState g_bladeCommand={},g_bladeInitial={};",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/training/xpbd_training.cuh",
+      "line": 3,
+      "name": "d_trainingCoreRaw",
+      "declaration": "static float3* d_trainingCoreRaw=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/training/xpbd_training.cuh",
+      "line": 4,
+      "name": "d_trainingCoreEMA",
+      "declaration": "static float* d_trainingCoreEMA=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/training/xpbd_training.cuh",
+      "line": 5,
+      "name": "d_trainingBroken",
+      "declaration": "static int* d_trainingBroken=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/training/xpbd_training.cuh",
+      "line": 6,
+      "name": "d_trainingBreakCounts",
+      "declaration": "static unsigned* d_trainingBreakCounts=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/training/xpbd_training.cuh",
+      "line": 7,
+      "name": "d_trainingForceScratch",
+      "declaration": "static float* d_trainingForceScratch=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/training/xpbd_training.cuh",
+      "line": 8,
+      "name": "d_trainingMetrics",
+      "declaration": "static TrainingMetrics* d_trainingMetrics=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/xpbd/tool_feedback.cuh",
+      "line": 9,
+      "name": "d_toolFeedback",
+      "declaration": "static ToolFeedbackPacket* d_toolFeedback=nullptr;",
+      "category": "save",
+      "reason": "conservative complete host/device-symbol state"
+    },
+    {
+      "file": "cuda/solver/material/coupled_material.cuh",
+      "line": 10,
+      "name": "MaterialFreeIterations",
+      "declaration": "static constexpr int MaterialFreeIterations=7;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/solver/material/coupled_material.cuh",
+      "line": 11,
+      "name": "MaterialLoadedIterations",
+      "declaration": "static constexpr int MaterialLoadedIterations=3;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/solver/material/material_line_search.cuh",
+      "line": 14,
+      "name": "MaterialFloorBand",
+      "declaration": "static constexpr float MaterialFloorBand=.95f;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/solver/material/material_line_search.cuh",
+      "line": 16,
+      "name": "MaterialFloorRecoverySubsteps",
+      "declaration": "static constexpr int MaterialFloorRecoverySubsteps=6;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/solver/material/unified_vertex.cuh",
+      "line": 49,
+      "name": "MaterialFloorRestricted",
+      "declaration": "static constexpr int MaterialFloorRestricted=1<<30;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    },
+    {
+      "file": "cuda/solver/material/unified_vertex.cuh",
+      "line": 50,
+      "name": "MaterialCutterContact",
+      "declaration": "static constexpr int MaterialCutterContact=16;",
+      "category": "immutable",
+      "reason": "compile-time constants pinned by DLL SHA"
+    }
+  ]
+}

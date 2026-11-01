@@ -13,6 +13,7 @@ from pathlib import Path
 from endoscopic_tissue.training.data import atomic_json, load_arrays
 from endoscopic_tissue.training.provenance import json_hash, sha256
 from endoscopic_tissue.training.tasks import material_reference
+from endoscopic_tissue.training.lineage import episode_lineage, validate_lineages
 from endoscopic_tissue.scenario import SCISSORS_SCENES
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,6 +23,13 @@ def geometry_recipe(context, source_hashes):
     for path, digest in source_hashes.items():
         if context['current_adapter_and_asset_sha256'].get(path) != digest:
             raise ValueError('Recorded geometry sources differ; use their archived version to build the index')
+    parameters=context['scene_config'].get('geometry')
+    if parameters is not None:
+        from .geometry import WallGeometry
+        source='endoscopic_tissue/training/geometry.py'
+        if context['current_adapter_and_asset_sha256'].get(source)!=sha256(ROOT/source):
+            raise ValueError('Recorded parametric geometry sources differ')
+        return WallGeometry(**parameters).recipe()
     scene = SCISSORS_SCENES[context['scene_config']['scene']]
     return ({'kind': 'shaped_tissue', 'shape': asdict(scene.shape)} if scene.shape is not None
             else {'kind': 'block_with_tab', 'tab': asdict(scene.tab)})
@@ -79,6 +87,7 @@ def build_index(result_paths, *, evaluation_scope='held_out_geometry', validatio
             seen_episodes.add(episode_id)
             recipe = geometry_recipe(context, source_hashes)
             episodes.append({'episode_id': episode_id, 'path': str(directory),
+                             **episode_lineage(context),
                              'context_sha256': context['context_sha256'],
                              'material_reference_sha256': reference,
                              'geometry_group': json_hash(recipe), 'geometry_recipe': recipe,
@@ -87,6 +96,7 @@ def build_index(result_paths, *, evaluation_scope='held_out_geometry', validatio
                              'transitions': manifest['normal_transitions'],
                              'failed_attempts': manifest['failed_attempts'],
                              'training_domain_approved': False})
+    validate_lineages(episodes)
     collection_groups = {e['geometry_group'] for e in episodes if e['purpose'] == 'collection'}
     evaluation_groups = {e['geometry_group'] for e in episodes if e['purpose'] == 'evaluation'}
     overlap = sorted(collection_groups & evaluation_groups)

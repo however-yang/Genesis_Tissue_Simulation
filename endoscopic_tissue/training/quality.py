@@ -40,7 +40,8 @@ class QualityMonitor:
         self.previous_neighbors = grid.neighbors
         self.components = material_components(grid.neighbors, grid.inside != 0)
 
-    def assess(self, observed, previous, command, settings, material_quality, surface, geometry):
+    def assess(self, observed, previous, command, settings, material_quality, surface, geometry,
+               *, permitted_tear_edges=0):
         failures, scope = [], []
         finite_quality = bool(np.isfinite(material_quality).all())
         values = {"min_volume_ratio": float(material_quality[0]) if finite_quality else None,
@@ -70,7 +71,7 @@ class QualityMonitor:
             values["unexpected_neighbor_changes"] = int(np.count_nonzero((before >= 0) & (after >= 0) & (before != after)))
             if values["healed_edges"] or values["unexpected_neighbor_changes"]:
                 failures.append("topology_irreversibility_violation")
-            if values["new_cut_edges"] and not command.scissors_cutting:
+            if values["new_cut_edges"]>permitted_tear_edges and not command.scissors_cutting:
                 failures.append("new_cut_while_disabled")
             self.components = material_components(observed.neighbors, self.grid.inside != 0)
         values["material_components"] = self.components

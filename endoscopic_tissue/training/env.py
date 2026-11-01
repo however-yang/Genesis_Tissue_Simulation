@@ -2,6 +2,7 @@
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 import time
+import threading
 from uuid import uuid4
 
 import numpy as np
@@ -17,6 +18,8 @@ from .tasks import TaskGoal, TaskMonitor
 from .cutting import cut_origin_bracket
 from .physics import PhysicsOverrides, resolve_physics
 from .native import TrainingNativeTissue
+from .damage import DamageMonitor
+from .geometry import WallGeometry, scene_for_config
 
 
 @dataclass(frozen=True)
@@ -28,10 +31,16 @@ class SceneConfig:
     substeps: int | None = None
     spacing_scale: float = 1.
     physics: PhysicsOverrides | None = None
+    geometry: WallGeometry | None = None
 
     def __post_init__(self):
         if self.physics is not None and not isinstance(self.physics, PhysicsOverrides):
             raise TypeError("physics must be PhysicsOverrides or None")
+        if self.geometry is not None:
+            if not isinstance(self.geometry,WallGeometry):
+                raise TypeError('geometry must be WallGeometry or None')
+            if self.scene!='wall-traction' or self.spacing_scale < 1:
+                raise ValueError('Parametric geometry requires wall-traction and spacing at least 1 mm')
         if self.scene not in SCISSORS_SCENES or self.preparation not in ("settled", "held", "cut_ready"):
             raise ValueError("Unknown scene or preparation")
         if self.scene == "wall" and self.preparation == "cut_ready":
@@ -57,10 +66,13 @@ class EnvironmentConfig:
     full_surface_checks: bool = True
     diagnostic_continue: bool = False
     limits: QualityLimits = QualityLimits()
+    failure_telemetry: bool = False
 
     def __post_init__(self):
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")
+        if type(self.failure_telemetry) is not bool:
+            raise ValueError("failure_telemetry must be bool")
 
 
 @dataclass(frozen=True)
@@ -99,6 +111,8 @@ class NativeEnvironment:
     command replay is explicitly separated from the 11D policy interface.
     """
     def __init__(self, config: EnvironmentConfig):
+        self._state_lock = threading.RLock()
+        self._step_in_progress = False
         self.config = config
         self.native = None
         self.state = None
@@ -109,6 +123,10 @@ class NativeEnvironment:
         self.task = None
 
     def reset(self, seed=0, scene_config=None, goal=None):
+        with self._state_lock:
+            return self._reset(seed, scene_config, goal)
+
+    def _reset(self, seed=0, scene_config=None, goal=None):
         reset_start = time.perf_counter()
         dll = pinned_dll(self.config.dll_path, self.config.dll_sha256)
         scene_config = scene_config or self.config.scene
@@ -120,7 +138,8 @@ class NativeEnvironment:
         self.rng = np.random.default_rng(seed)
         self.episode_id = uuid4().hex
         self.scene_config = scene_config
-        scene = SCISSORS_SCENES[scene_config.scene]
+        scene = scene_for_config(scene_config)
+        self.scene = scene
         contact_model = scene.contact_model if scene_config.contact_model is None else scene_config.contact_model
         self.settings = replace(scissors_settings(), young_pa=scene.young_pa, contact_model=contact_model)
         base_dt = self.settings.dt
@@ -128,7 +147,9 @@ class NativeEnvironment:
                                 dt=scene_config.dt_s if scene_config.dt_s is not None else self.settings.dt,
                                 substeps=scene_config.substeps if scene_config.substeps is not None else self.settings.substeps)
         self.settings, self.native_parameters = resolve_physics(self.settings, scene_config.physics)
-        if scene_config.spacing_scale == 1:
+        if scene_config.geometry is not None:
+            self.grid = scene_config.geometry.build_grid(self.settings.density_kg_m3,scene_config.spacing_scale)
+        elif scene_config.spacing_scale == 1:
             self.grid = scene.build_grid(self.settings.density_kg_m3)
         else:
             geometry = {'shape':scene.shape} if scene.shape is not None else {'tab':scene.tab}
@@ -136,6 +157,10 @@ class NativeEnvironment:
                                    vertical_spacing=scene.vertical_spacing*scene_config.spacing_scale,
                                    density=self.settings.density_kg_m3, **geometry)
         self.quality = QualityMonitor(self.grid, self.config.limits)
+        telemetry = (self.config.failure_telemetry or self.native_parameters['tear_stretch_ratio'] > 0
+                     or self.native_parameters['grasp_core_break_force_n'] != 150.)
+        self.damage = DamageMonitor(self.grid) if telemetry else None
+        self.failure_metrics = None
         self.grasp = GraspMonitor(self.settings, self.grid.inside)
         self.task = None
         self.preparation = []
@@ -147,11 +172,11 @@ class NativeEnvironment:
         self.last_reset_failure_arrays = None
         stop_stage = {"settled": "settle", "held": "lift", "cut_ready": "blade_approach"}[scene_config.preparation]
         try:
-            if scene_config.physics is None:
+            if scene_config.physics is None and not telemetry:
                 self.native = NativeTissue(self.grid, self.settings, dll, scene.stages[0].command)
             else:
                 self.native = TrainingNativeTissue(self.grid, self.settings, dll, scene.stages[0].command,
-                                                  native_parameters=self.native_parameters)
+                                                  native_parameters=self.native_parameters,telemetry=telemetry)
             self.observed = self.native.observe()
             previous = None
             requested = scene.stages[0].command
@@ -201,10 +226,12 @@ class NativeEnvironment:
             self.context = manifest(self.native, self.settings, asdict(scene_config), self.config.bounds,
                                     self.native_parameters)
             self.context.update(episode_id=self.episode_id, seed=int(seed), goal=goal,
+                                reset_lineage_id=self.episode_id,
                                 sensitivity_overrides_are_not_default_replacements=True,
                                 cutting_enabled=self.config.cutting_enabled,
                                 diagnostic_continue=self.config.diagnostic_continue,
                                 full_surface_checks=self.config.full_surface_checks,
+                                failure_telemetry=telemetry,
                                 quality_limits=asdict(self.config.limits),
                                 preparation_steps=self.native.tick, initial_zero_gravity_native_steps=1,
                                 action_semantics="absolute_target; one native dt per step",
@@ -234,11 +261,16 @@ class NativeEnvironment:
     def _assess(self, previous, command):
         started = time.perf_counter()
         material = self.native.material_quality()
+        permitted_tears=0
+        if self.damage is not None:
+            self.failure_metrics=self.damage.assess(self.observed,self.native.last_training_metrics)
+            permitted_tears=self.failure_metrics['new_tear_edges']
         export_start = time.perf_counter()
         self.last_surface = self.native.surface() if self.config.full_surface_checks else None
         export_ms = (time.perf_counter() - export_start) * 1000
         result = self.quality.assess(self.observed, previous, command, self.settings, material,
-                                     self.last_surface, self.native.scissors_geometry)
+                                     self.last_surface, self.native.scissors_geometry,
+                                     permitted_tear_edges=permitted_tears)
         return result, {"surface_export": export_ms, "quality_and_export": (time.perf_counter()-started)*1000}
 
     def _snapshot(self, previous, quality):
@@ -269,9 +301,15 @@ class NativeEnvironment:
                     "topology_revision": int(self._topology_revision), "tools": tools, "quality": quality}
         state = State(metadata, arrays, self._topology)
         metadata['grasp'] = self.grasp.assess(state)
+        if self.failure_metrics is not None:
+            metadata['failure_physics']=self.failure_metrics
         return state
 
     def step(self, action):
+        with self._state_lock:
+            return self._policy_step(action)
+
+    def _policy_step(self, action):
         if self.done or self.native is None:
             raise RuntimeError("Call reset before step, and after every terminal result")
         limited, record = self.config.bounds.process(action, self.previous_action, self.settings.dt)
@@ -291,6 +329,16 @@ class NativeEnvironment:
                                          "policy": command_to_action(requested).tolist()})
 
     def _advance(self, requested, action_record):
+        with self._state_lock:
+            if self._step_in_progress:
+                raise RuntimeError('Native step is already in progress')
+            self._step_in_progress = True
+            try:
+                return self._advance_active(requested, action_record)
+            finally:
+                self._step_in_progress = False
+
+    def _advance_active(self, requested, action_record):
         started = time.perf_counter()
         before, previous = self.state, self.observed
         executed = drive_command(requested, previous, self.settings)
@@ -354,11 +402,24 @@ class NativeEnvironment:
                 "active_mask": self.grid.active, "pinned_mask": self.grid.pinned,
                 "initial_neighbors": self.grid.neighbors}
 
+    def snapshot(self):
+        """Save a completed state using an explicitly selected snapshot ABI DLL."""
+        from .snapshot import take_snapshot
+        with self._state_lock:
+            return take_snapshot(self)
+
+    def restore(self, snapshot, *, branch_label=None, **kwargs):
+        """Open a new branch. Optional goal replaces task/reward, never physics."""
+        from .snapshot import restore_snapshot
+        with self._state_lock:
+            return restore_snapshot(self, snapshot, branch_label=branch_label, **kwargs)
+
     def close(self):
-        if self.native is not None:
-            self.native.close()
-        self.native = None
-        self.done = True
+        with self._state_lock:
+            if self.native is not None:
+                self.native.close()
+            self.native = None
+            self.done = True
 
     def __enter__(self):
         return self
