@@ -67,3 +67,5 @@ R18从R16分离，仅对局部顶点求解中严重抵消的矩阵启用稳定�
 | 再次夹取 | [基线](D:/Simulation/genesis-world/endoscopic_tissue/outputs/interaction-fixes-20261031/baseline31-friction-regrasp/review/interactions-h264.mp4) | [R13诊断](D:/Simulation/genesis-world/endoscopic_tissue/outputs/interaction-fixes-20261031/r13-friction-regrasp/review/interactions-h264.mp4) |
 
 原始日志、快照及录像保留在outputs目录，大体积产物不加入Git。
+
+2026-11-01补充：用户确认切口应忠实跟随真实剪刀切缘，允许由刀程与形变产生的不规则路径，不要求切口平直。已复查指定的R13薄壁录像，保留上述所有未解决项，并新增刃缘几何近似的待验证项；详见[切缘复核及问题记录](D:/Simulation/genesis-world/endoscopic_tissue/docs/cutting-edge-review-2026-11-01.md)。
