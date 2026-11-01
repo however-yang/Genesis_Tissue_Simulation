@@ -22,9 +22,12 @@ cut='vendor/cuda/cut.cu'
 edit(xpbd, '#include <utility>', '#include <utility>\n#include "../training/training_api.h"\n'
      'static int g_trainingFlags=0;\nstatic void trainingSubstep(float);\n'
      'static void trainingCapture();\nstatic void trainingShutdown();')
-edit(xpbd, '    k_UnifiedReaction<<<128,64>>>(d_unified);\n    if(g_manifoldCapacity>0)',
-     '    k_UnifiedReaction<<<128,64>>>(d_unified);\n'
-     '    if(g_trainingFlags)trainingSubstep(h);\n    if(g_manifoldCapacity>0)')
+edit(xpbd, '        contactShape(stepTool,1,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,2,g_jawThickness,g_gp.jawGapClosed));\n'
+     '    k_update_velocity<<<Gr(g_N),64>>>(g_N,1.f/h,d_invMass,d_pos,d_prevPos,d_vel);',
+     '        contactShape(stepTool,1,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,2,g_jawThickness,g_gp.jawGapClosed));\n'
+     '    // Report the forces actually applied in this substep before releasing an overloaded witness.\n'
+     '    if(g_trainingFlags)trainingSubstep(h);\n'
+     '    k_update_velocity<<<Gr(g_N),64>>>(g_N,1.f/h,d_invMass,d_pos,d_prevPos,d_vel);')
 edit(xpbd, '    refreshGrip();g_grasping=true;if(!d_coupledTool)g_toolFrom=g_tool;',
      '    if(g_trainingFlags)trainingCapture();\n'
      '    refreshGrip();g_grasping=true;if(!d_coupledTool)g_toolFrom=g_tool;')

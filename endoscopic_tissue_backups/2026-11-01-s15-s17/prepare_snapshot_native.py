@@ -119,7 +119,8 @@ def generate():
                         record.update(category='recompute', reason='idle CUDA scheduling resource, no physical state; all work synchronized at boundary')
                     elif name in DERIVED:
                         record.update(category='recompute', reason='graph cache metadata; all associated graphs invalidated on restore')
-                    elif name == 'STENCIL_OFF' or 'static constexpr' in d or re.search(r'static\s+const\s+(?:int|float)\s', d):
+                    elif (name == 'STENCIL_OFF' or 'static constexpr' in d or
+                          (re.search(r'static\s+const\s+(?:int|float)\s', d) and '*' not in clean(d).split('=')[0])):
                         record.update(category='immutable', reason='compile-time constants pinned by DLL SHA')
                     else:
                         record.update(category='save', reason='conservative complete host/device-symbol state')
@@ -150,6 +151,8 @@ def generate():
                 lines += ['    '+name+'=false;']
             lines += ['    for(auto& key:g_fragmentPassKey)key={};', '}}']
         (CATALOG/(module+'_state.cuh')).write_text('\n'.join(lines)+'\n', encoding='utf8')
+    for pointer in ('g_surfaceTags', 'g_surfaceCorners', 'g_surfaceConn'):
+        assert any(f.get('name') == pointer and f['category'] == 'save' for f in reviewed), pointer
     (HERE/'state-reviewed-host.json').write_text(json.dumps({'schema': 'native_state_catalog_v1',
         'review_complete': False, 'note': 'Host classifications generated/reviewed; GPU layout audit and runtime T1-T8 pending',
         'fields': reviewed}, ensure_ascii=False, indent=2), encoding='utf8')
@@ -174,6 +177,9 @@ def prepare(refresh=False):
     api = TARGET/'vendor/src/plugin_api.cpp'
     text = api.read_text(encoding='utf-8-sig')
     text = '#include "training/state_archive.h"\n'+text
+    shutdown = '    physics_shutdown();\n    recon_shutdown();\n}'
+    assert text.count(shutdown) == 1
+    text = text.replace(shutdown, '    physics_shutdown();\n    recon_shutdown();\n    lcs_state::discard_session();\n}')
     # Explicit frame boundary, rather than guessing from a substep index.
     old = 'LCS_API int LCS_Step(float dt)'
     index = text.index(old)

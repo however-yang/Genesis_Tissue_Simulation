@@ -25,7 +25,7 @@ from endoscopic_tissue.training import env as entry
 from endoscopic_tissue.training.actions import ActionBounds, command_to_action
 from endoscopic_tissue.training.physics import PhysicsOverrides
 from endoscopic_tissue.training.geometry import WallGeometry, scene_for_config
-from endoscopic_tissue.training.data import atomic_json
+from endoscopic_tissue.training.data import atomic_json, EpisodeWriter
 from endoscopic_tissue.training.provenance import sha256
 
 OUT = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/damage'
@@ -75,6 +75,9 @@ def main():
     p.add_argument('--telemetry', action='store_true')
     p.add_argument('--capture', action='store_true')
     p.add_argument('--stop-after', default='hold')
+    p.add_argument('--seed', type=int, default=0)
+    p.add_argument('--probe-dir', type=Path,
+                   help='Optional actual two-state episode for geometry split validation; full-script evidence remains separate')
     args = p.parse_args()
     out = OUT/args.name
     out.mkdir(parents=True, exist_ok=False)
@@ -82,6 +85,8 @@ def main():
     geometry=WallGeometry(**json.loads(args.geometry.read_text(encoding='utf8'))) if args.geometry else None
     scene_config=entry.SceneConfig(args.scene,'settled',contact_model=args.contact,geometry=geometry)
     scene = scene_for_config(scene_config)
+    if args.stop_after not in {s.name for s in scene.stages}:
+        raise ValueError('Requested stop stage is absent from the scene')
     center = command_to_action(scene.stages[0].command)
     lower, upper = center-.2, center+.2
     lower[[3,10]], upper[[3,10]] = 0., 1.
@@ -93,7 +98,8 @@ def main():
         diagnostic_continue=True)
     stream = ReplayArchiveWriter(out/'replay.rdx') if args.capture else None
     active = {'stage': 'settle'}
-    trajectory, stages, checks, rows = [], [], [], []
+    trajectory, stages, checks, rows, preparation = [], [], [], [], []
+    probe = None
     snips={}
     original_class = entry.TrainingNativeTissue
 
@@ -116,13 +122,16 @@ def main():
     error = None
     try:
         with entry.NativeEnvironment(config) as env:
-            _, context = env.reset(0)
+            initial, context = env.reset(args.seed)
             atomic_json(out/'context.json', context)
+            preparation = env.preparation
+            if args.probe_dir:
+                probe = EpisodeWriter(args.probe_dir, context, initial, env.static_arrays())
             stages.append({'name': 'settle', 'end': {'step': env.native.tick}})
             if env.native.training_flags:
                 checks.append(independently_check(env.native))
             requested = scene.stages[0].command
-            for stage in scene.stages[1:]:
+            for stage in (() if args.stop_after == 'settle' else scene.stages[1:]):
                 active['stage'] = stage.name
                 start = stage_start(stage.name, requested, env.observed)
                 for i in range(stage.steps):
@@ -133,6 +142,10 @@ def main():
                                  'timings_ms': r.timings_ms, 'reason': r.reason})
                     if r.after is None:
                         raise RuntimeError(f'No state returned: {r.reason}')
+                    if probe is not None:
+                        probe.append(r)
+                        probe.close('one_transition_geometry_split_probe; full_script_checked_in_separate_result')
+                        probe = None
                     if stage.name.startswith('incise_'):
                         cut=meta.get('cut_origin_bracket')
                         snip=snips.setdefault(stage.name,{'first_material_cut_stage_step':None,'material_edges':0,'steps':0})
@@ -159,6 +172,8 @@ def main():
         raise
     finally:
         entry.TrainingNativeTissue = original_class
+        if probe is not None:
+            probe.close('initial_state_only; no_transition_requested')
         if stream:
             stream.close()
         atomic_json(out/'steps.json', rows)
@@ -167,12 +182,23 @@ def main():
         with (out/'trajectory.jsonl').open('w', encoding='utf8') as f:
             for row in trajectory:
                 f.write(json.dumps(row)+'\n')
+        quality_failures = sum(not r['metadata']['quality']['checked_metrics_passed'] for r in rows if r['metadata'])
+        scope_failures = sum(not r['metadata']['quality']['within_declared_local_scope'] for r in rows if r['metadata'])
+        prep_failures = sum(not r['quality']['checked_metrics_passed'] or not r['quality']['within_declared_local_scope'] for r in preparation)
+        full_script = args.stop_after == scene.stages[-1].name
+        completed = bool(stages) and stages[-1]['name'] == args.stop_after
+        snips_passed = (len(snips) == 3 and all(s['material_edges'] > 0 for s in snips.values())) if full_script else None
+        passed = error is None and completed and not (quality_failures or scope_failures or prep_failures) and (snips_passed is not False)
         atomic_json(out/'result.json', {'case': args.name, 'config': asdict(config), 'error': error,
             'wall_s': time.perf_counter()-started, 'transitions': len(rows),
-            'snips':snips,
-            'quality_failures': sum(not r['metadata']['quality']['checked_metrics_passed'] for r in rows if r['metadata']),
-            'scope_failures': sum(not r['metadata']['quality']['within_declared_local_scope'] for r in rows if r['metadata']),
+            'snips':snips, 'completed_requested_stages': completed, 'full_script': full_script,
+            'three_snips_created_material_cuts': snips_passed,
+            'quality_failures': quality_failures, 'scope_failures': scope_failures,
+            'preparation_failures': prep_failures, 'passed': passed,
+            'split_probe_note': 'Two adjacent native states only; complete script metrics and video are separate' if args.probe_dir else None,
             'independent_checks': len(checks), 'candidate_adopted': False})
+    if not passed:
+        raise SystemExit(2)
 
 
 if __name__ == '__main__':

@@ -77,12 +77,22 @@ def worker(index):
     row['wall_seconds'] = time.perf_counter()-start
     atomic_json(directory/'result.json', row)
     print(json.dumps(row), flush=True)
+    if not (row['native_preparation_passed'] and row['quality_passed']):
+        raise SystemExit(2)
 
 
 def main():
+    global OUT, DLL, SHA
     parser = argparse.ArgumentParser()
     parser.add_argument('--worker', type=int)
+    parser.add_argument('--dll', default='bin-contact-groups31')
+    parser.add_argument('--series', default='parameters')
     args = parser.parse_args()
+    if Path(args.dll).name != args.dll or Path(args.series).name != args.series:
+        parser.error('DLL and series must be simple directory names')
+    DLL = ROOT/'endoscopic_tissue/native'/args.dll/'LiverCudaSim.dll'
+    SHA = sha256(DLL)
+    OUT = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101'/args.series
     if args.worker is not None:
         return worker(args.worker)
     OUT.mkdir(parents=True, exist_ok=False)
@@ -94,7 +104,8 @@ def main():
     for i, (name, _) in enumerate(CASES):
         print(f'Running {i+1}/{len(CASES)}: {name}', flush=True)
         with (OUT/(name+'.log')).open('w', encoding='utf8') as log:
-            run = subprocess.run([sys.executable, '-X', 'utf8', str(Path(__file__).resolve()), '--worker', str(i)],
+            run = subprocess.run([sys.executable, '-X', 'utf8', str(Path(__file__).resolve()), '--worker', str(i),
+                                  '--dll', args.dll, '--series', args.series],
                                  cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=600)
         result_path = OUT/name/'result.json'
         row = json.loads(result_path.read_text(encoding='utf8')) if result_path.exists() else {

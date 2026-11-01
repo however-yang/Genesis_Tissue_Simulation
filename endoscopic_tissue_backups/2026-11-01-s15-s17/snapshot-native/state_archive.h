@@ -28,6 +28,7 @@ uint64_t digest(const void*,size_t);
 void check(cudaError_t);
 cudaError_t allocate(void**,size_t,const char*,int);
 cudaError_t release(void*);
+void discard_session() noexcept;
 void allocation_layout(const void*,const Layout&);
 void known_layout(const Layout&);
 void boundary(bool);

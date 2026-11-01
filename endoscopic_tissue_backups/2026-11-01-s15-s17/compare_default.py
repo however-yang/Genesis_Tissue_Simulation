@@ -45,8 +45,10 @@ def wait_idle():
 
 
 def load_entry(variant):
-    commit = 'b3d301cf4c85774d214669ecebbab98b56325419' if variant=='original' else '1d3e518'
-    path = HERE/('baseline-env.py' if variant=='original' else 's17-checkpoint-env.py')
+    if variant == 'new':
+        return current
+    commit = 'b3d301cf4c85774d214669ecebbab98b56325419'
+    path = HERE/'baseline-env.py'
     if not path.exists():
         path.write_bytes(subprocess.check_output(['git', 'show',
             commit+':endoscopic_tissue/training/env.py'], cwd=ROOT))
@@ -128,7 +130,8 @@ def worker(name, variant, scene_name, capture):
         result = {'name':name,'variant':variant,'scene':scene_name,'capture':capture,
                   'baseline_commit':'b3d301cf4c85774d214669ecebbab98b56325419',
                   'entry_source_sha256':sha256(Path(module.__file__)),
-                  'candidate_entry_commit':'1d3e518',
+                  'candidate_entry_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+                  'candidate_entry_is_working_tree':variant=='new',
                   'default_dll_sha256':sha256(DLL),'context_hash':context['context_sha256'],
                   'expected_total_steps':sum(s.steps for s in scene.stages),'total_steps':env.native.tick,
                   'episode_transitions':len(rows),'complete':env.native.tick==sum(s.steps for s in scene.stages),
@@ -137,6 +140,7 @@ def worker(name, variant, scene_name, capture):
                   'wall_s':time.perf_counter()-started,
                   'timings_ms':{k:stats([r['timings_ms'][k] for r in rows if k in r['timings_ms']])
                                   for k in ('native_step','quality_and_export','snapshot','total')}}
+        result['passed'] = result['complete'] and not (result['quality_failure_steps'] or result['scope_failure_steps'])
     if stream:
         stream.close()
         with (directory/'trajectory.jsonl').open('w',encoding='utf8') as log:
@@ -146,6 +150,8 @@ def worker(name, variant, scene_name, capture):
     atomic_json(directory/'steps.json', rows)
     atomic_json(directory/'result.json',result)
     print(json.dumps(result),flush=True)
+    if not result['passed']:
+        raise SystemExit(2)
 
 
 def main():

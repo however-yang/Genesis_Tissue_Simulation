@@ -147,6 +147,19 @@ class SnapshotTests(unittest.TestCase):
         self.env.restore(snap)
         np.testing.assert_array_equal(expected,self.env.rng.integers(0,2**32,size=10))
 
+    def test_branch_cannot_change_cut_permission_and_records_actual_episode_controls(self):
+        snap = self.env.snapshot()
+        original = self.env.config
+        self.env.config = replace(original,cutting_enabled=True)
+        with self.assertRaises(ValueError):
+            self.env.restore(snap)
+        self.assertEqual(MemoryBackend.loads,0)
+        self.env.config = replace(original,diagnostic_continue=True,max_steps=33)
+        _,context = self.env.restore(snap)
+        self.assertTrue(context['diagnostic_continue'])
+        self.assertEqual(context['max_steps'],33)
+        self.assertFalse(context['cutting_enabled'])
+
     def test_branch_writer_starts_at_restored_state_and_cannot_append_parent_history(self):
         snap = self.env.snapshot()
         first, context = self.env.restore(snap)
@@ -165,6 +178,7 @@ class SnapshotTests(unittest.TestCase):
 
     def test_vision_rebuilt_after_restore_and_missing_renderer_is_rejected(self):
         class Vision:
+            manifest = {'fixture': 'CPU renderer', 'width': 2, 'height': 2}
             def capture(self,env,state):
                 state.arrays['rgb'] = np.full((2,2,3),env.native.device_state[0],np.uint8)
                 return 7.
@@ -179,10 +193,16 @@ class SnapshotTests(unittest.TestCase):
             self.env.restore(snap)
         self.assertEqual(MemoryBackend.loads,0)
         self.env._snapshot_vision = vision
+        vision.manifest = {**vision.manifest, 'width': 3}
+        with self.assertRaisesRegex(ValueError,'vision configuration'):
+            self.env.restore(snap)
+        self.assertEqual(MemoryBackend.loads,0)
+        vision.manifest = {**vision.manifest, 'width': 2}
         restored, context = self.env.restore(snap)
         self.assertEqual(self.env.last_surface,'new restored surface')
         self.assertTrue((restored.arrays['rgb'] == ord('p')).all())
         self.assertEqual(context['restore_vision_ms'],7.)
+        self.assertEqual(context['vision'],vision.manifest)
 
     def test_inherited_task_history_is_preserved_and_offline_recomputable(self):
         env=self.env

@@ -10,12 +10,14 @@ test_parameters_resolve_and_each_change_is_in_provenance (endoscopic_tissue.trai
 test_unexposed_setting_changes_are_not_missed (endoscopic_tissue.training.test_physics.PhysicsTests.test_unexposed_setting_changes_are_not_missed) ... ok
 test_counter_without_physical_break_is_rejected (endoscopic_tissue.training.test_damage.DamageTests.test_counter_without_physical_break_is_rejected) ... ok
 test_events_distinguish_blade_tear_and_air_links (endoscopic_tissue.training.test_damage.DamageTests.test_events_distinguish_blade_tear_and_air_links) ... ok
+test_location_counters_cannot_invent_extra_tears (endoscopic_tissue.training.test_damage.DamageTests.test_location_counters_cannot_invent_extra_tears) ... ok
 test_missing_or_nonfinite_metrics_are_not_invented (endoscopic_tissue.training.test_damage.DamageTests.test_missing_or_nonfinite_metrics_are_not_invented) ... ok
 test_real_units_and_unavailable_contact_load_are_explicit (endoscopic_tissue.training.test_damage.DamageTests.test_real_units_and_unavailable_contact_load_are_explicit) ... ok
 test_rollback_without_restore_baseline_is_rejected (endoscopic_tissue.training.test_damage.DamageTests.test_rollback_without_restore_baseline_is_rejected) ... ok
 test_tear_permission_does_not_hide_disabled_blade_or_detached_scope (endoscopic_tissue.training.test_damage.DamageTests.test_tear_permission_does_not_hide_disabled_blade_or_detached_scope) ... ok
 test_evaluation_branch_and_geometry_change_are_rejected (endoscopic_tissue.training.test_snapshot.LineageTests.test_evaluation_branch_and_geometry_change_are_rejected) ... ok
 test_partial_or_self_parented_branch_rejected (endoscopic_tissue.training.test_snapshot.LineageTests.test_partial_or_self_parented_branch_rejected) ... ok
+test_branch_cannot_change_cut_permission_and_records_actual_episode_controls (endoscopic_tissue.training.test_snapshot.SnapshotTests.test_branch_cannot_change_cut_permission_and_records_actual_episode_controls) ... ok
 test_branch_writer_starts_at_restored_state_and_cannot_append_parent_history (endoscopic_tissue.training.test_snapshot.SnapshotTests.test_branch_writer_starts_at_restored_state_and_cannot_append_parent_history) ... ok
 test_codec_preserves_array_identity_values_and_writeability_without_pickle (endoscopic_tissue.training.test_snapshot.SnapshotTests.test_codec_preserves_array_identity_values_and_writeability_without_pickle) ... ok
 test_inherited_task_history_is_preserved_and_offline_recomputable (endoscopic_tissue.training.test_snapshot.SnapshotTests.test_inherited_task_history_is_preserved_and_offline_recomputable) ... ok
@@ -77,6 +79,6 @@ test_seed_labels_and_spacing_do_not_split_same_geometry (endoscopic_tissue.train
 test_wrong_material_reference_is_rejected (endoscopic_tissue.training.test_splits.SplitTests.test_wrong_material_reference_is_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 77 tests in 1.082s
+Ran 79 tests in 1.213s
 
 OK

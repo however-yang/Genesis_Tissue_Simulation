@@ -27,6 +27,8 @@ class DamageMonitor:
             total=int(np.count_nonzero(new))
             material=int(np.count_nonzero(new&self.material_edges))
         if (delta['tearEdges']>total or delta['materialTearEdges']>material or
+                delta['materialTearEdges']>delta['tearEdges'] or
+                delta['nearGraspTearEdges']>delta['materialTearEdges'] or
                 delta['rimTearEdges']+delta['interiorTearEdges']!=delta['materialTearEdges']):
             raise ValueError('Native tear events disagree with actually severed material topology')
         result={'schema':'failure_telemetry_v1',

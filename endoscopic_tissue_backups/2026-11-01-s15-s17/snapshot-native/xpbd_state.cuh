@@ -224,6 +224,9 @@ void collect_xpbd(Fields& f){
     f.pod("xpbd.g_graphMuD",g_graphMuD);
     f.pod("xpbd.g_surfaceRest",g_surfaceRest);
     f.pod("xpbd.g_surfaceMaterialFP",g_surfaceMaterialFP);
+    f.pod("xpbd.g_surfaceTags",g_surfaceTags);
+    f.pod("xpbd.g_surfaceCorners",g_surfaceCorners);
+    f.pod("xpbd.g_surfaceConn",g_surfaceConn);
     f.pod("xpbd.g_surfaceMasks",g_surfaceMasks);
     f.pod("xpbd.g_surfaceExpanded",g_surfaceExpanded);
     f.pod("xpbd.d_surfaceVertices",d_surfaceVertices);

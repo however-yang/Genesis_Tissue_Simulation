@@ -294,6 +294,7 @@ def binding(env):
     return {'settings': asdict(env.settings), 'native_physics_parameters': env.native_parameters,
             'scene_config': scene, 'material_reference_sha256': material_reference(env.static_arrays()),
             'training_flags': getattr(env.native, 'training_flags', 0),
+            'cutting_enabled': env.config.cutting_enabled,
             'full_surface_checks': env.config.full_surface_checks, 'quality_limits': asdict(env.config.limits)}
 
 
@@ -326,6 +327,7 @@ def take_snapshot(env):
         raise RuntimeError('Task state inventory changed; snapshot codec review required')
     native = backend.save()
     python = encode_python(data)
+    vision = getattr(env, '_snapshot_vision', None)
     compressor = zstd.ZstdCompressor(level=1)
     nc, pc = compressor.compress(native), compressor.compress(python)
     metadata = {'schema': 'environment_snapshot_v1', 'state_abi': 1, 'dll_sha256': env.context['dll_sha256'],
@@ -334,7 +336,8 @@ def take_snapshot(env):
                 'native_compressed_sha256': _digest(nc), 'python_compressed_sha256': _digest(pc),
                 'parent_episode_id': env.episode_id, 'branch_from_step': env.step_id,
                 'reset_lineage_id': env.context.get('reset_lineage_id', env.episode_id),
-                'native_tick': env.native.tick, 'vision_required': getattr(env, '_snapshot_vision', None) is not None,
+                'native_tick': env.native.tick, 'vision_required': vision is not None,
+                'vision_manifest_sha256': None if vision is None else json_hash(vision.manifest),
                 'snapshot_wall_ms': (time.perf_counter()-started)*1000}
     return EnvSnapshot(nc, pc, json.dumps(metadata, sort_keys=True, allow_nan=False).encode())
 
@@ -356,6 +359,8 @@ def restore_snapshot(env, snapshot, *, branch_label=None, goal=KEEP_TASK):
     vision = getattr(env, '_snapshot_vision', None)
     if m['vision_required'] and vision is None:
         raise ValueError('Attach synchronous vision before restoring a snapshot that requires it')
+    if m['vision_required'] and json_hash(vision.manifest) != m['vision_manifest_sha256']:
+        raise ValueError('Snapshot vision configuration differs from the attached renderer')
     data = snapshot.python_state()
     expected = set(ENV_FIELDS) | {'rng', 'native', 'quality', 'grasp', 'damage', 'task'}
     if set(data) != expected or (data['task'] is not None and set(data['task']) != TASK_FIELDS):
@@ -417,12 +422,15 @@ def restore_snapshot(env, snapshot, *, branch_label=None, goal=KEEP_TASK):
         snapshot_sha256=snapshot.sha256, branch_label=branch_label,
         branch_initial_native_tick=m['native_tick'], snapshot_state_abi=1,
         goal=None if task is None else task.goal.to_dict(),
-        action_bounds=asdict(env.config.bounds), preparation_reused_from_snapshot=True)
+        action_bounds=asdict(env.config.bounds), diagnostic_continue=env.config.diagnostic_continue,
+        max_steps=env.config.max_steps, cutting_enabled=env.config.cutting_enabled,
+        preparation_reused_from_snapshot=True)
     if task is not None:
         context['task_snapshot_initial'] = encode_task_history(task)
     context['restore_wall_time_ms'] = (time.perf_counter()-started)*1000
     if vision is not None:
         try:
+            context['vision'] = json.loads(json.dumps(vision.manifest, allow_nan=False))
             env.last_surface = env.native.surface()
             context['restore_vision_ms'] = vision.capture(env, state)
         except Exception:

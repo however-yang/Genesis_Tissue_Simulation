@@ -11,3 +11,7 @@
 - 先证明 T1/T2/T3/T5/T6，再进行高开销 T4/T7/T8。若保守状态超过 200 MB，报告实际大小，不能删必要历史凑大小；按真实读写依赖再压缩/重算。
 
 本方案仍待 buffer/host/symbol 盘点和实现。不要宣称已有快照功能。
+
+## 追加：实现与静态审查
+
+上文为实施前草案。当前独立 ABI、保守全分配存取、不可变 Python 包装和各验收脚本已实现并编译，GPU 运行验收仍未发生。静态核对修正了 g_surfaceTags/g_surfaceCorners/g_surfaceConn 的 const 指针分类，三个别名必须保存和重绑定。53 个相关类型的成员审查见 state-layout-audit.json，执行资源分类见 state-reviewed-host.json；两者均明确不代表 T1–T8 已通过。

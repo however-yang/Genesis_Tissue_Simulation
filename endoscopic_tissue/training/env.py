@@ -197,6 +197,11 @@ class NativeEnvironment:
                                              "jaw_load_n": list(self.observed.jaw_load_n),
                                              "grip_points": self.observed.grip_points, "quality": assessed,
                                              "wall_time_ms": (time.perf_counter()-preparation_start)*1000})
+                    if self.failure_metrics is not None:
+                        # _assess creates a fresh record each step. Keep the
+                        # already computed preparation peaks and break events;
+                        # exporting only s0 would hide them from calibration.
+                        self.preparation[-1]['failure_physics'] = self.failure_metrics
                     if self._invalid(assessed) and not self.config.diagnostic_continue:
                         raise ResetFailure({"episode_id": self.episode_id, "seed": int(seed),
                                             "failure": assessed, "preparation": self.preparation})
@@ -321,12 +326,13 @@ class NativeEnvironment:
 
     def replay_command(self, requested):
         """Exact legacy request for paired diagnostic replay, never a policy bypass."""
-        if not self.config.diagnostic_continue:
-            raise RuntimeError("Raw command replay requires explicit diagnostic mode")
-        if self.done or self.native is None:
-            raise RuntimeError("Reset required")
-        return self._advance(requested, {"diagnostic_command_replay": True,
-                                         "policy": command_to_action(requested).tolist()})
+        with self._state_lock:
+            if not self.config.diagnostic_continue:
+                raise RuntimeError("Raw command replay requires explicit diagnostic mode")
+            if self.done or self.native is None:
+                raise RuntimeError("Reset required")
+            return self._advance(requested, {"diagnostic_command_replay": True,
+                                             "policy": command_to_action(requested).tolist()})
 
     def _advance(self, requested, action_record):
         with self._state_lock:

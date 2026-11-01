@@ -47,6 +47,15 @@ class DamageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'actually severed'):
             DamageMonitor(grid).assess(observation(grid),metrics(tearEdges=1))
 
+    def test_location_counters_cannot_invent_extra_tears(self):
+        grid=fixture()
+        after=grid.neighbors.copy()
+        after[0,1]=after[1,0]=-1
+        for values in (dict(tearEdges=0,materialTearEdges=1,interiorTearEdges=1),
+                       dict(tearEdges=1,materialTearEdges=1,interiorTearEdges=1,nearGraspTearEdges=2)):
+            with self.assertRaisesRegex(ValueError,'actually severed'):
+                DamageMonitor(grid).assess(observation(grid,after),metrics(**values))
+
     def test_rollback_without_restore_baseline_is_rejected(self):
         grid=fixture();monitor=DamageMonitor(grid)
         monitor.assess(observation(grid),metrics(brokenCoreCorners=1,brokenGripPoints=2))

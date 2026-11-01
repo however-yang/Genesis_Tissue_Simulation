@@ -103,8 +103,17 @@ cudaError_t allocate(void** p,size_t n,const char* file,int line){
 cudaError_t release(void* p){
     if(!p)return cudaSuccess;
     auto i=std::find_if(allocations.begin(),allocations.end(),[p](const auto& x){return x.second.address==p;});
-    cudaError_t e=::cudaFree(p);if(e==cudaSuccess && i!=allocations.end())allocations.erase(i);
+    // A failed restore can leave a host alias pointing at already discarded
+    // staging storage. Never forward that stale pointer to cudaFree again.
+    if(i==allocations.end())return cudaErrorInvalidDevicePointer;
+    cudaError_t e=::cudaFree(p);if(e==cudaSuccess)allocations.erase(i);
     if(allocations.empty()){nextId=1;atBoundary=false;}return e;
+}
+void discard_session() noexcept{
+    // Called only AFTER every module's shutdown. Reclaim any owned old buffer
+    // whose host alias was replaced before an exceptional restore failed.
+    for(const auto& pair:allocations)::cudaFree(pair.second.address);
+    allocations.clear();nextId=1;atBoundary=false;
 }
 void known_layout(const Layout& layout){
     if(std::find(layouts.begin(),layouts.end(),layout)==layouts.end())layouts.push_back(layout);
@@ -193,6 +202,7 @@ int load_state(const void* input,size_t bytes){
         }
         // From this point any CUDA failure invalidates the session; the Python
         // adapter closes it. Malformed bytes have already been rejected above.
+        atBoundary=false;
         invalidate_xpbd_graphs();
         auto decode=[&table](uint64_t token){return decode_pointer(token,table);};
         for(const auto& a:saved){const void* source=a.data;
@@ -207,9 +217,12 @@ int load_state(const void* input,size_t bytes){
             }
             x.field->write(source,x.bytes);
         }
+        std::vector<void*> obsolete;
         for(const auto& old:allocations){auto keep=table.find(old.first);
-            if(keep==table.end() || keep->second.address!=old.second.address)check(::cudaFree(old.second.address));
+            if(keep==table.end() || keep->second.address!=old.second.address)obsolete.push_back(old.second.address);
         }
+        // Keep the ownership registry accurate even if a later free fails.
+        for(auto address:obsolete)check(release(address));
         allocations=std::move(table);nextId=h.next;newMemory.clear();atBoundary=true;errorText.clear();return 0;
     }catch(const std::exception& e){for(auto p:newMemory)::cudaFree(p);return failure(e);}
 }
