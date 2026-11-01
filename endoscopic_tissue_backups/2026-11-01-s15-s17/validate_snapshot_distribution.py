@@ -99,6 +99,8 @@ def paired_run(out, args):
                 sequence, prefix = command_sequence([stage], prior), []
             else:
                 sequence, prefix = prepare_fork(env, args.fork, capture)
+            if capture:
+                capture.expected_end_step = env.native.tick+len(sequence)
             record['prefix_quality'] = quality_summary(prefix)
             record['preparation_quality_failures'] = sum(not r['quality']['checked_metrics_passed'] for r in preparation)
             record['preparation_scope_failures'] = sum(not r['quality']['within_declared_local_scope'] for r in preparation)

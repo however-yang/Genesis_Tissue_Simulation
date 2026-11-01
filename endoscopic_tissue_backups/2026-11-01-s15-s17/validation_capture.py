@@ -20,6 +20,7 @@ class PairedCapture:
     def __init__(self, root, scene, name):
         self.scene, self.name = scene, name
         self.label, self.arm = 'preparation', None
+        self.expected_end_step = None
         self.streams, self.rows, self.stages = {}, {}, {}
         self.root = Path(root)
         for arm in ('original', 'restored'):
@@ -72,4 +73,9 @@ class PairedCapture:
             with (folder/'trajectory.jsonl').open('w', encoding='utf8') as log:
                 for row in self.rows[arm]:
                     log.write(json.dumps(row)+'\n')
-            atomic_json(folder/'report.json', {'metadata': {'case': self.name+'/'+arm}, 'stages': self.stages[arm]})
+            last = self.rows[arm][-1]['step'] if self.rows[arm] else 0
+            assert [r['step'] for r in self.rows[arm]] == list(range(1, last+1)), 'Capture lost or repeated native frames'
+            atomic_json(folder/'report.json', {'metadata': {'case': self.name+'/'+arm}, 'stages': self.stages[arm],
+                'steps': last, 'completed': False, 'expected_steps': self.expected_end_step,
+                'completed_requested_continuation': self.expected_end_step is not None and last == self.expected_end_step,
+                'scope': 'complete preparation/fork prefix and tested continuation; not the full three-snip scenario'})

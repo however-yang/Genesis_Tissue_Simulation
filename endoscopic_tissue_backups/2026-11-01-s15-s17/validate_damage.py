@@ -26,6 +26,7 @@ from endoscopic_tissue.training.actions import ActionBounds, command_to_action
 from endoscopic_tissue.training.physics import PhysicsOverrides
 from endoscopic_tissue.training.geometry import WallGeometry, scene_for_config
 from endoscopic_tissue.training.data import atomic_json, EpisodeWriter
+from endoscopic_tissue.training.grasp import GraspMonitor
 from endoscopic_tissue.training.provenance import sha256
 
 OUT = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/damage'
@@ -107,12 +108,20 @@ def main():
         def __init__(self, *a, **kw):
             super().__init__(*a, **kw)
             if stream:
+                self.capture_grasp = GraspMonitor(self.settings, self.grid.inside)
                 pickle.dump((self.settings, args.scene, args.name), stream, protocol=5)
                 pack_frame(stream, 0, 'initial', self.surface(), self.observe())
 
         def step(self, command):
             obs = super().step(command)
             if stream:
+                grasp = self.capture_grasp.assess_native(obs)
+                trajectory.append({'step': self.tick, 'stage': active['stage'],
+                    'pad_slip_mm': grasp['witness_tangential_slip_m']*1000,
+                    'grip_points': obs.grip_points, 'bite_nodes': len(grasp['witness_ids']),
+                    'held_bite_nodes': round(len(grasp['witness_ids'])*grasp['witness_retained_fraction']),
+                    'cut_edges': int(np.count_nonzero((self.grid.neighbors[:,1::2]>=0)&(obs.neighbors[:,1::2]<0))),
+                    'jaw_load_n': list(obs.jaw_load_n), 'grasp': grasp})
                 pack_frame(stream, self.tick, active['stage'], self.surface(), obs)
             return obs
 
@@ -154,12 +163,13 @@ def main():
                             if snip['first_material_cut_stage_step'] is None:snip['first_material_cut_stage_step']=i+1
                             snip['material_edges']+=cut['new_material_cut_edges']
                     g = meta['grasp']
-                    trajectory.append({'step': env.native.tick, 'stage': stage.name,
-                        'pad_slip_mm': g['witness_tangential_slip_m']*1000,
-                        'grip_points': env.observed.grip_points, 'bite_nodes': len(g['witness_ids']),
-                        'held_bite_nodes': round(len(g['witness_ids'])*g['witness_retained_fraction']),
-                        'cut_edges': int(np.count_nonzero((env.grid.neighbors[:,1::2]>=0)&(env.observed.neighbors[:,1::2]<0))),
-                        'jaw_load_n': list(env.observed.jaw_load_n), 'grasp': g})
+                    if not stream:
+                        trajectory.append({'step': env.native.tick, 'stage': stage.name,
+                            'pad_slip_mm': g['witness_tangential_slip_m']*1000,
+                            'grip_points': env.observed.grip_points, 'bite_nodes': len(g['witness_ids']),
+                            'held_bite_nodes': round(len(g['witness_ids'])*g['witness_retained_fraction']),
+                            'cut_edges': int(np.count_nonzero((env.grid.neighbors[:,1::2]>=0)&(env.observed.neighbors[:,1::2]<0))),
+                            'jaw_load_n': list(env.observed.jaw_load_n), 'grasp': g})
                 stages.append({'name': stage.name, 'end': {'step': env.native.tick}})
                 if env.native.training_flags:
                     checks.append(independently_check(env.native))
@@ -178,7 +188,13 @@ def main():
             stream.close()
         atomic_json(out/'steps.json', rows)
         atomic_json(out/'independent-checks.json', checks)
-        atomic_json(out/'report.json', {'metadata': {'case': args.name}, 'stages': stages})
+        recorded_steps = trajectory[-1]['step'] if trajectory else (stages[-1]['end']['step'] if stages else 0)
+        if stream:
+            assert [r['step'] for r in trajectory] == list(range(1, recorded_steps+1)), 'Missing or repeated captured step'
+        expected_steps = sum(s.steps for s in scene.stages)
+        atomic_json(out/'report.json', {'metadata': {'case': args.name}, 'stages': stages,
+            'steps': recorded_steps, 'completed': error is None and recorded_steps == expected_steps,
+            'expected_steps': expected_steps, 'scope': 'original scenario up to '+args.stop_after})
         with (out/'trajectory.jsonl').open('w', encoding='utf8') as f:
             for row in trajectory:
                 f.write(json.dumps(row)+'\n')

@@ -17,7 +17,7 @@ from endoscopic_tissue.scenario import Stage
 from endoscopic_tissue.training.physics import PhysicsOverrides
 from endoscopic_tissue.training.data import atomic_json
 from endoscopic_tissue.training.provenance import sha256
-from endoscopic_tissue.training.snapshot import SnapshotBackend
+from endoscopic_tissue.training.snapshot import SnapshotBackend, source_binding
 
 DIRECTIONS = {'+x': (1, 0, 0), '-x': (-1, 0, 0), '+y': (0, 1, 0), '+z': (0, 0, 1), '-z': (0, 0, -1)}
 
@@ -124,7 +124,8 @@ def main():
             p.error('Cached dose trials require completed S15 acceptance; use --fresh for an uncached pilot')
         acceptance = json.loads(args.snapshot_acceptance.read_text(encoding='utf8'))
         if (acceptance.get('schema') != 's15_native_acceptance_v1' or acceptance.get('passed') is not True
-                or acceptance.get('dll_sha256') != sha256(dll)):
+                or acceptance.get('dll_sha256') != sha256(dll)
+                or acceptance.get('python_source_sha256') != source_binding()):
             raise ValueError('Unvalidated cached dose trials are prohibited')
     out = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/dose'/args.name
     out.mkdir(parents=True, exist_ok=False)

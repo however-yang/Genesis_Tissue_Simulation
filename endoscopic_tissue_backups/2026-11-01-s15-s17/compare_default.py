@@ -146,7 +146,9 @@ def worker(name, variant, scene_name, capture):
         with (directory/'trajectory.jsonl').open('w',encoding='utf8') as log:
             for row in trajectory:
                 log.write(json.dumps(row)+'\n')
-        atomic_json(directory/'report.json',{'metadata':{'case':name},'stages':stages})
+        atomic_json(directory/'report.json',{'metadata':{'case':name},'stages':stages,
+            'steps': len(trajectory), 'completed': result['complete'],
+            'expected_steps': result['expected_total_steps'], 'scope': 'complete original scenario'})
     atomic_json(directory/'steps.json', rows)
     atomic_json(directory/'result.json',result)
     print(json.dumps(result),flush=True)

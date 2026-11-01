@@ -48,6 +48,17 @@ def nominal(paths, baseline_paths):
     configurations = {json_hash(r['config']) for r in rows}
     if len(configurations) != 1:
         raise ValueError('Nominal candidate records mix configurations')
+    def common_configuration(record):
+        config = json.loads(json.dumps(record['config']))
+        physics = config['scene']['physics']
+        for key in ('tear_stretch_ratio', 'grasp_core_break_force_n'):
+            physics.pop(key, None)
+        return json_hash(config)
+    if len({common_configuration(r) for r in rows+baseline}) != 1:
+        raise ValueError('Nominal comparisons may differ only in the selected failure law')
+    if any(r['config']['scene']['physics'].get('tear_stretch_ratio') not in (None, 0) or
+           r['config']['scene']['physics'].get('grasp_core_break_force_n') not in (None, 150) for r in baseline):
+        raise ValueError('The nominal reference must have both failure laws disabled')
     peak = max(p['peak_core_ema_n'] for r in baseline for p in r['phases'].values())
     gravity_max = max(r['phases']['settle']['max_stretch'] for r in baseline)
     force_candidates = [{'multiplier': f, 'force_n': peak*f, 'inside_supported_range': .1 <= peak*f < 150.}
