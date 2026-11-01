@@ -1,0 +1,217 @@
+{
+  "scope": "Full videos are encoded/decoded and kept separately. Listed storyboard views are the actual sampled visual review; no claim of clinical validation.",
+  "cases": {
+    "r16-strict-kidney-reference": {
+      "storyboards": [
+        "02",
+        "04",
+        "06"
+      ],
+      "freeReleaseFramesReviewed": 77,
+      "observation": "Localized pinch and cut opening; detached piece lands on the parent surface and settles through frame1320."
+    },
+    "r17-strict-kidney-reference": {
+      "storyboards": [
+        "02",
+        "04",
+        "06"
+      ],
+      "freeReleaseFramesReviewed": 77,
+      "observation": "Piece contacts the parent, rolls toward the back, then falls out of view; kept entire trajectory."
+    },
+    "baseline31-wall-tip-completion-wide": {
+      "storyboards": [
+        "02",
+        "04",
+        "06",
+        "08",
+        "09"
+      ],
+      "observation": "The third incision visibly opens the selected region; completion widens the opening. Topology audit confirms no remaining path after the third cut in this run."
+    },
+    "r18-wall-tip-completion-wide": {
+      "storyboards": [
+        "03",
+        "06",
+        "08"
+      ],
+      "observation": "Localized pinch/lift remains; after short third cut the opening differs from the current baseline, and hidden retained paths are confirmed by graph audit. Actual completion removes both audited paths. Upper flap bows more than this baseline run."
+    },
+    "r13-wall-rim-1": {
+      "storyboards": [
+        "02",
+        "04",
+        "06"
+      ],
+      "observation": "Localized cutting and flap motion; no reproduced 71.9mm support spike in this recording. Blade-overlap metric still exceeds tolerance."
+    },
+    "r13-wall-rim-2": {
+      "storyboards": [
+        "06"
+      ],
+      "observation": "Third-cut region inspected; blade-overlap failure retained."
+    },
+    "r18-friction-central": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Localized pinch and modest sustained tissue lift; opening releases contact and the tissue returns. Quantitative unloaded-reference lift1.880mm, no auxiliary anchors. This does not establish equivalence or clinical realism."
+    },
+    "baseline31-friction-deeper": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Deeper bite visibly compresses the tumor but provides little sustained lift during this lift segment. Quantitative unloaded-reference lift and remaining footprint remain weak; no quality approval."
+    },
+    "r18-friction-deeper": {
+      "storyboards": [
+        "02"
+      ],
+      "observation": "Deeper bite visibly compresses the tumor but provides little sustained lift during this lift segment. Quantitative unloaded-reference lift and remaining footprint remain weak; no quality approval."
+    },
+    "r19-strict-kidney-reference": {
+      "storyboards": [
+        "02",
+        "04",
+        "06"
+      ],
+      "freeReleaseFramesReviewed": 77,
+      "observation": "Localized deformation through pinch, lift and both cuts. Excised piece is separated during withdrawal. All 77 free-release frames show descent, contact and settling near the withdrawn scissors; no visible tunneling. Read-only geometry audit reports max penetration 0.016115mm, closed surfaces. The nearby tool remains part of this fixture; not a pure two-tissue-only or clinical-realism validation."
+    },
+    "baseline31-wall-wide-repeat": {
+      "storyboards": [
+        "06",
+        "08"
+      ],
+      "observation": "Short third cut leaves a visibly different opening from the first identical-DLL run. Physical completion widens the incision and removes the audited material and skin-support paths; this is baseline trajectory variation, not proof of a candidate fix."
+    },
+    "r18-wall-reference": {
+      "storyboards": [
+        "06"
+      ],
+      "observation": "Third incision and withdrawal sampled; incision edges deform locally. Surface remains blocky at this grid resolution. Existing numeric criteria pass this particular trajectory, which is not a clinical-realism or broad cutting approval."
+    },
+    "baseline31-friction-central-repeat": {
+      "storyboards": [
+        "02",
+        "03",
+        "04"
+      ],
+      "observation": "Localized tip pinch and sustained lift. Tissue relaxes after the jaws open and retract; final frames show no suspended tissue following the tool. Unloaded-reference lift1.894mm with0assist anchors."
+    },
+    "r18-friction-marginal": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Marginal bite compresses the top region, then slides off during lift; no sustained tissue lift. Opening/retraction does not drag the tissue. This is an allowed-slip negative case, not proof that deeper bites work."
+    },
+    "baseline-wall-tip-short": {
+      "storyboards": [
+        "06"
+      ],
+      "observation": "Third cut and withdrawal inspected. The incision and remaining flap opening differ between source diagnostic control and experiment; sampled views alone cannot certify hidden disconnection. Connectivity is assessed separately."
+    },
+    "r13-wall-tip-short": {
+      "storyboards": [
+        "06"
+      ],
+      "observation": "Third cut and withdrawal inspected. The incision and remaining flap opening differ between source diagnostic control and experiment; sampled views alone cannot certify hidden disconnection. Connectivity is assessed separately."
+    },
+    "baseline-wall-tip-completion": {
+      "storyboards": [
+        "08"
+      ],
+      "observation": "Source-diagnostic control after actual completion: flap relaxes as the scissors withdraw. Not the same binary as the protected optimized default."
+    },
+    "baseline31-friction-regrasp": {
+      "storyboards": [
+        "02",
+        "04",
+        "05",
+        "06"
+      ],
+      "observation": "First bite lifts locally. Jaws open and leave tissue, return from above, compress again, then lose the tissue during the second lift. Second hold shows no sustained lift; native N0/0 and0enclosed points confirm contact loss. Entry path differs from the first approach, so this does not isolate a stale-friction-cache defect."
+    },
+    "r13-wall-tip-completion": {
+      "storyboards": [
+        "06",
+        "08"
+      ],
+      "observation": "Third incision followed by actual opening, advance and reclosure. Completion produces a larger opening and the flap relaxes after withdrawal; graph audit is used for hidden material and support connections."
+    },
+    "baseline-friction-central": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Central bite compresses then raises the local tumor region, sustains a modest lift, and releases on actual jaw opening. Shape returns after tool withdrawal; baseline and diagnostic candidate are visually similar at sampled frames, not a proof of equal realism."
+    },
+    "r13-friction-central": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Central bite compresses then raises the local tumor region, sustains a modest lift, and releases on actual jaw opening. Shape returns after tool withdrawal; baseline and diagnostic candidate are visually similar at sampled frames, not a proof of equal realism."
+    },
+    "r13-friction-long": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "The 8mm trajectory first stretches tissue locally, then contact slips off between sampled frames345and360; tissue returns toward the parent while the closed jaws continue upward. Force audit records local saturation before loss. This is not a current-binary paired long-lift validation."
+    },
+    "r13-friction-deeper": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Deeper entry compresses tissue, but the lift leaves little sustained displacement. Tool opening and withdrawal release the contact. Read-only force and unloaded-reference displacement audits support weak holding, not a successful grasp."
+    },
+    "release-baseline": {
+      "storyboards": [
+        "07",
+        "08"
+      ],
+      "observation": "Through side pull the excised tissue is held. During actual jaw opening the excised piece plunges below the parent surface and a sharp stretched surface remnant is visible in the last recorded frame1246. Frame1247 triggers the displacement guard and is preserved as a separate failure snapshot, not included in the video."
+    },
+    "r13-friction-zero": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "The zero-friction negative control compresses then rebounds as the tool rises, with no sustained unloaded-reference tissue lift. No false suspension follows withdrawal; force audit tangential load is roundoff scale."
+    },
+    "r13-friction-wall": {
+      "storyboards": [
+        "02",
+        "03",
+        "04"
+      ],
+      "observation": "Thin-wall friction grasp raises and bends the upper wall locally during hold. Actual opening releases the wall and it relaxes during withdrawal. Audit shows1.698mm initial-bite lift,0assist anchors and0cuts."
+    },
+    "r13-friction-regrasp": {
+      "storyboards": [
+        "05",
+        "06"
+      ],
+      "observation": "Second closure visibly compresses the tumor; tissue slips back during the second lift and no sustained lift remains during hold. The protected current baseline reproduces the same qualitative failure on this trajectory. Contact-force snapshots saturate before loss and reach N0/0 by890."
+    },
+    "r13-friction-air": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Empty jaws stay clear of tissue through close, lift, hold and opening. No tissue follows the tool; native force audit records zero contact. This is a negative control."
+    },
+    "r13-friction-marginal": {
+      "storyboards": [
+        "02",
+        "03"
+      ],
+      "observation": "Marginal bite briefly compresses the top, then visibly slips off during lift. Tissue returns while the closed tool continues upward. No sustained lift during hold or false following after withdrawal; numeric audit confirms contact loss."
+    }
+  }
+}

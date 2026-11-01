@@ -1,0 +1,54 @@
+{
+  "default_promoted": false,
+  "clinical_realism_validated": false,
+  "target_33hz_achieved": false,
+  "scope": "Isolated experimental DLLs only. Completion and return code 0 are distinct from physics/interaction acceptance.",
+  "variants": {
+    "release-r16": {
+      "accepted": false,
+      "reasons": [
+        "Ordinary pre-second-cut core mean +0.337ms in paired ABBA",
+        "Broader cutting and pure-friction equivalence unproven"
+      ],
+      "release_max_penetration_mm": 0.029468483,
+      "release_free_frames": 77
+    },
+    "release-r17": {
+      "accepted": false,
+      "reasons": [
+        "Ordinary stage +0.415ms, held stage +1.067ms in paired ABBA",
+        "Inherited nonmanifold surface edge and original cutting criteria remain"
+      ],
+      "release_max_penetration_mm": 0.078180209,
+      "release_free_frames": 77
+    },
+    "vertex-r18": {
+      "accepted": false,
+      "reasons": [
+        "Pure-friction core mean +0.679087ms (+1.694%), peak108.905ms vs baseline73.3925ms",
+        "Wall core/pipeline tails higher",
+        "Deeper grasp weak in both baseline and candidate; no equivalence approval",
+        "Recorded attached support-node71.9mm spike not reproduced; numerical improvement does not prove root-cause fix"
+      ]
+    },
+    "release-r19-volume-gate": {
+      "accepted": false,
+      "reasons": [
+        "Before second cut core mean +0.180762ms; insufficient evidence of no regression",
+        "Shared native step+surface peak144.3808ms vs122.1057ms despite lower overall mean",
+        "Original quality gate retains51stray skin cuts",
+        "Additional R19 wall and pure-friction matrix skipped after failed performance screen"
+      ],
+      "release_max_penetration_mm": 0.016114807761,
+      "release_free_frames": 77,
+      "query_set_checks": 21,
+      "query_set_mismatches": 0
+    }
+  },
+  "unresolved": [
+    "Thin-wall short-cut severance varies even with the identical default DLL; actual completion clears examined paths",
+    "Weak deeper bites and loss after second grasp reproduce in the protected current baseline; no physical-grasp equivalence approval or implemented friction fix.",
+    "Clinical realism is not established by these synthetic trajectories"
+  ],
+  "release_geometry_metric": "Maximum distance to the parent surface among excised-piece surface vertices contained in the parent. All77saved free-release frames; not an exhaustive triangle-triangle intersection certificate."
+}

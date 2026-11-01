@@ -8,6 +8,7 @@ import struct
 import subprocess
 import sys
 import zlib
+from replay_archive import open_replay
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -38,7 +39,7 @@ def main():
     thumbs, digest = [], hashlib.sha256()
     count = 0
     movie = output/'interactions-h264.mp4'
-    with source.open('rb') as stream:
+    with open_replay(source) as stream:
         settings, scene_name, provenance = pickle.load(stream)
         scene = SCISSORS_SCENES[scene_name]
         view = EndoscopicView(settings, width, height, supersample=1, kidney=scene.shape, camera=scene.shot)

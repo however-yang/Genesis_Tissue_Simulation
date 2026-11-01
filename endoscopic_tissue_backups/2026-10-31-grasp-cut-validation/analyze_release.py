@@ -6,6 +6,7 @@ import pickle
 import struct
 import sys
 import zlib
+from replay_archive import open_replay
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
@@ -21,7 +22,7 @@ def main():
     args=parser.parse_args()
     rows=[]
     frames=[]
-    with (args.case_dir/'replay.bin').open('rb') as stream:
+    with open_replay(args.case_dir/'replay.bin') as stream:
         settings,_,_=pickle.load(stream)
         while prefix:=stream.read(4):
             step,stage,surface,obs=pickle.loads(zlib.decompress(stream.read(struct.unpack('<I',prefix)[0])))
