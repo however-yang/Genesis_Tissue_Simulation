@@ -22,3 +22,13 @@ D:\develop\anaconda3\envs\genesis_world\python.exe -X utf8 endoscopic_tissue_bac
 构建器逐文件核对固定基线和覆盖文件 SHA，只写入独立 `native/bin-acceptance-boundary-snapshot2`。`prepare_boundary_candidate.py` 保留了从旧实验源码逐段审核移植的过程；普通复现构建直接使用已保存、带哈希的覆盖文件。
 
 运行记录在 `endoscopic_tissue/outputs/acceptance-fixes-20261102`。没有隐藏失败，也没有推送 GitHub。
+
+## 后续诊断与记录修复
+
+`repair-feasible-snapshot3` 已独立构建（SHA `f26280bc…`），只将主求解已有的可行权重处理用于两条重建接触粗方向，未修改物理参数或迭代数。当前没有其 GPU 通过证据；离线失败状态的权重检查没有发现该分组会改变权重，故根因假设仍未成立。`inspect_repair_weights.py` 只读取快照，不加载 DLL。
+
+记录修复检查点 `d39221e`：可选配对录像逐帧刷新回放后追加说明；中断时保留明确的未完成状态。真实子进程中断/正常关闭与已有录像合同共 5 项 CPU 检查通过。此路径不用于无录像计时。
+
+`compare_videos.py` 已生成三剪和两条换抓全长并排视频；只复用输入与输出 SHA 均匹配、帧数和时基已核对的完整结果，失败文件不会被覆盖。`visual-review-4.json` 记录复核范围，不能用视频编码通过替代物理验收。
+
+计时补充：`run_diagnostic.py --performance` 仅允许无录像的完整 damage worker，使用更严格的空闲条件并记录系统负载；普通诊断路径的耗时仍不作性能验收。`feasible-timing-gated.json` 在换抓、组织瓣和三剪通过后才允许新候选 ABBA，尚未启动。全部通过之前不推送 GitHub。

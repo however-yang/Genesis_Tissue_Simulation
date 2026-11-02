@@ -39,8 +39,24 @@ def main():
     if records[0]['frames'] != records[1]['frames'] or records[0]['fps'] != records[1]['fps']:
         raise ValueError('No truncation or temporal warping is allowed to make a comparison fit')
     out = OUT/'comparisons'/args.name
-    out.mkdir(parents=True, exist_ok=False)
     video = out/'baseline-left-candidate-right.mp4'
+    if out.exists():
+        # A CPU-only review can finish while the serial GPU queue is waiting.
+        # Reuse only the exact already-decoded artifact, never a partial encode.
+        previous = json.loads((out/'result.json').read_text(encoding='utf8'))
+        if not (previous.get('passed') is True
+                and previous.get('physical_or_performance_approved') is False
+                and previous.get('left') == str(sources[0])
+                and previous.get('right') == str(sources[1])
+                and previous.get('input_sha256') == [r['movie_sha256'] for r in records]
+                and previous.get('decoded_frames') == records[0]['frames']
+                and previous.get('expected_frames') == records[0]['frames']
+                and previous.get('metadata', {}).get('fps') == records[0]['fps']
+                and previous.get('movie_sha256') == digest(video)):
+            raise ValueError('Existing comparison is incomplete or has different inputs; retained without overwrite')
+        print('Reused byte-identical verified comparison:', args.name, flush=True)
+        return
+    out.mkdir(parents=True, exist_ok=False)
     record = {'passed': False, 'left': str(sources[0]), 'right': str(sources[1]),
               'input_sha256': [r['movie_sha256'] for r in records],
               'physical_or_performance_approved': False,

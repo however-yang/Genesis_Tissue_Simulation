@@ -1,0 +1,84 @@
+{
+  "candidate": "boundary-snapshot2",
+  "candidate_adopted": false,
+  "overall_accepted": false,
+  "visual_only": true,
+  "comparisons": [
+    {
+      "name": "comparison-three-snips",
+      "video": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/comparisons/comparison-three-snips/baseline-left-candidate-right.mp4",
+      "movie_sha256": "44a23872824bae85d682fef306e99869ed3f924afb14a9f7d664415ecf839bf9",
+      "decoded_frames": 1441,
+      "selected_frames": {
+        "345": "lift",
+        "465": "blade_approach",
+        "615": "incise_1",
+        "915": "incise_2",
+        "1215": "incise_3",
+        "1365": "withdraw",
+        "1410": "release",
+        "1440": "hold"
+      },
+      "visually_reviewed_images": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-three-snips\\milestones-01.png",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-three-snips\\milestones-02.png",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-three-snips\\milestones-03.png"
+      ],
+      "every_frame_visually_certified": false
+    },
+    {
+      "name": "comparison-regrasp-original",
+      "video": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/comparisons/comparison-regrasp-original/baseline-left-candidate-right.mp4",
+      "movie_sha256": "5763e28fd705dec786d89a71028e317e5d910b70f364667e2f9ece310bfb32fb",
+      "decoded_frames": 1056,
+      "selected_frames": {
+        "615": "incise_1",
+        "690": "regrasp_release_hold",
+        "735": "regrasp_shift",
+        "755": "regrasp_lower",
+        "795": "regrasp_close_hold",
+        "815": "regrasp_lift",
+        "905": "reposition_2",
+        "1055": "incise_2"
+      },
+      "visually_reviewed_images": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-regrasp-original\\milestones-01.png",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-regrasp-original\\milestones-02.png",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-regrasp-original\\milestones-03.png"
+      ],
+      "every_frame_visually_certified": false
+    },
+    {
+      "name": "comparison-regrasp-restored",
+      "video": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/comparisons/comparison-regrasp-restored/baseline-left-candidate-right.mp4",
+      "movie_sha256": "2f0df546c7970ecaa0608a3380af9e258ff9b9d56f15659d286ff68d634c99ec",
+      "decoded_frames": 1056,
+      "selected_frames": {
+        "615": "incise_1",
+        "690": "regrasp_release_hold",
+        "735": "regrasp_shift",
+        "755": "regrasp_lower",
+        "795": "regrasp_close_hold",
+        "815": "regrasp_lift",
+        "905": "reposition_2",
+        "1055": "incise_2"
+      },
+      "visually_reviewed_images": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-regrasp-restored\\milestones-01.png",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-regrasp-restored\\milestones-02.png",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\acceptance-fixes-20261102\\comparisons\\comparison-regrasp-restored\\milestones-03.png"
+      ],
+      "every_frame_visually_certified": false
+    }
+  ],
+  "observations": [
+    "At selected regrasp stages, actual release shows zero grip points; closing and lifting establish 32 baseline / 34 candidate assisted grip points. This is not pure-friction acceptance.",
+    "Selected three-snip endpoints preserve local, irregular openings rather than forcing one straight cut. Local opening width and endpoint shapes differ; no claim of identical deformation.",
+    "The three-snip release stage opens scissors while the grasper remains closed. It does not cover post-excision grasper release.",
+    "Repeated candidate regrasp quality failures remain rejecting evidence even though this earlier r0 paired recording passed its own quality checks."
+  ],
+  "limits": [
+    "Complete files have all frames decoded; visual review here covers selected milestones and previously reviewed interval storyboards, not every-frame clinical realism validation.",
+    "Playback is at simulation time and is not measured runtime FPS."
+  ]
+}
