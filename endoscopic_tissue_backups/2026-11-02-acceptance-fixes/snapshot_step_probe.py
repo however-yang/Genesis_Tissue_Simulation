@@ -19,9 +19,10 @@ from endoscopic_tissue.training.provenance import json_hash
 def difference(reference, current, grid):
     delta = np.linalg.norm(reference-current, axis=1)*1000
     index = int(np.argmax(delta))
+    material = np.asarray(grid.inside, dtype=bool)
     return {'max_node_mm': float(delta[index]), 'node': index,
             'material_node': bool(grid.inside[index]), 'active_node': bool(grid.active[index]),
-            'max_material_mm': float(delta[grid.inside].max()),
+            'max_material_mm': float(delta[material].max()),
             'nodes_over_001mm': int(np.count_nonzero(delta >= .01)),
             'reference_position_m': reference[index].tolist(), 'current_position_m': current[index].tolist()}
 
@@ -56,7 +57,17 @@ def main():
                 call = env.native.dll.LCS_ProfileSections
                 call.argtypes = [ctypes.c_int]
                 call.restype = None
-                call(1)
+            def advance(command):
+                # Profiling events are intentionally outside the state ABI.
+                # Toggle only around execution, leaving every save/load at its
+                # ordinary completed boundary with profiling disabled.
+                if args.direct:
+                    call(1)
+                try:
+                    return env.replay_command(command)
+                finally:
+                    if args.direct:
+                        call(0)
             stage = next(s for s in env.scene.stages if s.name == 'incise_1')
             prior = next(s.command for s in env.scene.stages if s.name == 'blade_approach')
             command = command_sequence([stage], prior)[0][2]
@@ -64,7 +75,7 @@ def main():
             before = asdict(env.observed)
             snapshot = env.snapshot()
             snapshot.save(out/'parent.lcssnap')
-            source = env.replay_command(command)
+            source = advance(command)
             assert source.after is not None
             reference = source.after.arrays['positions_m'].copy()
             atomic_json(out/'original-step.json', source.after.metadata)
@@ -75,7 +86,7 @@ def main():
                 env.restore(snapshot)
                 assert SnapshotBackend(env.native).save() == snapshot.native_bytes()
                 exact_values(before, asdict(env.native.observe()))
-                result = env.replay_command(command)
+                result = advance(command)
                 assert result.after is not None
                 current = result.after.arrays['positions_m'].copy()
                 item = {'repeat': repeat, 'T1_exact': True, 'T2_exact': True,
