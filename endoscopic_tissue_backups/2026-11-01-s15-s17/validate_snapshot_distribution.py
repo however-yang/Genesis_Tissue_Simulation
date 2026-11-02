@@ -54,11 +54,14 @@ def prepare_fork(env, fork, capture):
         raise RuntimeError('Required fork event did not occur: '+fork)
     # Explicit release and fresh friction/assisted capture through the same
     # physical jaw mechanism; success requires actual new grip witnesses.
-    # Durations and offsets follow the WAM regrasp probe, in native cm.
+    # Move toward the attached end, inside the remaining upper wall. Moving
+    # +3 mm put the jaw tips beyond the free edge: at that x the entire finite
+    # pad was above the tissue, so closing produced zero load on both jaws.
+    # This changes only the test's requested trajectory, never capture physics.
     held = sequence[-1][2]
     opened_scissors = replace(held, scissors_closure=0, scissors_cutting=False)
     open_jaw = replace(opened_scissors, closure=0)
-    shifted = replace(open_jaw, hinge=tuple(np.asarray(open_jaw.hinge)+(.3, 0, 0)))
+    shifted = replace(open_jaw, hinge=tuple(np.asarray(open_jaw.hinge)+(-.3, 0, 0)))
     lowered = replace(shifted, hinge=tuple(np.asarray(shifted.hinge)+(0, -.12, 0)))
     closed = replace(lowered, closure=1)
     raised = replace(closed, hinge=tuple(np.asarray(closed.hinge)+(0, .12, 0)))
@@ -99,6 +102,7 @@ def paired_run(out, args):
                 sequence, prefix = command_sequence([stage], prior), []
             else:
                 sequence, prefix = prepare_fork(env, args.fork, capture)
+            atomic_json(out/'prefix-steps.json', prefix)
             if capture:
                 capture.expected_end_step = env.native.tick+len(sequence)
             record['prefix_quality'] = quality_summary(prefix)

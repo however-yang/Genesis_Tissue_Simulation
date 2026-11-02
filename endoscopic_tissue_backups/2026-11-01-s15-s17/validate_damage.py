@@ -28,6 +28,7 @@ from endoscopic_tissue.training.geometry import WallGeometry, scene_for_config
 from endoscopic_tissue.training.data import atomic_json, EpisodeWriter
 from endoscopic_tissue.training.grasp import GraspMonitor
 from endoscopic_tissue.training.provenance import sha256
+from validation_guard import stop_reasons
 
 OUT = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/damage'
 
@@ -170,6 +171,20 @@ def main():
                             'held_bite_nodes': round(len(g['witness_ids'])*g['witness_retained_fraction']),
                             'cut_edges': int(np.count_nonzero((env.grid.neighbors[:,1::2]>=0)&(env.observed.neighbors[:,1::2]<0))),
                             'jaw_load_n': list(env.observed.jaw_load_n), 'grasp': g})
+                    terminal = stop_reasons(meta['quality'])
+                    if terminal:
+                        # The failed transition has already been recorded. Do not
+                        # keep simulating an out-of-domain free fragment until a
+                        # later CCD call stalls. This is a rejected test, not a
+                        # change to the physics, acceptance limits or default app.
+                        atomic_json(out/'terminal-failure.json', {'tick': env.native.tick,
+                            'stage': stage.name, 'reasons': terminal, 'metadata': meta})
+                        np.savez_compressed(out/'terminal-state.npz', nodes=env.observed.nodes,
+                            neighbors=env.observed.neighbors, rest=env.grid.positions,
+                            material=env.grid.inside, active=env.grid.active,
+                            vertices=env.last_surface.vertices, triangles=env.last_surface.triangles,
+                            normals=env.last_surface.normals, anchors=env.last_surface.anchors)
+                        raise RuntimeError('Validation stopped at existing local-domain/quality failure: '+', '.join(terminal))
                 stages.append({'name': stage.name, 'end': {'step': env.native.tick}})
                 if env.native.training_flags:
                     checks.append(independently_check(env.native))
