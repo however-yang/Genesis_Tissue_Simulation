@@ -288,6 +288,31 @@ class QualityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             QualityLimits(max_body_overlap_m=float("nan"))
 
+    def test_positive_numpy_overlap_can_be_saved_without_changing_threshold(self):
+        from .data import atomic_json
+        self.initial.scissors = SimpleNamespace(hinge=None, axis=None, normal=None, gap=0)
+        surface = SimpleNamespace(vertices=None, triangles=None)
+        topology = dict(positional_boundary_edges=0, positional_nonmanifold_edges=0,
+                        duplicate_triangles=0, degenerate_triangles=0, winding_consistent=True)
+        # Positive wrist depths use numpy.float32 in the actual geometry path.
+        # Cover both sides of the fixed 0.2 mm threshold and either instrument part.
+        for part in (0, 1):
+            for depth, should_fail in ((.019, False), (.021, True)):
+                with self.subTest(part=part, depth=depth):
+                    depths = [np.float32(0), np.float32(0)]
+                    depths[part] = np.float32(depth)
+                    with patch("endoscopic_tissue.training.quality.scissors_body_depths", return_value=depths), \
+                            patch("endoscopic_tissue.training.quality.topology_statistics", return_value=topology):
+                        q = QualityMonitor(self.grid).assess(self.initial, self.initial, Command(), Settings(),
+                                                            np.array([1., 0.]), surface, None)
+                    self.assertEqual("tool_body_overlap_exceeded" in q["numerical_failure_reasons"], should_fail)
+                    with tempfile.TemporaryDirectory() as directory:
+                        path = Path(directory) / 'quality.json'
+                        atomic_json(path, q)
+                        saved = json.loads(path.read_text(encoding='utf8'))
+                    for key, original in zip(('blade_body_overlap_m', 'wrist_overlap_m'), depths):
+                        self.assertEqual(saved['metrics'][key], float(original * .01))
+
 
 if __name__ == "__main__":
     unittest.main()

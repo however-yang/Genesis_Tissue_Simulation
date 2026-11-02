@@ -87,7 +87,9 @@ class QualityMonitor:
             s = observed.scissors
             body, wrist = scissors_body_depths(surface.vertices, surface.triangles, geometry,
                                                s.hinge, s.axis, s.normal, s.gap)
-            values.update(blade_body_overlap_m=body * .01, wrist_overlap_m=wrist * .01)
+            # Keep the geometry calculation and threshold comparison unchanged.
+            # Positive depths may be numpy.float32; records require JSON scalars.
+            values.update(blade_body_overlap_m=float(body * .01), wrist_overlap_m=float(wrist * .01))
             if max(body, wrist) * .01 > self.limits.max_body_overlap_m:
                 failures.append("tool_body_overlap_exceeded")
             topo = topology_statistics(surface)
