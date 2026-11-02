@@ -15,7 +15,7 @@ from endoscopic_tissue.native_backend import Settings
 class VideoContract(unittest.TestCase):
     def setUp(self):
         root = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/cpu-temp'
-        root.mkdir(exist_ok=True)
+        root.mkdir(parents=True, exist_ok=True)
         self.temp = tempfile.TemporaryDirectory(dir=root)
         self.folder = Path(self.temp.name)
         frames = [(0, 'initial'), (1, 'settle'), (2, 'incise_1')]

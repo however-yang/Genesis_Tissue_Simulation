@@ -32,3 +32,7 @@ D:\develop\anaconda3\envs\genesis_world\python.exe -X utf8 endoscopic_tissue_bac
 `compare_videos.py` 已生成三剪和两条换抓全长并排视频；只复用输入与输出 SHA 均匹配、帧数和时基已核对的完整结果，失败文件不会被覆盖。`visual-review-4.json` 记录复核范围，不能用视频编码通过替代物理验收。
 
 计时补充：`run_diagnostic.py --performance` 仅允许无录像的完整 damage worker，使用更严格的空闲条件并记录系统负载；普通诊断路径的耗时仍不作性能验收。`feasible-timing-gated.json` 在换抓、组织瓣和三剪通过后才允许新候选 ABBA，尚未启动。全部通过之前不推送 GitHub。
+
+## 2026-11-02 换机交接授权
+
+用户随后要求将当前开发状态与交接文档上传 GitHub，在 Linux/A100 继续测试。本次迁移上传使用该新授权；上文“未推送”“全部通过前不推送”是此前实验阶段的记录，并不表示候选已通过或可替换默认。当前状态及 Linux 命令见 [A100 交接](../../endoscopic_tissue/docs/handoff-a100-2026-11-02.md)。
