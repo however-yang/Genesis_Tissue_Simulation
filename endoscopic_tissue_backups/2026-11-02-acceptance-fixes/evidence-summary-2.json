@@ -1,0 +1,134 @@
+{
+  "overall_passed": false,
+  "default_replaced": false,
+  "pushed": false,
+  "protected": true,
+  "evidence": [
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-three-snips-baseline-r0/result.json",
+      "sha256": "4235579ee2c0ac80a7ae2774b59d41b57f08966a293fb780e4fdbdf8ae66cd94",
+      "passed": true,
+      "error": null
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-three-snips-candidate-r0/result.json",
+      "sha256": "55577756fe48a8a6ddffc9acab679ba54622fcbfcab312c4c7ed3260b958f873",
+      "passed": true,
+      "error": null
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-timing-summary.json",
+      "sha256": "5f07009ccd0d999a66eb0f641f864599ced99f4cc658699645d5a32077a28a07",
+      "passed": null,
+      "error": null,
+      "comparison": {
+        "mean": {
+          "baseline_ms": 69.71886989331131,
+          "candidate_ms": 83.05610301297534,
+          "change_percent": 19.13001908962897
+        },
+        "p95": {
+          "baseline_ms": 88.07170001091436,
+          "candidate_ms": 108.13944996334612,
+          "change_percent": 22.785696142966305
+        },
+        "p99": {
+          "baseline_ms": 104.51605002162978,
+          "candidate_ms": 130.38590003270656,
+          "change_percent": 24.75203569760143
+        },
+        "max": {
+          "baseline_ms": 121.71640002634376,
+          "candidate_ms": 216.5909999748692,
+          "change_percent": 77.94726095085886
+        }
+      }
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-controlled-summary.json",
+      "sha256": "6802ebfd06d912365385a18ebcc926547542e0de28ec6a73562511355b5a8fd6",
+      "passed": null,
+      "error": null,
+      "comparison": {
+        "mean": {
+          "baseline_ms": 83.30964237643101,
+          "candidate_ms": 80.3407323754769,
+          "change_percent": -3.563705132161321
+        },
+        "p95": {
+          "baseline_ms": 112.92909999610856,
+          "candidate_ms": 103.17094996571541,
+          "change_percent": -8.640952624903065
+        },
+        "p99": {
+          "baseline_ms": 139.02239996241406,
+          "candidate_ms": 128.45909997122362,
+          "change_percent": -7.598271928873556
+        },
+        "max": {
+          "baseline_ms": 156.77295002387837,
+          "candidate_ms": 151.12619998399168,
+          "change_percent": -3.601865014995642
+        }
+      }
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-wall-snapshot-r0/result.json",
+      "sha256": "771cfcfe67369e49435eba65eaf52c1c18b3ece4e261e5e6ee0bebb48e706311",
+      "passed": true,
+      "error": null,
+      "T3_max_node_difference_mm": 0.000005269641860650154,
+      "restore_ms": 1079.841300030239
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-flap-snapshot-r0/result.json",
+      "sha256": "9e764c1cebefd76621f20d80c04e66c9a311c01c6e732a056239dc4416d20ba2",
+      "passed": false,
+      "error": "AssertionError('T3 one-step continuation exceeded 0.01 mm')",
+      "T3_max_node_difference_mm": 0.015322055667638779,
+      "restore_ms": 1271.8252999475226
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-wall-vision-r0/result.json",
+      "sha256": "65c73e292356c3f96c9d31479ccfbcda89e027cf42c36f26fe6b452e225f2084",
+      "passed": true,
+      "error": null,
+      "T3_max_node_difference_mm": 0.00014127889880910516,
+      "restore_ms": 548.9531999919564
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-boundary-r1/result.json",
+      "sha256": "3e615f6517f83ba4d364cb09bce292f6a4efbcbf5471fa8b4b4c0a7f22568936",
+      "passed": false,
+      "error": null,
+      "quality": [
+        {
+          "steps": 240,
+          "quality_failure_steps": 96,
+          "scope_failure_steps": 0,
+          "failure_reasons": [
+            "tool_body_overlap_exceeded"
+          ],
+          "scope_reasons": [],
+          "healed_edges": 0
+        },
+        {
+          "steps": 240,
+          "quality_failure_steps": 58,
+          "scope_failure_steps": 0,
+          "failure_reasons": [
+            "tool_body_overlap_exceeded"
+          ],
+          "scope_reasons": [],
+          "healed_edges": 0
+        }
+      ]
+    },
+    {
+      "path": "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/cpu/checkpoint-2/result.json",
+      "sha256": "79e0b04a67dd9a96f6b75635910b531028d0d666666cf2926e0e070df0de2ea6",
+      "passed": true,
+      "error": null
+    }
+  ]
+}

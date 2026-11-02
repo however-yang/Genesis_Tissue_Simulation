@@ -113,6 +113,8 @@ def paired_run(out, args):
             record['fork_grip_points'] = env.observed.grip_points
             native_before = asdict(env.observed)
             snapshot = env.snapshot()
+            if args.capture:
+                snapshot.save(out/'fork.lcssnap')
             record['snapshot_metadata'] = snapshot.metadata
             record['snapshot_bytes'] = snapshot.size_bytes
             if args.fork == 'cache' and args.cache:

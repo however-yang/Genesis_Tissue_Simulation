@@ -1,0 +1,142 @@
+{
+  "note": "Localize the retained flap T3 failure without changing its 0.01 mm gate. Then compare physical-equivalent versions with identical P-core affinity.",
+  "jobs": [
+    {
+      "name": "regrasp-baseline-forensics-r1",
+      "worker": "regrasp_trial.py",
+      "args": [
+        "--repeat",
+        "1",
+        "--capture",
+        "--dll",
+        "bin-s15-training-snapshot1",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "regrasp-boundary-forensics-r1",
+      "worker": "regrasp_trial.py",
+      "args": [
+        "--repeat",
+        "1",
+        "--capture",
+        "--dll",
+        "bin-acceptance-boundary-snapshot2",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "flap-step-baseline-r0",
+      "worker": "snapshot_step_probe.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1"
+      ]
+    },
+    {
+      "name": "flap-step-candidate-r0",
+      "worker": "snapshot_step_probe.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2"
+      ]
+    },
+    {
+      "name": "flap-step-failed-state-r0",
+      "worker": "snapshot_step_probe.py",
+      "args": [
+        "--snapshot",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-flap-snapshot-r0/cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "flap-step-direct-r0",
+      "worker": "snapshot_step_probe.py",
+      "args": [
+        "--direct"
+      ]
+    },
+    {
+      "name": "comparison-regrasp-original",
+      "worker": "compare_videos.py",
+      "args": [
+        "--baseline",
+        "regrasp-inward-r0/original",
+        "--candidate",
+        "regrasp-boundary-r0/original",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "comparison-regrasp-restored",
+      "worker": "compare_videos.py",
+      "args": [
+        "--baseline",
+        "regrasp-inward-r0/restored",
+        "--candidate",
+        "regrasp-boundary-r0/restored",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "comparison-three-snips",
+      "worker": "compare_videos.py",
+      "args": [
+        "--baseline",
+        "boundary-three-snips-baseline-r0",
+        "--candidate",
+        "boundary-three-snips-candidate-r0",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "boundary-pcores-a1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-pcores-b1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-pcores-b2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-pcores-a2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true
+    }
+  ]
+}

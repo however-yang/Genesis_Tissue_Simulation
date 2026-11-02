@@ -67,10 +67,13 @@ def main():
     p.add_argument('--stage',default='settle')
     p.add_argument('--scene',default='wall-traction')
     p.add_argument('--cycles',type=int,default=0)
+    p.add_argument('--dll',default='bin-s15-training-snapshot1')
+    p.add_argument('--output-root',type=Path,
+                   default=ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/snapshot')
     args=p.parse_args()
-    out=ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/snapshot'/args.name
+    out=args.output_root/args.name
     out.mkdir(parents=True,exist_ok=False)
-    dll=ROOT/'endoscopic_tissue/native/bin-s15-training-snapshot1/LiverCudaSim.dll'
+    dll=ROOT/'endoscopic_tissue/native'/args.dll/'LiverCudaSim.dll'
     scene=SCISSORS_SCENES[args.scene]
     settings=replace(scissors_settings(),young_pa=scene.young_pa,contact_model=scene.contact_model)
     grid=scene.build_grid(settings.density_kg_m3)

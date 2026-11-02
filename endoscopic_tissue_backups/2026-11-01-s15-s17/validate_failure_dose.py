@@ -13,6 +13,7 @@ import numpy as np
 from threadpoolctl import threadpool_limits
 
 from validation_support import ROOT, environment, command_sequence, row, quality_summary, exact_values
+from validation_guard import stop_reasons
 from endoscopic_tissue.scenario import Stage
 from endoscopic_tissue.training.physics import PhysicsOverrides
 from endoscopic_tissue.training.data import atomic_json
@@ -20,6 +21,7 @@ from endoscopic_tissue.training.provenance import sha256
 from endoscopic_tissue.training.snapshot import SnapshotBackend, source_binding
 
 DIRECTIONS = {'+x': (1, 0, 0), '-x': (-1, 0, 0), '+y': (0, 1, 0), '+z': (0, 0, 1), '-z': (0, 0, -1)}
+OUT = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/dose'
 
 
 def native_cache_probe(env):
@@ -56,6 +58,7 @@ def one_dose(env, dose, direction):
                       'no_anchor_points': None, 'geometric_hold_lost': None}
     previous = env.observed.neighbors
     initial_counts = env.failure_metrics['native_cumulative_counts'].copy()
+    terminal = []
     for label, index, command in sequence:
         result = env.replay_command(command)
         item = row(env, result, label, index)
@@ -94,11 +97,16 @@ def one_dose(env, dose, direction):
             first['geometric_hold_lost'] = event
         rows.append(item)
         previous = env.observed.neighbors
+        terminal = stop_reasons(item['quality'])
+        if terminal:
+            break
     return {'dose_mm': dose, 'direction': list(direction), 'initial_grip_points': points0,
             'initial_geometric_loaded_hold': held0,
             'initial_counts': initial_counts, 'first_events': first,
             'final_failure_physics': rows[-1]['failure_physics'], 'final_grasp': rows[-1]['grasp'],
             'quality': quality_summary(rows), 'rows': rows,
+            'completed_requested_steps': len(rows) == len(sequence),
+            'terminated_at_existing_limit': terminal,
             'hold_semantics': 'no_anchor_points and loss of measured bilateral geometric hold are distinct; no invented friction force'}
 
 
@@ -114,11 +122,12 @@ def main():
     p.add_argument('--max-dose', type=float, default=4.)
     p.add_argument('--fresh', action='store_true')
     p.add_argument('--snapshot-acceptance', type=Path)
+    p.add_argument('--dll', default='bin-s15-training-snapshot1')
     args = p.parse_args()
     if args.repeats < 1 or not 0 <= args.max_dose <= 4 or args.max_dose*2 != int(args.max_dose*2):
         p.error('Dose range must be 0..4 mm in 0.5 mm increments; repeats must be positive')
     physics = PhysicsOverrides(tear_stretch_ratio=args.tear, grasp_core_break_force_n=args.force)
-    dll = ROOT/'endoscopic_tissue/native/bin-s15-training-snapshot1/LiverCudaSim.dll'
+    dll = ROOT/'endoscopic_tissue/native'/args.dll/'LiverCudaSim.dll'
     if not args.fresh:
         if args.snapshot_acceptance is None:
             p.error('Cached dose trials require completed S15 acceptance; use --fresh for an uncached pilot')
@@ -127,7 +136,7 @@ def main():
                 or acceptance.get('dll_sha256') != sha256(dll)
                 or acceptance.get('python_source_sha256') != source_binding()):
             raise ValueError('Unvalidated cached dose trials are prohibited')
-    out = ROOT/'endoscopic_tissue/outputs/s15-s17-20261101/dose'/args.name
+    out = OUT/args.name
     out.mkdir(parents=True, exist_ok=False)
     record = {'name': args.name, 'physics': asdict(physics), 'direction': args.direction,
         'dll_sha256': sha256(dll), 'snapshot_cached': not args.fresh, 'passed': False,
@@ -137,7 +146,7 @@ def main():
     started = time.perf_counter()
     try:
         if not args.fresh:
-            env = environment(preparation='cut_ready', physics=physics, telemetry=True)
+            env = environment(preparation='cut_ready', physics=physics, telemetry=True, dll=args.dll)
             env.reset(0)
             snapshot, record['failure_law_snapshot_probe'] = native_cache_probe(env)
             atomic_json(out/'cached-parent-context.json', env.context)
@@ -147,7 +156,7 @@ def main():
                 folder = out/case
                 folder.mkdir()
                 if args.fresh:
-                    env = environment(preparation='cut_ready', physics=physics, telemetry=True)
+                    env = environment(preparation='cut_ready', physics=physics, telemetry=True, dll=args.dll)
                     env.reset(repeat)
                 else:
                     env.restore(snapshot, branch_label=case)
@@ -155,6 +164,10 @@ def main():
                 preparation_bad = sum(not r['quality']['checked_metrics_passed'] or
                     not r['quality']['within_declared_local_scope'] for r in env.preparation)
                 trial = one_dose(env, float(dose), DIRECTIONS[args.direction])
+                if trial['terminated_at_existing_limit']:
+                    np.savez_compressed(folder/'terminal-state.npz', nodes=env.observed.nodes,
+                        neighbors=env.observed.neighbors, rest_nodes=env.grid.positions,
+                        material=env.grid.inside, native_tick=env.native.tick)
                 trial.update(repeat=repeat, case=case, preparation_failure_steps=preparation_bad)
                 trial['failure_events_during_preparation'] = any(trial['initial_counts'][k] > 0 for k in
                     ('tearEdges', 'brokenCoreCorners', 'brokenGripPoints'))
@@ -167,9 +180,12 @@ def main():
                     env = None
                 print(args.name, case, trial['quality'], flush=True)
         record['passed'] = record['complete_required_curve'] and all(
-            r['quality']['quality_failure_steps'] == 0 and r['preparation_failure_steps'] == 0
+            r['completed_requested_steps'] and r['quality']['quality_failure_steps'] == 0
+            and r['preparation_failure_steps'] == 0
             and r['initial_grip_points'] > 0 and not r['failure_events_during_preparation'] for r in record['trials'])
-        record['scope_note'] = 'Detached fragments remain explicitly outside the existing local training scope; no scope threshold is relaxed.'
+        record['scope_note'] = ('Detached fragments remain outside the existing local training scope. '
+            'A terminated trial retains its first events, but cannot pass as a complete 120-step trajectory; '
+            'no scope threshold is relaxed.')
     except Exception as error:
         record['error'] = repr(error)
         raise
