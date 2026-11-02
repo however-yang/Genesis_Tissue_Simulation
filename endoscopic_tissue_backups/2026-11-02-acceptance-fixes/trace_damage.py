@@ -20,6 +20,8 @@ diagnostics = argparse.ArgumentParser(add_help=False)
 diagnostics.add_argument('--trace-section-from', type=int, default=700)
 diagnostics.add_argument('--checkpoint-from', type=int, default=400)
 diagnostics.add_argument('--stop-numerical', action='store_true')
+diagnostics.add_argument('--snapshot-first-failure', action='store_true',
+                         help='Snapshot-capable DLL only; preserve the first rejected state for isolated replay')
 options, forwarded = diagnostics.parse_known_args()
 sys.argv = [sys.argv[0], *forwarded]
 name = sys.argv[sys.argv.index('--name') + 1]
@@ -65,13 +67,23 @@ class TracedNative(base):
 
 worker.entry.TrainingNativeTissue = TracedNative
 original_replay = worker.entry.NativeEnvironment.replay_command
+first_failure_saved = False
 
 
 def traced_replay(self, command):
+    global first_failure_saved
     event('step_enter', tick=self.native.tick, command=asdict(command))
     result = original_replay(self, command)
     event('step_exit', tick=self.native.tick, reason=result.reason,
           metadata=result.after.metadata if result.after else None)
+    if options.snapshot_first_failure and result.after is not None and not first_failure_saved:
+        quality = result.after.metadata['quality']
+        if not quality['checked_metrics_passed'] or not quality['within_declared_local_scope']:
+            self.snapshot().save(trace_dir/'first-quality-failure.lcssnap')
+            worker.atomic_json(trace_dir/'first-quality-failure.json', result.after.metadata)
+            first_failure_saved = True
+            event('first_failure_snapshot_saved', tick=self.native.tick,
+                  path=str(trace_dir/'first-quality-failure.lcssnap'))
     # Keep the last completed state on disk even when the following call stalls.
     # This is diagnostic-only overhead; never compare its FPS with a normal run.
     numerical = result.after and any(x in result.after.metadata['quality']['numerical_failure_reasons']

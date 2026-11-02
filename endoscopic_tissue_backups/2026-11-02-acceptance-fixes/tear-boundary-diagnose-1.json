@@ -1,0 +1,33 @@
+{
+  "note": "Isolated first-failure state capture; any incomplete or failed nominal run remains rejected. No production default changes.",
+  "jobs": [
+    {
+      "name": "tear13-boundary-state-r0",
+      "worker": "trace_damage.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2",
+        "--tear",
+        "1.3",
+        "--capture",
+        "--snapshot-first-failure",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "tear13-feasible-state-r0",
+      "worker": "trace_damage.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3",
+        "--tear",
+        "1.3",
+        "--capture",
+        "--snapshot-first-failure",
+        "--stall-seconds",
+        "300"
+      ]
+    }
+  ]
+}

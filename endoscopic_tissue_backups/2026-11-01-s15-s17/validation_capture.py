@@ -21,13 +21,15 @@ class PairedCapture:
         self.scene, self.name = scene, name
         self.label, self.arm = 'preparation', None
         self.expected_end_step = None
-        self.streams, self.rows, self.stages = {}, {}, {}
+        self.streams, self.rows, self.stages, self.journals = {}, {}, {}, {}
         self.root = Path(root)
         for arm in ('original', 'restored'):
             folder = self.root/arm
             folder.mkdir()
             self.streams[arm] = ReplayArchiveWriter(folder/'replay.rdx')
             self.rows[arm], self.stages[arm] = [], []
+            self.journals[arm] = (folder/'trajectory.jsonl').open('x', encoding='utf8', buffering=1)
+            self.progress(arm)
         original = entry.NativeTissue
         capture = self
 
@@ -48,6 +50,15 @@ class PairedCapture:
         self.original_class = original
         entry.NativeTissue = Recorder
 
+    def progress(self, arm, *, closed=False):
+        last = self.rows[arm][-1]['step'] if self.rows[arm] else 0
+        atomic_json(self.root/arm/'capture-progress.json', {
+            'closed': closed, 'last_recorded_step': last,
+            'expected_steps': self.expected_end_step,
+            'completed_requested_continuation': bool(closed and self.expected_end_step is not None
+                                                      and last == self.expected_end_step),
+            'physical_or_performance_approved': False})
+
     def frame(self, native, observed):
         grasp = self.monitor.assess_native(observed)
         surface = native.surface()
@@ -60,22 +71,26 @@ class PairedCapture:
         arms = self.streams.keys() if self.arm is None else (self.arm,)
         for arm in arms:
             pack_frame(self.streams[arm], native.tick, self.label, surface, observed)
+            # Diagnostic capture only. Flush the corresponding frame before
+            # committing its annotation; a native stall can bypass close().
+            self.streams[arm].flush()
+            self.journals[arm].write(json.dumps(row)+'\n')
             self.rows[arm].append(row)
             if not self.stages[arm] or self.stages[arm][-1]['name'] != self.label:
                 self.stages[arm].append({'name': self.label, 'end': {'step': native.tick}})
             self.stages[arm][-1]['end']['step'] = native.tick
+            self.progress(arm)
 
     def close(self):
         entry.NativeTissue = self.original_class
         for arm, stream in self.streams.items():
+            self.journals[arm].close()
             stream.close()
             folder = self.root/arm
-            with (folder/'trajectory.jsonl').open('w', encoding='utf8') as log:
-                for row in self.rows[arm]:
-                    log.write(json.dumps(row)+'\n')
             last = self.rows[arm][-1]['step'] if self.rows[arm] else 0
             assert [r['step'] for r in self.rows[arm]] == list(range(1, last+1)), 'Capture lost or repeated native frames'
             atomic_json(folder/'report.json', {'metadata': {'case': self.name+'/'+arm}, 'stages': self.stages[arm],
                 'steps': last, 'completed': False, 'expected_steps': self.expected_end_step,
                 'completed_requested_continuation': self.expected_end_step is not None and last == self.expected_end_step,
                 'scope': 'complete preparation/fork prefix and tested continuation; not the full three-snip scenario'})
+            self.progress(arm, closed=True)
