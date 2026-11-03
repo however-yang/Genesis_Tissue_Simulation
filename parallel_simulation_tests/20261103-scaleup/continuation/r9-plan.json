@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "purpose": "R9 experimental per-vertex feasible direction: algebra and fail-fast 20-pair regrasp, original thresholds, no adoption",
+  "inputs_sha256": {
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/verify_vertex_cone_gpu.py": "a07cd60ca8370d3d5a26fa997a98fe279584f47f3ecfd8d3ee09e594e524e89a",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/snapshot_matrix.py": "92eec6738633604f62f524b5fb3875a4d2263b620dd7ea07403d7a5a0e2446d6",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/source/vendor/cuda/solver/material/vertex_cone_algebra.cuh": "598e560b0d44321e54e4721d93f9aa847993a3a35688809c058fc6afac4bc71b",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/build/lib/libLiverCudaSim.so": "a8f33b88ebe73476b9479b02cf10ca306c03d25b63965923ad2643ae2866ec5d"
+  },
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONPATH": "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYOPENGL_PLATFORM": "egl",
+    "EGL_DEVICE_ID": "1",
+    "XDG_CACHE_HOME": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/cache"
+  },
+  "jobs": [
+    {
+      "id": "r9-algebra",
+      "args": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "-B",
+        "-u",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/verify_vertex_cone_gpu.py"
+      ],
+      "cwd": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation",
+      "env": {
+        "ACCEPTANCE_OUTPUT": "{attempt}/algebra"
+      },
+      "max_idle": 300,
+      "max_wall": 600,
+      "results": [
+        {
+          "path": "{attempt}/algebra/result.json",
+          "require": {
+            "cases": 72
+          },
+          "acceptance_field": "passed"
+        }
+      ]
+    },
+    {
+      "id": "r9-regrasp-matrix",
+      "args": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "-B",
+        "-u",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/snapshot_matrix.py",
+        "--release",
+        "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+        "--library-dir",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/build/lib",
+        "--fork",
+        "regrasp",
+        "--output",
+        "{attempt}/matrix"
+      ],
+      "cwd": "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+      "max_idle": 900,
+      "max_wall": 14400,
+      "allowed_exit_codes": [
+        0,
+        2
+      ],
+      "progress_globs": [
+        "{attempt}/matrix/**/*.json"
+      ],
+      "results": [
+        {
+          "path": "{attempt}/matrix/result.json",
+          "require": {
+            "required_pairs": 20,
+            "full_surface_checks": true
+          },
+          "acceptance_field": "passed"
+        }
+      ]
+    }
+  ]
+}

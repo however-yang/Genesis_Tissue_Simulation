@@ -1,0 +1,132 @@
+{
+  "groups": {
+    "serial": {
+      "episodes": 3,
+      "all_passed": true,
+      "stages": {
+        "incise_1": {
+          "first_material_cut_stage_step": {
+            "min": 37,
+            "max": 37,
+            "mean": 37.0
+          },
+          "material_edges": {
+            "min": 24,
+            "max": 31,
+            "mean": 28.333333333333332
+          }
+        },
+        "incise_2": {
+          "first_material_cut_stage_step": {
+            "min": 43,
+            "max": 48,
+            "mean": 45.666666666666664
+          },
+          "material_edges": {
+            "min": 11,
+            "max": 13,
+            "mean": 12.333333333333334
+          }
+        },
+        "incise_3": {
+          "first_material_cut_stage_step": {
+            "min": 44,
+            "max": 51,
+            "mean": 48.333333333333336
+          },
+          "material_edges": {
+            "min": 14,
+            "max": 17,
+            "mean": 15.666666666666666
+          }
+        }
+      }
+    },
+    "parallel": {
+      "episodes": 60,
+      "all_passed": true,
+      "stages": {
+        "incise_1": {
+          "first_material_cut_stage_step": {
+            "min": 35,
+            "max": 37,
+            "mean": 36.583333333333336
+          },
+          "material_edges": {
+            "min": 24,
+            "max": 32,
+            "mean": 28.466666666666665
+          }
+        },
+        "incise_2": {
+          "first_material_cut_stage_step": {
+            "min": 42,
+            "max": 53,
+            "mean": 46.45
+          },
+          "material_edges": {
+            "min": 11,
+            "max": 17,
+            "mean": 13.183333333333334
+          }
+        },
+        "incise_3": {
+          "first_material_cut_stage_step": {
+            "min": 33,
+            "max": 53,
+            "mean": 47.916666666666664
+          },
+          "material_edges": {
+            "min": 10,
+            "max": 19,
+            "mean": 16.116666666666667
+          }
+        }
+      }
+    }
+  },
+  "serial_pairwise": [
+    {
+      "left": "runs/plain-1-r0/worker-000/episode-000/result.json",
+      "right": "runs/plain-1-repeat/worker-000/episode-000/result.json",
+      "max_material_delta_mm": 2.442572832107544,
+      "rms_material_delta_mm": 0.025780802592635155,
+      "neighbors_equal": false
+    },
+    {
+      "left": "runs/plain-1-r0/worker-000/episode-000/result.json",
+      "right": "runs/plain-1-repeat/worker-000/episode-001/result.json",
+      "max_material_delta_mm": 2.582050323486328,
+      "rms_material_delta_mm": 0.030299540609121323,
+      "neighbors_equal": false
+    },
+    {
+      "left": "runs/plain-1-repeat/worker-000/episode-000/result.json",
+      "right": "runs/plain-1-repeat/worker-000/episode-001/result.json",
+      "max_material_delta_mm": 2.6136245727539062,
+      "rms_material_delta_mm": 0.02288937196135521,
+      "neighbors_equal": false
+    }
+  ],
+  "serial_pairwise_rms_mm": {
+    "min": 0.02288937196135521,
+    "max": 0.030299540609121323,
+    "mean": 0.026323238387703896
+  },
+  "serial_pairwise_max_mm": {
+    "min": 2.442572832107544,
+    "max": 2.6136245727539062,
+    "mean": 2.5460825761159263
+  },
+  "parallel_vs_first_serial_rms_mm": {
+    "min": 0.01484291348606348,
+    "max": 0.06526757031679153,
+    "mean": 0.031643674879645305
+  },
+  "parallel_vs_first_serial_max_mm": {
+    "min": 0.38136836886405945,
+    "max": 4.459697246551514,
+    "mean": 2.730312523742517
+  },
+  "scope": "Unchanged acceptance checks; few serial repeats establish non-bitwise repeatability, not statistical equivalence or clinical accuracy."
+}

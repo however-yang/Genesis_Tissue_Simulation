@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "purpose": "Hot snapshot ABBA then two-environment bounded policy/data pipeline smoke",
+  "inputs_sha256": {
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/repair_convergence_probe.py": "0b739cec7774e12432086267db92ce008f8ef05bb95796479bc9b6376c7fa042",
+    "/srv/disk2/hryang/genesis-exec/builds/57f184c-release-training-r3-sm80/lib/libLiverCudaSim.so": "5f89e18a6e9151b426fec67ca323b7e27da55aea0c01c514259f531ad338448b",
+    "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf/endoscopic_tissue/outputs/acceptance-fixes-20261102/a100-combined-T4-regrasp-r1/regrasp-r00/first-failures/01-tick-975/state.lcssnap": "8279a3d053648ded75e3ede8e218215e2e12557e311929e7f38e455b8af31e51",
+    "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf/endoscopic_tissue/outputs/acceptance-fixes-20261102/a100-combined-T4-regrasp-r1/regrasp-r00/first-failures/02-tick-941/state.lcssnap": "5f546dce9b1306c6d2b2bc8ff439763434510c5990da1493654c86e4ec39b018",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/snapshot_restore_profile.py": "4b2a412beae00cdce66d3c9ba168de0351a83ea07ab5002ddc770a8bc3855076",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/compare_prepared_restore.py": "64e5e2757bce6308e64ce01d95761657a2aa2087edd428aee4314630335d4d9e",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/prepared_snapshot.py": "3d586feaa232eab10d6f3efcf7b7ad467f16343c9f81e42a226ee8eab539d487",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/policy_loop_smoke.py": "de17fd2aea1a508412c0ba39a298663ed69efe98e33f22602caaf14aef765d2c"
+  },
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONPATH": "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYOPENGL_PLATFORM": "egl",
+    "EGL_DEVICE_ID": "1",
+    "XDG_CACHE_HOME": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/cache"
+  },
+  "jobs": [
+    {
+      "id": "prepared-restore-abba",
+      "args": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "-B",
+        "-u",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/compare_prepared_restore.py",
+        "--release",
+        "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+        "--library-dir",
+        "/srv/disk2/hryang/genesis-exec/builds/57f184c-release-training-r3-sm80/lib",
+        "--snapshot",
+        "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf/endoscopic_tissue/outputs/acceptance-fixes-20261102/a100-combined-T4-regrasp-r1/regrasp-r00/first-failures/01-tick-975/state.lcssnap",
+        "--output",
+        "{attempt}/diagnostic"
+      ],
+      "cwd": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation",
+      "max_idle": 900,
+      "max_wall": 1800,
+      "progress_globs": [
+        "{attempt}/diagnostic/result.json"
+      ],
+      "results": [
+        {
+          "path": "{attempt}/diagnostic/result.json",
+          "require": {
+            "completed": true,
+            "passed": true,
+            "cold_restore_target_unchanged": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "two-env-policy-loop",
+      "args": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "-B",
+        "-u",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/policy_loop_smoke.py",
+        "--output",
+        "{attempt}/pilot"
+      ],
+      "cwd": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation",
+      "max_idle": 900,
+      "max_wall": 1800,
+      "progress_globs": [
+        "{attempt}/pilot/**/*.json",
+        "{attempt}/pilot/**/*.jsonl"
+      ],
+      "results": [
+        {
+          "path": "{attempt}/pilot/result.json",
+          "require": {
+            "completed": true,
+            "passed": true,
+            "validated_recorded_windows": 96,
+            "training_domain_approved": false
+          }
+        }
+      ]
+    }
+  ]
+}

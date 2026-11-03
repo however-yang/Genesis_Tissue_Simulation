@@ -1,0 +1,517 @@
+{
+  "complete_checklist": false,
+  "default_solver_replaced": false,
+  "queue_tests_passed": 5,
+  "prepared_snapshot_cpu_tests_passed": 4,
+  "recovered_video_frames": 466,
+  "profiled_ticks": [
+    300,
+    600,
+    900,
+    1230,
+    1244,
+    1245,
+    1300
+  ],
+  "r9_candidate_adopted": false,
+  "r9_matrix": {
+    "completed_pairs": 2,
+    "required_pairs": 20,
+    "passed": false,
+    "cases": [
+      {
+        "case": "regrasp-r00",
+        "passed": true,
+        "restore_ms": 6831.515365978703,
+        "original": {
+          "failed_quality_steps": 0,
+          "max_blade_overlap_mm": 0.07766386123232966
+        },
+        "restored": {
+          "failed_quality_steps": 0,
+          "max_blade_overlap_mm": 0.08957132697105394
+        }
+      },
+      {
+        "case": "regrasp-r01",
+        "passed": false,
+        "restore_ms": 6905.3627690300345,
+        "original": {
+          "failed_quality_steps": 58,
+          "max_blade_overlap_mm": 0.23934230208396912
+        },
+        "restored": {
+          "failed_quality_steps": 0,
+          "max_blade_overlap_mm": 0.09410962462425218
+        }
+      }
+    ]
+  },
+  "snapshot_abba": {
+    "completed": true,
+    "passed": true,
+    "samples": [
+      {
+        "index": 0,
+        "mode": "cold",
+        "wall_ms": 1803.920325008221,
+        "reported_ms": 1683.1847439752892,
+        "native_exact": true,
+        "rss_bytes": 1673248768
+      },
+      {
+        "index": 1,
+        "mode": "hot",
+        "wall_ms": 880.7714859722182,
+        "reported_ms": 880.3650930058211,
+        "native_exact": true,
+        "rss_bytes": 1675853824
+      },
+      {
+        "index": 2,
+        "mode": "hot",
+        "wall_ms": 757.2871299926192,
+        "reported_ms": 756.9022780517116,
+        "native_exact": true,
+        "rss_bytes": 1675870208
+      },
+      {
+        "index": 3,
+        "mode": "cold",
+        "wall_ms": 2029.8563810065389,
+        "reported_ms": 1870.9810199216008,
+        "native_exact": true,
+        "rss_bytes": 1675874304
+      },
+      {
+        "index": 4,
+        "mode": "cold",
+        "wall_ms": 1699.8654399067163,
+        "reported_ms": 1614.1453239833936,
+        "native_exact": true,
+        "rss_bytes": 1675874304
+      },
+      {
+        "index": 5,
+        "mode": "hot",
+        "wall_ms": 878.7473780103028,
+        "reported_ms": 878.3603840274736,
+        "native_exact": true,
+        "rss_bytes": 1675894784
+      },
+      {
+        "index": 6,
+        "mode": "hot",
+        "wall_ms": 928.9225829998031,
+        "reported_ms": 928.5415989579633,
+        "native_exact": true,
+        "rss_bytes": 1675894784
+      },
+      {
+        "index": 7,
+        "mode": "cold",
+        "wall_ms": 1568.0388690670952,
+        "reported_ms": 1472.6055630017072,
+        "native_exact": true,
+        "rss_bytes": 1675898880
+      },
+      {
+        "index": 8,
+        "mode": "cold",
+        "wall_ms": 1645.538788056001,
+        "reported_ms": 1525.272024096921,
+        "native_exact": true,
+        "rss_bytes": 1674833920
+      },
+      {
+        "index": 9,
+        "mode": "hot",
+        "wall_ms": 1197.0412438968197,
+        "reported_ms": 1196.5071560116485,
+        "native_exact": true,
+        "rss_bytes": 1672757248
+      },
+      {
+        "index": 10,
+        "mode": "hot",
+        "wall_ms": 968.054604018107,
+        "reported_ms": 967.2084080521017,
+        "native_exact": true,
+        "rss_bytes": 1671929856
+      },
+      {
+        "index": 11,
+        "mode": "cold",
+        "wall_ms": 1743.1422780500725,
+        "reported_ms": 1644.3799569969997,
+        "native_exact": true,
+        "rss_bytes": 1671929856
+      }
+    ],
+    "source_sha256": "64e5e2757bce6308e64ce01d95761657a2aa2087edd428aee4314630335d4d9e",
+    "adapter_sha256": "3d586feaa232eab10d6f3efcf7b7ad467f16343c9f81e42a226ee8eab539d487",
+    "scope": "Repeated same-library in-memory restores; explicit warm preparation and memory cost. Not disk cold restore, full snapshot distribution or physical acceptance.",
+    "library_sha256": "5f89e18a6e9151b426fec67ca323b7e27da55aea0c01c514259f531ad338448b",
+    "snapshot_sha256": "2f74130ca9b8676124dc7ace637b2ac921c58cf43dd45ddb24f9cc414193cfc6",
+    "native_bytes": 1260126745,
+    "rss_before_prepare": 405487616,
+    "prepare_ms": 977.6586730731651,
+    "retained_host_bytes": 1317585902,
+    "rss_after_prepare": 1666859008,
+    "cold": {
+      "count": 6,
+      "median_ms": 1721.5038589783944,
+      "p95_ms": 1973.3723670069594,
+      "max_ms": 2029.8563810065389
+    },
+    "hot": {
+      "count": 6,
+      "median_ms": 904.8470344860107,
+      "p95_ms": 1139.7945839271415,
+      "max_ms": 1197.0412438968197
+    },
+    "rss_after_cache_release": 411779072,
+    "hot_p95_below_1s": false,
+    "cold_restore_target_unchanged": true
+  },
+  "fragment_tree": {
+    "tests": 16,
+    "passed": true,
+    "integrated": false
+  },
+  "topology_reproduction": {
+    "batch": "t32",
+    "completed": false,
+    "physical_failure_not_proven_by_interruption": true,
+    "reason": "RuntimeError('Another job appeared on selected GPU; stopping only our workers')",
+    "last_monitor_sample": {
+      "uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+      "total_mib": 81920.0,
+      "used_mib": 59231.0,
+      "gpu_percent": 100.0,
+      "memory_percent": 19.0,
+      "power_w": 141.74,
+      "temp_c": 59.0,
+      "processes": [
+        {
+          "pid": 3193022,
+          "memory_mib": 36.0
+        },
+        {
+          "pid": 3192912,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192918,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192888,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192908,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192886,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192910,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192899,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192898,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192916,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192897,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192907,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192919,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192901,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192885,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192909,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192890,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192892,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192889,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192894,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192917,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192887,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192903,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192914,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192900,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192902,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192906,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192896,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192891,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192915,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192893,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192904,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3192895,
+          "memory_mib": 1848.0
+        },
+        {
+          "pid": 3203533,
+          "memory_mib": 12.0
+        }
+      ],
+      "time": 1793696349.5371447,
+      "host_available_gib": 175.38220596313477,
+      "host_cpu_percent": 39.6,
+      "loadavg": [
+        84.248046875,
+        94.705078125,
+        99.056640625
+      ],
+      "workers_rss_mib": 11312.84765625
+    },
+    "unknown_gpu_pid": 3203533,
+    "unknown_gpu_memory_mib": 12.0,
+    "identity_unavailable_after_exit": true,
+    "owned_workers_cooperatively_stopped": true,
+    "foreign_process_not_killed": true,
+    "private_mps_cleanup_record": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/mps/t32/lifecycle.json",
+    "no_failed_mesh_captured": true,
+    "followup_launcher_correctly_stopped": true,
+    "followup_decision": "GPU independently rechecked idle (15 MiB, zero processes). Separate small adapter tests may proceed; interrupted 32 batch is not counted as success."
+  },
+  "ccd": {
+    "found": true,
+    "diagnostic_only": true,
+    "native_execution_tested": false,
+    "source": "/srv/disk2/hryang/genesis-exec/runs/a100-functional-fixes-20261102-r1/release-training-r3/source/vendor/cuda/contact/fragment_contact.cuh",
+    "source_sha256": "4c926b582937906b6941c9ce8a2aa7bfe7739a3dfc887a8ae41908db7ea1df0f",
+    "original_acceptance_unchanged": true,
+    "witness": {
+      "previous_triangle_cm": [
+        [
+          -0.072079321841318,
+          -0.012835807486581502,
+          0.09262114135649632
+        ],
+        [
+          0.09742871823574237,
+          -0.009159245756342888,
+          0.031864808721033644
+        ],
+        [
+          0.010564967459763625,
+          0.0015924939824068646,
+          -0.08413282316088214
+        ]
+      ],
+      "current_triangle_cm": [
+        [
+          -0.04544616219267135,
+          -0.009073138546186785,
+          0.013581850312538654
+        ],
+        [
+          0.10907598847840944,
+          0.00033250433699798243,
+          -0.031716753219436414
+        ],
+        [
+          0.014672210031376545,
+          0.06734269366158366,
+          -0.06800150969418178
+        ]
+      ],
+      "point_previous_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "point_current_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "before_cm": 0.005516288656193709,
+      "now_cm": 0.003906631884012568,
+      "midpoint_cm": -0.004655030981578848,
+      "skin_cm": 0.003,
+      "events": [
+        {
+          "t": 0.20231901296042953,
+          "barycentric": [
+            0.38149914651552647,
+            0.20810375120020547,
+            0.410397102284268
+          ],
+          "distance_cm": 2.3892436502792505e-17
+        },
+        {
+          "t": 0.8945923770034285,
+          "barycentric": [
+            0.6298950303361359,
+            0.268399543589442,
+            0.10170542607442218
+          ],
+          "distance_cm": 3.512334665042075e-17
+        }
+      ],
+      "max_vertex_motion_mm": 0.8349067252787439,
+      "endpoint_filter_would_skip": true,
+      "batch": 16,
+      "determinant_coefficients": [
+        0.00013808861774357268,
+        -0.0008470747652513808,
+        0.0008246846088541453,
+        -5.6280534575277975e-05
+      ]
+    },
+    "scope": "Algebraic counterexample to endpoint-only point/triangle candidate rejection for linearly moving vertices. This is not proof that this motion occurs in the accepted kidney trajectory; the full solver also has endpoint containment repair."
+  },
+  "policy_loop": {
+    "completed": true,
+    "passed": true,
+    "scope": "Pipeline smoke only: two assisted-held environments, 20 micrometre maximum x target increments, +/-0.2mm target envelope, no cutting, CPU imitation update then fresh evaluation. Not an RL/cutting performance or domain certification.",
+    "training_domain_approved": false,
+    "source_sha256": "de17fd2aea1a508412c0ba39a298663ed69efe98e33f22602caaf14aef765d2c",
+    "native_sha256": "a12b75cddc340bbff1a8b24f7bd8cc4c0d010dbd20cc9b8bafab176235c89cf2",
+    "policy_device": "cpu",
+    "simulation_gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "episodes": {
+      "2a232eccc3af4b1e8fabc51025d63ef2": {
+        "phase": "collect",
+        "worker": 0,
+        "policy_version": "bounded-teacher-v0-de17fd2aea1a508412c0ba39a298663ed69efe98e33f22602caaf14aef765d2c",
+        "reset_lineage_id": "2a232eccc3af4b1e8fabc51025d63ef2",
+        "context_sha256": "507a41291db78f2af6669a836c202ab873dcd02a8b836bc50ec82ac53ab77fd0",
+        "target_x_m": 0.01299999857544899
+      },
+      "cc13cb4adaeb4928b66b5b75a62017c6": {
+        "phase": "collect",
+        "worker": 1,
+        "policy_version": "bounded-teacher-v0-de17fd2aea1a508412c0ba39a298663ed69efe98e33f22602caaf14aef765d2c",
+        "reset_lineage_id": "cc13cb4adaeb4928b66b5b75a62017c6",
+        "context_sha256": "7558a9e54007d8f5d2898192362efcd24c1f107b8524c20d653f66827263ec39",
+        "target_x_m": 0.01279999857544899
+      },
+      "34b2a55fce114086a2654c40613002de": {
+        "phase": "reevaluate",
+        "worker": 0,
+        "policy_version": "learned-v1-4a3df6f5c0c3387cda3c96dbe2d0f3e604114c4ec7bd77867e17f210f80fa76f",
+        "reset_lineage_id": "34b2a55fce114086a2654c40613002de",
+        "context_sha256": "ca5508e2c45528f89681c7a385846dd92f641a1e25e005c1eb6f7f736b759301",
+        "target_x_m": 0.01299999857544899
+      },
+      "7006a606be8d45e8ad6d9de4303598c2": {
+        "phase": "reevaluate",
+        "worker": 1,
+        "policy_version": "learned-v1-4a3df6f5c0c3387cda3c96dbe2d0f3e604114c4ec7bd77867e17f210f80fa76f",
+        "reset_lineage_id": "7006a606be8d45e8ad6d9de4303598c2",
+        "context_sha256": "835b33297f3008f62be508572f419cfe3841e03bd90a7f7e4e275d57fa953824",
+        "target_x_m": 0.01279999857544899
+      }
+    },
+    "policy_versions": {
+      "collect": "bounded-teacher-v0-de17fd2aea1a508412c0ba39a298663ed69efe98e33f22602caaf14aef765d2c",
+      "reevaluate": "learned-v1-4a3df6f5c0c3387cda3c96dbe2d0f3e604114c4ec7bd77867e17f210f80fa76f"
+    },
+    "quality_rejections": [],
+    "collect": {
+      "transitions": 64,
+      "mean_absolute_tool_target_error_mm": 0.0069266137201339385,
+      "last_error_each_mm": {
+        "0": 1.6987323700479173e-07,
+        "1": 2.2181868553766693e-05
+      }
+    },
+    "training": {
+      "samples": 64,
+      "optimizer_steps": 250,
+      "loss_before": 0.18380969762802124,
+      "loss_after": 0.002049588831141591,
+      "checkpoint_sha256": "4a3df6f5c0c3387cda3c96dbe2d0f3e604114c4ec7bd77867e17f210f80fa76f",
+      "checkpoint_inference_exact": true
+    },
+    "reevaluate": {
+      "transitions": 32,
+      "mean_absolute_tool_target_error_mm": 0.014926947187632322,
+      "last_error_each_mm": {
+        "0": -0.000571662187576899,
+        "1": 0.0003863289952284188
+      }
+    },
+    "validated_recorded_windows": 96,
+    "independent_episode_count": 4,
+    "wall_s": 100.68406391143799
+  }
+}
