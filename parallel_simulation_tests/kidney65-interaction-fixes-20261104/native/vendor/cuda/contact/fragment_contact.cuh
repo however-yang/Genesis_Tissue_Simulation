@@ -95,7 +95,9 @@ __device__ inline int fragmentRoot(const SurfaceVertex& v,const int* component){
     for(int k=1;k<v.count;k++)if(component[v.id[k]]!=root)root=-1;
     return root;
 }
-// Contact queries (surface points, then nodes) of detached, unheld components.
+// Contact queries (surface points, then nodes) of detached components.
+// A volume grasped again still collides with the organ. Only the separate
+// unsupported-particle branch delegates held remnants to the grasp solve.
 // Supported tissue has no query, so the passes never visit it.
 __global__ void k_FragmentQueries(int triangles,int nodes,const int* component,const int* active,const SurfaceVertex* vertices,
     const int* supported,const int* grasp,const float* inverseMass,int* queries,int* count,int mode=0,const int* unpinnedVolume=nullptr){
@@ -106,7 +108,7 @@ __global__ void k_FragmentQueries(int triangles,int nodes,const int* component,c
     int root;
     if(i<3*triangles)root=fragmentRoot(vertices[i],component);
     else{int id=i-3*triangles;if((active && !active[id]) || inverseMass[id]<=0)return;root=component[id];}
-    if(root<0 || (supported[root]&1) || (grasp[root]&1))return;
+    if(root<0 || (supported[root]&1) || (mode!=2 && (grasp[root]&1)))return;
     if((mode==1 && (supported[root]&2)) || (mode==2 && !(supported[root]&2)))return;
     queries[atomicAdd(count,1)]=i;
 }

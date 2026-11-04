@@ -2867,7 +2867,12 @@ static cudaError_t launchFragmentPasses(cudaStream_t stream,bool prepare,const f
         k_FragmentSurfaceBounds<<<Gr(3*g_surfaceCount),64,0,stream>>>(3*g_surfaceCount,d_fragmentVertices,d_fragmentBounds,d_fragmentQueryCount);
         cudaMemsetAsync(d_fragmentRootCount,0,sizeof(int),stream);
         k_ListFragmentRoots<<<Gr(g_N),64,0,stream>>>(g_N,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentQueryCount);
-        if(pass==0){
+        // Discovery initializes a permutation for this substep. Every refresh
+        // refits ALL leaves and ancestors below, so the same permutation is a
+        // valid hierarchy even while the tissue moves. Re-sorting Morton keys
+        // at each nonlinear refresh repeats work without changing coverage.
+        // New substeps/topology still take the full discovery/sort path.
+        if(pass==0 && !refresh){
             k_FragmentTreeKeys<<<(g_surfaceCount+63)/64,64,0,stream>>>(g_surfaceCount,d_fragmentVertices,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentKeys,d_fragmentOrder,d_fragmentQueryCount);
             size_t availableSortBytes=g_fragmentSortBytes;
             cudaError_t sorted=cub::DeviceRadixSort::SortPairs(d_fragmentSortTemp,availableSortBytes,d_fragmentKeys,d_fragmentSortedKeys,d_fragmentOrder,d_fragmentSortedOrder,g_surfaceCount,0,64,stream);

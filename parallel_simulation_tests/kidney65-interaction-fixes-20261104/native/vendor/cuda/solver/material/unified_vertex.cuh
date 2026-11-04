@@ -48,7 +48,9 @@ __device__ inline bool fragmentContactActive(const UnifiedState& s){
     return s.fragmentPossible && s.fragmentConstraintCount && *s.fragmentConstraintCount>0 && s.fragmentLiveRevision && (unsigned)s.fragmentConstraintCount[1]==*s.fragmentLiveRevision;
 }
 __device__ inline bool fragmentCoarseEnabled(const UnifiedState& s){
-    return fragmentContactActive(s) && s.grips==0 && (!s.secondary || *s.secondary->contactCount==0);
+    // Regrasp does not remove the paired normal terms from a component's
+    // translation solve. The same objective already includes its grip terms.
+    return fragmentContactActive(s) && (!s.secondary || *s.secondary->contactCount==0);
 }
 // The material accelerator holds existing contact/anchor witnesses fixed.
 // The full V18 vertex/tool sweeps still solve those DOFs; this is only a
@@ -388,21 +390,9 @@ __device__ inline float unifiedGap(const UnifiedState& s,const SurfaceContact& c
             if(lateral>fmaxf(1e-6f,1e-3f*shape.radius))C=fmaxf(C,lateral);
         }
     }
-    else if(s.tool->scissors && (c.kind==3 || c.kind==4)){
-        ContactShape shape=bodyContactShape(s.tool,s.tool->pose,c.kind,s.thickness,s.minGap);
-        // Preserve the manifold's separating normal, quadrature and stiffness.
-        // A nearest-face normal can flip near a thin back's rim and let tissue
-        // cross it. Instead intersect the incident-normal line with the actual
-        // finite OBB, retaining its entrance side even after a deep crossing.
-        float3 axes[3]={shape.u,shape.n,shape.w},r=x-shape.center;
-        float enter=-1e30f,leave=1e30f;
-        for(int j=0;j<3;j++){
-            float q=dot3(r,axes[j]),d=dot3(n,axes[j]),h=compF3(shape.half,j)+s.skin;
-            if(fabsf(d)<1e-7f){if(fabsf(q)>h+1e-6f)return fmaxf(C,fabsf(q)-h);}
-            else{float a=(q-h)/d,b=(q+h)/d;enter=fmaxf(enter,fminf(a,b));leave=fminf(leave,fmaxf(a,b));}
-        }
-        if(enter>leave || enter>1e-6f)C=fmaxf(C,fmaxf(1e-6f,enter));
-    }
+    // Box contacts retain the baseline fixed manifold during each descent
+    // sweep. unifiedManifoldContact clips their finite footprint at refresh.
+    // Changing individual box witnesses mid-sweep failed overlap regression.
     return C;
 }
 // Blade traction is integrated over one contact patch. A finer reconstructed
@@ -1247,7 +1237,19 @@ __device__ void unifiedManifoldContact(int slot,int lane,const SurfaceContact* s
     ContactShape shape=bodyContactShape(body,body->pose,base.kind,thickness,minGap);
     if(shape.capsule){
         if(lane)return;
-        int index=atomicAdd(total,1);out[index]=base;ids[index]=index;owners[index]=slot;quadrature[index]=1;
+        float areaWeight=1.f;
+        if(body->scissors && base.kind==5){
+            // The blunt wrist integrates traction over the same embedded
+            // triangle area as the blade backs. A unit weight per triangle
+            // counted a repeated boundary witness as another complete pad.
+            // Cutting-edge fracture traction keeps its existing normalization.
+            const SurfaceVertex* v=vertices+3*(slot/stride);
+            float3 a=surfacePoint(v[0],pos),b=surfacePoint(v[1],pos),c=surfacePoint(v[2],pos);
+            float3 radial,surface;shapeDistance(shape,unifiedPoint(base,pos),radial,surface);
+            float projectedArea=.5f*fabsf(dot3(cross3(b-a,c-a),radial));
+            areaWeight=projectedArea/fmaxf(4.f*shape.radius*shape.radius,1e-12f);
+        }
+        int index=atomicAdd(total,1);out[index]=base;ids[index]=index;owners[index]=slot;quadrature[index]=areaWeight;
         for(int j=0;j<base.count;j++)atomicAdd(degree+base.id[j],1);return;}
     const SurfaceVertex* v=vertices+3*(slot/stride);float3 axes[3]={shape.u,shape.n,shape.w};
     float3 normal=contactUnit(shape.u*dot3(base.plane.normal,base.referenceShape.u)+shape.n*dot3(base.plane.normal,base.referenceShape.n)+shape.w*dot3(base.plane.normal,base.referenceShape.w),base.plane.normal);int incidentAxis=0;

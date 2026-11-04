@@ -34,6 +34,9 @@ def main():
     parser.add_argument("--library", default="baseline", help="baseline or an archived candidate build label")
     parser.add_argument("--certify-envelope", action="store_true", help="Require independent air-release evidence; keep raw distance diagnostic")
     parser.add_argument("--stress-tests", action="store_true", help="Append real release/regrasp and native snapshot replay checks")
+    parser.add_argument("--profile-stress", action="store_true", help="Diagnostic direct-kernel section profile; not normal FPS")
+    parser.add_argument("--stress-route", choices=("legacy","tracked"), default="legacy")
+    parser.add_argument("--diagnostic-stress", action="store_true", help="Continue a completed but failed base sequence for diagnosis; never certify it")
     args = parser.parse_args()
     if args.name and (not args.name.replace("-", "").replace("_", "").isalnum() or len(args.name) > 80):
         parser.error("Use letters, digits, hyphens or underscores in --name")
@@ -143,6 +146,7 @@ def main():
 
         run.EndoscopicView = view
         measurements = []
+        native_calls = []
         frame = {}
         original_step, original_check = run.NativeTissue.step, run.NativeTissue.check
 
@@ -152,6 +156,7 @@ def main():
             begin = time.perf_counter()
             result = original_check(self, name, *values)
             frame["native_ms"] = (time.perf_counter() - begin) * 1000
+            native_calls.append(dict(tick=int(getattr(self,'tick',-1)),native_ms=frame["native_ms"]))
             return result
 
         def step(self, command):
@@ -178,7 +183,7 @@ def main():
         run.Recording.after_step = record
         if args.stress_tests:
             from training_stress import install
-            install(run, output)
+            install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress)
         options = ["--scene", "kidney", "--dll", str(dll), "--output", str(output),
                    "--width", "1280", "--height", "960", "--render-every", "1"]
         if args.headless:
@@ -195,6 +200,12 @@ def main():
             run.main()
         finally:
             if output.exists():
+                if native_calls:
+                    import numpy as np
+                    values=np.array([row['native_ms'] for row in native_calls])
+                    (output/'native-timing.json').write_text(json.dumps(dict(
+                        note='All native calls, including extra snapshot continuations when enabled; use frame-labelled timing.json for the video trajectory.',
+                        calls=native_calls,mean_ms=float(values.mean()),p95_ms=float(np.percentile(values,95))),indent=2)+'\n')
                 (output / "scene-config.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
                 if measurements:
                     import numpy as np

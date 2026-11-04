@@ -1,0 +1,130 @@
+{
+  "status": "failed",
+  "error": "Interaction quality failed; inspect report metrics for grip loss or slip, cut geometry, new cuts on withdrawal, knife-body overlap (>0.2 mm), material leaving the 60 mm workspace, a scissor cut without two-blade compression, a wound left uncut, cut twice or running along the skin, or an excision that leaves tumor behind, stays tied to the rest or that the grasper does not hold it",
+  "last_stage": "hold",
+  "steps": 1110,
+  "elapsed_s": 69.00781193899456,
+  "settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 2
+  },
+  "grid_spacing_cm": 0.125,
+  "cell_size_cm": [
+    0.125,
+    0.10000000149011612,
+    0.125
+  ],
+  "nodes": 236313,
+  "scene": "kidney",
+  "tab_cm": {
+    "low": [
+      -1.0,
+      2.8,
+      -1.0
+    ],
+    "high": [
+      1.0,
+      4.2,
+      1.0
+    ],
+    "attached": 1
+  },
+  "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r6-grasp-contact-coarse.so",
+  "dll_sha256": "a38295c25a520295d7d612b67cc77c66987fe39cc96388bc117ccfa96439ec47",
+  "genesis_view_created": false,
+  "metrics": {
+    "completed": true,
+    "grasp_acquired": true,
+    "lift_m": 0.014325041323900223,
+    "edges_before_incision": 0,
+    "cut_edges": 151,
+    "observed_cut_edges": 151,
+    "retained_cut_edges": 151,
+    "new_edges_during_withdrawal": 0,
+    "cut_wall_triangles": 222,
+    "final_grip_points": 77,
+    "current_grip_points": 77,
+    "grip_lost_after_capture": false,
+    "bite_nodes": 0,
+    "held_bite_nodes": 0,
+    "grip_slip_m": 0.0,
+    "max_knife_body_penetration_m": 0.00025013191023302877,
+    "max_blade_body_overlap_m": 0.00025013191023302877,
+    "peak_blade_force_n": 52.574851989746094,
+    "max_node_displacement_m": 0.025421811267733574,
+    "degenerate_cut_wall_triangles": 0,
+    "fractures": 2,
+    "fracture_left_n": 0.13879305124282837,
+    "fracture_right_n": 0.1483202874660492,
+    "two_blade_squeeze_m": 0.0009916493093808714,
+    "snips": [
+      {
+        "stage": "incise_1",
+        "fracture_left_n": 0.13879305124282837,
+        "fracture_right_n": 0.1483202874660492,
+        "two_blade_squeeze_m": 0.0009916493093808714
+      },
+      {
+        "stage": "incise_2",
+        "fracture_left_n": 0.4279741942882538,
+        "fracture_right_n": 0.2209225445985794,
+        "two_blade_squeeze_m": 0.001845865753514997
+      }
+    ],
+    "edges_cut_without_fracture": 0,
+    "edges_cut_outside_tab": 0,
+    "uncut_columns": 0,
+    "multiply_cut_columns": 0,
+    "stray_skin_cuts": 0,
+    "slit_length_m": 0.009722718241315029,
+    "material_components": 2,
+    "gripped_pieces": 1,
+    "tumor_nodes_left": 0,
+    "lattice_pieces": 2,
+    "acceptance_passed": false
+  },
+  "limitations": [
+    "Single native session",
+    "End-effector control; no robot arm dynamics",
+    "Anchor-assisted grasp",
+    "Finite capsule cutting edge",
+    "Uncalibrated tissue"
+  ]
+}
