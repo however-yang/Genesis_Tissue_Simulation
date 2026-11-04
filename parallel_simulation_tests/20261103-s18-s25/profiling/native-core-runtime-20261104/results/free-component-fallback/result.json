@@ -1,0 +1,12 @@
+{
+  "passed": false,
+  "scope": "small unpinned free block; fallback coverage, not FPS and not post-fracture acceptance",
+  "nodes": 2925,
+  "active_nodes": 1210,
+  "pinned_nodes": 0,
+  "dt_s": 0.03333333333333333,
+  "substeps": 3,
+  "contact_refine_passes": 8,
+  "error": "AttributeError(\"'Observation' object has no attribute 'positions'\")",
+  "traceback": "Traceback (most recent call last):\n  File \"/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/check_free_fallback.py\", line 36, in <module>\n    guard({os.getpid()});observed=native.step(command);assert np.isfinite(observed.positions).all();positions.append(observed.positions.copy());quality.append(native.material_quality().tolist())\n                                                                          ^^^^^^^^^^^^^^^^^^\nAttributeError: 'Observation' object has no attribute 'positions'\n"
+}

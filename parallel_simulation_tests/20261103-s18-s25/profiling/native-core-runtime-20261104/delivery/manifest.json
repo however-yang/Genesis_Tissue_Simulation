@@ -1,0 +1,649 @@
+{
+  "schema": "native_runtime_candidate_v1",
+  "created_unix": 1793786981.5413265,
+  "status": "independent measured candidate; local held-task regressions pass; performance floor and full physics not approved",
+  "selected_library": "native/binaries/runtime-core.so",
+  "library_sha256": "8b24b3f7b6ec7f2d952437a2bf672a5d31604125ee881299450e3a4cca1691ec",
+  "native_source": "native/source",
+  "core_mode": 43264,
+  "core_bits": {
+    "graph_reuse": 256,
+    "ordered_parallel_grip_diagnostic": 2048,
+    "coarse_80_register_budget": 8192,
+    "original_disabled_modes_gate": 32768
+  },
+  "query_threads": 64,
+  "query_mode": 3,
+  "assembly_blocks": 512,
+  "manifold_blocks": 1024,
+  "coarse_bound_cache": true,
+  "gpu_topology_checks": true,
+  "gpu_body_checks": true,
+  "batch_observation": false,
+  "render": {
+    "width": 1280,
+    "height": 960,
+    "fresh_cpu_rgbd_every_step": true,
+    "dense_s25_labels_included": false,
+    "desktop_transport_included": false
+  },
+  "stable_25hz_approved": false,
+  "all_20frame_windows_above_20hz": false,
+  "formal_physics_domain_approved": false,
+  "training_domain_approved": false,
+  "strict_free_trajectory_reproduction_approved": false,
+  "formal_version_changed": false,
+  "current_navigation_changed": false,
+  "baseline_library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/native-readonly-v8/build/lib/libLiverCudaSim.so",
+  "baseline_library_sha256": "38c0cd4ad5e9c5d1a3e43390246ad05797e1729a0b7e23f84c11cd76998ef5eb",
+  "borrowed_python_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+  "native_source_sha256": {
+    "native/source/CMakeLists.txt": "cdbb216ae19955328678250148bd7321a41c7d2b5dfffb58e4deee594aed6ae0",
+    "native/source/vendor/cuda/common.cuh": "8baec8d8110b81acbdc60ca7f6ac6b987b98aa748816c779fcbeeef5c856c4dc",
+    "native/source/vendor/cuda/contact/coarse_bound_cache.cuh": "954b378a635812bcbd45cfc3517a90db60855d286d25053b1b9c2b5afddf54bc",
+    "native/source/vendor/cuda/contact/coarse_occupancy.cuh": "09072bfb870ac24126d7a2411d8caa1ac044c36bd97a0ce2d57a64294b1598df",
+    "native/source/vendor/cuda/contact/contact_groups.cuh": "3905cc6aa64ed9732828f607e0b9b042c8b131cef284c5f5dce98da32f059422",
+    "native/source/vendor/cuda/contact/fragment_coarse.cuh": "8c53bbbe17735acbf2329f9f3701af9b5f771e6bcb448ef4125fc27a865f8090",
+    "native/source/vendor/cuda/contact/fragment_contact.cuh": "4c926b582937906b6941c9ce8a2aa7bfe7739a3dfc887a8ae41908db7ea1df0f",
+    "native/source/vendor/cuda/contact/fragment_paired_probe.cuh": "1bded257473d4dd3df7a0d8b1b994729074e2e61eb5ce412c7255efa48516144",
+    "native/source/vendor/cuda/contact/fragment_probe.cuh": "8fe3ac2796afbb07c411e4c37acb19c1a13955f3e2e53925dc68677d4b045b1d",
+    "native/source/vendor/cuda/contact/fragment_snapshots.cuh": "ead3a8d4a3866c0800c35d1025e52775055fcf36d4a8fdbf7ea8820f81825fe6",
+    "native/source/vendor/cuda/contact/fragment_tree.cuh": "9f180772a02bcf13eb86ba069356ff2bd4918aa801c1d33f9156e75e98b56cb9",
+    "native/source/vendor/cuda/contact/friction_contact.cuh": "dd26fc5838277bceab43375e533a7bca79b1d030e5282c0f55b5f81ce5f3729a",
+    "native/source/vendor/cuda/contact/manifold_validation.cuh": "087e9e76cbfe62e2681235c1daa8f0af7636b5a4a2915bb1ab7ffd8bc7c9a618",
+    "native/source/vendor/cuda/contact/surface_contact.cuh": "cf42b1057c6fd0d9f86418f0d8534f685a866aa810619a89f273a56e899372d5",
+    "native/source/vendor/cuda/cut.cu": "db0cfdadbc12f8a01f0e68cd8ec4f3d8f5cc113c64176e546e00f762b2b566d9",
+    "native/source/vendor/cuda/cut.cuh": "5d79ee361fa6624111131f6a56f4d8cf51c957510382242b76feb955a98a8da3",
+    "native/source/vendor/cuda/cut.h": "a653b2b30063754a26d7802c28f16c61077f012a993c3d8aeddef7d730913452",
+    "native/source/vendor/cuda/cutting/pressure_blade.cuh": "06a731796507c37fe3765d8e7f177247bc15cd0398ed1e8a7fc899c059568f53",
+    "native/source/vendor/cuda/cutting/pressure_cut_state.cuh": "48f4a9fcadf90986d55cc2148931a090ea31dec7d3ddc38f3016e296d19f5cf5",
+    "native/source/vendor/cuda/dc_recon.cu": "189de52c9244dc62167546c34d02c9c0a4c007a3fa583798ce0994ee8ac3671f",
+    "native/source/vendor/cuda/dc_recon.h": "97c2b00f1a5c68c573443bd020febcf280868e87afd754b064e434ad4ed93ff6",
+    "native/source/vendor/cuda/gpu_body_check.cuh": "f211cbac399b09d964d32637b152869937b01782a9b509dd535289ac6d9d98eb",
+    "native/source/vendor/cuda/grasp/gaussian_grasp.cuh": "64216978f376244c62ac115b87650687468830b82329c83db1ddc8e5a15a25c6",
+    "native/source/vendor/cuda/grasp/grip_observation.cuh": "a9377f259c07a6ff5aecbcbc761e2b77b9768744ad2f191bd6487ac2329c986b",
+    "native/source/vendor/cuda/grasp/runtime_grip_feedback.cuh": "fb284ba1de18a590cd37ea669f57b64a0ab26838f334c2db26dd8908a3bfbd36",
+    "native/source/vendor/cuda/grasp/tool_coupling.cuh": "036765feb6d98d56c8abb2801804305c95461b94bbcf92fb53ac471374376243",
+    "native/source/vendor/cuda/haptics.cu": "0aeb1cbd06fae541e90ecae6d17bc8063fd41d8fadbc6d798a28b099bf2a9da1",
+    "native/source/vendor/cuda/haptics.h": "ee0c7963de52ead1fcf89d4f1f91b203416f6eb0225d9fbe390c3ce66ab35aa1",
+    "native/source/vendor/cuda/physics.cu": "a0089dbd8f06a4071f5ab621c6f19d8ab5ed3dc3733f4c650aefc19be113552a",
+    "native/source/vendor/cuda/physics.h": "895c4a64a15993c2948d58e34a038fbdbce16dbfb29aa52e60eb687cb6d69177",
+    "native/source/vendor/cuda/render_buffer.cuh": "6811f0af388e486eea552173af835024646c0c78b529e8cef62da11160c6c652",
+    "native/source/vendor/cuda/solver/material/coupled_material.cuh": "c94df49d57b3d21cdff9fc1b2c2844f5492ad80ab9fa8d7528a4e9d8f33db730",
+    "native/source/vendor/cuda/solver/material/material_line_search.cuh": "a4704ab5f5758b367c9442d14d91674079a82990d9564166cc8d0566e746f867",
+    "native/source/vendor/cuda/solver/material/material_multigrid.cuh": "cb48c204d6580ff208a345ca7afe1ecb7ff1a01aadc01661d13a2ca15e01aabb",
+    "native/source/vendor/cuda/solver/material/material_stencil.cuh": "38db4a46b76e17da683a4a03c69e95bcbac0aa0048fbb9be20debf306ebea761",
+    "native/source/vendor/cuda/solver/material/pressure_patch_line.cuh": "e0afa68d7f7dcf9f9b3c56075d737e2f1f6a48a005f9f295b46c0b4c4ccaafee",
+    "native/source/vendor/cuda/solver/material/unified_vertex.cuh": "a58c88a1cc096a4f25c4e01572dc8724cbbeb6f62051f97de3f63781ed61060c",
+    "native/source/vendor/cuda/surface_cleanup.cuh": "30b778fdde403ae764f22cc520cfc886326aa01d0d92de922c8bdcd2d5d2ee77",
+    "native/source/vendor/cuda/topology_checks.cuh": "d8df9c0ccd7cace02b3e38f14e81b7251c98637142a6b80db61cf306dad0889b",
+    "native/source/vendor/cuda/training/cut_state.cuh": "5a8984b66cc36c31f4997ce14ed9915c3ab15b3578a0c8bf25659fc37e43ab25",
+    "native/source/vendor/cuda/training/cut_training.cuh": "93d73d98d569aba0076321b0898f6d08fb41c786ef37f56778f5edf33351284b",
+    "native/source/vendor/cuda/training/haptics_state.cuh": "90e935cd262a968bd10b5b6e745230804dc943a1b01a08ee33e9fcefaba551d9",
+    "native/source/vendor/cuda/training/physics_state.cuh": "e9f64f5f6c6056d5b683b3fd11ee73ae4df3f3f5a49070f7b4c7af5108525003",
+    "native/source/vendor/cuda/training/recon_state.cuh": "db268156fd19abb7b20fff17d1820c878ef7c75df79194b66442c8a758e8cf21",
+    "native/source/vendor/cuda/training/state_archive.cpp": "de33b4273d3a4254d25a8a4e7086ded97847602b24aacec5fa97c804e384d713",
+    "native/source/vendor/cuda/training/state_archive.h": "44a0c197e90ebbf7b0854ae74132c3dfe02a66b2f3c129bda9220b0441480d0b",
+    "native/source/vendor/cuda/training/training_api.h": "43f4d8809a0241c910742bda75e9fa44296b13dcf162b499fb9cdd8378b47dff",
+    "native/source/vendor/cuda/training/xpbd_state.cuh": "ac63d206ce0a9b989995c9f94c673fd6381248fb4e14d88741ad8c9f25b3127d",
+    "native/source/vendor/cuda/training/xpbd_training.cuh": "26e3424a3f89395bda50b2c0c8c6de06e6d37c2f9d33d095e89d196e5e3d8098",
+    "native/source/vendor/cuda/xpbd/labels_readback.cuh": "0e54c5d28441e384a053a545b76f51d5862457423af4a8f4604d44c3553d176c",
+    "native/source/vendor/cuda/xpbd/tool_feedback.cuh": "df54e0a36f794ce3217ee6e5b2af3f34ce4a863a7b4193ebeadd12f175a442eb",
+    "native/source/vendor/cuda/xpbd/tool_feedback.h": "af11f30f8e1a21d299dacf7313a8f11823390330f709ae3fb23a523f230170da",
+    "native/source/vendor/cuda/xpbd/xpbd_solver.cu": "ec5e80ce6647af25021fd8296079173efa53618e7987ca70e0b4248607374118",
+    "native/source/vendor/cuda/xpbd/xpbd_solver.h": "8e3827f4943b5b318b2f983ab83bccc3e23e87cee0e6f404e8189b3860c402fe",
+    "native/source/vendor/cuda/zero_mode_gates.cuh": "b7bf33f7191aad0434294bb1c4719e3d6b88399c1ae697346556a695dc5c0c2e",
+    "native/source/vendor/src/plugin_api.cpp": "7fc58ec86b75a890f536d860fe6cf7058e52353c396ae1153397865a6a476e35"
+  },
+  "tool_sha256": {
+    "tools/analyze_timeline.py": "d63cd447d6d898e9ab36d6bf3198c907db4d3661113257c6c15c14527211a341",
+    "tools/batch_observation.py": "82c9218aa12ea04753341cedec2dafcea89d6c4d5aed3ba1c91cbe6881f7e74c",
+    "tools/bind_sass.py": "17eca1523a3322cd9ae6847db617d75336b25102c5f038e9acc0d2dfb0d69982",
+    "tools/build.py": "60a80436886234f08dd54032d20219adbfbc76d7d9f92c5b61c7f6092d06f33a",
+    "tools/check_current_frame_final_cache.py": "f60088384b2bbceb979961b2737faee59c4b226ed67db98983ebe1c513d94516",
+    "tools/check_free_fallback.py": "e34893e61a8e1ce5d5dcac6640fd8489dc33b3ef52cf971e355a7131b39e4765",
+    "tools/check_free_repeat.py": "fe4da14c8b0c8fa0aa7cf773499c279be9a7e9768f9e802d98320ac47476e049",
+    "tools/check_snapshot_roundtrip_cache.py": "5e2f71c08f5e2f319c5748924fcffe42fc0e668b0a66a7038ec33ba326daff6c",
+    "tools/final_queue.py": "37ab1d44816a9e2af32c4f1485ebfbab3ff771d9727574676566fbbe51b2c8db",
+    "tools/implement_coarse_split.py": "70293989f3ecdeae2ae5e88dc1d537a556dd76cb094bf4988ab1839e56d556ee",
+    "tools/implement_direct_query.py": "7901b38628d02168c076d00aac139cc466fc8ab028a044e59c25bfbd7daa3e75",
+    "tools/implement_graph_reuse.py": "b9cb83dfa72ce4acf875f2d376c261186cdab72f9661c439e49910cb7f6750f2",
+    "tools/implement_occupancy.py": "9100ab00e384140d7d52cd2daa2ea7eaa4c45acbada91702302811045c9de909",
+    "tools/implement_query_specialization.py": "6bf62c6ae4b5585d35130e5480b7df2141a74a386b7b7f786b50a86dc5379c20",
+    "tools/implement_zero_modes.py": "a2d03eb01de1b8aa7b6e03cb244e9685beff3a5d9139f993db34fe8bfc50b82f",
+    "tools/kernel_groups.py": "0a05d0e9be6c26732dec4dd7ca07f25bd2aec38bfbdf75ba39b678670b3b7bac",
+    "tools/profile_all_queries.py": "a4fc319127028bf29163a82b74fabbc4514727e9e884758d436a035ac39d1a9d",
+    "tools/reproduce.py": "036b574951c4bb179b2fb5b2384577623af35a463045311af79857b18980435b",
+    "tools/run_case.py": "9a26c9d08905e72233fef415b1db6fe1cb476fef731782226d50cbcf3ca3310b",
+    "tools/runtime_binding.py": "c5159897a0c0f154650e6f38a2578979a0005955eac23816c30003d9e9e0eeb8",
+    "tools/summarize.py": "509608a40b7f791390a11dc3a62d8b5b373970b16146155a3c848616ac8f47c9",
+    "tools/summarize_final.py": "7701895431b4cb93889eafe681ce8018ef15c871027dec5bf275002dd6e94384",
+    "tools/write_delivery.py": "9a8c4d9448a2d1177a56d61ca6d85383d51f3999d60847bb6298890acabbf0c0",
+    "tools/write_report.py": "5b189ff1ccb0a2b8c83606a770ac29dc97610365bb499f2495a4a3123092aacc"
+  },
+  "regression": {
+    "full_unprofiled_abba_frames": 5640,
+    "local_quality_checks_passed": true,
+    "full_numeric_proof": "results/final-proof/result.json",
+    "rgbd": "results/final-rgbd-proof/result.json",
+    "snapshot": "results/final-snapshot/result.json",
+    "cpu_tests": 136,
+    "free_repeat_failed": "results/free-component-repeat-control/result.json",
+    "patch_reconstruction": "results/patch-reconstruction.json"
+  },
+  "performance": {
+    "schema": "runtime_abba_v1",
+    "baseline": {
+      "cases": [
+        "final-a1-v8",
+        "final-a2-v8"
+      ],
+      "performance": {
+        "frames": 2820,
+        "mean_ms": 41.640727181205676,
+        "fps": 24.01495045099368,
+        "p50_ms": 43.370858,
+        "p95_ms": 48.898588749999995,
+        "p99_ms": 55.03913134,
+        "max_ms": 71.670191,
+        "over_40ms": 1669,
+        "over_50ms": 97,
+        "rolling20_min_hz": 18.957640506810947
+      },
+      "modules_ms": {
+        "native_step": 28.273867109314875,
+        "quality_including_surface": 2.4074204870027405,
+        "snapshot": 1.37341747655705,
+        "render_rgbd": 8.276724185815603,
+        "control_policy_other": 1.3092979225154053
+      },
+      "stages": {
+        "approach": {
+          "frames": 330,
+          "mean_ms": 31.209219169696965,
+          "fps": 32.04181413711767,
+          "p95_ms": 32.67063855,
+          "native_step_ms": 17.822746386060096
+        },
+        "bite": {
+          "frames": 90,
+          "mean_ms": 31.045479111111106,
+          "fps": 32.21080906566207,
+          "p95_ms": 31.61437695,
+          "native_step_ms": 17.92090322253191
+        },
+        "close": {
+          "frames": 90,
+          "mean_ms": 34.63446254444444,
+          "fps": 28.872975831998456,
+          "p95_ms": 39.41046575,
+          "native_step_ms": 21.358572368303108
+        },
+        "lift": {
+          "frames": 120,
+          "mean_ms": 39.266407825,
+          "fps": 25.467060915190807,
+          "p95_ms": 39.98901935,
+          "native_step_ms": 26.074498030357063
+        },
+        "blade_approach": {
+          "frames": 240,
+          "mean_ms": 39.3217376125,
+          "fps": 25.431226103347722,
+          "p95_ms": 40.30305305,
+          "native_step_ms": 26.137890812242404
+        },
+        "incise_1": {
+          "frames": 300,
+          "mean_ms": 47.20096404666667,
+          "fps": 21.18600795973827,
+          "p95_ms": 54.42984835,
+          "native_step_ms": 33.39331124715196
+        },
+        "open_1": {
+          "frames": 60,
+          "mean_ms": 44.00770596666666,
+          "fps": 22.723293069569298,
+          "p95_ms": 47.4128389,
+          "native_step_ms": 30.818905343767256
+        },
+        "raise_1": {
+          "frames": 60,
+          "mean_ms": 39.79107738333334,
+          "fps": 25.131262226613,
+          "p95_ms": 40.5568624,
+          "native_step_ms": 26.556374477998663
+        },
+        "reposition_2": {
+          "frames": 180,
+          "mean_ms": 42.585278205555554,
+          "fps": 23.482293462381158,
+          "p95_ms": 44.41541675,
+          "native_step_ms": 29.35494535486214
+        },
+        "incise_2": {
+          "frames": 300,
+          "mean_ms": 46.62016188333334,
+          "fps": 21.449946967204742,
+          "p95_ms": 51.38079140000001,
+          "native_step_ms": 33.17171960913887
+        },
+        "open_2": {
+          "frames": 60,
+          "mean_ms": 45.47306141666666,
+          "fps": 21.991041923416283,
+          "p95_ms": 47.56088045,
+          "native_step_ms": 32.29984727804549
+        },
+        "raise_2": {
+          "frames": 60,
+          "mean_ms": 43.82735943333333,
+          "fps": 22.816797838827593,
+          "p95_ms": 44.5019524,
+          "native_step_ms": 30.54149148132031
+        },
+        "reposition_3": {
+          "frames": 180,
+          "mean_ms": 43.746342399999996,
+          "fps": 22.859053926300366,
+          "p95_ms": 44.57982375,
+          "native_step_ms": 30.53618210251443
+        },
+        "incise_3": {
+          "frames": 300,
+          "mean_ms": 46.92492318,
+          "fps": 21.310636911734203,
+          "p95_ms": 52.592180150000004,
+          "native_step_ms": 33.35624205375401
+        },
+        "raise_3": {
+          "frames": 60,
+          "mean_ms": 46.776008100000006,
+          "fps": 21.378480990984777,
+          "p95_ms": 47.91684915,
+          "native_step_ms": 33.36480747675523
+        },
+        "withdraw": {
+          "frames": 240,
+          "mean_ms": 42.31505336666667,
+          "fps": 23.63225189236655,
+          "p95_ms": 46.56301055,
+          "native_step_ms": 29.02944949795104
+        },
+        "release": {
+          "frames": 90,
+          "mean_ms": 39.814971077777784,
+          "fps": 25.116180495184064,
+          "p95_ms": 40.7806661,
+          "native_step_ms": 26.53784984205332
+        },
+        "hold": {
+          "frames": 60,
+          "mean_ms": 39.54080375000001,
+          "fps": 25.29033062460193,
+          "p95_ms": 39.892156299999996,
+          "native_step_ms": 26.441130583407357
+        }
+      },
+      "gpu": {
+        "samples": 56,
+        "memory_peak_mib": 2136.0,
+        "utilization_mean_pct": 72.92857142857143,
+        "memory_controller_utilization_mean_pct": 2.9107142857142856,
+        "power_mean_w": 104.47946428571429
+      },
+      "quality": {
+        "frames": 2820,
+        "all_checked_metrics_passed": true,
+        "min_volume_ratio": 0.1499992161989212,
+        "max_invalid_tets": 0,
+        "max_healed_edges": 0,
+        "max_unexpected_neighbor_changes": 0,
+        "total_new_cut_edges": 204,
+        "max_blade_body_overlap_m": 9.448185563087463e-05,
+        "max_wrist_overlap_m": 0.0,
+        "min_instrument_distance_m": -3.969009771227381e-06
+      }
+    },
+    "candidate": {
+      "cases": [
+        "final-b1-runtime",
+        "final-b2-runtime"
+      ],
+      "performance": {
+        "frames": 2820,
+        "mean_ms": 40.252772253191495,
+        "fps": 24.843009413363166,
+        "p50_ms": 41.777622,
+        "p95_ms": 46.23718274999999,
+        "p99_ms": 52.38069906999999,
+        "max_ms": 65.189422,
+        "over_40ms": 1529,
+        "over_50ms": 51,
+        "rolling20_min_hz": 19.613484436872696
+      },
+      "modules_ms": {
+        "native_step": 26.8366117409764,
+        "quality_including_surface": 2.39777856936566,
+        "snapshot": 1.4322917626473841,
+        "render_rgbd": 8.277349268439716,
+        "control_policy_other": 1.3087409117623352
+      },
+      "stages": {
+        "approach": {
+          "frames": 330,
+          "mean_ms": 31.0219719,
+          "fps": 32.235217130088365,
+          "p95_ms": 31.71510295,
+          "native_step_ms": 17.764130149347086
+        },
+        "bite": {
+          "frames": 90,
+          "mean_ms": 30.92027005555555,
+          "fps": 32.34124405133799,
+          "p95_ms": 31.715241499999998,
+          "native_step_ms": 17.85101781392263
+        },
+        "close": {
+          "frames": 90,
+          "mean_ms": 33.834429799999995,
+          "fps": 29.555692408920105,
+          "p95_ms": 37.7363106,
+          "native_step_ms": 20.529483576926093
+        },
+        "lift": {
+          "frames": 120,
+          "mean_ms": 37.730141616666664,
+          "fps": 26.504008655993662,
+          "p95_ms": 38.29819245,
+          "native_step_ms": 24.462845582941856
+        },
+        "blade_approach": {
+          "frames": 240,
+          "mean_ms": 37.846311212500005,
+          "fps": 26.422654360822268,
+          "p95_ms": 38.403746899999994,
+          "native_step_ms": 24.539260572055355
+        },
+        "incise_1": {
+          "frames": 300,
+          "mean_ms": 44.90771145666667,
+          "fps": 22.2678904705474,
+          "p95_ms": 51.7126892,
+          "native_step_ms": 31.049407054282103
+        },
+        "open_1": {
+          "frames": 60,
+          "mean_ms": 42.67570695,
+          "fps": 23.43253507602409,
+          "p95_ms": 46.408729949999994,
+          "native_step_ms": 29.250719881383702
+        },
+        "raise_1": {
+          "frames": 60,
+          "mean_ms": 38.33582031666667,
+          "fps": 26.085264166507102,
+          "p95_ms": 38.95906645,
+          "native_step_ms": 25.125308307663847
+        },
+        "reposition_2": {
+          "frames": 180,
+          "mean_ms": 41.140217888888884,
+          "fps": 24.307114821335915,
+          "p95_ms": 42.819804049999995,
+          "native_step_ms": 27.77826169298755
+        },
+        "incise_2": {
+          "frames": 300,
+          "mean_ms": 44.99992007333333,
+          "fps": 22.222261692251177,
+          "p95_ms": 48.39147055000001,
+          "native_step_ms": 31.41262035855713
+        },
+        "open_2": {
+          "frames": 60,
+          "mean_ms": 43.969755166666666,
+          "fps": 22.7429058044448,
+          "p95_ms": 45.527092,
+          "native_step_ms": 30.56084632407874
+        },
+        "raise_2": {
+          "frames": 60,
+          "mean_ms": 42.2890787,
+          "fps": 23.646767220776557,
+          "p95_ms": 42.879771549999994,
+          "native_step_ms": 28.96960662328638
+        },
+        "reposition_3": {
+          "frames": 180,
+          "mean_ms": 42.18382662777778,
+          "fps": 23.70576782480673,
+          "p95_ms": 43.0924453,
+          "native_step_ms": 28.871800252495127
+        },
+        "incise_3": {
+          "frames": 300,
+          "mean_ms": 45.49408639666667,
+          "fps": 21.980878817543847,
+          "p95_ms": 50.87683955,
+          "native_step_ms": 31.901013804987695
+        },
+        "raise_3": {
+          "frames": 60,
+          "mean_ms": 44.86695316666667,
+          "fps": 22.2881191928793,
+          "p95_ms": 46.142384549999996,
+          "native_step_ms": 31.34431921450111
+        },
+        "withdraw": {
+          "frames": 240,
+          "mean_ms": 40.53535597916666,
+          "fps": 24.669821587701236,
+          "p95_ms": 44.2273067,
+          "native_step_ms": 27.26509024942061
+        },
+        "release": {
+          "frames": 90,
+          "mean_ms": 38.305499288888896,
+          "fps": 26.105912168336246,
+          "p95_ms": 38.87027865,
+          "native_step_ms": 25.02555377755521
+        },
+        "hold": {
+          "frames": 60,
+          "mean_ms": 38.56416225,
+          "fps": 25.93081093055509,
+          "p95_ms": 39.1605669,
+          "native_step_ms": 25.349666523591925
+        }
+      },
+      "gpu": {
+        "samples": 54,
+        "memory_peak_mib": 2136.0,
+        "utilization_mean_pct": 72.29629629629629,
+        "memory_controller_utilization_mean_pct": 3.0,
+        "power_mean_w": 106.98685185185185
+      },
+      "quality": {
+        "frames": 2820,
+        "all_checked_metrics_passed": true,
+        "min_volume_ratio": 0.14999882876873016,
+        "max_invalid_tets": 0,
+        "max_healed_edges": 0,
+        "max_unexpected_neighbor_changes": 0,
+        "total_new_cut_edges": 195,
+        "max_blade_body_overlap_m": 6.268423386378217e-05,
+        "max_wrist_overlap_m": 0.0,
+        "min_instrument_distance_m": -1.8245421463129003e-05
+      }
+    },
+    "cases": [
+      {
+        "name": "final-a1-v8",
+        "completed": true,
+        "quality_passed": true,
+        "performance": {
+          "frames": 1410,
+          "mean_ms": 41.61069606453901,
+          "p50_ms": 43.3150885,
+          "p95_ms": 49.25163985,
+          "p99_ms": 54.75931662,
+          "max_ms": 67.368236,
+          "fps": 24.032282431636812,
+          "over_50ms": 50,
+          "rolling20_min_hz": 19.357396121432483
+        },
+        "parts_ms": {
+          "native_step": 28.350066362652292,
+          "quality_including_surface_export": 2.3995578152801285,
+          "snapshot": 1.3814411330010399,
+          "render_and_rgbd": 8.167303461702128,
+          "other_control_policy_python": 1.3123272919034292
+        },
+        "parts_pct": {
+          "native_step": 68.13168017829064,
+          "quality_including_surface_export": 5.7666851127853445,
+          "snapshot": 3.3199183470961344,
+          "render_and_rgbd": 19.627894349651058,
+          "other_control_policy_python": 3.1538220121768297
+        },
+        "gpu": {
+          "samples": 28,
+          "sampling_interval_s": 2,
+          "memory_peak_mib": 2136.0,
+          "gpu_utilization_mean_pct": 73.10714285714286,
+          "memory_controller_utilization_mean_pct": 2.9285714285714284,
+          "power_mean_w": 104.60892857142858,
+          "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+        }
+      },
+      {
+        "name": "final-b1-runtime",
+        "completed": true,
+        "quality_passed": true,
+        "performance": {
+          "frames": 1410,
+          "mean_ms": 40.29382954893617,
+          "p50_ms": 41.962248,
+          "p95_ms": 46.5345691,
+          "p99_ms": 52.522167440000004,
+          "max_ms": 65.189422,
+          "fps": 24.817695691731583,
+          "over_50ms": 28,
+          "rolling20_min_hz": 19.613484436872696
+        },
+        "parts_ms": {
+          "native_step": 26.864205221051073,
+          "quality_including_surface_export": 2.38920310693826,
+          "snapshot": 1.4688002670527245,
+          "render_and_rgbd": 8.273625278014185,
+          "other_control_policy_python": 1.2979956758799318
+        },
+        "parts_pct": {
+          "native_step": 66.67076701762723,
+          "quality_including_surface_export": 5.929451565373337,
+          "snapshot": 3.64522380596486,
+          "render_and_rgbd": 20.533231441717415,
+          "other_control_policy_python": 3.221326169317161
+        },
+        "gpu": {
+          "samples": 27,
+          "sampling_interval_s": 2,
+          "memory_peak_mib": 2136.0,
+          "gpu_utilization_mean_pct": 72.55555555555556,
+          "memory_controller_utilization_mean_pct": 3.0,
+          "power_mean_w": 107.24740740740741,
+          "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+        }
+      },
+      {
+        "name": "final-b2-runtime",
+        "completed": true,
+        "quality_passed": true,
+        "performance": {
+          "frames": 1410,
+          "mean_ms": 40.21171495744681,
+          "p50_ms": 41.6803335,
+          "p95_ms": 46.07688555,
+          "p99_ms": 52.204771440000016,
+          "max_ms": 64.1805,
+          "fps": 24.86837482704303,
+          "over_50ms": 23,
+          "rolling20_min_hz": 20.436105823890326
+        },
+        "parts_ms": {
+          "native_step": 26.809018260901727,
+          "quality_including_surface_export": 2.4063540317930596,
+          "snapshot": 1.3957832582420437,
+          "render_and_rgbd": 8.281073258865248,
+          "other_control_policy_python": 1.3194861476447315
+        },
+        "parts_pct": {
+          "native_step": 66.66967148571455,
+          "quality_including_surface_export": 5.984211402919603,
+          "snapshot": 3.4710861243274542,
+          "render_and_rgbd": 20.593683377166375,
+          "other_control_policy_python": 3.281347609872023
+        },
+        "gpu": {
+          "samples": 27,
+          "sampling_interval_s": 2,
+          "memory_peak_mib": 2134.0,
+          "gpu_utilization_mean_pct": 72.03703703703704,
+          "memory_controller_utilization_mean_pct": 3.0,
+          "power_mean_w": 106.7262962962963,
+          "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+        }
+      },
+      {
+        "name": "final-a2-v8",
+        "completed": true,
+        "quality_passed": true,
+        "performance": {
+          "frames": 1410,
+          "mean_ms": 41.67075829787234,
+          "p50_ms": 43.477989,
+          "p95_ms": 48.449239500000004,
+          "p99_ms": 55.61803189000001,
+          "max_ms": 71.670191,
+          "fps": 23.997643451836556,
+          "over_50ms": 47,
+          "rolling20_min_hz": 18.957640506810947
+        },
+        "parts_ms": {
+          "native_step": 28.197667855977457,
+          "quality_including_surface_export": 2.415283158725352,
+          "snapshot": 1.36539382011306,
+          "render_and_rgbd": 8.386144909929078,
+          "other_control_policy_python": 1.3062685531273956
+        },
+        "parts_pct": {
+          "native_step": 67.66775793810595,
+          "quality_including_surface_export": 5.796110407831656,
+          "snapshot": 3.2766234066414275,
+          "render_and_rgbd": 20.124771548391198,
+          "other_control_policy_python": 3.134736699029766
+        },
+        "gpu": {
+          "samples": 28,
+          "sampling_interval_s": 2,
+          "memory_peak_mib": 2136.0,
+          "gpu_utilization_mean_pct": 72.75,
+          "memory_controller_utilization_mean_pct": 2.892857142857143,
+          "power_mean_w": 104.35,
+          "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+        }
+      }
+    ],
+    "fps_gain_pct": 3.448097734198008,
+    "native_step_reduction_pct": 5.083334949484031,
+    "stable_25hz_approved": false,
+    "all_20frame_windows_above_20hz": false,
+    "formal_physics_domain_approved": false,
+    "training_domain_approved": false,
+    "scope": "single env, original wall-traction seed0 1410-step three-incision path, CPU-returned 1280x960 RGB-D plus policy observation; desktop/video transport and dense privileged labels excluded"
+  },
+  "build": "results/build-retained-runtime.json",
+  "native_patch_sha256": "dd64e11421c622f605050a77166b7d9013539793148bb7a8ab4a3b6815e37353",
+  "report_sha256": "29ce9e51b4b0baa3cdb8c4f8f94fff302b0fa87329c6ca46226e84427ecb9877"
+}

@@ -1,0 +1,399 @@
+{
+  "name": "zero-modes-v6-full-proof",
+  "kind": "validate",
+  "core": 43264,
+  "library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/zero-modes-v6.so",
+  "library_sha256": "6a01d64c1eea5c191c7d22ba97982a1ff938c6eaa78fb47b13a6c737c8d7c45e",
+  "command": [
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/profile_all_queries.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/zero-modes-v6.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/zero-modes-v6-full-proof",
+    "--query-mode",
+    "3",
+    "--bound-cache",
+    "--core-optimizations",
+    "43264",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--cpus",
+    "7,19,20,25",
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1",
+    "--validate-native",
+    "--validate-body-check",
+    "--start",
+    "0",
+    "--count",
+    "1410"
+  ],
+  "started_unix": 1793784347.5072565,
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "batch_observation": false,
+  "observation_validation": false,
+  "returncode": 0,
+  "finished_unix": 1793784487.9428892,
+  "completed": true,
+  "quality_passed": true,
+  "performance": {
+    "frames": 1410,
+    "mean_ms": 63.57044822553192,
+    "p50_ms": 66.65348399999999,
+    "p95_ms": 79.2812962,
+    "p99_ms": 87.69417376000001,
+    "max_ms": 106.450274,
+    "fps": 15.73057966261701,
+    "over_50ms": 1176,
+    "rolling20_min_hz": 11.489889502180763
+  },
+  "interaction_stats": [
+    4323,
+    0,
+    789,
+    0,
+    3534,
+    34,
+    31,
+    0,
+    3,
+    15280,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "runtime_graph_stats": [
+    94,
+    93,
+    1,
+    7,
+    1,
+    2,
+    0,
+    0
+  ],
+  "native_validation": {
+    "paired_batches": 50760,
+    "mismatched_batches": 0,
+    "positive_contact_records": 1453727,
+    "captured_batches": 42300,
+    "equivalent_query_calls": 228420,
+    "record_diffs": 0,
+    "degree_diffs": 0,
+    "activity_diffs": 0,
+    "validity_diffs": 0,
+    "group_order_diffs": 0,
+    "fallbacks": 0,
+    "manifold_batches": 63450,
+    "manifold_mismatches": 0,
+    "manifold_records": 7434669,
+    "captured_manifold_batches": 54990,
+    "manifold_degree_diffs": 0,
+    "manifold_record_diffs": 0,
+    "quadrature_diffs": 0,
+    "manifold_mapping_diffs": 0,
+    "manifold_skips": 0,
+    "first_mismatch_entry": -1,
+    "first_mismatch_word": 0,
+    "reference_word": 0,
+    "candidate_word": 0,
+    "passed": true
+  },
+  "coarse_bound_validation": {
+    "accumulate_terms": 10446408000,
+    "accumulate_target_differences": 0,
+    "accumulate_value_differences": 0,
+    "bound_terms": 10446408000,
+    "bound_target_differences": 0,
+    "bound_scale_differences": 0,
+    "active_bound_outputs": 3570009859,
+    "nontrivial_bound_scales": 146220,
+    "passed": true
+  },
+  "gpu_body_statistics": {
+    "calls": 1410,
+    "gpu_calls": 1410,
+    "cpu_fallbacks": 0,
+    "threshold_fallbacks": 0,
+    "paired_calls": 1410,
+    "numeric_mismatches": 0,
+    "decision_mismatches": 0,
+    "max_abs_error_native_cm": 4.163336342344337e-17
+  },
+  "grip_feedback_validation": {
+    "returncode": 0,
+    "counters": [
+      1178,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "passed": true
+  },
+  "zero_mode_gate_stats": {
+    "returncode": 0,
+    "host": [
+      4323,
+      3534,
+      4323,
+      789,
+      0,
+      0,
+      0,
+      0
+    ],
+    "proof": [
+      14136,
+      0,
+      3225128400,
+      4230,
+      0,
+      965074500,
+      0,
+      0
+    ],
+    "reference_coordinates_unchanged": true,
+    "reference_proof_executed": true
+  },
+  "mean_timings_ms": {
+    "native_step": 47.40153843023425,
+    "surface_export": 0.5741733123039734,
+    "quality_and_export": 4.567636849675724,
+    "snapshot": 1.4148384276513302,
+    "total": 53.4815509408937
+  },
+  "stages": {
+    "approach": {
+      "frames": 165,
+      "frame_ms": 44.55591324848485,
+      "render_ms": 8.196754066666667,
+      "timings_ms": {
+        "native_step": 29.91217200178653,
+        "surface_export": 0.5475607150318947,
+        "quality_and_export": 3.9365023508611503,
+        "snapshot": 1.1474737911626245,
+        "total": 35.08954101848896
+      }
+    },
+    "bite": {
+      "frames": 45,
+      "frame_ms": 45.01973,
+      "render_ms": 8.285788244444445,
+      "timings_ms": {
+        "native_step": 30.106699598642688,
+        "surface_export": 0.5522522894251678,
+        "quality_and_export": 4.065837799054053,
+        "snapshot": 1.2395087810647156,
+        "total": 35.50950571791165
+      }
+    },
+    "close": {
+      "frames": 45,
+      "frame_ms": 49.283932577777776,
+      "render_ms": 8.143043488888889,
+      "timings_ms": {
+        "native_step": 34.57891769034581,
+        "surface_export": 0.5480186910265021,
+        "quality_and_export": 3.929345131230851,
+        "snapshot": 1.2441838160157204,
+        "total": 39.84472904250853
+      }
+    },
+    "lift": {
+      "frames": 60,
+      "frame_ms": 55.60323846666667,
+      "render_ms": 8.041863633333334,
+      "timings_ms": {
+        "native_step": 40.97504775272682,
+        "surface_export": 0.550617960592111,
+        "quality_and_export": 3.9369250220867493,
+        "snapshot": 1.3104128379685183,
+        "total": 46.31490786171829
+      }
+    },
+    "blade_approach": {
+      "frames": 120,
+      "frame_ms": 56.822083125,
+      "render_ms": 8.527804516666667,
+      "timings_ms": {
+        "native_step": 41.226533485072046,
+        "surface_export": 0.5733242394247403,
+        "quality_and_export": 4.189671884523705,
+        "snapshot": 1.399428634128223,
+        "total": 46.91183465377738
+      }
+    },
+    "incise_1": {
+      "frames": 150,
+      "frame_ms": 74.3343557,
+      "render_ms": 9.307084313333334,
+      "timings_ms": {
+        "native_step": 56.80449578523015,
+        "surface_export": 0.6012717743093768,
+        "quality_and_export": 4.9595838428164525,
+        "snapshot": 1.6242531974179049,
+        "total": 63.48977233205611
+      }
+    },
+    "open_1": {
+      "frames": 30,
+      "frame_ms": 69.17289563333334,
+      "render_ms": 8.6433267,
+      "timings_ms": {
+        "native_step": 52.978042676113546,
+        "surface_export": 0.5636717968930801,
+        "quality_and_export": 4.65308732430761,
+        "snapshot": 1.4134047436527908,
+        "total": 59.14205476098383
+      }
+    },
+    "raise_1": {
+      "frames": 30,
+      "frame_ms": 58.390263166666664,
+      "render_ms": 8.620979533333333,
+      "timings_ms": {
+        "native_step": 42.11625886382535,
+        "surface_export": 0.5804427278538545,
+        "quality_and_export": 4.672097271153082,
+        "snapshot": 1.4089077672300239,
+        "total": 48.29419262629623
+      }
+    },
+    "reposition_2": {
+      "frames": 90,
+      "frame_ms": 64.71909316666667,
+      "render_ms": 8.69465398888889,
+      "timings_ms": {
+        "native_step": 48.353739648074324,
+        "surface_export": 0.5621896875608299,
+        "quality_and_export": 4.701299513948874,
+        "snapshot": 1.4473871289131541,
+        "total": 54.60030666112693
+      }
+    },
+    "incise_2": {
+      "frames": 150,
+      "frame_ms": 75.43852976,
+      "render_ms": 9.010152406666666,
+      "timings_ms": {
+        "native_step": 58.43275528245916,
+        "surface_export": 0.5886670403803388,
+        "quality_and_export": 4.875128598262866,
+        "snapshot": 1.5220194185773532,
+        "total": 64.93038404189672
+      }
+    },
+    "open_2": {
+      "frames": 30,
+      "frame_ms": 71.7760296,
+      "render_ms": 8.6465118,
+      "timings_ms": {
+        "native_step": 55.43178146472201,
+        "surface_export": 0.5802913413693508,
+        "quality_and_export": 4.787576509018739,
+        "snapshot": 1.4206565062825878,
+        "total": 61.73758580116555
+      }
+    },
+    "raise_2": {
+      "frames": 30,
+      "frame_ms": 68.86958326666667,
+      "render_ms": 8.713303933333334,
+      "timings_ms": {
+        "native_step": 52.40545483926932,
+        "surface_export": 0.5770150533256432,
+        "quality_and_export": 4.837718982404719,
+        "snapshot": 1.4106705940018098,
+        "total": 58.75040161578605
+      }
+    },
+    "reposition_3": {
+      "frames": 90,
+      "frame_ms": 67.42361456666667,
+      "render_ms": 8.625584155555556,
+      "timings_ms": {
+        "native_step": 50.97533646169015,
+        "surface_export": 0.5772401682204671,
+        "quality_and_export": 4.940143560007629,
+        "snapshot": 1.4003321166253753,
+        "total": 57.41309619301723
+      }
+    },
+    "incise_3": {
+      "frames": 150,
+      "frame_ms": 76.08576945333333,
+      "render_ms": 9.131462786666667,
+      "timings_ms": {
+        "native_step": 58.531294107281916,
+        "surface_export": 0.612307384920617,
+        "quality_and_export": 5.284344484098256,
+        "snapshot": 1.555286874063313,
+        "total": 65.47190106008202
+      }
+    },
+    "raise_3": {
+      "frames": 30,
+      "frame_ms": 75.3559901,
+      "render_ms": 9.3436179,
+      "timings_ms": {
+        "native_step": 57.856233922454216,
+        "surface_export": 0.5945067581099769,
+        "quality_and_export": 5.012038773080955,
+        "snapshot": 1.4784600702114403,
+        "total": 64.44954595838983
+      }
+    },
+    "withdraw": {
+      "frames": 120,
+      "frame_ms": 63.054817566666664,
+      "render_ms": 8.782814808333333,
+      "timings_ms": {
+        "native_step": 46.787291553725176,
+        "surface_export": 0.5704565934138373,
+        "quality_and_export": 4.482089425437152,
+        "snapshot": 1.4524019303886841,
+        "total": 52.82018729582584
+      }
+    },
+    "release": {
+      "frames": 45,
+      "frame_ms": 56.42881877777778,
+      "render_ms": 8.038534422222222,
+      "timings_ms": {
+        "native_step": 41.832699823296736,
+        "surface_export": 0.5206902330327365,
+        "quality_and_export": 3.9808945549238057,
+        "snapshot": 1.2884459820472531,
+        "total": 47.19425805637406
+      }
+    },
+    "hold": {
+      "frames": 30,
+      "frame_ms": 56.65458246666667,
+      "render_ms": 8.057615833333333,
+      "timings_ms": {
+        "native_step": 41.95476291157926,
+        "surface_export": 0.541312429898729,
+        "quality_and_export": 4.0210247854702175,
+        "snapshot": 1.3168895772347848,
+        "total": 47.3854993780454
+      }
+    }
+  }
+}

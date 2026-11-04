@@ -1,0 +1,35 @@
+-- The CXX compiler identification is GNU 12.3.0
+-- The CUDA compiler identification is NVIDIA 12.5.82 with host compiler GNU 12.3.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/g++-12 - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting CUDA compiler ABI info
+-- Detecting CUDA compiler ABI info - done
+-- Check for working CUDA compiler: /srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/nvcc - skipped
+-- Detecting CUDA compile features
+-- Detecting CUDA compile features - done
+-- Found CUDAToolkit: /srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/targets/x86_64-linux/include (found version "12.5.82")
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (3.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/build
+[ 11%] Building CXX object CMakeFiles/LiverCudaSim.dir/vendor/src/plugin_api.cpp.o
+[ 22%] Building CXX object CMakeFiles/LiverCudaSim.dir/vendor/cuda/training/state_archive.cpp.o
+[ 33%] Building CUDA object CMakeFiles/LiverCudaSim.dir/vendor/cuda/dc_recon.cu.o
+[ 44%] Building CUDA object CMakeFiles/LiverCudaSim.dir/vendor/cuda/physics.cu.o
+[ 55%] Building CUDA object CMakeFiles/LiverCudaSim.dir/vendor/cuda/cut.cu.o
+[ 66%] Building CUDA object CMakeFiles/LiverCudaSim.dir/vendor/cuda/haptics.cu.o
+[ 77%] Building CUDA object CMakeFiles/LiverCudaSim.dir/vendor/cuda/xpbd/xpbd_solver.cu.o
+/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/source/vendor/cuda/xpbd/xpbd_solver.cu(3064): warning #177-D: function "markPredictedFragmentContact" was declared but never referenced
+  static cudaError_t markPredictedFragmentContact(){
+                     ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+[ 88%] Linking CUDA device code CMakeFiles/LiverCudaSim.dir/cmake_device_link.o
+[100%] Linking CXX shared library lib/libLiverCudaSim.so
+[100%] Built target LiverCudaSim

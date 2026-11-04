@@ -1,0 +1,232 @@
+{
+  "name": "zero-modes-v6-profile",
+  "kind": "profile",
+  "core": 43264,
+  "library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/zero-modes-v6.so",
+  "library_sha256": "6a01d64c1eea5c191c7d22ba97982a1ff938c6eaa78fb47b13a6c737c8d7c45e",
+  "command": [
+    "/opt/nvidia/nsight-systems/2025.3.2/bin/nsys",
+    "profile",
+    "--trace=cuda,nvtx,opengl",
+    "--sample=none",
+    "--cpuctxsw=none",
+    "--cuda-graph-trace=node",
+    "--capture-range=cudaProfilerApi",
+    "--capture-range-end=stop",
+    "--force-overwrite=false",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/zero-modes-v6-profile-trace",
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/profile_all_queries.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/zero-modes-v6.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/zero-modes-v6-profile",
+    "--query-mode",
+    "3",
+    "--query-threads",
+    "64",
+    "--bound-cache",
+    "--core-optimizations",
+    "43264",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--cpus",
+    "7,19,20,25",
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1",
+    "--profile",
+    "--start",
+    "470",
+    "--count",
+    "12",
+    "--max-frames",
+    "482"
+  ],
+  "started_unix": 1793784524.460764,
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "batch_observation": false,
+  "observation_validation": false,
+  "query_threads": 64,
+  "returncode": 0,
+  "finished_unix": 1793784597.6652267,
+  "completed": false,
+  "quality_passed": true,
+  "performance": {
+    "frames": 482,
+    "mean_ms": 36.26822188589212,
+    "p50_ms": 37.295052999999996,
+    "p95_ms": 43.38192685,
+    "p99_ms": 54.90866976,
+    "max_ms": 85.995807,
+    "fps": 27.572347030031473,
+    "over_50ms": 12,
+    "rolling20_min_hz": 19.29442290480458
+  },
+  "interaction_stats": [
+    1539,
+    0,
+    789,
+    0,
+    750,
+    7,
+    5,
+    0,
+    2,
+    15094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "runtime_graph_stats": [
+    16,
+    15,
+    1,
+    4,
+    1,
+    2,
+    0,
+    0
+  ],
+  "gpu_body_statistics": {
+    "calls": 482,
+    "gpu_calls": 482,
+    "cpu_fallbacks": 0,
+    "threshold_fallbacks": 0,
+    "paired_calls": 0,
+    "numeric_mismatches": 0,
+    "decision_mismatches": 0,
+    "max_abs_error_native_cm": 0.0
+  },
+  "grip_feedback_validation": {
+    "returncode": 0,
+    "counters": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "passed": true
+  },
+  "zero_mode_gate_stats": {
+    "returncode": 0,
+    "host": [
+      1539,
+      750,
+      1539,
+      789,
+      0,
+      0,
+      0,
+      0
+    ],
+    "proof": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "reference_coordinates_unchanged": true,
+    "reference_proof_executed": false
+  },
+  "mean_timings_ms": {
+    "native_step": 22.242805817168346,
+    "surface_export": 0.6005363297335711,
+    "quality_and_export": 2.522583520503645,
+    "snapshot": 1.3605994877648921,
+    "total": 26.228219725015762
+  },
+  "stages": {
+    "approach": {
+      "frames": 165,
+      "frame_ms": 32.099629624242425,
+      "render_ms": 8.6359824,
+      "timings_ms": {
+        "native_step": 18.339663759494822,
+        "surface_export": 0.6131465631452474,
+        "quality_and_export": 2.4970944843847644,
+        "snapshot": 1.240337571608975,
+        "total": 22.173493595398735
+      }
+    },
+    "bite": {
+      "frames": 45,
+      "frame_ms": 32.12357451111111,
+      "render_ms": 8.608240066666667,
+      "timings_ms": {
+        "native_step": 18.42121006662233,
+        "surface_export": 0.6159080502887567,
+        "quality_and_export": 2.477137822036942,
+        "snapshot": 1.2518722331151366,
+        "total": 22.245588914180797
+      }
+    },
+    "close": {
+      "frames": 45,
+      "frame_ms": 35.02213397777778,
+      "render_ms": 8.683421533333334,
+      "timings_ms": {
+        "native_step": 21.151331178326572,
+        "surface_export": 0.5824233612252606,
+        "quality_and_export": 2.44710437901732,
+        "snapshot": 1.3450134726655152,
+        "total": 25.03913819738146
+      }
+    },
+    "lift": {
+      "frames": 60,
+      "frame_ms": 38.80166568333333,
+      "render_ms": 8.59378345,
+      "timings_ms": {
+        "native_step": 24.99518415813024,
+        "surface_export": 0.5756566669636717,
+        "quality_and_export": 2.453753552011525,
+        "snapshot": 1.4206300450799365,
+        "total": 28.964542122169707
+      }
+    },
+    "blade_approach": {
+      "frames": 120,
+      "frame_ms": 39.048153033333335,
+      "render_ms": 8.728483108333334,
+      "timings_ms": {
+        "native_step": 25.07765802341358,
+        "surface_export": 0.5842712348870313,
+        "quality_and_export": 2.4577321960047507,
+        "snapshot": 1.4330902912964423,
+        "total": 29.063552675264265
+      }
+    },
+    "incise_1": {
+      "frames": 47,
+      "frame_ms": 45.73210370212766,
+      "render_ms": 9.63035014893617,
+      "timings_ms": {
+        "native_step": 29.89773436677345,
+        "surface_export": 0.6321801338344812,
+        "quality_and_export": 2.9812913036290953,
+        "snapshot": 1.640101263121246,
+        "total": 34.68221054967255
+      }
+    }
+  }
+}

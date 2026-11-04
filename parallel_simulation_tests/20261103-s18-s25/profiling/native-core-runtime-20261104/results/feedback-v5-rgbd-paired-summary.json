@@ -1,0 +1,63 @@
+{
+  "name": "feedback-v5-rgbd-paired",
+  "kind": "rgbd-validated",
+  "core": 2304,
+  "library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/occupancy-feedback-v5.so",
+  "library_sha256": "64f40382204bb629ef982727ff99b5989164986036530ece5a39549b57d41f86",
+  "command": [
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/check_current_frame_final_cache.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/occupancy-feedback-v5.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/feedback-v5-rgbd-paired",
+    "--query-mode",
+    "3",
+    "--bound-cache",
+    "--core-optimizations",
+    "2304",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--batch-observation",
+    "--validate-observation",
+    "--query-threads",
+    "64",
+    "--assembly-blocks",
+    "512",
+    "--manifold-blocks",
+    "1024",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--validate-native"
+  ],
+  "started_unix": 1793782543.2326717,
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "batch_observation": true,
+  "observation_validation": true,
+  "observation_adapter_sha256": "82c9218aa12ea04753341cedec2dafcea89d6c4d5aed3ba1c91cbe6881f7e74c",
+  "returncode": 0,
+  "finished_unix": 1793782620.5255263,
+  "passed": true,
+  "batched_observation_stats": {
+    "calls": 498,
+    "paired_calls": 498,
+    "fallbacks": 0,
+    "mismatches": 0
+  },
+  "grip_feedback_validation": {
+    "returncode": 0,
+    "counters": [
+      64,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "passed": true
+  }
+}

@@ -1,0 +1,16 @@
+-- Configuring done (0.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: /srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/build
+[ 11%] Building CUDA object CMakeFiles/LiverCudaSim.dir/vendor/cuda/xpbd/xpbd_solver.cu.o
+/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/source/vendor/cuda/xpbd/../contact/direct_query.cuh(94): error: expression must be a modifiable lvalue
+                      for(int k=0;k<3;k++){retained->owner[k]=vertices[3*t+k].voxel;retained->mask[k]=vertices[3*t+k].mask;}
+                                           ^
+
+/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/source/vendor/cuda/xpbd/../contact/direct_query.cuh(94): error: expression must be a modifiable lvalue
+                      for(int k=0;k<3;k++){retained->owner[k]=vertices[3*t+k].voxel;retained->mask[k]=vertices[3*t+k].mask;}
+                                                                                    ^
+
+2 errors detected in the compilation of "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/source/vendor/cuda/xpbd/xpbd_solver.cu".
+gmake[2]: *** [CMakeFiles/LiverCudaSim.dir/build.make:168: CMakeFiles/LiverCudaSim.dir/vendor/cuda/xpbd/xpbd_solver.cu.o] Error 2
+gmake[1]: *** [CMakeFiles/Makefile2:87: CMakeFiles/LiverCudaSim.dir/all] Error 2
+gmake: *** [Makefile:91: all] Error 2

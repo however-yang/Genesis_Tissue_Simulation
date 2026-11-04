@@ -1,0 +1,86 @@
+import argparse,ctypes,os,sys,time,json,hashlib,traceback
+from pathlib import Path
+p=Path(__file__).resolve().parents[1];parser=argparse.ArgumentParser();parser.add_argument('--source',type=Path,required=True);parser.add_argument('--dll',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--parallel-frame',action='store_true');parser.add_argument('--render-nogil',action='store_true');parser.add_argument('--direct-rgb',action='store_true');parser.add_argument('--compact-blocks',type=int,default=0);parser.add_argument('--bound-cache',action='store_true');parser.add_argument('--query-mode',type=int,default=1);parser.add_argument('--query-threads',type=int,default=64);parser.add_argument('--assembly-blocks',type=int,default=128);parser.add_argument('--manifold-blocks',type=int,default=1024);parser.add_argument('--exact-zero-coarse',action='store_true');parser.add_argument('--gpu-topology',action='store_true');parser.add_argument('--static-visuals',action='store_true');parser.add_argument('--persistent-soup',action='store_true');parser.add_argument('--core-optimizations',type=int,default=0);parser.add_argument('--gpu-body-check',action='store_true');parser.add_argument('--validate-native',action='store_true');parser.add_argument('--batch-observation',action='store_true');parser.add_argument('--validate-observation',action='store_true');a=parser.parse_args();a.output.mkdir(exist_ok=False)
+os.sched_setaffinity(0,[7,19,20,25]);os.environ.update(CUDA_VISIBLE_DEVICES='GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa',OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1',PYTHONDONTWRITEBYTECODE='1',XDG_CACHE_HOME=str(a.output/'cache'),TMPDIR=str(p/'tmp'));sys.path.insert(0,str(a.source))
+if a.batch_observation:
+ import batch_observation as batched_readback
+ batched_readback.install(validate=a.validate_observation)
+import runtime_binding
+runtime_binding.install()
+import numpy as np,cv2
+from threadpoolctl import threadpool_limits
+from endoscopic_tissue.training.env import NativeEnvironment,EnvironmentConfig,SceneConfig
+from endoscopic_tissue.training.vision import SynchronizedVision,align_depth_to_endoscope
+from endoscopic_tissue.training.collect import local_bounds
+from endoscopic_tissue.training.provenance import sha256
+from endoscopic_tissue.training.acceptance_queue import GPUReservation
+from endoscopic_tissue.training.snapshot import SnapshotBackend
+r=dict(passed=False,scope='actual current-frame RGBD, control, physical checks, archived-state and ownership regression; not complete physics-domain approval',frames=[],pairs=[]);env=vision=guard=None
+try:
+ guard=GPUReservation(os.environ['CUDA_VISIBLE_DEVICES'],a.output);scene=SceneConfig(preparation='cut_ready')
+ config=EnvironmentConfig(str(a.dll),sha256(a.dll),local_bounds(scene),scene,cutting_enabled=True,max_steps=100,full_surface_checks=True,outcome_semantics='physical_outcome_v1',instrument_collision_checks=True,fast_topology_checks=True,**(dict(gpu_topology_checks=True) if a.gpu_topology else {}))
+ native=ctypes.CDLL(str(a.dll))
+ native.LCS_SetCoreOptimizations.argtypes=[ctypes.c_int];native.LCS_SetCoreOptimizations.restype=ctypes.c_int;assert native.LCS_SetCoreOptimizations(a.core_optimizations)==0
+ for symbol,args in [('LCS_SetQueryCompactBlocks',[a.compact_blocks]),('LCS_SetCoarseBoundCache',[int(a.bound_cache)]),('LCS_SetBatchQueryMode',[a.query_mode]),('LCS_SetNativeSchedule',[a.assembly_blocks,a.manifold_blocks]),('LCS_SetQueryThreads',[a.query_threads]),('LCS_SetExactZeroCoarse',[int(a.exact_zero_coarse)])]:
+  if hasattr(native,symbol):
+   fun=getattr(native,symbol);fun.argtypes=[ctypes.c_int]*len(args);fun.restype=ctypes.c_int;assert fun(*args)==0
+ with threadpool_limits(limits=1):
+  env=NativeEnvironment(config);env.reset(7);
+  if a.validate_native:
+   native.LCS_BatchQueryValidate.argtypes=[ctypes.c_int];native.LCS_BatchQueryValidate.restype=ctypes.c_int;assert native.LCS_BatchQueryValidate(1)==0
+  if a.gpu_body_check:
+   from endoscopic_tissue.training.gpu_body_check import GPUScissorsBodyCheck
+   env.quality.body_depth_function=GPUScissorsBodyCheck(env,validate=True)
+  vision=SynchronizedVision(env,dict(width=1280,height=960,opencv_threads=1,gpu_postprocess=True,gpu_aligned_depth=True,fused_mesh=True,direct_rgb=a.direct_rgb,static_visuals=a.static_visuals,persistent_soup=a.persistent_soup,render_nogil=a.render_nogil,parallel_same_frame=a.parallel_frame));vision.capture(env,env.state)
+  action=env.previous_action.copy();action[10]=1.;retained=[];actual_cut=False
+  for step in range(32):
+   guard({os.getpid()});t=env.step(action)
+   if t.after is None or t.terminated or t.truncated:raise RuntimeError('Real interaction regression rejected '+str(t.reason))
+   vision.capture(env,t.after);state=t.after
+   assert state.metadata['vision']['native_tick']==env.native.tick and state.metadata['vision']['step_id']==env.step_id
+   actual_cut|=any(e['kind']=='cut_onset' for e in state.metadata.get('events',[]))
+   r['frames'].append(dict(step_id=env.step_id,native_tick=env.native.tick,quality_passed=state.metadata['quality']['checked_metrics_passed'],new_cut_edges=state.metadata['quality']['metrics']['new_cut_edges']))
+   if step not in (0,12,19,31):continue
+   saved={k:state.arrays[k] for k in ['rgb','depth_pinhole_m','depth_rgb_aligned_m','depth_valid']};hashes={k:hashlib.sha256(v.tobytes()).hexdigest() for k,v in saved.items()};retained.append((saved,hashes))
+   archive_before=hashlib.sha256(SnapshotBackend(env.native).save()).hexdigest() if step in (19,31) else None
+   view=vision.view;post=view._gpu_post;view._gpu_post=None;view.fused_mesh=False;persist=getattr(view,'persistent_soup',False);view.persistent_soup=False;static=getattr(view,'static_visuals',False);view.static_visuals=False;schedule=getattr(view,'_render_scheduling',None)
+   if schedule:schedule.set_enabled(False)
+   try:
+    view.update(env.last_surface,env.observed);bgr,raw=view.render(depth=True);rgb=cv2.cvtColor(bgr,cv2.COLOR_BGR2RGB);aligned,valid=align_depth_to_endoscope(raw,view.lens_map,view.vignette,view.camera.near,view.camera.far)
+   finally:
+    view._gpu_post=post;view.fused_mesh=True;view.persistent_soup=persist;view.static_visuals=static
+    if schedule:schedule.set_enabled(True)
+   pair=dict(step=step,rgb_bit_exact=bool(np.array_equal(rgb,saved['rgb'])),raw_depth_error_m=float(np.max(np.abs(raw-saved['depth_pinhole_m']))),aligned_depth_error_m=float(np.max(np.abs(aligned-saved['depth_rgb_aligned_m']))),validity_bit_exact=bool(np.array_equal(valid,saved['depth_valid'])))
+   if archive_before is not None:pair['native_archive_unchanged']=archive_before==hashlib.sha256(SnapshotBackend(env.native).save()).hexdigest();assert pair['native_archive_unchanged']
+   if archive_before is not None and a.gpu_topology:
+    from endoscopic_tissue.training.gpu_topology import topology_statistics
+    from endoscopic_tissue.training.topology_fast import topology_statistics_fast
+    assert topology_statistics(env.native,env.last_surface)==topology_statistics_fast(env.last_surface)
+    pair['gpu_topology_archive_unchanged']=archive_before==hashlib.sha256(SnapshotBackend(env.native).save()).hexdigest();assert pair['gpu_topology_archive_unchanged']
+   assert pair['rgb_bit_exact'] and pair['validity_bit_exact'] and pair['raw_depth_error_m']<=1e-6 and pair['aligned_depth_error_m']<=1e-6,pair
+   r['pairs'].append(pair)
+   assert cv2.imwrite(str(a.output/('current-rgb-step-'+str(step)+'.png')),cv2.cvtColor(saved['rgb'],cv2.COLOR_RGB2BGR))
+   np.savez_compressed(a.output/('current-depth-step-'+str(step)+'.npz'),raw_depth_m=saved['depth_pinhole_m'],aligned_depth_m=saved['depth_rgb_aligned_m'],valid=saved['depth_valid'])
+  for arrays,hashes in retained:
+   for k,arr in arrays.items():assert hashlib.sha256(arr.tobytes()).hexdigest()==hashes[k],'retained frame overwritten'
+  if a.validate_native:
+   values=(ctypes.c_int*32)();native.LCS_FullContactValidationRead.argtypes=[ctypes.POINTER(ctypes.c_int)];native.LCS_FullContactValidationRead.restype=ctypes.c_int;assert native.LCS_FullContactValidationRead(values)==0
+   r['query_validation']=dict(counters=list(values),passed=values[0]>0 and values[2]>0 and sum(values[i] for i in [1,5,6,7,8,9,10,17,20,21,22,23,24])==0);assert r['query_validation']['passed'],r['query_validation']
+  r.update(passed=True,actual_cut_onset=actual_cut,retained_observations_unchanged=True)
+  if not actual_cut:raise RuntimeError('Actual cut onset was not exercised')
+except BaseException as e:r.update(passed=False,error=repr(e),traceback=traceback.format_exc())
+finally:
+ if vision:vision.close()
+ if a.batch_observation:r['batched_observation_stats']=dict(batched_readback.stats)
+ if env and (a.core_optimizations&2048) and hasattr(native,'LCS_ReadRuntimeGripStats'):
+  diagnostic=(ctypes.c_int*8)();fn=native.LCS_ReadRuntimeGripStats;fn.argtypes=[ctypes.POINTER(ctypes.c_int),ctypes.c_int];fn.restype=ctypes.c_int;code=fn(diagnostic,8)
+  r['grip_feedback_validation']=dict(returncode=code,counters=list(diagnostic),passed=code==0 and diagnostic[1]==0)
+  if code!=0 or diagnostic[1]!=0:r.update(error='Read-only grip feedback differs from original',passed=False)
+ if env and (a.core_optimizations&32768) and hasattr(native,'LCS_ReadRuntimeModeGateStats'):
+  host=(ctypes.c_ulonglong*8)();proof=(ctypes.c_ulonglong*8)();fn=native.LCS_ReadRuntimeModeGateStats;fn.argtypes=[ctypes.POINTER(ctypes.c_ulonglong),ctypes.POINTER(ctypes.c_ulonglong),ctypes.c_int];fn.restype=ctypes.c_int;code=fn(host,proof,8)
+  r['zero_mode_gate_stats']=dict(returncode=code,host=list(host),proof=list(proof),reference_coordinates_unchanged=code==0 and proof[1]==0 and proof[4]==0,reference_proof_executed=proof[0]+proof[3]>0)
+  if code!=0 or proof[1]!=0 or proof[4]!=0:r.update(error='Original disabled mode changed positions; shortcut rejected',passed=False)
+ if env:env.close()
+ if guard:guard.close()
+ (a.output/'result.json').write_text(json.dumps(r,indent=2));print(json.dumps(r,indent=2))
+if not r['passed']:raise SystemExit(2)

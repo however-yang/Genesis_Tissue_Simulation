@@ -1,0 +1,431 @@
+[
+  {
+    "name": "baseline-v8-fresh",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 42.636346660992906,
+      "p50_ms": 43.731187,
+      "p95_ms": 53.24878465,
+      "p99_ms": 63.834318290000056,
+      "max_ms": 83.37619,
+      "fps": 23.454167120629002,
+      "over_50ms": 135,
+      "rolling20_min_hz": 15.565607781823259
+    },
+    "parts_ms": {
+      "native_step": 28.33887950016899,
+      "quality_including_surface_export": 2.545207971294166,
+      "snapshot": 1.4933289437396253,
+      "render_and_rgbd": 8.756014158865248,
+      "other_control_policy_python": 1.502916086924877
+    },
+    "parts_pct": {
+      "native_step": 66.46648158083308,
+      "quality_including_surface_export": 5.9695733115490475,
+      "snapshot": 3.5024786612541563,
+      "render_and_rgbd": 20.536501939261935,
+      "other_control_policy_python": 3.5249645071017848
+    },
+    "gpu": {
+      "samples": 29,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 71.41379310344827,
+      "memory_controller_utilization_mean_pct": 2.6551724137931036,
+      "power_mean_w": 102.74310344827586,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "graph-reuse-v1-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 41.86376663687943,
+      "p50_ms": 43.703738,
+      "p95_ms": 49.1409252,
+      "p99_ms": 54.08395425000002,
+      "max_ms": 66.661173,
+      "fps": 23.88700492896071,
+      "over_50ms": 51,
+      "rolling20_min_hz": 19.514044863023308
+    },
+    "parts_ms": {
+      "native_step": 28.400760451876657,
+      "quality_including_surface_export": 2.410391723928669,
+      "snapshot": 1.3971956212284928,
+      "render_and_rgbd": 8.310985284397162,
+      "other_control_policy_python": 1.3444335554484539
+    },
+    "parts_pct": {
+      "native_step": 67.84091049002102,
+      "quality_including_surface_export": 5.757703899021023,
+      "snapshot": 3.3374818691007326,
+      "render_and_rgbd": 19.852454645291495,
+      "other_control_policy_python": 3.211449096565739
+    },
+    "gpu": {
+      "samples": 29,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 72.96551724137932,
+      "memory_controller_utilization_mean_pct": 2.9310344827586206,
+      "power_mean_w": 103.74034482758621,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "direct-query-v2b-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 42.38541295177305,
+      "p50_ms": 44.132687000000004,
+      "p95_ms": 49.9261597,
+      "p99_ms": 55.981052250000005,
+      "max_ms": 70.743745,
+      "fps": 23.593022465955908,
+      "over_50ms": 68,
+      "rolling20_min_hz": 18.814392133607825
+    },
+    "parts_ms": {
+      "native_step": 28.320724843400168,
+      "quality_including_surface_export": 2.481199678195416,
+      "snapshot": 1.4526135490460863,
+      "render_and_rgbd": 8.738082909929078,
+      "other_control_policy_python": 1.3927919712022998
+    },
+    "parts_pct": {
+      "native_step": 66.81714974824958,
+      "quality_including_surface_export": 5.8538999750187015,
+      "snapshot": 3.427154409699626,
+      "render_and_rgbd": 20.615778640334213,
+      "other_control_policy_python": 3.286017226697887
+    },
+    "gpu": {
+      "samples": 29,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2352.0,
+      "gpu_utilization_mean_pct": 71.41379310344827,
+      "memory_controller_utilization_mean_pct": 2.3793103448275863,
+      "power_mean_w": 104.61103448275863,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "coarse-split-v3-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 42.41078628439716,
+      "p50_ms": 44.405329,
+      "p95_ms": 49.1244351,
+      "p99_ms": 53.857184480000015,
+      "max_ms": 66.674509,
+      "fps": 23.578907339614638,
+      "over_50ms": 43,
+      "rolling20_min_hz": 19.27596620036045
+    },
+    "parts_ms": {
+      "native_step": 29.115448525367,
+      "quality_including_surface_export": 2.432709570531568,
+      "snapshot": 1.399084344648274,
+      "render_and_rgbd": 8.144611175886524,
+      "other_control_policy_python": 1.318932667963793
+    },
+    "parts_pct": {
+      "native_step": 68.65104629309481,
+      "quality_including_surface_export": 5.736063354775756,
+      "snapshot": 3.298888012276712,
+      "render_and_rgbd": 19.204103223341818,
+      "other_control_policy_python": 3.109899116510899
+    },
+    "gpu": {
+      "samples": 29,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 73.72413793103448,
+      "memory_controller_utilization_mean_pct": 2.8620689655172415,
+      "power_mean_w": 105.02310344827586,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "batched-readback-v4-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 42.41374979007092,
+      "p50_ms": 44.263358999999994,
+      "p95_ms": 49.3711158,
+      "p99_ms": 54.81287854000001,
+      "max_ms": 68.128644,
+      "fps": 23.577259849684417,
+      "over_50ms": 54,
+      "rolling20_min_hz": 18.781924029519505
+    },
+    "parts_ms": {
+      "native_step": 28.333226373709792,
+      "quality_including_surface_export": 2.5134824630011745,
+      "snapshot": 1.4870444957516982,
+      "render_and_rgbd": 8.686863178723405,
+      "other_control_policy_python": 1.3931332788848536
+    },
+    "parts_pct": {
+      "native_step": 66.80198405928874,
+      "quality_including_surface_export": 5.926102915780349,
+      "snapshot": 3.5060434484380716,
+      "render_and_rgbd": 20.481243044341728,
+      "other_control_policy_python": 3.284626532151106
+    },
+    "gpu": {
+      "samples": 29,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 72.41379310344827,
+      "memory_controller_utilization_mean_pct": 2.896551724137931,
+      "power_mean_w": 106.32068965517242,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "occupancy3-v5-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 41.11659365106383,
+      "p50_ms": 42.956110499999994,
+      "p95_ms": 47.45396595,
+      "p99_ms": 53.55032568000002,
+      "max_ms": 64.03183,
+      "fps": 24.32108088735426,
+      "over_50ms": 28,
+      "rolling20_min_hz": 19.76127885068655
+    },
+    "parts_ms": {
+      "native_step": 27.46175768717476,
+      "quality_including_surface_export": 2.417167796049901,
+      "snapshot": 1.4090804574707299,
+      "render_and_rgbd": 8.470756671631205,
+      "other_control_policy_python": 1.3578310387372312
+    },
+    "parts_pct": {
+      "native_step": 66.78996300187,
+      "quality_including_surface_export": 5.878813348603747,
+      "snapshot": 3.4270359782935764,
+      "render_and_rgbd": 20.60179581878383,
+      "other_control_policy_python": 3.3023918524488454
+    },
+    "gpu": {
+      "samples": 28,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 72.39285714285714,
+      "memory_controller_utilization_mean_pct": 3.0,
+      "power_mean_w": 105.71035714285715,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "occupancy4-v5-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 40.97703802056738,
+      "p50_ms": 42.647023000000004,
+      "p95_ms": 47.68508215,
+      "p99_ms": 53.54329858,
+      "max_ms": 66.650801,
+      "fps": 24.40391127094339,
+      "over_50ms": 36,
+      "rolling20_min_hz": 19.46399033763142
+    },
+    "parts_ms": {
+      "native_step": 27.662268725012474,
+      "quality_including_surface_export": 2.4153692016199706,
+      "snapshot": 1.3770484425794625,
+      "render_and_rgbd": 8.20892954751773,
+      "other_control_policy_python": 1.3134221038377376
+    },
+    "parts_pct": {
+      "native_step": 67.50675515181968,
+      "quality_including_surface_export": 5.894445568290314,
+      "snapshot": 3.360536800849998,
+      "render_and_rgbd": 20.032998830704816,
+      "other_control_policy_python": 3.2052636483351944
+    },
+    "gpu": {
+      "samples": 28,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 73.42857142857143,
+      "memory_controller_utilization_mean_pct": 3.5,
+      "power_mean_w": 107.23142857142857,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "zero-modes-v6-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 40.74257424184397,
+      "p50_ms": 41.7037155,
+      "p95_ms": 48.713727799999994,
+      "p99_ms": 54.06090476000001,
+      "max_ms": 82.892798,
+      "fps": 24.54434994863351,
+      "over_50ms": 51,
+      "rolling20_min_hz": 19.571847343955238
+    },
+    "parts_ms": {
+      "native_step": 26.828452522605524,
+      "quality_including_surface_export": 2.477920121358087,
+      "snapshot": 1.4451897489270262,
+      "render_and_rgbd": 8.539914675886525,
+      "other_control_policy_python": 1.451097173066806
+    },
+    "parts_pct": {
+      "native_step": 65.84869272951295,
+      "quality_including_surface_export": 6.08189386033733,
+      "snapshot": 3.547124293984273,
+      "render_and_rgbd": 20.960665433643,
+      "other_control_policy_python": 3.5616236825224497
+    },
+    "gpu": {
+      "samples": 27,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2134.0,
+      "gpu_utilization_mean_pct": 72.29629629629629,
+      "memory_controller_utilization_mean_pct": 3.0,
+      "power_mean_w": 107.04444444444445,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "zero-modes-v6-no-batch",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 40.51922761985816,
+      "p50_ms": 42.10732,
+      "p95_ms": 46.424172049999996,
+      "p99_ms": 53.23635690000002,
+      "max_ms": 66.883493,
+      "fps": 24.67964121581399,
+      "over_50ms": 28,
+      "rolling20_min_hz": 19.610244411683112
+    },
+    "parts_ms": {
+      "native_step": 26.88865296621906,
+      "quality_including_surface_export": 2.4184050672548882,
+      "snapshot": 1.4490942547513925,
+      "render_and_rgbd": 8.38488769148936,
+      "other_control_policy_python": 1.3781876401434587
+    },
+    "parts_pct": {
+      "native_step": 66.3602307982819,
+      "quality_including_surface_export": 5.968536937435714,
+      "snapshot": 3.5763126295161727,
+      "render_and_rgbd": 20.693601986085223,
+      "other_control_policy_python": 3.4013176486809926
+    },
+    "gpu": {
+      "samples": 28,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 71.25,
+      "memory_controller_utilization_mean_pct": 2.9642857142857144,
+      "power_mean_w": 107.5575,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "query32-v6-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 41.075616965957444,
+      "p50_ms": 42.8335675,
+      "p95_ms": 49.3958624,
+      "p99_ms": 56.163971110000006,
+      "max_ms": 78.95325,
+      "fps": 24.34534339018639,
+      "over_50ms": 66,
+      "rolling20_min_hz": 18.641338322374363
+    },
+    "parts_ms": {
+      "native_step": 27.17468907011356,
+      "quality_including_surface_export": 2.4478696471621806,
+      "snapshot": 1.4619361491153902,
+      "render_and_rgbd": 8.548549780851063,
+      "other_control_policy_python": 1.44257231871525
+    },
+    "parts_pct": {
+      "native_step": 66.15771369334594,
+      "quality_including_surface_export": 5.959422713457768,
+      "snapshot": 3.5591337564740906,
+      "render_and_rgbd": 20.811737990292176,
+      "other_control_policy_python": 3.511991846430017
+    },
+    "gpu": {
+      "samples": 28,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2136.0,
+      "gpu_utilization_mean_pct": 71.14285714285714,
+      "memory_controller_utilization_mean_pct": 2.892857142857143,
+      "power_mean_w": 107.15178571428571,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  },
+  {
+    "name": "query128-v6-full",
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 41.08508739929078,
+      "p50_ms": 42.276673,
+      "p95_ms": 48.53374415,
+      "p99_ms": 55.98081373000001,
+      "max_ms": 84.516452,
+      "fps": 24.33973159850847,
+      "over_50ms": 51,
+      "rolling20_min_hz": 18.665258768596065
+    },
+    "parts_ms": {
+      "native_step": 26.939842954413397,
+      "quality_including_surface_export": 2.4654396882293916,
+      "snapshot": 1.4918695396334196,
+      "render_and_rgbd": 8.712950491489362,
+      "other_control_policy_python": 1.4749847255252106
+    },
+    "parts_pct": {
+      "native_step": 65.57085468163916,
+      "quality_including_surface_export": 6.00081402838138,
+      "snapshot": 3.631170417466783,
+      "render_and_rgbd": 21.207087639394356,
+      "other_control_policy_python": 3.5900732331183316
+    },
+    "gpu": {
+      "samples": 28,
+      "sampling_interval_s": 2,
+      "memory_peak_mib": 2134.0,
+      "gpu_utilization_mean_pct": 69.85714285714286,
+      "memory_controller_utilization_mean_pct": 2.9285714285714284,
+      "power_mean_w": 107.13928571428572,
+      "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+    }
+  }
+]

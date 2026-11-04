@@ -1,0 +1,88 @@
+{
+  "name": "zero-modes-v6-rgbd-proof",
+  "kind": "rgbd-validated",
+  "core": 43264,
+  "library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/zero-modes-v6.so",
+  "library_sha256": "6a01d64c1eea5c191c7d22ba97982a1ff938c6eaa78fb47b13a6c737c8d7c45e",
+  "command": [
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/check_current_frame_final_cache.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/zero-modes-v6.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/zero-modes-v6-rgbd-proof",
+    "--query-mode",
+    "3",
+    "--bound-cache",
+    "--core-optimizations",
+    "43264",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--batch-observation",
+    "--validate-observation",
+    "--query-threads",
+    "64",
+    "--assembly-blocks",
+    "512",
+    "--manifold-blocks",
+    "1024",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--validate-native"
+  ],
+  "started_unix": 1793783968.4391065,
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "batch_observation": true,
+  "observation_validation": true,
+  "observation_adapter_sha256": "82c9218aa12ea04753341cedec2dafcea89d6c4d5aed3ba1c91cbe6881f7e74c",
+  "returncode": 0,
+  "finished_unix": 1793784042.999221,
+  "passed": true,
+  "batched_observation_stats": {
+    "calls": 498,
+    "paired_calls": 498,
+    "fallbacks": 0,
+    "mismatches": 0
+  },
+  "grip_feedback_validation": {
+    "returncode": 0,
+    "counters": [
+      64,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "passed": true
+  },
+  "zero_mode_gate_stats": {
+    "returncode": 0,
+    "host": [
+      1494,
+      705,
+      1494,
+      789,
+      0,
+      0,
+      0,
+      0
+    ],
+    "proof": [
+      384,
+      0,
+      87609600,
+      96,
+      0,
+      21902400,
+      0,
+      0
+    ],
+    "reference_coordinates_unchanged": true,
+    "reference_proof_executed": true
+  }
+}

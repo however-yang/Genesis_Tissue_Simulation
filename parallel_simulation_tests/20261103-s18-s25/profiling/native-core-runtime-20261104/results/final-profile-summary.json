@@ -1,0 +1,232 @@
+{
+  "name": "final-profile",
+  "kind": "profile",
+  "core": 43264,
+  "library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/runtime-core.so",
+  "library_sha256": "8b24b3f7b6ec7f2d952437a2bf672a5d31604125ee881299450e3a4cca1691ec",
+  "command": [
+    "/opt/nvidia/nsight-systems/2025.3.2/bin/nsys",
+    "profile",
+    "--trace=cuda,nvtx,opengl",
+    "--sample=none",
+    "--cpuctxsw=none",
+    "--cuda-graph-trace=node",
+    "--capture-range=cudaProfilerApi",
+    "--capture-range-end=stop",
+    "--force-overwrite=false",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/final-profile-trace",
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/profile_all_queries.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/runtime-core.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/final-profile",
+    "--query-mode",
+    "3",
+    "--query-threads",
+    "64",
+    "--bound-cache",
+    "--core-optimizations",
+    "43264",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--cpus",
+    "7,19,20,25",
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1",
+    "--profile",
+    "--start",
+    "470",
+    "--count",
+    "12",
+    "--max-frames",
+    "482"
+  ],
+  "started_unix": 1793786083.418671,
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "batch_observation": false,
+  "observation_validation": false,
+  "query_threads": 64,
+  "returncode": 0,
+  "finished_unix": 1793786156.3063235,
+  "completed": false,
+  "quality_passed": true,
+  "performance": {
+    "frames": 482,
+    "mean_ms": 35.876728257261405,
+    "p50_ms": 37.4763015,
+    "p95_ms": 43.403151199999996,
+    "p99_ms": 55.19163768999999,
+    "max_ms": 80.338713,
+    "fps": 27.873221683685752,
+    "over_50ms": 12,
+    "rolling20_min_hz": 19.273429502934622
+  },
+  "interaction_stats": [
+    1539,
+    0,
+    789,
+    0,
+    750,
+    8,
+    6,
+    0,
+    2,
+    15102,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "runtime_graph_stats": [
+    19,
+    18,
+    1,
+    4,
+    1,
+    2,
+    0,
+    0
+  ],
+  "gpu_body_statistics": {
+    "calls": 482,
+    "gpu_calls": 482,
+    "cpu_fallbacks": 0,
+    "threshold_fallbacks": 0,
+    "paired_calls": 0,
+    "numeric_mismatches": 0,
+    "decision_mismatches": 0,
+    "max_abs_error_native_cm": 0.0
+  },
+  "grip_feedback_validation": {
+    "returncode": 0,
+    "counters": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "passed": true
+  },
+  "zero_mode_gate_stats": {
+    "returncode": 0,
+    "host": [
+      1539,
+      750,
+      1539,
+      789,
+      0,
+      0,
+      0,
+      0
+    ],
+    "proof": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "reference_coordinates_unchanged": true,
+    "reference_proof_executed": false
+  },
+  "mean_timings_ms": {
+    "native_step": 22.217688479903252,
+    "surface_export": 0.6069066068176876,
+    "quality_and_export": 2.492079853768078,
+    "snapshot": 1.3463821168409282,
+    "total": 26.15808447387216
+  },
+  "stages": {
+    "approach": {
+      "frames": 165,
+      "frame_ms": 31.747378593939395,
+      "render_ms": 8.446818733333334,
+      "timings_ms": {
+        "native_step": 18.30506108165013,
+        "surface_export": 0.6014977539466186,
+        "quality_and_export": 2.4318764839942255,
+        "snapshot": 1.2243408251158667,
+        "total": 22.057255573401395
+      }
+    },
+    "bite": {
+      "frames": 45,
+      "frame_ms": 31.446677222222224,
+      "render_ms": 8.192547377777778,
+      "timings_ms": {
+        "native_step": 18.36617452144209,
+        "surface_export": 0.6164715728825994,
+        "quality_and_export": 2.4204858501131334,
+        "snapshot": 1.2003148880062833,
+        "total": 22.080414470595617
+      }
+    },
+    "close": {
+      "frames": 45,
+      "frame_ms": 34.5801298,
+      "render_ms": 8.386825222222223,
+      "timings_ms": {
+        "native_step": 21.151308516143924,
+        "surface_export": 0.5946574887881676,
+        "quality_and_export": 2.4285960813156433,
+        "snapshot": 1.299144231921269,
+        "total": 24.972991867818767
+      }
+    },
+    "lift": {
+      "frames": 60,
+      "frame_ms": 38.40215453333333,
+      "render_ms": 8.300772133333334,
+      "timings_ms": {
+        "native_step": 24.959668406518176,
+        "surface_export": 0.5928177134289095,
+        "quality_and_export": 2.4227936984971166,
+        "snapshot": 1.41785930415305,
+        "total": 28.894972671211388
+      }
+    },
+    "blade_approach": {
+      "frames": 120,
+      "frame_ms": 38.521369175,
+      "render_ms": 8.326656366666667,
+      "timings_ms": {
+        "native_step": 25.05620863715497,
+        "surface_export": 0.6031811751502877,
+        "quality_and_export": 2.435868034566132,
+        "snapshot": 1.4050167907650273,
+        "total": 28.991624873985227
+      }
+    },
+    "incise_1": {
+      "frames": 47,
+      "frame_ms": 45.8801204893617,
+      "render_ms": 9.598792127659575,
+      "timings_ms": {
+        "native_step": 29.914444495745478,
+        "surface_export": 0.655962627361271,
+        "quality_and_export": 3.0647318443640117,
+        "snapshot": 1.7189512901166653,
+        "total": 34.864955668416904
+      }
+    }
+  }
+}

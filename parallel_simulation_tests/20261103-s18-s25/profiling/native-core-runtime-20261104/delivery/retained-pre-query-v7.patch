@@ -1,0 +1,425 @@
+--- a/vendor/cuda/contact/coarse_bound_cache.cuh
++++ b/vendor/cuda/contact/coarse_bound_cache.cuh
+@@ -113,6 +113,8 @@
+     if(target)coarseBound(target,scale);
+     coarseContactBoundTerms(s,blocks,t,gridDim.x*blockDim.x);
+ }
++#include "coarse_occupancy.cuh"
++
+ static CoarseBoundTerm* coarseCacheForStream(cudaStream_t stream){
+     if(!g_coarseBoundCacheEnabled)return nullptr;
+     if(stream){if(!g_coarseBoundCacheStream)g_coarseBoundCacheStream=stream;else if(g_coarseBoundCacheStream!=stream)return nullptr;}
+@@ -122,7 +124,8 @@
+     auto terms=coarseCacheForStream(stream);int k=stream?1:0;
+     if(!terms)k_CoarseAccumulate<<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse);
+     else {
+-        k_CoarseAccumulateBoundCache<<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
++        if(g_runtimeCoarseBlocks==3)k_CoarseOccupancyBoundCache<3><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
++        else k_CoarseAccumulateBoundCache<<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
+         if(g_queryValidate)k_CompareCoarseCacheTerms<false><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,d_coarseActualValues[k],d_coarseActualTargets[k],d_coarseBoundStats);
+     }
+ }
+--- /dev/null
++++ b/vendor/cuda/contact/coarse_occupancy.cuh
+@@ -0,0 +1,31 @@
++// Original fused material/contact kernel and reduction; different compiler register budget only.
++template<int N,class Add> __device__ void blockAccumulateOccupancy(const void* target,float (&v)[N],Add add){
++    __shared__ unsigned long long first;__shared__ float sum[N];
++    if(threadIdx.x==0)first=0;
++    for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
++    __syncthreads();
++    if(target)atomicCAS(&first,0ull,(unsigned long long)target);
++    __syncthreads();
++    if(target && (unsigned long long)target==first){
++        auto group=cooperative_groups::coalesced_threads();
++        for(int j=0;j<N;j++)v[j]=cooperative_groups::reduce(group,v[j],cooperative_groups::plus<float>());
++        if(group.thread_rank()==0)for(int j=0;j<N;j++)atomicAdd(sum+j,v[j]);
++    }else if(target && unifiedReduce(target,v))add(target,v);
++    __syncthreads();
++    if(threadIdx.x==0 && first)add((const void*)first,sum);
++}
++__device__ inline void coarseAccumulateBlockOccupancy(CoarseBlock* b,float3 g,const Symmetric3& H){
++    float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
++    blockAccumulateOccupancy(b,v,[](const void* target,const float* values){coarseAdd(target,values);});
++}
++
++template<int MinimumBlocks> __global__ __launch_bounds__(256,MinimumBlocks) void k_CoarseOccupancyBoundCache(const UnifiedState* state,CoarseBlock* blocks,CoarseBoundTerm* terms,float* actual,CoarseBlock** targets){
++    const UnifiedState& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
++    float3 g=mkf3(0,0,0);Symmetric3 H={};float scale=1;
++    CoarseBlock* target=t<s.activeCount?coarseNodeTerms(s,s.activeNodes[t],blocks,g,H):
++        coarseTetTermsCache(s,t-s.activeCount,blocks,false,g,H,scale,terms);
++    if(actual && t>=s.activeCount && t-s.activeCount<s.nt){int tet=t-s.activeCount;targets[tet]=target;
++        float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};for(int j=0;j<9;j++)actual[9*tet+j]=v[j];}
++    coarseAccumulateBlockOccupancy(target,g,H);
++    coarseContactGripTerms(s,blocks,t,gridDim.x*blockDim.x);
++}
+--- /dev/null
++++ b/vendor/cuda/grasp/runtime_grip_feedback.cuh
+@@ -0,0 +1,71 @@
++// Parallel geometry evaluation followed by the ORIGINAL ordered double sums.
++// This is diagnostic readback, not the Gaussian grasp force/constraint solve.
++struct RuntimeGripTerm {double weight;float3 local,point;float tangent;int valid;};
++static RuntimeGripTerm* d_runtimeGripTerms=nullptr;
++static float* d_runtimeGripReference=nullptr;
++static int* d_runtimeGripStats=nullptr;
++static int g_runtimeGripCapacity=0;
++static cudaError_t ensureRuntimeGripTerms(int count){
++    if(count<=g_runtimeGripCapacity)return cudaSuccess;
++    queryPrivateFree(d_runtimeGripTerms);d_runtimeGripTerms=nullptr;g_runtimeGripCapacity=0;
++    cudaError_t error=queryPrivateAlloc(&d_runtimeGripTerms,(size_t)count*sizeof(RuntimeGripTerm));
++    if(error==cudaSuccess)g_runtimeGripCapacity=count;
++    return error;
++}
++static void freeRuntimeGripTerms(){
++    queryPrivateFree(d_runtimeGripTerms);queryPrivateFree(d_runtimeGripReference);queryPrivateFree(d_runtimeGripStats);
++    d_runtimeGripTerms=nullptr;d_runtimeGripReference=nullptr;d_runtimeGripStats=nullptr;g_runtimeGripCapacity=0;
++}
++__global__ void k_RuntimeGripTerms(int count,const GripPoint* points,const unsigned* masks,const int* active,
++    const float3* pos,const CoupledTool* body,XpbdToolState fallback,float minGap,RuntimeGripTerm* output){
++    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=count)return;
++    const GripPoint& p=points[i];RuntimeGripTerm& out=output[i];out.valid=observedGripValid(p,masks,active);if(!out.valid)return;
++    XpbdToolState pose=body?body->pose:fallback;
++    float3 x=p.offset;for(int j=0;j<p.count;j++)x=x+pos[p.id[j]]*p.weight[j];
++    out.weight=1.0/p.complianceScale;out.local=p.local;out.point=x;
++    float3 a,n,b;gripFrame(pose,a,n,b);
++    float3 r=x-gripTarget(p,pose,minGap);r=r-n*dot3(r,n);out.tangent=len3(r);
++}
++__global__ void k_RuntimeGripOrderedSum(int count,const RuntimeGripTerm* terms,const CoupledTool* body,
++    XpbdToolState fallback,float minGap,float* result){
++    XpbdToolState pose=body?body->pose:fallback;
++    double weight=0,lx=0,ly=0,lz=0,px=0,py=0,pz=0;
++    int live=0;float tangent=0;
++    for(int i=0;i<count;i++){
++        const auto& p=terms[i];if(!p.valid)continue;++live;double w=p.weight;
++        weight+=w;lx+=w*p.local.x;ly+=w*p.local.y;lz+=w*p.local.z;
++        px+=w*p.point.x;py+=w*p.point.y;pz+=w*p.point.z;
++        tangent=fmaxf(tangent,p.tangent);
++    }
++    float error=0;
++    if(weight>0){
++        GripPatch patch={};patch.local=mkf3(float(lx/weight),float(ly/weight),float(lz/weight));
++        float3 centroid=mkf3(float(px/weight),float(py/weight),float(pz/weight));
++        error=len3(centroid-patchTarget(patch,pose,minGap));
++    }
++    result[0]=error;result[1]=(float)live;result[2]=tangent;
++}
++__global__ void k_RuntimeCompareGrip(const float* actual,const float* reference,int* stats){
++    stats[0]++;
++    for(int i=0;i<3;i++)if(__float_as_uint(actual[i])!=__float_as_uint(reference[i])){
++        stats[1]++;if(!stats[2]){stats[2]=i+1;stats[3]=__float_as_int(reference[i]);stats[4]=__float_as_int(actual[i]);}
++    }
++}
++static cudaError_t observeRuntimeGrip(){
++    cudaError_t error=ensureRuntimeGripTerms(g_gripCount);if(error!=cudaSuccess)return error;
++    k_RuntimeGripTerms<<<(g_gripCount+63)/64,64>>>(g_gripCount,d_gripPoints,g_surfaceMasks,g_liveActive,d_pos,d_coupledTool,g_tool,g_gp.jawGapClosed,d_runtimeGripTerms);
++    k_RuntimeGripOrderedSum<<<1,1>>>(g_gripCount,d_runtimeGripTerms,d_coupledTool,g_tool,g_gp.jawGapClosed,d_gripError);
++    if(g_queryValidate){
++        if(!d_runtimeGripReference){error=queryPrivateAlloc(&d_runtimeGripReference,3*sizeof(float));if(error!=cudaSuccess)return error;}
++        if(!d_runtimeGripStats){error=queryPrivateAlloc(&d_runtimeGripStats,8*sizeof(int));if(error!=cudaSuccess)return error;error=cudaMemsetAsync(d_runtimeGripStats,0,8*sizeof(int));if(error!=cudaSuccess)return error;}
++        k_ReadGripObservation<<<1,1>>>(g_gripCount,d_gripPoints,g_surfaceMasks,g_liveActive,d_pos,d_coupledTool,g_tool,g_gp.jawGapClosed,d_runtimeGripReference);
++        k_RuntimeCompareGrip<<<1,1>>>(d_gripError,d_runtimeGripReference,d_runtimeGripStats);
++    }
++    return cudaGetLastError();
++}
++extern "C" LCS_COMBINED_EXPORT int LCS_ReadRuntimeGripStats(int* output,int capacity){
++    if(!output || capacity<8)return -1;
++    for(int i=0;i<8;i++)output[i]=0;
++    if(!d_runtimeGripStats)return 0;
++    return -(int)cudaMemcpy(output,d_runtimeGripStats,8*sizeof(int),cudaMemcpyDeviceToHost);
++}
+--- a/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -116,6 +116,42 @@
+ static float3* d_fragmentBefore=nullptr;
+ static float3* d_fragmentStart=nullptr;
+ // Host-only diagnosis; no device synchronization or changed GPU work.
++// Host-only graph lifecycle optimization. The physics state and every device
++// kernel are unchanged. It is opt-in, fixed before initialization, and falls
++// back to the original rebuild on CUDA's documented update rejection.
++static int g_runtimeCoreMode=0;
++static int g_runtimeCoarseBlocks=0;
++static bool runtimeSolverInitialized();
++extern "C" LCS_COMBINED_EXPORT int LCS_GetRuntimeCoreMode(){return g_runtimeCoreMode;}
++static unsigned long long g_runtimeGraphStats[8]={};
++extern "C" LCS_COMBINED_EXPORT int LCS_SetRuntimeCoreMode(int mode){
++    if(mode&~(256|2048|8192|32768))return -10001;
++    if(runtimeSolverInitialized() && mode!=g_runtimeCoreMode)return -10002;
++    g_runtimeCoreMode=mode;g_runtimeCoarseBlocks=(mode&8192)?3:0;return 0;
++}
++extern "C" LCS_COMBINED_EXPORT int LCS_ReadRuntimeGraphStats(unsigned long long* out,int capacity){
++    if(!out||capacity<8)return -1;
++    for(int i=0;i<8;i++)out[i]=g_runtimeGraphStats[i];return 8;
++}
++static cudaError_t installRuntimeGraph(cudaGraphExec_t& executable,cudaGraph_t graph){
++    if(executable && (g_runtimeCoreMode&256)){
++        g_runtimeGraphStats[0]++;
++        cudaGraphExecUpdateResultInfo info={};
++        cudaError_t error=cudaGraphExecUpdate(executable,graph,&info);
++        if(error==cudaSuccess && info.result==cudaGraphExecUpdateSuccess){g_runtimeGraphStats[1]++;return cudaSuccess;}
++        if(error!=cudaSuccess && error!=cudaErrorGraphExecUpdateFailure)return error;
++        g_runtimeGraphStats[2]++;g_runtimeGraphStats[5]=(unsigned long long)info.result;
++        cudaGetLastError();
++    }
++    if(executable){
++        cudaError_t error=cudaGraphExecDestroy(executable);if(error!=cudaSuccess)return error;
++        executable=nullptr;g_runtimeGraphStats[4]++;
++    }
++    cudaError_t error=cudaGraphInstantiate(&executable,graph,0);
++    if(error==cudaSuccess)g_runtimeGraphStats[3]++;
++    return error;
++}
++
+ static int g_interactionStats[16]={};
+ extern "C" LCS_COMBINED_EXPORT int LCS_ReadInteractionStats(int* out,int capacity,int reset){
+     if(!out||capacity<16)return -1;for(int i=0;i<16;i++)out[i]=g_interactionStats[i];
+@@ -208,6 +244,7 @@
+ static std::vector<int> g_colorOff, g_colorCnt;   // host: [numColors] flat-range per colour
+ static int     g_numColors = 0;
+ static bool    g_ready = false;
++static bool runtimeSolverInitialized(){return g_ready;}
+ 
+ // M1 (design §9-(4)): the input-edge -> colour-slot PERMUTATION is PERSISTED, not discarded, so a
+ // runtime sever can be propagated to the colour-ordered d_edgeActive. The host inverse map serves the
+@@ -1965,9 +2002,11 @@
+     return -(int)e;
+ }
+ // Shared by separate and packed feedback; writes diagnostic output only.
++#include "../grasp/runtime_grip_feedback.cuh"
+ static cudaError_t observeGrip(){
+     if(!d_gripError)return cudaErrorInvalidValue;
+     if(g_embeddedGrip && g_grasping && g_gripCount>0){
++        if(g_runtimeCoreMode&2048)return observeRuntimeGrip();
+         k_ReadGripObservation<<<1,1>>>(g_gripCount,d_gripPoints,g_surfaceMasks,
+             g_liveActive,d_pos,d_coupledTool,g_tool,g_gp.jawGapClosed,d_gripError);
+         return cudaGetLastError();
+@@ -2681,6 +2720,7 @@
+ // tangential anchor or extra force is added by this geometric correction.
+ #include "../cutting/pressure_blade.cuh"
+ #include "tool_feedback.cuh"
++#include "../zero_mode_gates.cuh"
+ 
+ 
+ // ---- The multigrid preconditioner of the material PCG (material_multigrid.cuh).
+@@ -2904,8 +2944,7 @@
+             cudaError_t passError=launchFragmentPasses(g_captureStream,prepare,previous,discovery);
+             cudaGraph_t body=nullptr;e=cudaStreamEndCapture(g_captureStream,&body);if(passError!=cudaSuccess)e=passError;
+         }
+-        if(exec)cudaGraphExecDestroy(exec);exec=nullptr;
+-        if(e==cudaSuccess)e=cudaGraphInstantiate(&exec,graph,0);
++        if(e==cudaSuccess)e=installRuntimeGraph(exec,graph);
+         if(graph)cudaGraphDestroy(graph);
+         if(e!=cudaSuccess)return e;
+         g_fragmentPassKey[slot]=key;
+@@ -3037,8 +3076,7 @@
+         e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return e;
+         cudaError_t work=launchPredictedFragmentContact(g_captureStream);cudaGraph_t graph=nullptr;
+         e=cudaStreamEndCapture(g_captureStream,&graph);if(work!=cudaSuccess){if(graph)cudaGraphDestroy(graph);return work;}if(e!=cudaSuccess)return e;
+-        if(g_predictedFragmentGraph)cudaGraphExecDestroy(g_predictedFragmentGraph);g_predictedFragmentGraph=nullptr;
+-        e=cudaGraphInstantiate(&g_predictedFragmentGraph,graph,0);cudaGraphDestroy(graph);if(e!=cudaSuccess)return e;
++        e=installRuntimeGraph(g_predictedFragmentGraph,graph);cudaGraphDestroy(graph);if(e!=cudaSuccess)return e;
+         g_predictedFragmentKey=key;
+     }
+     return cudaGraphLaunch(g_predictedFragmentGraph,0);
+@@ -3405,7 +3443,8 @@
+     e=cudaMemcpyAsync(d_unified,&s,sizeof(s),cudaMemcpyHostToDevice);if(e!=cudaSuccess)return -(int)e;
+     rebuildMultigrid();
+     if(!d_substepQuery)e=cudaMalloc(&d_substepQuery,3*sizeof(int));if(e!=cudaSuccess)return -(int)e;
+-    int query[3]={};
++    if(g_runtimeCoreMode&32768){e=ensureRuntimeModeGates();if(e!=cudaSuccess)return -(int)e;}
++    int query[5]={};
+     const int predictorSites=((s.nx+1)/2)*((s.ny+1)/2)*((g_dimsZ+2)/2);
+     // Capture the unchanged prelude as one sequence. All pose/state uploads
+     // remain before it; the existing host recovery/query read remains after it.
+@@ -3442,6 +3481,7 @@
+     k_MaterialRecoveryRequested<<<Gr(g_N),64,0,stream>>>(d_unified,d_substepQuery);
+     k_MaterialFreeNodes<<<Gr(g_N),64,0,stream>>>(d_unified,d_substepQuery+1);
+     e=cudaMemcpyAsync(d_substepQuery+2,d_fragmentQueryCount,sizeof(int),cudaMemcpyDeviceToDevice,stream);if(e!=cudaSuccess)return e;
++    if(g_runtimeCoreMode&32768){e=launchRuntimeModeQueries(stream);if(e!=cudaSuccess)return e;}
+ 
+         return cudaGetLastError();
+     };
+@@ -3455,14 +3495,18 @@
+             e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return -(int)e;
+             cudaError_t work=launchPrelude(g_captureStream);cudaGraph_t graph=nullptr;
+             e=cudaStreamEndCapture(g_captureStream,&graph);if(work!=cudaSuccess){if(graph)cudaGraphDestroy(graph);return -(int)work;}if(e!=cudaSuccess)return -(int)e;
+-            if(g_materialPreludeGraph)cudaGraphExecDestroy(g_materialPreludeGraph);g_materialPreludeGraph=nullptr;
+-            e=cudaGraphInstantiate(&g_materialPreludeGraph,graph,0);cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;
++            e=installRuntimeGraph(g_materialPreludeGraph,graph);cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;
+             g_materialPreludeKey=key;
+         }
+         e=cudaGraphLaunch(g_materialPreludeGraph,0);
+     }
+     if(e!=cudaSuccess)return -(int)e;
+-    e=cudaMemcpy(query,d_substepQuery,3*sizeof(int),cudaMemcpyDeviceToHost);if(e!=cudaSuccess)return -(int)e;
++    e=cudaMemcpy(query,(g_runtimeCoreMode&32768)?d_runtimeModeQueries:d_substepQuery,
++        ((g_runtimeCoreMode&32768)?5:3)*sizeof(int),cudaMemcpyDeviceToHost);if(e!=cudaSuccess)return -(int)e;
++    const bool skipRigid=(g_runtimeCoreMode&32768) && query[3]==0;
++    const bool skipTranslation=(g_runtimeCoreMode&32768) && query[4]==0;
++    if(g_runtimeCoreMode&32768){g_runtimeModeHostStats[0]++;g_runtimeModeHostStats[1]+=skipRigid;g_runtimeModeHostStats[2]+=skipTranslation;
++        g_runtimeModeHostStats[3]+=!skipRigid;g_runtimeModeHostStats[4]+=!skipTranslation;}
+     const int recoveryRequested=query[0];const bool loaded=!query[1];
+     // A substep cannot gain a free-volume query: this list is fixed before
+     // its material graph runs. Reuse the existing synchronous decision read.
+@@ -3474,6 +3518,8 @@
+     cudaGraphExec_t& selectedGraph=recoveryRequested?g_unifiedRecoveryGraph:loaded?g_unifiedLoadedGraph:g_unifiedGraph;
+     bool& selectedGraphDirty=recoveryRequested?g_unifiedRecoveryGraphDirty:loaded?g_unifiedLoadedGraphDirty:g_unifiedGraphDirty;
+     if(g_fragmentGraphQueries[fragmentGraphSlot]!=(int)anyFragmentQueries)selectedGraphDirty=true;
++    const int runtimeModeKey=(skipRigid?1:0)|(skipTranslation?2:0)|(g_queryValidate?4:0);
++    if((g_runtimeCoreMode&32768) && g_runtimeModeGraphKey[fragmentGraphSlot]!=runtimeModeKey)selectedGraphDirty=true;
+     xpbd_section_mark("pre: predictor, recovery query");
+     // Section timing issues the sequence directly, kernel after kernel, instead of capturing it.
+     const bool direct=g_sectionProfile;
+@@ -3694,9 +3740,10 @@
+             if(anyFragmentQueries)launchFragmentCoarseBounds(g_captureStream,d_coarseBlock);
+             if(anyFragmentQueries)k_CoarseApply<true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseBlock);else k_CoarseApply<false><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+             xpbd_section_mark("loop: tool, safe and global coarse");
+-            { // Retain rotational inertia in every material/contact sweep.
+                 if(anyFragmentQueries)k_CoarseWeights<true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,7);else k_CoarseWeights<false><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,7);
+                 k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
++            if(!skipRigid || g_queryValidate){ // Reference proof retains the original stage.
++                if(skipRigid && g_queryValidate)cudaMemcpyAsync(d_runtimeModeBefore,d_pos,(size_t)g_N*sizeof(float3),cudaMemcpyDeviceToDevice,g_captureStream);
+                 k_RigidCenters<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_RigidContactKinds<<<128,64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_RigidCenterFinish<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+@@ -3705,6 +3752,8 @@
+                 k_RigidEnergy<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_RigidFeasible<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_RigidApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
++
++                if(skipRigid && g_queryValidate)k_RuntimeProveNoPositionWrite<<<Gr(g_N),64,0,g_captureStream>>>(g_N,d_runtimeModeBefore,d_pos,d_runtimeModeProof,0);
+             }
+             xpbd_section_mark("loop: rigid modes");
+         }
+@@ -3718,7 +3767,7 @@
+                 }
+             }
+             if(e==cudaSuccess && !selectedGraph){g_interactionStats[8]++;e=cudaGraphInstantiate(&selectedGraph,graph,0);}
+-            cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;selectedGraphDirty=false;g_fragmentGraphQueries[fragmentGraphSlot]=(int)anyFragmentQueries;
++            cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;selectedGraphDirty=false;g_fragmentGraphQueries[fragmentGraphSlot]=(int)anyFragmentQueries;g_runtimeModeGraphKey[fragmentGraphSlot]=runtimeModeKey;
+         }
+     }
+     if(!direct){e=cudaGraphLaunch(selectedGraph,0);if(e!=cudaSuccess)return -(int)e;}
+@@ -3729,6 +3778,8 @@
+     // correction there would undo the tool/tissue contact balance.
+     if(anyFragmentQueries)k_CoarseWeights<true><<<Gr(g_activeNodes),64>>>(d_unified,6);else k_CoarseWeights<false><<<Gr(g_activeNodes),64>>>(d_unified,6);
+     k_CoarseBegin<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
++    if(!skipTranslation || g_queryValidate){
++        if(skipTranslation && g_queryValidate)cudaMemcpyAsync(d_runtimeModeBefore,d_pos,(size_t)g_N*sizeof(float3),cudaMemcpyDeviceToDevice);
+     launchCoarseAccumulateCache(GrAccumulate(g_activeNodes+g_T),0,d_unified,d_globalCoarse);
+             if(anyFragmentQueries)k_FragmentCoarseTerms<<<128,64,0,0>>>(d_unified,d_globalCoarse);
+             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,false);
+@@ -3737,6 +3788,8 @@
+             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,true);
+             if(anyFragmentQueries)launchFragmentCoarseBounds(0,d_globalCoarse);
+     if(anyFragmentQueries)k_CoarseApply<true><<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);else k_CoarseApply<false><<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
++        if(skipTranslation && g_queryValidate)k_RuntimeProveNoPositionWrite<<<Gr(g_N),64>>>(g_N,d_runtimeModeBefore,d_pos,d_runtimeModeProof,3);
++    }
+     xpbd_section_mark("post: free-component nullspace");
+     e=solveFragmentContact();if(e!=cudaSuccess)return -(int)e;
+     profileMark(g_substepIndex-1,1);profileMark(g_substepIndex-1,2);
+@@ -4083,6 +4136,8 @@
+ 
+ extern "C" void xpbd_shutdown()
+ {
++    freeRuntimeGripTerms();
++    freeRuntimeModeGates();
+     freeCoarseBoundCache();freeManifoldValidation();
+     freeQueryGroups();
+     cudaFree(d_fragmentVertices);d_fragmentVertices=nullptr;g_fragmentCapacity=0;
+--- /dev/null
++++ b/vendor/cuda/zero_mode_gates.cuh
+@@ -0,0 +1,85 @@
++// Prove a whole-component correction is disabled by the ORIGINAL application
++// guard. These hints never suppress a free, unsupported or unheld component.
++static int* d_runtimeFixedRoots=nullptr;
++static int* d_runtimeModeQueries=nullptr;
++static float3* d_runtimeModeBefore=nullptr;
++static unsigned long long* d_runtimeModeProof=nullptr;
++static int g_runtimeModeCapacity=0;
++static int g_runtimeModeGraphKey[3]={-1,-1,-1};
++static unsigned long long g_runtimeModeHostStats[8]={};
++static cudaError_t ensureRuntimeModeGates(){
++    cudaError_t error=cudaSuccess;
++    if(g_runtimeModeCapacity<g_N){
++        queryPrivateFree(d_runtimeFixedRoots);d_runtimeFixedRoots=nullptr;g_runtimeModeCapacity=0;
++        error=queryPrivateAlloc(&d_runtimeFixedRoots,(size_t)g_N*sizeof(int));
++        if(error==cudaSuccess)g_runtimeModeCapacity=g_N;
++    }
++    if(error==cudaSuccess && !d_runtimeModeQueries)error=queryPrivateAlloc(&d_runtimeModeQueries,5*sizeof(int));
++    if(error==cudaSuccess && g_queryValidate && !d_runtimeModeBefore)error=queryPrivateAlloc(&d_runtimeModeBefore,(size_t)g_N*sizeof(float3));
++    if(error==cudaSuccess && g_queryValidate && !d_runtimeModeProof){
++        error=queryPrivateAlloc(&d_runtimeModeProof,8*sizeof(unsigned long long));
++        if(error==cudaSuccess)error=cudaMemset(d_runtimeModeProof,0,8*sizeof(unsigned long long));
++    }
++    return error;
++}
++static void freeRuntimeModeGates(){
++    queryPrivateFree(d_runtimeFixedRoots);queryPrivateFree(d_runtimeModeQueries);
++    queryPrivateFree(d_runtimeModeBefore);queryPrivateFree(d_runtimeModeProof);
++    d_runtimeFixedRoots=d_runtimeModeQueries=nullptr;d_runtimeModeBefore=nullptr;d_runtimeModeProof=nullptr;
++    g_runtimeModeCapacity=0;for(int& key:g_runtimeModeGraphKey)key=-1;
++}
++__global__ void k_RuntimeFixedRoots(const UnifiedState* state,int* roots){
++    const auto& s=*state;
++    for(int k=blockIdx.x*blockDim.x+threadIdx.x;k<max(s.activeCount,s.grips);k+=gridDim.x*blockDim.x){
++        int i=unifiedActiveNode(s,k);
++        if(i>=0){
++            int root=s.component[i];
++            if(root>=0 && root<s.n){
++                // Match k_RigidCenters' actual degree condition.
++                int flags=s.grips>0 && s.gripDegree[i]>0?1:0;
++                if((!s.active || s.active[i]) && (s.invMass[i]<=0 || (s.attach && s.attach[i]>0)))flags|=2;
++                if(flags)atomicOr(roots+root,flags);
++            }
++        }
++        // The translation guard is set by valid points themselves, not by a
++        // possibly stale degree. This matches coarseContactGripTerms exactly.
++        if(k<s.grips && s.points[k].valid && s.points[k].count>0){
++            int root=s.component[s.points[k].id[0]];
++            if(root>=0 && root<s.n)atomicOr(roots+root,4);
++        }
++    }
++}
++__global__ void k_RuntimeNeededModes(const UnifiedState* state,const int* roots,int* queries){
++    const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0 || s.invMass[i]<=0)return;
++    int root=s.component[i];int flags=root>=0 && root<s.n?roots[root]:0;
++    // Rigid rotations can remain physical around an isolated anchor. Only
++    // an existing persistent grip proves that original rotation is blocked.
++    if(!(flags&1))atomicExch(queries+3,1);
++    // A grip, pin, or ligament proves the final translational null mode's
++    // original external flag is set before any position can be written.
++    if(!(flags&6))atomicExch(queries+4,1);
++}
++static cudaError_t launchRuntimeModeQueries(cudaStream_t stream){
++    cudaError_t error=cudaMemsetAsync(d_runtimeFixedRoots,0,(size_t)g_N*sizeof(int),stream);
++    if(error==cudaSuccess)error=cudaMemsetAsync(d_runtimeModeQueries+3,0,2*sizeof(int),stream);
++    if(error!=cudaSuccess)return error;
++    k_RuntimeFixedRoots<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_runtimeFixedRoots);
++    k_RuntimeNeededModes<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_runtimeFixedRoots,d_runtimeModeQueries);
++    // Join the original three decisions into the SAME existing CPU wait.
++    return cudaMemcpyAsync(d_runtimeModeQueries,d_substepQuery,3*sizeof(int),cudaMemcpyDeviceToDevice,stream);
++}
++__global__ void k_RuntimeProveNoPositionWrite(int count,const float3* before,const float3* after,
++    unsigned long long* stats,int slot){
++    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=count)return;
++    if(i==0){atomicAdd(stats+slot,1ull);atomicAdd(stats+slot+2,(unsigned long long)count*3);}
++    unsigned bad=(__float_as_uint(before[i].x)!=__float_as_uint(after[i].x))+
++        (__float_as_uint(before[i].y)!=__float_as_uint(after[i].y))+
++        (__float_as_uint(before[i].z)!=__float_as_uint(after[i].z));
++    if(bad)atomicAdd(stats+slot+1,(unsigned long long)bad);
++}
++extern "C" LCS_COMBINED_EXPORT int LCS_ReadRuntimeModeGateStats(unsigned long long* host,unsigned long long* proof,int capacity){
++    if(!host||!proof||capacity<8)return -1;
++    for(int i=0;i<8;i++){host[i]=g_runtimeModeHostStats[i];proof[i]=0;}
++    if(!d_runtimeModeProof)return 0;
++    return -(int)cudaMemcpy(proof,d_runtimeModeProof,8*sizeof(unsigned long long),cudaMemcpyDeviceToHost);
++}
+--- a/vendor/src/plugin_api.cpp
++++ b/vendor/src/plugin_api.cpp
+@@ -326,4 +326,5 @@
+ LCS_API int LCS_CurrentBodyDepth(int count,const double* parameters,int flags,double* output){return recon_current_body_depth(count,parameters,flags,output);}
+ LCS_API int LCS_TestBodyDepth(int count,const float* positions,const double* parameters,int flags,double* output){return recon_test_body_depth(count,positions,parameters,flags,output);}
+ // V8 retains no experimental solver switches. Zero is the reference solver.
+-LCS_API int LCS_SetCoreOptimizations(int mode){return mode==0?0:-10001;}
++extern "C" int LCS_SetRuntimeCoreMode(int mode);
++LCS_API int LCS_SetCoreOptimizations(int mode){return LCS_SetRuntimeCoreMode(mode);}

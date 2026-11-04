@@ -1,0 +1,30 @@
+{
+  "variant": "readonly",
+  "kind": "rgbd",
+  "command": [
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/tools/check_current_frame_final_cache.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/native-readonly-v8/build/lib/libLiverCudaSim.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/results/cleanup-command-check-20261104",
+    "--query-mode",
+    "3",
+    "--bound-cache",
+    "--core-optimizations",
+    "0",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--query-threads",
+    "64",
+    "--assembly-blocks",
+    "512",
+    "--manifold-blocks",
+    "1024",
+    "--persistent-soup",
+    "--direct-rgb"
+  ],
+  "not_formal_physics_approval": true
+}

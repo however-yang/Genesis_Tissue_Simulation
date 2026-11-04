@@ -1,0 +1,188 @@
+--- /dev/null
++++ b/vendor/cuda/batch_observation.cuh
+@@ -0,0 +1,79 @@
++// Same-frame host readback only. No state, force, collision or integration kernel.
++struct RuntimeObservation {
++    float hinge[3],error;int live;float gap;
++    float blade[10],reaction[3];int contacts;float jaw[4];
++};
++struct RuntimeObservationStaging {
++    CoupledTool grasper,blade;
++    float grip[3],bladeForce[6],scissorsLoads[7];
++    float4 reaction,jaw;
++    int phase,count;unsigned revision;
++};
++static RuntimeObservationStaging* h_runtimeObservation=nullptr;
++static int g_runtimeObservationCapacity=0;
++static void freeRuntimeObservation(){
++    if(h_runtimeObservation)cudaFreeHost(h_runtimeObservation);
++    h_runtimeObservation=nullptr;g_runtimeObservationCapacity=0;
++}
++extern "C" LCS_COMBINED_EXPORT int LCS_RuntimeObservationSize(){return sizeof(RuntimeObservation);}
++extern "C" LCS_COMBINED_EXPORT int LCS_ReadRuntimeObservation(int count,float* nodes,int* flags,unsigned* revision,
++    RuntimeObservation* output,XpbdScissorsResult* scissors,float* loads){
++    if(!g_ready || !g_bound || count!=g_N || !nodes || !flags || !revision || !output || !scissors || !loads ||
++       !d_pos || !d_graspCore || !d_coupledTool || !d_gripError || !d_bladeBody || !d_bladePhase || !d_bladeResult ||
++       !d_bladeCount || !d_scissorsLoads || !d_contactReaction || !d_jawLoad || !g_scissorsMode || !g_blade.enabled)
++        return XPBD_ERR_BAD_ARG;
++    if(g_runtimeObservationCapacity<count){
++        freeRuntimeObservation();
++        size_t bytes=sizeof(RuntimeObservationStaging)+(size_t)count*(sizeof(float3)+sizeof(int));
++        cudaError_t error=cudaHostAlloc(reinterpret_cast<void**>(&h_runtimeObservation),bytes,cudaHostAllocDefault);
++        if(error!=cudaSuccess)return -(int)error;
++        g_runtimeObservationCapacity=count;
++    }
++    auto& h=*h_runtimeObservation;
++    float3* hostNodes=reinterpret_cast<float3*>(h_runtimeObservation+1);
++    int* hostFlags=reinterpret_cast<int*>(hostNodes+g_runtimeObservationCapacity);
++    // The original observation getter runs this same read-only diagnostic.
++    // Its device path reads the current CoupledTool; the host fallback is not
++    // used when that required pointer exists.
++    cudaError_t error=observeGrip();
++    auto copy=[&](void* destination,const void* source,size_t bytes){
++        if(error==cudaSuccess)error=cudaMemcpyAsync(destination,source,bytes,cudaMemcpyDeviceToHost,0);
++    };
++    copy(hostNodes,d_pos,(size_t)count*sizeof(float3));
++    copy(hostFlags,d_graspCore,(size_t)count*sizeof(int));
++    copy(&h.revision,cut_topology_revision_device(),sizeof(unsigned));
++    copy(&h.grasper,d_coupledTool,sizeof(CoupledTool));
++    copy(h.grip,d_gripError,2*sizeof(float));
++    copy(&h.blade,d_bladeBody,sizeof(CoupledTool));
++    copy(h.bladeForce,d_bladeResult,6*sizeof(float));
++    copy(&h.phase,d_bladePhase,sizeof(int));
++    copy(&h.count,d_bladeCount,sizeof(int));
++    copy(h.scissorsLoads,d_scissorsLoads,7*sizeof(float));
++    copy(&h.reaction,d_contactReaction,sizeof(float4));
++    copy(&h.jaw,d_jawLoad,sizeof(float4));
++    cudaError_t synchronized=cudaStreamSynchronize(0);
++    if(error!=cudaSuccess)return -(int)error;
++    if(synchronized!=cudaSuccess)return -(int)synchronized;
++    // Match syncSolvedTool's initialized guard and host side effect exactly.
++    if(h.grasper.initialized)g_tool=g_toolFrom=h.grasper.pose;
++    std::memcpy(nodes,hostNodes,(size_t)count*sizeof(float3));
++    std::memcpy(flags,hostFlags,(size_t)count*sizeof(int));
++    *revision=h.revision;
++    RuntimeObservation& out=*output;
++    out.hinge[0]=g_tool.jawHinge.x;out.hinge[1]=g_tool.jawHinge.y;out.hinge[2]=g_tool.jawHinge.z;
++    out.error=h.grip[0];out.live=(int)h.grip[1];out.gap=g_tool.jawGap;
++    out.blade[0]=h.blade.pose.jawHinge.x;out.blade[1]=h.blade.pose.jawHinge.y;out.blade[2]=h.blade.pose.jawHinge.z;
++    for(int k=0;k<4;k++)out.blade[3+k]=h.bladeForce[k];
++    out.blade[7]=(float)h.phase;out.blade[8]=h.bladeForce[4];out.blade[9]=h.bladeForce[5];
++    out.reaction[0]=h.reaction.x;out.reaction[1]=h.reaction.y;out.reaction[2]=h.reaction.z;
++    out.contacts=(int)ceilf(h.reaction.w/fmaxf(1.f,(float)g_p.numSubsteps));
++    std::memcpy(out.jaw,&h.jaw,sizeof(float4));
++    std::memcpy(loads,h.scissorsLoads,7*sizeof(float));
++    // The existing scissors getter's CPU reconstruction, unchanged.
++    *scissors={};scissors->hinge=h.blade.pose.jawHinge;scissors->axis=h.blade.pose.jawAxis;scissors->normal=h.blade.pose.jawNormal;
++    ContactShape left=bodyContactShape(&h.blade,h.blade.pose,1,0,0),right=bodyContactShape(&h.blade,h.blade.pose,2,0,0);
++    scissors->leftA=left.a;scissors->leftB=left.b;scissors->rightA=right.a;scissors->rightB=right.b;
++    scissors->gap=h.blade.pose.jawGap;scissors->radius=h.blade.scissorsRadius;scissors->mass=g_scissors.mass;scissors->jawMass=g_scissors.jawMass;
++    scissors->pressure=h.bladeForce[3];scissors->force=mkf3(h.bladeForce[0],h.bladeForce[1],h.bladeForce[2]);scissors->phase=h.phase;scissors->contactCount=h.count;
++    return 0;
++}
+--- a/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -116,6 +116,40 @@
+ static float3* d_fragmentBefore=nullptr;
+ static float3* d_fragmentStart=nullptr;
+ // Host-only diagnosis; no device synchronization or changed GPU work.
++// Host-only graph lifecycle optimization. The physics state and every device
++// kernel are unchanged. It is opt-in, fixed before initialization, and falls
++// back to the original rebuild on CUDA's documented update rejection.
++static int g_runtimeCoreMode=0;
++static bool runtimeSolverInitialized();
++static unsigned long long g_runtimeGraphStats[8]={};
++extern "C" LCS_COMBINED_EXPORT int LCS_SetRuntimeCoreMode(int mode){
++    if(mode&~256)return -10001;
++    if(runtimeSolverInitialized() && mode!=g_runtimeCoreMode)return -10002;
++    g_runtimeCoreMode=mode;return 0;
++}
++extern "C" LCS_COMBINED_EXPORT int LCS_ReadRuntimeGraphStats(unsigned long long* out,int capacity){
++    if(!out||capacity<8)return -1;
++    for(int i=0;i<8;i++)out[i]=g_runtimeGraphStats[i];return 8;
++}
++static cudaError_t installRuntimeGraph(cudaGraphExec_t& executable,cudaGraph_t graph){
++    if(executable && (g_runtimeCoreMode&256)){
++        g_runtimeGraphStats[0]++;
++        cudaGraphExecUpdateResultInfo info={};
++        cudaError_t error=cudaGraphExecUpdate(executable,graph,&info);
++        if(error==cudaSuccess && info.result==cudaGraphExecUpdateSuccess){g_runtimeGraphStats[1]++;return cudaSuccess;}
++        if(error!=cudaSuccess && error!=cudaErrorGraphExecUpdateFailure)return error;
++        g_runtimeGraphStats[2]++;g_runtimeGraphStats[5]=(unsigned long long)info.result;
++        cudaGetLastError();
++    }
++    if(executable){
++        cudaError_t error=cudaGraphExecDestroy(executable);if(error!=cudaSuccess)return error;
++        executable=nullptr;g_runtimeGraphStats[4]++;
++    }
++    cudaError_t error=cudaGraphInstantiate(&executable,graph,0);
++    if(error==cudaSuccess)g_runtimeGraphStats[3]++;
++    return error;
++}
++
+ static int g_interactionStats[16]={};
+ extern "C" LCS_COMBINED_EXPORT int LCS_ReadInteractionStats(int* out,int capacity,int reset){
+     if(!out||capacity<16)return -1;for(int i=0;i<16;i++)out[i]=g_interactionStats[i];
+@@ -208,6 +242,7 @@
+ static std::vector<int> g_colorOff, g_colorCnt;   // host: [numColors] flat-range per colour
+ static int     g_numColors = 0;
+ static bool    g_ready = false;
++static bool runtimeSolverInitialized(){return g_ready;}
+ 
+ // M1 (design §9-(4)): the input-edge -> colour-slot PERMUTATION is PERSISTED, not discarded, so a
+ // runtime sever can be propagated to the colour-ordered d_edgeActive. The host inverse map serves the
+@@ -2681,6 +2716,7 @@
+ // tangential anchor or extra force is added by this geometric correction.
+ #include "../cutting/pressure_blade.cuh"
+ #include "tool_feedback.cuh"
++#include "../batch_observation.cuh"
+ 
+ 
+ // ---- The multigrid preconditioner of the material PCG (material_multigrid.cuh).
+@@ -2904,8 +2940,7 @@
+             cudaError_t passError=launchFragmentPasses(g_captureStream,prepare,previous,discovery);
+             cudaGraph_t body=nullptr;e=cudaStreamEndCapture(g_captureStream,&body);if(passError!=cudaSuccess)e=passError;
+         }
+-        if(exec)cudaGraphExecDestroy(exec);exec=nullptr;
+-        if(e==cudaSuccess)e=cudaGraphInstantiate(&exec,graph,0);
++        if(e==cudaSuccess)e=installRuntimeGraph(exec,graph);
+         if(graph)cudaGraphDestroy(graph);
+         if(e!=cudaSuccess)return e;
+         g_fragmentPassKey[slot]=key;
+@@ -3037,8 +3072,7 @@
+         e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return e;
+         cudaError_t work=launchPredictedFragmentContact(g_captureStream);cudaGraph_t graph=nullptr;
+         e=cudaStreamEndCapture(g_captureStream,&graph);if(work!=cudaSuccess){if(graph)cudaGraphDestroy(graph);return work;}if(e!=cudaSuccess)return e;
+-        if(g_predictedFragmentGraph)cudaGraphExecDestroy(g_predictedFragmentGraph);g_predictedFragmentGraph=nullptr;
+-        e=cudaGraphInstantiate(&g_predictedFragmentGraph,graph,0);cudaGraphDestroy(graph);if(e!=cudaSuccess)return e;
++        e=installRuntimeGraph(g_predictedFragmentGraph,graph);cudaGraphDestroy(graph);if(e!=cudaSuccess)return e;
+         g_predictedFragmentKey=key;
+     }
+     return cudaGraphLaunch(g_predictedFragmentGraph,0);
+@@ -3455,8 +3489,7 @@
+             e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return -(int)e;
+             cudaError_t work=launchPrelude(g_captureStream);cudaGraph_t graph=nullptr;
+             e=cudaStreamEndCapture(g_captureStream,&graph);if(work!=cudaSuccess){if(graph)cudaGraphDestroy(graph);return -(int)work;}if(e!=cudaSuccess)return -(int)e;
+-            if(g_materialPreludeGraph)cudaGraphExecDestroy(g_materialPreludeGraph);g_materialPreludeGraph=nullptr;
+-            e=cudaGraphInstantiate(&g_materialPreludeGraph,graph,0);cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;
++            e=installRuntimeGraph(g_materialPreludeGraph,graph);cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;
+             g_materialPreludeKey=key;
+         }
+         e=cudaGraphLaunch(g_materialPreludeGraph,0);
+@@ -4083,6 +4116,7 @@
+ 
+ extern "C" void xpbd_shutdown()
+ {
++    freeRuntimeObservation();
+     freeCoarseBoundCache();freeManifoldValidation();
+     freeQueryGroups();
+     cudaFree(d_fragmentVertices);d_fragmentVertices=nullptr;g_fragmentCapacity=0;
+--- a/vendor/src/plugin_api.cpp
++++ b/vendor/src/plugin_api.cpp
+@@ -326,4 +326,5 @@
+ LCS_API int LCS_CurrentBodyDepth(int count,const double* parameters,int flags,double* output){return recon_current_body_depth(count,parameters,flags,output);}
+ LCS_API int LCS_TestBodyDepth(int count,const float* positions,const double* parameters,int flags,double* output){return recon_test_body_depth(count,positions,parameters,flags,output);}
+ // V8 retains no experimental solver switches. Zero is the reference solver.
+-LCS_API int LCS_SetCoreOptimizations(int mode){return mode==0?0:-10001;}
++extern "C" int LCS_SetRuntimeCoreMode(int mode);
++LCS_API int LCS_SetCoreOptimizations(int mode){return LCS_SetRuntimeCoreMode(mode);}

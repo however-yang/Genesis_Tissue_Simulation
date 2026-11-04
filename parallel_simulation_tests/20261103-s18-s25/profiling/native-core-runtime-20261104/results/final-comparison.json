@@ -1,0 +1,512 @@
+{
+  "schema": "runtime_abba_v1",
+  "baseline": {
+    "cases": [
+      "final-a1-v8",
+      "final-a2-v8"
+    ],
+    "performance": {
+      "frames": 2820,
+      "mean_ms": 41.640727181205676,
+      "fps": 24.01495045099368,
+      "p50_ms": 43.370858,
+      "p95_ms": 48.898588749999995,
+      "p99_ms": 55.03913134,
+      "max_ms": 71.670191,
+      "over_40ms": 1669,
+      "over_50ms": 97,
+      "rolling20_min_hz": 18.957640506810947
+    },
+    "modules_ms": {
+      "native_step": 28.273867109314875,
+      "quality_including_surface": 2.4074204870027405,
+      "snapshot": 1.37341747655705,
+      "render_rgbd": 8.276724185815603,
+      "control_policy_other": 1.3092979225154053
+    },
+    "stages": {
+      "approach": {
+        "frames": 330,
+        "mean_ms": 31.209219169696965,
+        "fps": 32.04181413711767,
+        "p95_ms": 32.67063855,
+        "native_step_ms": 17.822746386060096
+      },
+      "bite": {
+        "frames": 90,
+        "mean_ms": 31.045479111111106,
+        "fps": 32.21080906566207,
+        "p95_ms": 31.61437695,
+        "native_step_ms": 17.92090322253191
+      },
+      "close": {
+        "frames": 90,
+        "mean_ms": 34.63446254444444,
+        "fps": 28.872975831998456,
+        "p95_ms": 39.41046575,
+        "native_step_ms": 21.358572368303108
+      },
+      "lift": {
+        "frames": 120,
+        "mean_ms": 39.266407825,
+        "fps": 25.467060915190807,
+        "p95_ms": 39.98901935,
+        "native_step_ms": 26.074498030357063
+      },
+      "blade_approach": {
+        "frames": 240,
+        "mean_ms": 39.3217376125,
+        "fps": 25.431226103347722,
+        "p95_ms": 40.30305305,
+        "native_step_ms": 26.137890812242404
+      },
+      "incise_1": {
+        "frames": 300,
+        "mean_ms": 47.20096404666667,
+        "fps": 21.18600795973827,
+        "p95_ms": 54.42984835,
+        "native_step_ms": 33.39331124715196
+      },
+      "open_1": {
+        "frames": 60,
+        "mean_ms": 44.00770596666666,
+        "fps": 22.723293069569298,
+        "p95_ms": 47.4128389,
+        "native_step_ms": 30.818905343767256
+      },
+      "raise_1": {
+        "frames": 60,
+        "mean_ms": 39.79107738333334,
+        "fps": 25.131262226613,
+        "p95_ms": 40.5568624,
+        "native_step_ms": 26.556374477998663
+      },
+      "reposition_2": {
+        "frames": 180,
+        "mean_ms": 42.585278205555554,
+        "fps": 23.482293462381158,
+        "p95_ms": 44.41541675,
+        "native_step_ms": 29.35494535486214
+      },
+      "incise_2": {
+        "frames": 300,
+        "mean_ms": 46.62016188333334,
+        "fps": 21.449946967204742,
+        "p95_ms": 51.38079140000001,
+        "native_step_ms": 33.17171960913887
+      },
+      "open_2": {
+        "frames": 60,
+        "mean_ms": 45.47306141666666,
+        "fps": 21.991041923416283,
+        "p95_ms": 47.56088045,
+        "native_step_ms": 32.29984727804549
+      },
+      "raise_2": {
+        "frames": 60,
+        "mean_ms": 43.82735943333333,
+        "fps": 22.816797838827593,
+        "p95_ms": 44.5019524,
+        "native_step_ms": 30.54149148132031
+      },
+      "reposition_3": {
+        "frames": 180,
+        "mean_ms": 43.746342399999996,
+        "fps": 22.859053926300366,
+        "p95_ms": 44.57982375,
+        "native_step_ms": 30.53618210251443
+      },
+      "incise_3": {
+        "frames": 300,
+        "mean_ms": 46.92492318,
+        "fps": 21.310636911734203,
+        "p95_ms": 52.592180150000004,
+        "native_step_ms": 33.35624205375401
+      },
+      "raise_3": {
+        "frames": 60,
+        "mean_ms": 46.776008100000006,
+        "fps": 21.378480990984777,
+        "p95_ms": 47.91684915,
+        "native_step_ms": 33.36480747675523
+      },
+      "withdraw": {
+        "frames": 240,
+        "mean_ms": 42.31505336666667,
+        "fps": 23.63225189236655,
+        "p95_ms": 46.56301055,
+        "native_step_ms": 29.02944949795104
+      },
+      "release": {
+        "frames": 90,
+        "mean_ms": 39.814971077777784,
+        "fps": 25.116180495184064,
+        "p95_ms": 40.7806661,
+        "native_step_ms": 26.53784984205332
+      },
+      "hold": {
+        "frames": 60,
+        "mean_ms": 39.54080375000001,
+        "fps": 25.29033062460193,
+        "p95_ms": 39.892156299999996,
+        "native_step_ms": 26.441130583407357
+      }
+    },
+    "gpu": {
+      "samples": 56,
+      "memory_peak_mib": 2136.0,
+      "utilization_mean_pct": 72.92857142857143,
+      "memory_controller_utilization_mean_pct": 2.9107142857142856,
+      "power_mean_w": 104.47946428571429
+    },
+    "quality": {
+      "frames": 2820,
+      "all_checked_metrics_passed": true,
+      "min_volume_ratio": 0.1499992161989212,
+      "max_invalid_tets": 0,
+      "max_healed_edges": 0,
+      "max_unexpected_neighbor_changes": 0,
+      "total_new_cut_edges": 204,
+      "max_blade_body_overlap_m": 9.448185563087463e-05,
+      "max_wrist_overlap_m": 0.0,
+      "min_instrument_distance_m": -3.969009771227381e-06
+    }
+  },
+  "candidate": {
+    "cases": [
+      "final-b1-runtime",
+      "final-b2-runtime"
+    ],
+    "performance": {
+      "frames": 2820,
+      "mean_ms": 40.252772253191495,
+      "fps": 24.843009413363166,
+      "p50_ms": 41.777622,
+      "p95_ms": 46.23718274999999,
+      "p99_ms": 52.38069906999999,
+      "max_ms": 65.189422,
+      "over_40ms": 1529,
+      "over_50ms": 51,
+      "rolling20_min_hz": 19.613484436872696
+    },
+    "modules_ms": {
+      "native_step": 26.8366117409764,
+      "quality_including_surface": 2.39777856936566,
+      "snapshot": 1.4322917626473841,
+      "render_rgbd": 8.277349268439716,
+      "control_policy_other": 1.3087409117623352
+    },
+    "stages": {
+      "approach": {
+        "frames": 330,
+        "mean_ms": 31.0219719,
+        "fps": 32.235217130088365,
+        "p95_ms": 31.71510295,
+        "native_step_ms": 17.764130149347086
+      },
+      "bite": {
+        "frames": 90,
+        "mean_ms": 30.92027005555555,
+        "fps": 32.34124405133799,
+        "p95_ms": 31.715241499999998,
+        "native_step_ms": 17.85101781392263
+      },
+      "close": {
+        "frames": 90,
+        "mean_ms": 33.834429799999995,
+        "fps": 29.555692408920105,
+        "p95_ms": 37.7363106,
+        "native_step_ms": 20.529483576926093
+      },
+      "lift": {
+        "frames": 120,
+        "mean_ms": 37.730141616666664,
+        "fps": 26.504008655993662,
+        "p95_ms": 38.29819245,
+        "native_step_ms": 24.462845582941856
+      },
+      "blade_approach": {
+        "frames": 240,
+        "mean_ms": 37.846311212500005,
+        "fps": 26.422654360822268,
+        "p95_ms": 38.403746899999994,
+        "native_step_ms": 24.539260572055355
+      },
+      "incise_1": {
+        "frames": 300,
+        "mean_ms": 44.90771145666667,
+        "fps": 22.2678904705474,
+        "p95_ms": 51.7126892,
+        "native_step_ms": 31.049407054282103
+      },
+      "open_1": {
+        "frames": 60,
+        "mean_ms": 42.67570695,
+        "fps": 23.43253507602409,
+        "p95_ms": 46.408729949999994,
+        "native_step_ms": 29.250719881383702
+      },
+      "raise_1": {
+        "frames": 60,
+        "mean_ms": 38.33582031666667,
+        "fps": 26.085264166507102,
+        "p95_ms": 38.95906645,
+        "native_step_ms": 25.125308307663847
+      },
+      "reposition_2": {
+        "frames": 180,
+        "mean_ms": 41.140217888888884,
+        "fps": 24.307114821335915,
+        "p95_ms": 42.819804049999995,
+        "native_step_ms": 27.77826169298755
+      },
+      "incise_2": {
+        "frames": 300,
+        "mean_ms": 44.99992007333333,
+        "fps": 22.222261692251177,
+        "p95_ms": 48.39147055000001,
+        "native_step_ms": 31.41262035855713
+      },
+      "open_2": {
+        "frames": 60,
+        "mean_ms": 43.969755166666666,
+        "fps": 22.7429058044448,
+        "p95_ms": 45.527092,
+        "native_step_ms": 30.56084632407874
+      },
+      "raise_2": {
+        "frames": 60,
+        "mean_ms": 42.2890787,
+        "fps": 23.646767220776557,
+        "p95_ms": 42.879771549999994,
+        "native_step_ms": 28.96960662328638
+      },
+      "reposition_3": {
+        "frames": 180,
+        "mean_ms": 42.18382662777778,
+        "fps": 23.70576782480673,
+        "p95_ms": 43.0924453,
+        "native_step_ms": 28.871800252495127
+      },
+      "incise_3": {
+        "frames": 300,
+        "mean_ms": 45.49408639666667,
+        "fps": 21.980878817543847,
+        "p95_ms": 50.87683955,
+        "native_step_ms": 31.901013804987695
+      },
+      "raise_3": {
+        "frames": 60,
+        "mean_ms": 44.86695316666667,
+        "fps": 22.2881191928793,
+        "p95_ms": 46.142384549999996,
+        "native_step_ms": 31.34431921450111
+      },
+      "withdraw": {
+        "frames": 240,
+        "mean_ms": 40.53535597916666,
+        "fps": 24.669821587701236,
+        "p95_ms": 44.2273067,
+        "native_step_ms": 27.26509024942061
+      },
+      "release": {
+        "frames": 90,
+        "mean_ms": 38.305499288888896,
+        "fps": 26.105912168336246,
+        "p95_ms": 38.87027865,
+        "native_step_ms": 25.02555377755521
+      },
+      "hold": {
+        "frames": 60,
+        "mean_ms": 38.56416225,
+        "fps": 25.93081093055509,
+        "p95_ms": 39.1605669,
+        "native_step_ms": 25.349666523591925
+      }
+    },
+    "gpu": {
+      "samples": 54,
+      "memory_peak_mib": 2136.0,
+      "utilization_mean_pct": 72.29629629629629,
+      "memory_controller_utilization_mean_pct": 3.0,
+      "power_mean_w": 106.98685185185185
+    },
+    "quality": {
+      "frames": 2820,
+      "all_checked_metrics_passed": true,
+      "min_volume_ratio": 0.14999882876873016,
+      "max_invalid_tets": 0,
+      "max_healed_edges": 0,
+      "max_unexpected_neighbor_changes": 0,
+      "total_new_cut_edges": 195,
+      "max_blade_body_overlap_m": 6.268423386378217e-05,
+      "max_wrist_overlap_m": 0.0,
+      "min_instrument_distance_m": -1.8245421463129003e-05
+    }
+  },
+  "cases": [
+    {
+      "name": "final-a1-v8",
+      "completed": true,
+      "quality_passed": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 41.61069606453901,
+        "p50_ms": 43.3150885,
+        "p95_ms": 49.25163985,
+        "p99_ms": 54.75931662,
+        "max_ms": 67.368236,
+        "fps": 24.032282431636812,
+        "over_50ms": 50,
+        "rolling20_min_hz": 19.357396121432483
+      },
+      "parts_ms": {
+        "native_step": 28.350066362652292,
+        "quality_including_surface_export": 2.3995578152801285,
+        "snapshot": 1.3814411330010399,
+        "render_and_rgbd": 8.167303461702128,
+        "other_control_policy_python": 1.3123272919034292
+      },
+      "parts_pct": {
+        "native_step": 68.13168017829064,
+        "quality_including_surface_export": 5.7666851127853445,
+        "snapshot": 3.3199183470961344,
+        "render_and_rgbd": 19.627894349651058,
+        "other_control_policy_python": 3.1538220121768297
+      },
+      "gpu": {
+        "samples": 28,
+        "sampling_interval_s": 2,
+        "memory_peak_mib": 2136.0,
+        "gpu_utilization_mean_pct": 73.10714285714286,
+        "memory_controller_utilization_mean_pct": 2.9285714285714284,
+        "power_mean_w": 104.60892857142858,
+        "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+      }
+    },
+    {
+      "name": "final-b1-runtime",
+      "completed": true,
+      "quality_passed": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 40.29382954893617,
+        "p50_ms": 41.962248,
+        "p95_ms": 46.5345691,
+        "p99_ms": 52.522167440000004,
+        "max_ms": 65.189422,
+        "fps": 24.817695691731583,
+        "over_50ms": 28,
+        "rolling20_min_hz": 19.613484436872696
+      },
+      "parts_ms": {
+        "native_step": 26.864205221051073,
+        "quality_including_surface_export": 2.38920310693826,
+        "snapshot": 1.4688002670527245,
+        "render_and_rgbd": 8.273625278014185,
+        "other_control_policy_python": 1.2979956758799318
+      },
+      "parts_pct": {
+        "native_step": 66.67076701762723,
+        "quality_including_surface_export": 5.929451565373337,
+        "snapshot": 3.64522380596486,
+        "render_and_rgbd": 20.533231441717415,
+        "other_control_policy_python": 3.221326169317161
+      },
+      "gpu": {
+        "samples": 27,
+        "sampling_interval_s": 2,
+        "memory_peak_mib": 2136.0,
+        "gpu_utilization_mean_pct": 72.55555555555556,
+        "memory_controller_utilization_mean_pct": 3.0,
+        "power_mean_w": 107.24740740740741,
+        "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+      }
+    },
+    {
+      "name": "final-b2-runtime",
+      "completed": true,
+      "quality_passed": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 40.21171495744681,
+        "p50_ms": 41.6803335,
+        "p95_ms": 46.07688555,
+        "p99_ms": 52.204771440000016,
+        "max_ms": 64.1805,
+        "fps": 24.86837482704303,
+        "over_50ms": 23,
+        "rolling20_min_hz": 20.436105823890326
+      },
+      "parts_ms": {
+        "native_step": 26.809018260901727,
+        "quality_including_surface_export": 2.4063540317930596,
+        "snapshot": 1.3957832582420437,
+        "render_and_rgbd": 8.281073258865248,
+        "other_control_policy_python": 1.3194861476447315
+      },
+      "parts_pct": {
+        "native_step": 66.66967148571455,
+        "quality_including_surface_export": 5.984211402919603,
+        "snapshot": 3.4710861243274542,
+        "render_and_rgbd": 20.593683377166375,
+        "other_control_policy_python": 3.281347609872023
+      },
+      "gpu": {
+        "samples": 27,
+        "sampling_interval_s": 2,
+        "memory_peak_mib": 2134.0,
+        "gpu_utilization_mean_pct": 72.03703703703704,
+        "memory_controller_utilization_mean_pct": 3.0,
+        "power_mean_w": 106.7262962962963,
+        "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+      }
+    },
+    {
+      "name": "final-a2-v8",
+      "completed": true,
+      "quality_passed": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 41.67075829787234,
+        "p50_ms": 43.477989,
+        "p95_ms": 48.449239500000004,
+        "p99_ms": 55.61803189000001,
+        "max_ms": 71.670191,
+        "fps": 23.997643451836556,
+        "over_50ms": 47,
+        "rolling20_min_hz": 18.957640506810947
+      },
+      "parts_ms": {
+        "native_step": 28.197667855977457,
+        "quality_including_surface_export": 2.415283158725352,
+        "snapshot": 1.36539382011306,
+        "render_and_rgbd": 8.386144909929078,
+        "other_control_policy_python": 1.3062685531273956
+      },
+      "parts_pct": {
+        "native_step": 67.66775793810595,
+        "quality_including_surface_export": 5.796110407831656,
+        "snapshot": 3.2766234066414275,
+        "render_and_rgbd": 20.124771548391198,
+        "other_control_policy_python": 3.134736699029766
+      },
+      "gpu": {
+        "samples": 28,
+        "sampling_interval_s": 2,
+        "memory_peak_mib": 2136.0,
+        "gpu_utilization_mean_pct": 72.75,
+        "memory_controller_utilization_mean_pct": 2.892857142857143,
+        "power_mean_w": 104.35,
+        "scope": "measurement window only; NVML sampled percentages, not SM occupancy or achieved memory bandwidth"
+      }
+    }
+  ],
+  "fps_gain_pct": 3.448097734198008,
+  "native_step_reduction_pct": 5.083334949484031,
+  "stable_25hz_approved": false,
+  "all_20frame_windows_above_20hz": false,
+  "formal_physics_domain_approved": false,
+  "training_domain_approved": false,
+  "scope": "single env, original wall-traction seed0 1410-step three-incision path, CPU-returned 1280x960 RGB-D plus policy observation; desktop/video transport and dense privileged labels excluded"
+}

@@ -1,0 +1,80 @@
+{
+  "name": "query-specialized-v7b-rgbd-proof",
+  "kind": "rgbd-validated",
+  "core": 108800,
+  "library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/query-specialized-v7b.so",
+  "library_sha256": "7587c8925239431ae6ab8801beecf7f1cb97b3eb7a3e95442073d5f0b24efaec",
+  "command": [
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/check_current_frame_final_cache.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/query-specialized-v7b.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/query-specialized-v7b-rgbd-proof",
+    "--query-mode",
+    "3",
+    "--query-threads",
+    "64",
+    "--bound-cache",
+    "--core-optimizations",
+    "108800",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--assembly-blocks",
+    "512",
+    "--manifold-blocks",
+    "1024",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--validate-native"
+  ],
+  "started_unix": 1793785078.15612,
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "batch_observation": false,
+  "observation_validation": false,
+  "query_threads": 64,
+  "returncode": 0,
+  "finished_unix": 1793785152.8707917,
+  "passed": true,
+  "grip_feedback_validation": {
+    "returncode": 0,
+    "counters": [
+      32,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "passed": true
+  },
+  "zero_mode_gate_stats": {
+    "returncode": 0,
+    "host": [
+      1494,
+      705,
+      1494,
+      789,
+      0,
+      0,
+      0,
+      0
+    ],
+    "proof": [
+      384,
+      0,
+      87609600,
+      96,
+      0,
+      21902400,
+      0,
+      0
+    ],
+    "reference_coordinates_unchanged": true,
+    "reference_proof_executed": true
+  }
+}

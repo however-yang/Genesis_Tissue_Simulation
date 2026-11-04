@@ -1,0 +1,382 @@
+--- /dev/null
++++ b/vendor/cuda/contact/direct_query.cuh
+@@ -0,0 +1,237 @@
++// Generated from the unchanged V8 query; arithmetic and witnesses retained.
++__global__ void k_FindSurfaceGpuRecords(int triangles,unsigned packedKinds,bool bladeBatch,ContactShape from,ContactShape to,float skin,
++    const SurfaceVertex* vertices,const unsigned* masks,const float3* prev,const float3* pos,
++    SurfaceContact* contacts,int* degree,const float4* current,const float3* previous,
++    const CoupledTool* body,float thickness,float minGap,bool stationary,
++    const int* cacheSlots,const SurfaceContact* cache,const int* bladePhase,int stride,
++    const unsigned char* groupBase,int* groupedIds,int* groupedCounts,SurfaceContact* __restrict__ next){
++    int kind=(packedKinds>>(3*blockIdx.y))&7;
++    bool cacheComponents=bladeBatch && kind>=3;
++    if(bladeBatch){
++        if(kind<3){skin=0;cacheSlots=nullptr;cache=nullptr;}
++        else bladePhase=nullptr;
++    }
++    const unsigned char* groupRejected=groupBase?groupBase+kind*((triangles+63)/64):nullptr;
++    int* active=groupedIds+blockIdx.y*triangles;
++    int* activeCount=groupedCounts+blockIdx.y;
++    int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=triangles)return;
++    int slot=stride*t+kind;
++    // A carried cutting preload may survive outside the current tool AABB.
++    if(groupRejected && groupRejected[t/64] &&
++       !(body && bladePhase && (*bladePhase==0 || *bladePhase==4) && contacts[slot].count>0)){
++        contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;
++    }
++    if(body){from=bodyContactShape(body,stationary?body->pose:body->previous,kind,thickness,minGap);to=bodyContactShape(body,body->pose,kind,thickness,minGap);}
++    // Reject distant triangles before reading/probing the material-contact
++    // cache or copying a 24-node witness. This is the dominant no-contact path.
++    if(to.capsule?to.radius<=0:to.half.x<=0||to.half.z<=0){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
++    float3 q[3],p[3];
++    for(int k=0;k<3;k++){
++        float4 point=current[3*t+k];if(point.w==0){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
++        q[k]=mkf3(point.x,point.y,point.z);p[k]=previous[3*t+k];
++    }
++    // An unfractured surface is a unilateral barrier on its incident side.
++    // Re-querying the closest side of a thin cylinder every substep caps the
++    // preload at K*radius, then reverses the normal and lets the blade through.
++    // Carry this material witness until fracture or separation, including cut
++    // components. Rebind its interpolation below to the current reconstruction.
++    bool preload=body && to.capsule && bladePhase && (*bladePhase==0 || *bladePhase==4) && contacts[slot].count>0;
++    for(int k=0;k<3 && preload;k++)preload=contacts[slot].owner[k]==vertices[3*t+k].voxel &&
++        contacts[slot].mask[k]==vertices[3*t+k].mask && contacts[slot].component[k]==vertices[3*t+k].component;
++    ContactRecord preloadPlane={};float3 preloadBary=mkf3(0,0,0);
++    if(preload){
++        const SurfaceContact& old=contacts[slot];preloadBary=bladeTriangleWitness(to,q);
++        float3 normal=rotateShaftVector(old.referenceShape,to,old.plane.normal);
++        float3 end=witnessAt(old.referenceShape,to,old.plane.target-old.plane.normal*skin);
++        float3 x=q[0]*preloadBary.x+q[1]*preloadBary.y+q[2]*preloadBary.z;
++        // Project onto the incident plane and require the finite capsule's
++        // footprint. This is not an infinite plane or an enlarged collision box.
++        float gap=dot3(x-end,normal);float3 nn,ss;
++        float lateral=shapeDistance(to,x-normal*(gap+to.radius),nn,ss);
++        preload=gap<=0 && lateral<=fmaxf(1e-6f,1e-3f*to.radius);
++        if(preload){preloadPlane.normal=normal;preloadPlane.target=end+normal*skin;
++            preloadPlane.motion=end-witnessAt(to,from,end);preloadPlane.valid=1;}
++    }
++    float3 lo,hi,l0,h0;shapeBounds(to,skin,lo,hi);shapeBounds(from,skin,l0,h0);
++    // Endpoint OBB bounds alone miss intermediate rotational sweeps.
++    if(!to.capsule && (len3(to.u-from.u)+len3(to.n-from.n)>1e-5f)){
++        float r=len3(to.half)+skin;float3 extent=mkf3(r,r,r);lo=to.center-extent;hi=to.center+extent;l0=from.center-extent;h0=from.center+extent;
++    }
++    for(int ax=0;ax<3;ax++){
++        float mn=1e30f,mx=-1e30f;for(int k=0;k<3;k++){mn=fminf(mn,fminf(compF3(q[k],ax),compF3(p[k],ax)));mx=fmaxf(mx,fmaxf(compF3(q[k],ax),compF3(p[k],ax)));}
++        if(!preload && (mx<fminf(compF3(lo,ax),compF3(l0,ax)) || mn>fmaxf(compF3(hi,ax),compF3(h0,ax)))){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
++    }
++    // Persist a material witness while its triangle owners and cut masks match.
++    // A nearest-face query inside a thin jaw can otherwise flip its normal and
++    // push tissue through the opposite face on the next substep.
++    // Retain the incident side only for the same voxel, cut mask AND component.
++    // The actual material witness is rebuilt below from current vertex weights.
++    const SurfaceContact* retained=nullptr;bool keep=body && contacts[slot].count>0;
++    for(int k=0;k<3 && keep;k++)keep=vertices[3*t+k].count>0 &&
++        contacts[slot].component[k]==vertices[3*t+k].component &&
++        contacts[slot].owner[k]==vertices[3*t+k].voxel && contacts[slot].mask[k]==vertices[3*t+k].mask;
++    if(keep)retained=&contacts[slot];
++    if(!keep && body && cacheSlots && cache && cacheComponents){
++        uint3 key[3];bool valid=true;
++        for(int k=0;k<3;k++){const SurfaceVertex& v=vertices[3*t+k];valid=valid && v.count>0;key[k]=make_uint3(v.voxel,v.mask,v.component+1);}
++        if(valid){
++            sortMaterialKey(key);unsigned hash=materialContactHash(key,kind);
++            for(int probe=0;probe<CONTACT_CACHE_SIZE;probe++){
++                unsigned slot=(hash+probe)&(CONTACT_CACHE_SIZE-1);if(cacheSlots[slot]<0)break;
++                if(sameMaterialContactKey(cache[slot],key,kind)){retained=&cache[slot];keep=true;break;}
++            }
++        }
++    }
++    if(!keep && body && cacheSlots && cache && !cacheComponents){
++        int key[3];bool intact=true;
++        for(int k=0;k<3;k++){const SurfaceVertex& v=vertices[3*t+k];key[k]=v.voxel;intact=intact && v.count>0 && v.component<0 && v.mask==0;}
++        if(intact){
++            contactKey(key);unsigned h=contactHash(key,kind);
++            for(int probe=0;probe<CONTACT_CACHE_SIZE;probe++){
++                unsigned s=(h+probe)&(CONTACT_CACHE_SIZE-1);if(cacheSlots[s]<0)break;
++                if(sameContactKey(cache[s],key,kind)){
++                    retained=&cache[s];keep=true;
++                    // Retained owner/mask are not consumed below; output uses the current vertices.
++                    break;
++                }
++            }
++        }
++    }
++    // Rejected triangles have no live contact. Do not clear the full 24-node
++    // stencil for every triangle, jaw and substep: only the validity fields.
++    const int retainedCount=keep?retained->count:0;
++    contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;
++    ContactRecord retainedPlane={};
++    if(keep){
++        float3 x=retained->offset,old=x;
++        for(int j=0;j<retainedCount;j++){x=x+pos[retained->id[j]]*retained->weight[j];old=old+prev[retained->id[j]]*retained->weight[j];}
++        float3 normal=retained->plane.normal;
++        float3 start=witnessAt(retained->referenceShape,from,retained->plane.target-normal*skin);
++        if(!to.capsule)normal=contactUnit(from.u*dot3(normal,retained->referenceShape.u)+from.n*dot3(normal,retained->referenceShape.n)+from.w*dot3(normal,retained->referenceShape.w),normal);
++        float3 fromNormal=normal;
++        float3 end=witnessAt(from,to,start),nn,ss;
++        float distance=shapeDistance(to,x,nn,ss);
++        if(to.capsule)normal=rotateShaftVector(from,to,normal);
++        else normal=contactUnit(to.u*dot3(normal,from.u)+to.n*dot3(normal,from.n)+to.w*dot3(normal,from.w),normal);
++        // Only retain while within the current finite tool. No infinite-plane
++        // adhesion when the witness slides off a jaw edge or withdraws.
++        // A material witness may slide past the finite face while another part
++        // of its triangle is still inside the jaw. Dropping the incident side
++        // based on that one witness lets a nearest-face query flip through a
++        // thin blade. Retain a box contact using the whole finite triangle;
++        // release still occurs when its finite overlap disappears.
++        float finiteDistance=to.capsule?distance:triangleBoxGap(to,q[0],q[1],q[2]);
++        // The inertial predictor may leave the finite face, then be rejected by
++        // the material solve. Keep its entry side for the complete swept pair;
++        // inspecting only the predicted endpoint discards the accepted contact
++        // before CCD starts from that same touching configuration. At a corner
++        // the fresh nearest-face query can then select opposite sides on
++        // triangles sharing one node. The finite manifold still drops samples
++        // outside the CURRENT footprint and positive gaps exert no force.
++        float signedDistance=dot3(x-end,normal);
++        if(!to.capsule)signedDistance=fminf(dot3(q[0]-end,normal),fminf(dot3(q[1]-end,normal),dot3(q[2]-end,normal)));
++        bool startContact=false;
++        if(!to.capsule){
++            float startDistance=fminf(dot3(p[0]-start,fromNormal),fminf(dot3(p[1]-start,fromNormal),dot3(p[2]-start,fromNormal)));
++            startContact=triangleBoxGap(from,p[0],p[1],p[2])<=2.f*skin && startDistance<=2.f*skin;
++        }
++        if(startContact || (finiteDistance<=2.f*skin && signedDistance<=2.f*skin)){
++            // Keep the incident SIDE, not a stale barycentric witness. A triangle
++            // can rotate about its first contact while another portion penetrates.
++            retainedPlane.normal=normal;retainedPlane.valid=1;
++            retainedPlane.target=end+normal*skin;retainedPlane.motion=end-start;
++        }
++    }
++    SurfaceContact& out=next[slot];out=SurfaceContact{};out.kind=kind;
++    float3 bary=mkf3(0,0,0);
++    if(preload){bary=preloadBary;out.plane=preloadPlane;}
++    else if(retainedPlane.valid && !to.capsule){
++        bary=triangleWitness(to,q[0],q[1],q[2]);
++        out.plane=retainedPlane;out.stick=retained->stick;
++        float3 normal=out.plane.normal;
++        // Supporting plane on the retained incident side, on the finite box.
++        // Previous positions use the same refreshed material interpolation.
++        float support=fabsf(dot3(normal,to.u))*to.half.x+
++            fabsf(dot3(normal,to.n))*to.half.y+fabsf(dot3(normal,to.w))*to.half.z;
++        float3 x=q[0]*bary.x+q[1]*bary.y+q[2]*bary.z;
++        float3 surface=x+normal*(support-dot3(x-to.center,normal));
++        out.plane.target=surface+normal*skin;
++        out.plane.motion=surface-witnessAt(to,from,surface);
++    }else if(to.capsule){
++        bary=bladePhase?bladeTriangleWitness(to,q):triangleWitness(to,q[0],q[1],q[2]);
++        out.plane=traceToolContact(from,to,skin,p[0]*bary.x+p[1]*bary.y+p[2]*bary.z,q[0]*bary.x+q[1]*bary.y+q[2]*bary.z);
++        // The swept endpoint witness is not the first point on a face hit by
++        // a grazing capsule. Its radial TOI normal can be almost tangential,
++        // and persisting that normal artificially caps the preload. On the
++        // interior of a triangle use its incident face normal; keep edge/vertex
++        // contacts radial and retain the finite capsule footprint checks.
++        if(bladePhase && (*bladePhase==0 || *bladePhase==2 || *bladePhase==4) && out.plane.valid &&
++           fminf(bary.x,fminf(bary.y,bary.z))>1e-4f){
++            float3 normal=cross3(q[1]-q[0],q[2]-q[0]);
++            if(dot3(normal,normal)>1e-16f){
++                normal=contactUnit(normal,out.plane.normal);
++                float3 oldPoint=p[0]*bary.x+p[1]*bary.y+p[2]*bary.z;
++                float3 oldAxis=from.b-from.a;
++                float oldT=fminf(1.f,fmaxf(0.f,dot3(oldPoint-from.a,oldAxis)/fmaxf(dot3(oldAxis,oldAxis),1e-20f)));
++                if(dot3(normal,oldPoint-(from.a+oldAxis*oldT))<0)normal=normal*(-1.f);
++                float3 point=q[0]*bary.x+q[1]*bary.y+q[2]*bary.z,axis=to.b-to.a;
++                float tLine=fminf(1.f,fmaxf(0.f,dot3(point-to.a,axis)/fmaxf(dot3(axis,axis),1e-20f)));
++                float3 surface=to.a+axis*tLine+normal*to.radius;
++                out.plane.normal=normal;out.plane.target=surface+normal*skin;
++                out.plane.motion=surface-witnessAt(to,from,surface);
++            }
++        }
++    }else out.plane=traceTriangleBox(from,to,skin,p,q,bary);
++    float3 x=q[0]*bary.x+q[1]*bary.y+q[2]*bary.z;
++    float3 old=p[0]*bary.x+p[1]*bary.y+p[2]*bary.z;
++    if(!out.plane.valid)return;
++    if(body && !to.capsule){
++        // A finite face manifold must use an actual OBB face, not a corner SDF
++        // diagonal extended into an artificial slanted supporting half-space.
++        float3 axes[3]={to.u,to.n,to.w};int face=0;
++        for(int a=1;a<3;a++)if(fabsf(dot3(out.plane.normal,axes[a]))>fabsf(dot3(out.plane.normal,axes[face])))face=a;
++        float sign=dot3(out.plane.normal,axes[face])>=0?1.f:-1.f;
++        out.plane.normal=axes[face]*sign;
++        float3 surface=x+out.plane.normal*(compF3(to.half,face)-dot3(x-to.center,out.plane.normal));
++        out.plane.target=surface+out.plane.normal*skin;
++        out.plane.motion=surface-witnessAt(to,from,surface);
++    }
++    if(body && stationary){
++        float3 surface=out.plane.target-out.plane.normal*skin;
++        out.plane.motion=surface-witnessAt(to,bodyContactShape(body,body->previous,kind,thickness,minGap),surface);
++    }
++    out.previous=old;
++    out.toolOrigin=body?body->pose.jawHinge:mkf3(0,0,0);
++    out.referenceShape=to;out.toolGap=body?body->pose.jawGap:0;
++    out.gapGradient=body?jawGapGradient(body->pose,kind,thickness,minGap,out.plane.target-out.plane.normal*skin,body):mkf3(0,0,0);
++    out.incoming=dot3(x-old-out.plane.motion,out.plane.normal)<0;
++    for(int k=0;k<3;k++){
++        const SurfaceVertex& v=vertices[3*t+k];
++        out.owner[k]=v.voxel;out.mask[k]=v.mask;out.component[k]=v.component;
++        out.offset=out.offset+v.offset*compF3(bary,k);
++        for(int j=0;j<v.count;j++){
++            float w=compF3(bary,k)*v.weight[j];if(w<1e-8f)continue;
++            int id=v.id[j],s=0;while(s<out.count && out.id[s]!=id)s++;
++            if(s==out.count){out.id[s]=id;out.count++;}
++            out.weight[s]+=w;
++        }
++    }
++    for(int j=0;j<out.count;j++)atomicAdd(&degree[out.id[j]],1);
++    if(out.count)active[atomicAdd(activeCount,1)]=slot;
++}
++
++// Copy only emitted valid records, one warp per record. Rejected entries
++// already received the original three validity writes in the query kernel.
++// No next query or solver consumer can run before this stream dependency.
++__global__ void k_CommitGpuQueryRecords(int triangles,const int* grouped,const int* counts,
++    const SurfaceContact* __restrict__ next,SurfaceContact* __restrict__ contacts){
++    const int lane=threadIdx.x&31,warp=(blockIdx.x*blockDim.x+threadIdx.x)/32;
++    const int stride=gridDim.x*blockDim.x/32,kind=blockIdx.y;
++    for(int index=warp;index<counts[kind];index+=stride){
++        int id=grouped[kind*triangles+index];
++        const unsigned* source=reinterpret_cast<const unsigned*>(next+id);
++        unsigned* destination=reinterpret_cast<unsigned*>(contacts+id);
++        for(int word=lane;word<sizeof(SurfaceContact)/sizeof(unsigned);word+=32)destination[word]=source[word];
++    }
++}
++static int g_directQueryMode=0;
+--- a/vendor/cuda/contact/surface_contact.cuh
++++ b/vendor/cuda/contact/surface_contact.cuh
+@@ -758,6 +758,8 @@
+     if(out.count)active[atomicAdd(activeCount,1)]=slot;
+ }
+ 
++#include "direct_query.cuh"
++
+ static_assert(sizeof(SurfaceContact)%sizeof(unsigned)==0,"Contact byte comparison must cover every byte");
+ // Scheduling-only workspace. Recomputed every group, never physical snapshot state.
+ template<class T> static cudaError_t queryPrivateAlloc(T** p,size_t bytes){return (::cudaMalloc)(reinterpret_cast<void**>(p),bytes);}
+@@ -766,7 +768,7 @@
+ constexpr int QUERY_MAX_SLOTS=6*QUERY_MAX_TRIANGLES;
+ struct QueryGroupWorkspace {
+     int* ids=nullptr;int* counts=nullptr;
+-    SurfaceContact *before=nullptr,*reference=nullptr;
++    SurfaceContact *before=nullptr,*reference=nullptr,*direct=nullptr;
+     int *degreeBefore=nullptr,*degreeRef=nullptr,*activeBefore=nullptr,*activeRef=nullptr;
+     int *countBefore=nullptr,*countRef=nullptr,*frequencies=nullptr,*bad=nullptr;
+ };
+@@ -779,7 +781,7 @@
+ static void freeQueryGroups(){
+     cudaDeviceSynchronize();
+     for(auto& w:g_queryWorkspace){
+-        queryPrivateFree(w.ids);queryPrivateFree(w.counts);queryPrivateFree(w.before);queryPrivateFree(w.reference);
++        queryPrivateFree(w.ids);queryPrivateFree(w.counts);queryPrivateFree(w.before);queryPrivateFree(w.reference);queryPrivateFree(w.direct);
+         queryPrivateFree(w.degreeBefore);queryPrivateFree(w.degreeRef);queryPrivateFree(w.activeBefore);queryPrivateFree(w.activeRef);
+         queryPrivateFree(w.countBefore);queryPrivateFree(w.countRef);queryPrivateFree(w.frequencies);queryPrivateFree(w.bad);w={};
+     }
+@@ -791,6 +793,7 @@
+     for(auto& w:g_queryWorkspace){
+         cudaError_t e=queryPrivateAlloc(&w.ids,QUERY_MAX_SLOTS*sizeof(int));if(e!=cudaSuccess)return e;
+         e=queryPrivateAlloc(&w.counts,6*sizeof(int));if(e!=cudaSuccess)return e;
++        if(g_directQueryMode){e=queryPrivateAlloc(&w.direct,QUERY_MAX_SLOTS*sizeof(SurfaceContact));if(e!=cudaSuccess)return e;}
+     }return cudaSuccess;
+ }
+ static cudaError_t allocateQueryValidation(int nodes){
+@@ -887,8 +890,14 @@
+     QueryGroupWorkspace& w=g_queryWorkspace[index];
+     auto batched=[&](){
+         cudaMemsetAsync(w.counts,0,6*sizeof(int),stream);
++        if(g_directQueryMode && w.direct){
++            k_FindSurfaceGpuRecords<<<dim3((triangles+g_queryThreads-1)/g_queryThreads,kindCount),g_queryThreads,0,stream>>>(triangles,packed,bladeBatch,from,to,skin,
++                vertices,masks,prev,pos,contacts,degree,current,previous,body,thickness,minGap,stationary,cacheSlots,cache,bladePhase,stride,groupBase,w.ids,w.counts,w.direct);
++            k_CommitGpuQueryRecords<<<dim3(32,kindCount),128,0,stream>>>(triangles,w.ids,w.counts,w.direct,contacts);
++        }else{
+         k_FindSurfaceBatched<<<dim3((triangles+g_queryThreads-1)/g_queryThreads,kindCount),g_queryThreads,0,stream>>>(triangles,packed,bladeBatch,from,to,skin,
+             vertices,masks,prev,pos,contacts,degree,current,previous,body,thickness,minGap,stationary,cacheSlots,cache,bladePhase,stride,groupBase,w.ids,w.counts);
++        }
+         k_AppendQueryKinds<<<1,256,0,stream>>>(triangles,kindCount,w.ids,w.counts,active,activeCount);
+     };
+     if(!g_queryValidate){batched();return;}
+--- a/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -116,6 +116,40 @@
+ static float3* d_fragmentBefore=nullptr;
+ static float3* d_fragmentStart=nullptr;
+ // Host-only diagnosis; no device synchronization or changed GPU work.
++// Host-only graph lifecycle optimization. The physics state and every device
++// kernel are unchanged. It is opt-in, fixed before initialization, and falls
++// back to the original rebuild on CUDA's documented update rejection.
++static int g_runtimeCoreMode=0;
++static bool runtimeSolverInitialized();
++static unsigned long long g_runtimeGraphStats[8]={};
++extern "C" LCS_COMBINED_EXPORT int LCS_SetRuntimeCoreMode(int mode){
++    if(mode&~(256|512))return -10001;
++    if(runtimeSolverInitialized() && mode!=g_runtimeCoreMode)return -10002;
++    g_runtimeCoreMode=mode;g_directQueryMode=(mode&512)!=0;return 0;
++}
++extern "C" LCS_COMBINED_EXPORT int LCS_ReadRuntimeGraphStats(unsigned long long* out,int capacity){
++    if(!out||capacity<8)return -1;
++    for(int i=0;i<8;i++)out[i]=g_runtimeGraphStats[i];return 8;
++}
++static cudaError_t installRuntimeGraph(cudaGraphExec_t& executable,cudaGraph_t graph){
++    if(executable && (g_runtimeCoreMode&256)){
++        g_runtimeGraphStats[0]++;
++        cudaGraphExecUpdateResultInfo info={};
++        cudaError_t error=cudaGraphExecUpdate(executable,graph,&info);
++        if(error==cudaSuccess && info.result==cudaGraphExecUpdateSuccess){g_runtimeGraphStats[1]++;return cudaSuccess;}
++        if(error!=cudaSuccess && error!=cudaErrorGraphExecUpdateFailure)return error;
++        g_runtimeGraphStats[2]++;g_runtimeGraphStats[5]=(unsigned long long)info.result;
++        cudaGetLastError();
++    }
++    if(executable){
++        cudaError_t error=cudaGraphExecDestroy(executable);if(error!=cudaSuccess)return error;
++        executable=nullptr;g_runtimeGraphStats[4]++;
++    }
++    cudaError_t error=cudaGraphInstantiate(&executable,graph,0);
++    if(error==cudaSuccess)g_runtimeGraphStats[3]++;
++    return error;
++}
++
+ static int g_interactionStats[16]={};
+ extern "C" LCS_COMBINED_EXPORT int LCS_ReadInteractionStats(int* out,int capacity,int reset){
+     if(!out||capacity<16)return -1;for(int i=0;i<16;i++)out[i]=g_interactionStats[i];
+@@ -208,6 +242,7 @@
+ static std::vector<int> g_colorOff, g_colorCnt;   // host: [numColors] flat-range per colour
+ static int     g_numColors = 0;
+ static bool    g_ready = false;
++static bool runtimeSolverInitialized(){return g_ready;}
+ 
+ // M1 (design §9-(4)): the input-edge -> colour-slot PERMUTATION is PERSISTED, not discarded, so a
+ // runtime sever can be propagated to the colour-ordered d_edgeActive. The host inverse map serves the
+@@ -2904,8 +2939,7 @@
+             cudaError_t passError=launchFragmentPasses(g_captureStream,prepare,previous,discovery);
+             cudaGraph_t body=nullptr;e=cudaStreamEndCapture(g_captureStream,&body);if(passError!=cudaSuccess)e=passError;
+         }
+-        if(exec)cudaGraphExecDestroy(exec);exec=nullptr;
+-        if(e==cudaSuccess)e=cudaGraphInstantiate(&exec,graph,0);
++        if(e==cudaSuccess)e=installRuntimeGraph(exec,graph);
+         if(graph)cudaGraphDestroy(graph);
+         if(e!=cudaSuccess)return e;
+         g_fragmentPassKey[slot]=key;
+@@ -3037,8 +3071,7 @@
+         e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return e;
+         cudaError_t work=launchPredictedFragmentContact(g_captureStream);cudaGraph_t graph=nullptr;
+         e=cudaStreamEndCapture(g_captureStream,&graph);if(work!=cudaSuccess){if(graph)cudaGraphDestroy(graph);return work;}if(e!=cudaSuccess)return e;
+-        if(g_predictedFragmentGraph)cudaGraphExecDestroy(g_predictedFragmentGraph);g_predictedFragmentGraph=nullptr;
+-        e=cudaGraphInstantiate(&g_predictedFragmentGraph,graph,0);cudaGraphDestroy(graph);if(e!=cudaSuccess)return e;
++        e=installRuntimeGraph(g_predictedFragmentGraph,graph);cudaGraphDestroy(graph);if(e!=cudaSuccess)return e;
+         g_predictedFragmentKey=key;
+     }
+     return cudaGraphLaunch(g_predictedFragmentGraph,0);
+@@ -3455,8 +3488,7 @@
+             e=cudaStreamBeginCapture(g_captureStream,cudaStreamCaptureModeThreadLocal);if(e!=cudaSuccess)return -(int)e;
+             cudaError_t work=launchPrelude(g_captureStream);cudaGraph_t graph=nullptr;
+             e=cudaStreamEndCapture(g_captureStream,&graph);if(work!=cudaSuccess){if(graph)cudaGraphDestroy(graph);return -(int)work;}if(e!=cudaSuccess)return -(int)e;
+-            if(g_materialPreludeGraph)cudaGraphExecDestroy(g_materialPreludeGraph);g_materialPreludeGraph=nullptr;
+-            e=cudaGraphInstantiate(&g_materialPreludeGraph,graph,0);cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;
++            e=installRuntimeGraph(g_materialPreludeGraph,graph);cudaGraphDestroy(graph);if(e!=cudaSuccess)return -(int)e;
+             g_materialPreludeKey=key;
+         }
+         e=cudaGraphLaunch(g_materialPreludeGraph,0);
+--- a/vendor/src/plugin_api.cpp
++++ b/vendor/src/plugin_api.cpp
+@@ -326,4 +326,5 @@
+ LCS_API int LCS_CurrentBodyDepth(int count,const double* parameters,int flags,double* output){return recon_current_body_depth(count,parameters,flags,output);}
+ LCS_API int LCS_TestBodyDepth(int count,const float* positions,const double* parameters,int flags,double* output){return recon_test_body_depth(count,positions,parameters,flags,output);}
+ // V8 retains no experimental solver switches. Zero is the reference solver.
+-LCS_API int LCS_SetCoreOptimizations(int mode){return mode==0?0:-10001;}
++extern "C" int LCS_SetRuntimeCoreMode(int mode);
++LCS_API int LCS_SetCoreOptimizations(int mode){return LCS_SetRuntimeCoreMode(mode);}

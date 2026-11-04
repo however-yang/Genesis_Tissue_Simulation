@@ -1,0 +1,188 @@
+{
+  "name": "direct-query-v2b-profile",
+  "kind": "profile",
+  "core": 768,
+  "library": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/direct-query-v2b.so",
+  "library_sha256": "409b0e13f9c6d967fb737f20fc89c9d4a889c4025fecd1a220f66e23d655ed8c",
+  "command": [
+    "/opt/nvidia/nsight-systems/2025.3.2/bin/nsys",
+    "profile",
+    "--trace=cuda,nvtx,opengl",
+    "--sample=none",
+    "--cpuctxsw=none",
+    "--cuda-graph-trace=node",
+    "--capture-range=cudaProfilerApi",
+    "--capture-range-end=stop",
+    "--force-overwrite=false",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/direct-query-v2b-profile-trace",
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/tools/profile_all_queries.py",
+    "--source",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "--dll",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/native/binaries/direct-query-v2b.so",
+    "--output",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-runtime-20261104/results/direct-query-v2b-profile",
+    "--query-mode",
+    "3",
+    "--bound-cache",
+    "--core-optimizations",
+    "768",
+    "--gpu-topology",
+    "--gpu-body-check",
+    "--cpus",
+    "7,19,20,25",
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1",
+    "--profile",
+    "--start",
+    "470",
+    "--count",
+    "12",
+    "--max-frames",
+    "482"
+  ],
+  "started_unix": 1793779991.245295,
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "returncode": 0,
+  "finished_unix": 1793780081.674679,
+  "completed": false,
+  "quality_passed": true,
+  "performance": {
+    "frames": 482,
+    "mean_ms": 37.11684501659751,
+    "p50_ms": 38.608679499999994,
+    "p95_ms": 45.10923045,
+    "p99_ms": 55.08652134,
+    "max_ms": 90.350205,
+    "fps": 26.941945080537714,
+    "over_50ms": 12,
+    "rolling20_min_hz": 18.641780908238193
+  },
+  "interaction_stats": [
+    1539,
+    0,
+    789,
+    0,
+    750,
+    7,
+    5,
+    0,
+    2,
+    15094,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "runtime_graph_stats": [
+    16,
+    15,
+    1,
+    4,
+    1,
+    2,
+    0,
+    0
+  ],
+  "gpu_body_statistics": {
+    "calls": 482,
+    "gpu_calls": 482,
+    "cpu_fallbacks": 0,
+    "threshold_fallbacks": 0,
+    "paired_calls": 0,
+    "numeric_mismatches": 0,
+    "decision_mismatches": 0,
+    "max_abs_error_native_cm": 0.0
+  },
+  "mean_timings_ms": {
+    "native_step": 23.215838244978986,
+    "surface_export": 0.6222026137619654,
+    "quality_and_export": 2.5232044170336234,
+    "snapshot": 1.44723195561374,
+    "total": 27.291886158252744
+  },
+  "stages": {
+    "approach": {
+      "frames": 165,
+      "frame_ms": 32.43601851515152,
+      "render_ms": 8.639825581818181,
+      "timings_ms": {
+        "native_step": 18.57034659619923,
+        "surface_export": 0.6111765315643314,
+        "quality_and_export": 2.4766423951157113,
+        "snapshot": 1.3333350744549974,
+        "total": 22.480052682768665
+      }
+    },
+    "bite": {
+      "frames": 45,
+      "frame_ms": 32.310844511111114,
+      "render_ms": 8.489916577777779,
+      "timings_ms": {
+        "native_step": 18.623837062882053,
+        "surface_export": 0.6154120511685809,
+        "quality_and_export": 2.457270993747645,
+        "snapshot": 1.353797976238032,
+        "total": 22.53314833311985
+      }
+    },
+    "close": {
+      "frames": 45,
+      "frame_ms": 35.46368188888889,
+      "render_ms": 8.193242422222221,
+      "timings_ms": {
+        "native_step": 22.08742460028993,
+        "surface_export": 0.6202680032907261,
+        "quality_and_export": 2.445780959290763,
+        "snapshot": 1.378801858259572,
+        "total": 26.00830211304128
+      }
+    },
+    "lift": {
+      "frames": 60,
+      "frame_ms": 40.23296305,
+      "render_ms": 8.249769933333333,
+      "timings_ms": {
+        "native_step": 26.631305931368843,
+        "surface_export": 0.6257890743048241,
+        "quality_and_export": 2.476391630868117,
+        "snapshot": 1.498093013651669,
+        "total": 30.70289628424992
+      }
+    },
+    "blade_approach": {
+      "frames": 120,
+      "frame_ms": 40.40323311666667,
+      "render_ms": 8.313742416666667,
+      "timings_ms": {
+        "native_step": 26.726983602081116,
+        "surface_export": 0.6217802050135409,
+        "quality_and_export": 2.474324945554448,
+        "snapshot": 1.5171133263114218,
+        "total": 30.817445411230437
+      }
+    },
+    "incise_1": {
+      "frames": 47,
+      "frame_ms": 47.36503825531915,
+      "render_ms": 9.30139840425532,
+      "timings_ms": {
+        "native_step": 31.676674100689272,
+        "surface_export": 0.6657651194589252,
+        "quality_and_export": 3.008483076824787,
+        "snapshot": 1.7587094211039391,
+        "total": 36.613785939172224
+      }
+    }
+  }
+}
