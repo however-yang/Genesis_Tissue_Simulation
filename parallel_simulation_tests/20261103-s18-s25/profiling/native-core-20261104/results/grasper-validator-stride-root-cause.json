@@ -1,0 +1,35 @@
+{
+  "original_validation_failed": true,
+  "physics_frame_metrics_all_passed": true,
+  "record_differences": 0,
+  "degree_differences": 0,
+  "activity_differences": 0,
+  "root_cause": "blade-only diagnostic hardcoded contact slot stride=6; grasper slots have stride=3",
+  "positive_example_ids": [
+    0,
+    3,
+    1,
+    4,
+    2,
+    5
+  ],
+  "actual_kind_sequence": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2
+  ],
+  "old_wrong_kind_sequence": [
+    0,
+    3,
+    1,
+    4,
+    2,
+    5
+  ],
+  "acceptance_predicate_unchanged": "active kinds follow the original per-kind loop order; within-kind atomic order can vary",
+  "production_cuda_functions_changed": false,
+  "original_stride6_diagnostic_retained_verbatim": true
+}

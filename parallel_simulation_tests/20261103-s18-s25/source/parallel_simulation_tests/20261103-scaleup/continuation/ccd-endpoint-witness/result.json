@@ -1,0 +1,88 @@
+{
+  "found": true,
+  "diagnostic_only": true,
+  "native_execution_tested": false,
+  "source": "/srv/disk2/hryang/genesis-exec/runs/a100-functional-fixes-20261102-r1/release-training-r3/source/vendor/cuda/contact/fragment_contact.cuh",
+  "source_sha256": "4c926b582937906b6941c9ce8a2aa7bfe7739a3dfc887a8ae41908db7ea1df0f",
+  "original_acceptance_unchanged": true,
+  "witness": {
+    "previous_triangle_cm": [
+      [
+        -0.072079321841318,
+        -0.012835807486581502,
+        0.09262114135649632
+      ],
+      [
+        0.09742871823574237,
+        -0.009159245756342888,
+        0.031864808721033644
+      ],
+      [
+        0.010564967459763625,
+        0.0015924939824068646,
+        -0.08413282316088214
+      ]
+    ],
+    "current_triangle_cm": [
+      [
+        -0.04544616219267135,
+        -0.009073138546186785,
+        0.013581850312538654
+      ],
+      [
+        0.10907598847840944,
+        0.00033250433699798243,
+        -0.031716753219436414
+      ],
+      [
+        0.014672210031376545,
+        0.06734269366158366,
+        -0.06800150969418178
+      ]
+    ],
+    "point_previous_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "point_current_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "before_cm": 0.005516288656193709,
+    "now_cm": 0.003906631884012568,
+    "midpoint_cm": -0.004655030981578848,
+    "skin_cm": 0.003,
+    "events": [
+      {
+        "t": 0.20231901296042953,
+        "barycentric": [
+          0.38149914651552647,
+          0.20810375120020547,
+          0.410397102284268
+        ],
+        "distance_cm": 2.3892436502792505e-17
+      },
+      {
+        "t": 0.8945923770034285,
+        "barycentric": [
+          0.6298950303361359,
+          0.268399543589442,
+          0.10170542607442218
+        ],
+        "distance_cm": 3.512334665042075e-17
+      }
+    ],
+    "max_vertex_motion_mm": 0.8349067252787439,
+    "endpoint_filter_would_skip": true,
+    "batch": 16,
+    "determinant_coefficients": [
+      0.00013808861774357268,
+      -0.0008470747652513808,
+      0.0008246846088541453,
+      -5.6280534575277975e-05
+    ]
+  },
+  "scope": "Algebraic counterexample to endpoint-only point/triangle candidate rejection for linearly moving vertices. This is not proof that this motion occurs in the accepted kidney trajectory; the full solver also has endpoint containment repair."
+}

@@ -1,0 +1,41 @@
+{
+  "completed": true,
+  "selected_run": "r8-direct-rgb-cv1",
+  "source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/candidate-r8-source",
+  "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/native-gpu-diagnostics/build/lib/libLiverCudaSim.so",
+  "flags": [
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1"
+  ],
+  "performance": {
+    "frames": 1410,
+    "mean_ms": 51.35808181702127,
+    "p50_ms": 51.5938615,
+    "p95_ms": 61.55735215,
+    "p99_ms": 69.23619234000002,
+    "max_ms": 269.784887,
+    "fps": 19.471132188363324,
+    "over_50ms": 784,
+    "rolling20_min_hz": 14.327814111283585
+  },
+  "repeat_performance": {
+    "frames": 1410,
+    "mean_ms": 52.04980954184397,
+    "p50_ms": 53.7862435,
+    "p95_ms": 62.66162229999999,
+    "p99_ms": 70.56656104000001,
+    "max_ms": 86.906262,
+    "fps": 19.212366170064048,
+    "over_50ms": 804,
+    "rolling20_min_hz": 14.574076972696052
+  },
+  "current_frame_regression_passed": true,
+  "stable_20hz_passed": false,
+  "formal_physics_domain_approved": false
+}

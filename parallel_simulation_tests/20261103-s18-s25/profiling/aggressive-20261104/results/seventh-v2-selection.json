@@ -1,0 +1,98 @@
+{
+  "completed": true,
+  "source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/candidate-r8-source",
+  "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/native-gpu-diagnostics-v2/build/lib/libLiverCudaSim.so",
+  "flags": [
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1",
+    "--gpu-topology"
+  ],
+  "native_precomputed_kept": false,
+  "native_validation": {
+    "paired_calls": 960,
+    "mismatches": 0,
+    "positive_contact_records": 73528,
+    "capture_skips": 414,
+    "passed": true
+  },
+  "runs": [
+    {
+      "name": "r8-native-v2-control-a",
+      "modified": false,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 46.87289268794326,
+        "p50_ms": 47.8484035,
+        "p95_ms": 58.58493845,
+        "p99_ms": 64.70313008,
+        "max_ms": 76.202977,
+        "fps": 21.334292437582413,
+        "over_50ms": 527,
+        "rolling20_min_hz": 16.07360504949345
+      }
+    },
+    {
+      "name": "r8-native-v2-precomputed-a",
+      "modified": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 46.876399586524826,
+        "p50_ms": 48.0649045,
+        "p95_ms": 57.06167445,
+        "p99_ms": 64.93446578,
+        "max_ms": 77.981757,
+        "fps": 21.33269638497283,
+        "over_50ms": 504,
+        "rolling20_min_hz": 16.192683293305237
+      }
+    },
+    {
+      "name": "r8-native-v2-precomputed-b",
+      "modified": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 47.108742827659576,
+        "p50_ms": 48.225232,
+        "p95_ms": 57.29165165,
+        "p99_ms": 65.10216574000002,
+        "max_ms": 76.431686,
+        "fps": 21.227482203427787,
+        "over_50ms": 589,
+        "rolling20_min_hz": 16.254056969952803
+      }
+    },
+    {
+      "name": "r8-native-v2-control-b",
+      "modified": false,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 46.55590273049645,
+        "p50_ms": 47.531307999999996,
+        "p95_ms": 57.8912025,
+        "p99_ms": 63.39579839,
+        "max_ms": 74.515139,
+        "fps": 21.479553426099713,
+        "over_50ms": 495,
+        "rolling20_min_hz": 16.27724566358468
+      }
+    }
+  ],
+  "old_v4_control": {
+    "frames": 1410,
+    "mean_ms": 63.91456286879433,
+    "p50_ms": 65.002906,
+    "p95_ms": 74.012351,
+    "p99_ms": 87.32965435000003,
+    "max_ms": 93.546251,
+    "fps": 15.645886557228422,
+    "over_50ms": 1197,
+    "rolling20_min_hz": 12.259028618734794
+  },
+  "formal_physics_domain_approved": false
+}

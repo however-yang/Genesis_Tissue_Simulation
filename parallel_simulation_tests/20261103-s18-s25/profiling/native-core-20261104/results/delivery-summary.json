@@ -1,0 +1,127 @@
+{
+  "before": {
+    "runs": [
+      "delivery-baseline-a",
+      "delivery-baseline-b"
+    ],
+    "frames": 2820,
+    "completed": true,
+    "local_checks_passed": true,
+    "mean_ms": 46.53929214609929,
+    "fps": 21.48721980688345,
+    "p50_ms": 47.730039000000005,
+    "p95_ms": 56.678018599999994,
+    "p99_ms": 64.24312257,
+    "max_ms": 78.201769,
+    "over_50ms": 1032,
+    "rolling20_min_hz": 16.495361158864313,
+    "components_ms": {
+      "native_step": 31.36942909125582,
+      "quality_and_export": 4.265382386296525,
+      "snapshot": 1.314317178953743,
+      "vision": 8.276930835815604,
+      "other": 1.3132326537775967
+    },
+    "component_percent": {
+      "native_step": 67.40418181002579,
+      "quality_and_export": 9.165120889476249,
+      "snapshot": 2.824102212014204,
+      "vision": 17.78482321955414,
+      "other": 2.8217718689296087
+    },
+    "gpu_percent": 71.0327868852459,
+    "sampled_peak_memory_mib": 2120.0,
+    "host_cpu_percent": 1.1655737704918032
+  },
+  "after": {
+    "runs": [
+      "delivery-candidate-a",
+      "delivery-candidate-b"
+    ],
+    "frames": 2820,
+    "completed": true,
+    "local_checks_passed": true,
+    "mean_ms": 44.22796247056738,
+    "fps": 22.61013042745244,
+    "p50_ms": 46.6335805,
+    "p95_ms": 51.42387729999998,
+    "p99_ms": 58.78136247999999,
+    "max_ms": 76.81403,
+    "over_50ms": 309,
+    "rolling20_min_hz": 17.965215385277155,
+    "components_ms": {
+      "native_step": 29.051101890496632,
+      "quality_and_export": 4.2707009854848685,
+      "snapshot": 1.3043372796481831,
+      "vision": 8.297322784751772,
+      "other": 1.3044995301859217
+    },
+    "component_percent": {
+      "native_step": 65.6849202805339,
+      "quality_and_export": 9.656110629846253,
+      "snapshot": 2.9491236014233926,
+      "vision": 18.760355036191047,
+      "other": 2.949490452005412
+    },
+    "gpu_percent": 69.6896551724138,
+    "sampled_peak_memory_mib": 2136.0,
+    "host_cpu_percent": 1.1448275862068966
+  },
+  "physics_before": {
+    "frames": 1410,
+    "mean_ms": 37.14168562340426,
+    "p50_ms": 38.396802,
+    "p95_ms": 49.5708448,
+    "p99_ms": 54.558150520000005,
+    "max_ms": 58.72115,
+    "fps": 26.92392612816327,
+    "over_50ms": 57,
+    "rolling20_min_hz": 19.341554081801345
+  },
+  "physics_after": {
+    "frames": 1410,
+    "mean_ms": 34.86283753404255,
+    "p50_ms": 36.836271499999995,
+    "p95_ms": 42.780509200000004,
+    "p99_ms": 48.979105290000035,
+    "max_ms": 137.515362,
+    "fps": 28.68383845759913,
+    "over_50ms": 10,
+    "rolling20_min_hz": 21.560249613574303
+  },
+  "speedup": 1.052259465424618,
+  "local_validation_passed": true,
+  "average20_passed": true,
+  "p95_50ms_passed": false,
+  "rolling20_passed": false,
+  "all_frames_50ms_passed": false,
+  "stable20_passed": false,
+  "formal_physics_domain_approved": false,
+  "training_domain_approved": false,
+  "production_replaced": false,
+  "choice": {
+    "native_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-bound-cache/source",
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-bound-cache/build/lib/libLiverCudaSim.so",
+    "dll_sha256": "aa1e703555c55560d0fb4465c7060183e1e9fe4c6cd5ef001b145f163ae60272",
+    "execution": {
+      "query_mode": 1,
+      "query_threads": 64,
+      "assembly_blocks": 512,
+      "manifold_blocks": 1024,
+      "compact_blocks": 0,
+      "bound_cache": true
+    },
+    "selected_for_final_verification": true,
+    "formal_physics_domain_approved": false,
+    "production_replaced": false,
+    "rejected": [
+      "grid-both256",
+      "coarse-exact-zero",
+      "existing-group-compaction",
+      "triangle-aabb-prefilter"
+    ],
+    "reason": "Dispatch batching plus exact adjacent-stage coarse-bound coefficient reuse",
+    "qualification_pending": true,
+    "harness": "profile_bound_cache.py"
+  }
+}

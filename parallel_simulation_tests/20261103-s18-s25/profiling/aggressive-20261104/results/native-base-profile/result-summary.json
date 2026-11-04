@@ -1,0 +1,186 @@
+{
+  "schema": "profile_full_frame_v1",
+  "source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/candidate-r1-source",
+  "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/native-baseline/build/lib/libLiverCudaSim.so",
+  "dll_sha256": "e7443d3d35e4d489888064bc24dc07aff8a4a51c2879814871a2e8da90e797be",
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "profiled": true,
+  "render": {
+    "width": 1280,
+    "height": 960,
+    "supersample": 1,
+    "fresh_rgbd_each_step": false
+  },
+  "labels": false,
+  "training_vision": false,
+  "cache_surface_layout": false,
+  "gpu_postprocess": false,
+  "gpu_aligned_depth": false,
+  "parallel_frame": false,
+  "fused_mesh": false,
+  "completed": false,
+  "quality_passed": true,
+  "cpu_affinity": [
+    7,
+    19,
+    20,
+    25
+  ],
+  "note": "CPU-returned RGB-D includes native readback and OpenGL readback; display/transport and disk recording excluded; labels separately flagged",
+  "binding": {
+    "egl_index": 1,
+    "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+  },
+  "measurement_start_unix_s": 1793725907.6316247,
+  "measurement_end_unix_s": 1793725930.591147,
+  "performance": {
+    "frames": 482,
+    "mean_ms": 38.52986911825726,
+    "p50_ms": 37.3340695,
+    "p95_ms": 47.04048205,
+    "p99_ms": 56.7260106,
+    "max_ms": 70.090207,
+    "fps": 25.953890394248784,
+    "over_50ms": 18,
+    "rolling20_min_hz": 19.014790753864812
+  },
+  "github_archive_summary": {
+    "original_file": "parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/results/native-base-profile/result.json",
+    "original_sha256": "6309b1e1ff732c48b18f851897f5c86422ef621eae97a9126d58824bf71fa460",
+    "original_bytes": 998726,
+    "frames_omitted": 482,
+    "raw_data_on_server": true
+  },
+  "first_frame": {
+    "frame_id": 0,
+    "native_tick": 31,
+    "stage": "approach",
+    "step": 1,
+    "frame_ms": 37.842675,
+    "thread_cpu_ms": 37.842633,
+    "render_ms": 0.003953,
+    "timings_ms": {
+      "native_step": 22.025277954526246,
+      "surface_export": 0.7089100545272231,
+      "quality_and_export": 13.657944044098258,
+      "quality_cpu": 12.755722971633077,
+      "same_frame_render": 0.0,
+      "same_frame_parallel": false,
+      "snapshot": 1.4181439764797688,
+      "total": 37.622241070494056
+    },
+    "quality": {
+      "checked_metrics_passed": true,
+      "numerical_failure_reasons": [],
+      "scope_failure_reasons": [],
+      "within_declared_local_scope": true,
+      "unchecked": [
+        "true_curved_edge_pointwise_cut_correspondence",
+        "internal_solver_residual",
+        "free_fragment_continuous_collision",
+        "task_region_cut_completion",
+        "friction_grasp_task_success"
+      ],
+      "metrics": {
+        "min_volume_ratio": 0.963714063167572,
+        "invalid_tets": 0,
+        "max_displacement_m": 0.00038703970494680107,
+        "max_estimated_speed_m_s": 2.1086592028041196e-08,
+        "new_cut_edges": 0,
+        "healed_edges": 0,
+        "unexpected_neighbor_changes": 0,
+        "material_components": 1,
+        "blade_body_overlap_m": 0.0,
+        "wrist_overlap_m": 0.0,
+        "surface_topology": {
+          "triangles": 15056,
+          "wall_triangles": 0,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": null,
+          "wall_extent_mm_not_incision_depth": null
+        },
+        "instrument_min_distance_m": 0.039528875153229406,
+        "instrument_distance_geometry": "mesh_enclosing_jaw_boxes_and_native_wrist_capsule_v1"
+      },
+      "training_domain_approved": false
+    }
+  },
+  "last_frame": {
+    "frame_id": 481,
+    "native_tick": 512,
+    "stage": "incise_1",
+    "step": 482,
+    "frame_ms": 58.377837,
+    "thread_cpu_ms": 58.376776,
+    "render_ms": 0.001488,
+    "timings_ms": {
+      "native_step": 42.54778998438269,
+      "surface_export": 0.7585689891129732,
+      "quality_and_export": 11.33297907654196,
+      "quality_cpu": 9.757496998645365,
+      "same_frame_render": 0.0,
+      "same_frame_parallel": false,
+      "snapshot": 4.002097062766552,
+      "total": 58.15806402824819
+    },
+    "quality": {
+      "checked_metrics_passed": true,
+      "numerical_failure_reasons": [],
+      "scope_failure_reasons": [],
+      "within_declared_local_scope": true,
+      "unchecked": [
+        "true_curved_edge_pointwise_cut_correspondence",
+        "internal_solver_residual",
+        "free_fragment_continuous_collision",
+        "task_region_cut_completion",
+        "friction_grasp_task_success"
+      ],
+      "metrics": {
+        "min_volume_ratio": 0.15005911886692047,
+        "invalid_tets": 0,
+        "max_displacement_m": 0.0038962566759437323,
+        "max_estimated_speed_m_s": 0.006256407126784325,
+        "new_cut_edges": 2,
+        "healed_edges": 0,
+        "unexpected_neighbor_changes": 0,
+        "material_components": 1,
+        "blade_body_overlap_m": 0.0,
+        "wrist_overlap_m": 0.0,
+        "surface_topology": {
+          "triangles": 15102,
+          "wall_triangles": 46,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              20.951623916625977,
+              9.842939376831055,
+              16.682931900024414
+            ],
+            [
+              24.04865264892578,
+              11.314188003540039,
+              20.1522274017334
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            3.0970287322998047,
+            1.4712488651275635,
+            3.4692955017089844
+          ]
+        },
+        "instrument_min_distance_m": 1.7169262128369613e-05,
+        "instrument_distance_geometry": "mesh_enclosing_jaw_boxes_and_native_wrist_capsule_v1"
+      },
+      "training_domain_approved": false
+    }
+  }
+}

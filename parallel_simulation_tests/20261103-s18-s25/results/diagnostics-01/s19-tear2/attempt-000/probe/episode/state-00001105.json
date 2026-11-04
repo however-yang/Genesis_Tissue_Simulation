@@ -1,0 +1,246 @@
+{
+  "episode_id": "09b49923874d47ffbe270bc879cdc77a",
+  "step_id": 1105,
+  "t_sim_s": 36.833333333333336,
+  "dt_s": 0.03333333333333333,
+  "native_tick": 1135,
+  "gravity_fraction": 1,
+  "topology_revision": 103,
+  "tools": {
+    "grasper_hinge_m": [
+      0.012899999506771564,
+      0.03109917975962162,
+      0.017999999225139618
+    ],
+    "grasper_gap_m": 0.0008147898316383362,
+    "grasper_axis": [
+      0.6,
+      -0.8,
+      0
+    ],
+    "grasper_normal": [
+      0,
+      0,
+      1
+    ],
+    "jaw_load_n": [
+      0.5075576901435852,
+      0.5476455688476562
+    ],
+    "grip_points": 54,
+    "grip_error_m": 1.9015508005395532e-05,
+    "scissors_hinge_m": [
+      0.015799354761838913,
+      0.010495653375983238,
+      0.025876902043819427
+    ],
+    "scissors_axis": [
+      -0.5735764503479004,
+      0.0,
+      -0.8191520571708679
+    ],
+    "scissors_normal": [
+      -0.8191520571708679,
+      6.123234262925839e-17,
+      0.5735764503479004
+    ],
+    "scissors_gap_m": 0.0006253952533006668,
+    "scissors_edges_m": [
+      [
+        [
+          0.0142630310729146,
+          0.010778132826089859,
+          0.022040585055947304
+        ],
+        [
+          0.008465792052447796,
+          0.010778132826089859,
+          0.01575373113155365
+        ]
+      ],
+      [
+        [
+          0.012946209870278835,
+          0.010778132826089859,
+          0.02297058515250683
+        ],
+        [
+          0.00867121946066618,
+          0.010778132826089859,
+          0.015605544671416283
+        ]
+      ]
+    ],
+    "scissors_phase": 1,
+    "scissors_loads": {
+      "left_n": 1.1669061183929443,
+      "right_n": 1.5838885307312012,
+      "fracture_left_n": 0.10455802083015442,
+      "fracture_right_n": 0.1899615377187729,
+      "fracture_total_n": 0.2570111155509949,
+      "fractures": 3,
+      "is_squeezing": true
+    },
+    "reaction_n": [
+      -1.7506012916564941,
+      -0.4948523938655853,
+      -0.6498545408248901
+    ]
+  },
+  "quality": {
+    "checked_metrics_passed": true,
+    "numerical_failure_reasons": [],
+    "scope_failure_reasons": [],
+    "within_declared_local_scope": true,
+    "unchecked": [
+      "true_curved_edge_pointwise_cut_correspondence",
+      "internal_solver_residual",
+      "free_fragment_continuous_collision",
+      "task_region_cut_completion",
+      "friction_grasp_task_success"
+    ],
+    "metrics": {
+      "min_volume_ratio": 0.150020569562912,
+      "invalid_tets": 0,
+      "max_displacement_m": 0.00555549468845129,
+      "max_estimated_speed_m_s": 0.005517054349184036,
+      "new_cut_edges": 0,
+      "healed_edges": 0,
+      "unexpected_neighbor_changes": 0,
+      "material_components": 1,
+      "blade_body_overlap_m": 0.0,
+      "wrist_overlap_m": 0.0,
+      "surface_topology": {
+        "triangles": 15288,
+        "wall_triangles": 238,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            6.436979293823242,
+            8.439017295837402,
+            14.717240333557129
+          ],
+          [
+            24.104726791381836,
+            12.995309829711914,
+            20.538536071777344
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          17.667747497558594,
+          4.55629301071167,
+          5.821294784545898
+        ]
+      }
+    },
+    "training_domain_approved": false
+  },
+  "previous_target_si": [
+    0.0129,
+    0.031099999999999996,
+    0.018000000000000002,
+    1.0,
+    0.015500000000000002,
+    0.010468,
+    0.026000000000000002,
+    0.0,
+    1.5707963267948966,
+    -0.9599310885968813,
+    0.9872592592592593
+  ],
+  "events": [],
+  "grasp": {
+    "contact_model": 2,
+    "assisted": true,
+    "force_threshold_n": 0.05,
+    "bilateral_load": true,
+    "between_pads_material_nodes": 6,
+    "witness_ids": [
+      67330,
+      67394,
+      67395,
+      67396,
+      69020,
+      69084,
+      69085,
+      69086,
+      70710,
+      70774,
+      70775,
+      70776
+    ],
+    "witness_retained_fraction": 0.5,
+    "witness_tangential_slip_m": 0.0003982098105370241,
+    "witness_mean_lift_m": 0.002025804715231061,
+    "geometric_loaded_hold": true,
+    "friction_hold_evidence": false,
+    "anchor_points": 54
+  },
+  "failure_physics": {
+    "schema": "failure_telemetry_v1",
+    "new_broken_edges": 0,
+    "new_material_broken_edges": 0,
+    "new_material_blade_edges": 0,
+    "new_tear_edges": 0,
+    "new_material_tear_edges": 0,
+    "new_tear_location": {
+      "cut_rim": 0,
+      "interior": 0,
+      "near_grasp_neighborhood": 0
+    },
+    "tear_location_semantics": "recorded before the tear; rim/interior partition material tears; near-grasp is the dilated support neighborhood before rim exemptions are removed and may overlap",
+    "stretch": {
+      "material_max": 1.464964747428894,
+      "cut_rim_max": 1.464964747428894,
+      "grasp_neighborhood_max": 1.265006184577942
+    },
+    "anchors": {
+      "new_broken_support_corners": 0,
+      "new_broken_material_points": 0,
+      "remaining_material_points": 54,
+      "remaining_support_corners": 84,
+      "core_force_ema_max_n": 0.1675107002258301,
+      "active_core_force_ema_median_n": 0.012570847272872925,
+      "max_population": "current grasp supports, including released overload witnesses",
+      "force_model": "unified finite material-point attachment forces distributed to supporting corners; tau=1s",
+      "release_rule": "overloaded support releases its material-point witnesses until a new grasp"
+    },
+    "jaw_normal_load_n": [
+      0.5075576901435852,
+      0.5476455688476562
+    ],
+    "jaw_tangential_load_n": null,
+    "unavailable": [
+      "separate_per_pad_tangential_contact_force"
+    ],
+    "native_cumulative_counts": {
+      "brokenCoreCorners": 0,
+      "brokenGripPoints": 0,
+      "tearEdges": 0,
+      "materialTearEdges": 0,
+      "rimTearEdges": 0,
+      "interiorTearEdges": 0,
+      "nearGraspTearEdges": 0
+    }
+  },
+  "outcome": {
+    "schema": "physical_outcome_v1",
+    "valid_outcome": true,
+    "terminal_reason": null,
+    "material_separation": null,
+    "numerical_reasons": [],
+    "scope_reasons": []
+  },
+  "event_history": {
+    "stroke_active": true,
+    "anchor_release_active": false,
+    "stroke_id": 3,
+    "stroke_has_cut": true
+  },
+  "arrays_file": "state-00001105.npz.zst",
+  "topology_file": "topology-00000103.npz.zst"
+}

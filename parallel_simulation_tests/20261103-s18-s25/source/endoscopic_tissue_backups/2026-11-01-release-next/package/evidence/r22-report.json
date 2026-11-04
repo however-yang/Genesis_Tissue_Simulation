@@ -1,0 +1,2763 @@
+{
+  "metadata": {
+    "case": "kidney-reference",
+    "scene": "kidney",
+    "kind": "cut",
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 15000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        0.6,
+        -0.8,
+        0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "dll": "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-release-next\\package\\artifacts\\release-r22-repair-empty-manifold\\bin\\LiverCudaSim.dll",
+    "dll_sha256": "1b33d2e8cfb98ba90ea464f80940c67f60088f3285596bdc73b25b4c8cb8e3e8",
+    "material_nodes": 102710,
+    "active_nodes": 121260,
+    "total_grid_nodes": 354200,
+    "cell_size_cm": [
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612
+    ],
+    "stages": [
+      {
+        "name": "settle",
+        "steps": 30,
+        "command": {
+          "hinge": [
+            -2.374,
+            7.382,
+            0.0
+          ],
+          "closure": 0,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "approach",
+        "steps": 90,
+        "command": {
+          "hinge": [
+            -1.374,
+            6.182,
+            0.0
+          ],
+          "closure": 0,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "bite",
+        "steps": 45,
+        "command": {
+          "hinge": [
+            -0.894,
+            5.542,
+            0.0
+          ],
+          "closure": 0,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "close",
+        "steps": 45,
+        "command": {
+          "hinge": [
+            -0.894,
+            5.542,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "lift",
+        "steps": 120,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "blade_approach",
+        "steps": 120,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.2774079978861174,
+            3.6968,
+            0.8213776940828174
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "incise_1",
+        "steps": 150,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.2774079978861174,
+            3.6968,
+            0.8213776940828174
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 1,
+          "scissors_cutting": true,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 0.5
+      },
+      {
+        "name": "open_1",
+        "steps": 30,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.2774079978861174,
+            3.6968,
+            0.8213776940828174
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "reposition_2",
+        "steps": 60,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.14799847533485705,
+            3.6968,
+            0.33841478093828326
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "incise_2",
+        "steps": 150,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.14799847533485705,
+            3.6968,
+            0.33841478093828326
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 1,
+          "scissors_cutting": true,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 0.5
+      },
+      {
+        "name": "withdraw",
+        "steps": 120,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 1,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "release",
+        "steps": 45,
+        "command": {
+          "hinge": [
+            -0.894,
+            7.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "extract",
+        "steps": 75,
+        "command": {
+          "hinge": [
+            -0.894,
+            8.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "hold",
+        "steps": 30,
+        "command": {
+          "hinge": [
+            -0.894,
+            8.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "side_pull",
+        "steps": 60,
+        "command": {
+          "hinge": [
+            -0.494,
+            8.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "side_hold",
+        "steps": 45,
+        "command": {
+          "hinge": [
+            -0.494,
+            8.142,
+            0.0
+          ],
+          "closure": 1,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "jaw_open",
+        "steps": 45,
+        "command": {
+          "hinge": [
+            -0.494,
+            8.142,
+            0.0
+          ],
+          "closure": 0,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      },
+      {
+        "name": "open_retract",
+        "steps": 60,
+        "command": {
+          "hinge": [
+            -0.494,
+            9.142,
+            0.0
+          ],
+          "closure": 0,
+          "blade_center": [
+            0.6656365655398986,
+            3.6968,
+            2.27026643351642
+          ],
+          "blade_enabled": true,
+          "scissors_closure": 0.0,
+          "scissors_cutting": false,
+          "scissors_pitch_deg": 0.0,
+          "scissors_roll_deg": 90.0,
+          "scissors_yaw_deg": -75.0
+        },
+        "ramp": 1.0
+      }
+    ],
+    "capture": true,
+    "replay_storage": "rdx",
+    "note": "Diagnostics continue past recorded quality failures. Replay follows simulation time, not achieved FPS."
+  },
+  "steps": 1320,
+  "expected_steps": 1320,
+  "completed": true,
+  "elapsed_s": 861.6685895000119,
+  "allow_detached_flight": true,
+  "absolute_envelope_events": [
+    {
+      "step": 1306,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 81.95367431640625,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.4563337403005776,
+          "intrinsic_rms_mm": 0.04268119047747637,
+          "com_mm": [
+            3.589280812142899,
+            -34.47974109207947,
+            -29.636104692695525
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1307,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 116.2416763305664,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 2.204027865368606,
+          "intrinsic_rms_mm": 0.06730604109082511,
+          "com_mm": [
+            3.614190622381981,
+            -69.88013146993185,
+            -31.964507049330017
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1308,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 161.84349060058594,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.5768146464183892,
+          "intrinsic_rms_mm": 0.06230081593283893,
+          "com_mm": [
+            3.6383036069693575,
+            -116.18061338693074,
+            -34.289039625278065
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1309,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 218.3277130126953,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.6282029231175672,
+          "intrinsic_rms_mm": 0.0878177318978027,
+          "com_mm": [
+            3.6655397396033482,
+            -173.37568174546442,
+            -36.62236235454107
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1310,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 286.1424865722656,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.1051010349026442,
+          "intrinsic_rms_mm": 0.04544563168821066,
+          "com_mm": [
+            3.6880976622936537,
+            -241.48064318447842,
+            -38.944670106536975
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1311,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 364.83929443359375,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.1625120032118856,
+          "intrinsic_rms_mm": 0.04401131544916528,
+          "com_mm": [
+            3.71187182463768,
+            -320.48107063922794,
+            -41.273173461362134
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1312,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 454.5083923339844,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.5969951333852332,
+          "intrinsic_rms_mm": 0.05040965340750212,
+          "com_mm": [
+            3.736692628094842,
+            -410.38559257800114,
+            -43.60178799580834
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1313,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 555.1119995117188,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.790213722456525,
+          "intrinsic_rms_mm": 0.07894709622692285,
+          "com_mm": [
+            3.7602502974608845,
+            -511.18752303289637,
+            -45.927645613245886
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1314,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 666.4606323242188,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.4897430085473267,
+          "intrinsic_rms_mm": 0.07900182053579369,
+          "com_mm": [
+            3.7841740347211665,
+            -622.8870751103694,
+            -48.25300578877534
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1315,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 788.84375,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 2.7174258185069493,
+          "intrinsic_rms_mm": 0.09065955591765494,
+          "com_mm": [
+            3.8060173674938063,
+            -745.482979106861,
+            -50.57664402371522
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1316,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 922.080078125,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 5.525937845716361,
+          "intrinsic_rms_mm": 0.13023472322507945,
+          "com_mm": [
+            3.8256767573246724,
+            -878.9834766362699,
+            -52.90581813403358
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1317,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 1066.5955810546875,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 2.1701428744616957,
+          "intrinsic_rms_mm": 0.09049951731889455,
+          "com_mm": [
+            3.8457343289912087,
+            -1023.3861827808275,
+            -55.234941119499865
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1318,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 1221.9781494140625,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 10.779234796049176,
+          "intrinsic_rms_mm": 0.23703550195198042,
+          "com_mm": [
+            3.8675134618822886,
+            -1178.6870328266293,
+            -57.565033973236154
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1319,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 1388.3697509765625,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 2.074209726112562,
+          "intrinsic_rms_mm": 0.1214286991062496,
+          "com_mm": [
+            3.8882066172732093,
+            -1344.8863840124184,
+            -59.891600680340744
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1320,
+      "accepted_detached_flight": true,
+      "detail": [
+        {
+          "root": 84616,
+          "active_nodes": 2267,
+          "material_nodes": 1317,
+          "absolute_max_mm": 1565.368408203125,
+          "intact_material_cell": [
+            122760,
+            122761,
+            122875,
+            122876,
+            131615,
+            131616,
+            131730,
+            131731
+          ],
+          "allowed": true,
+          "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+          "intrinsic_max_mm": 1.6774368223078275,
+          "intrinsic_rms_mm": 0.1008112137611414,
+          "com_mm": [
+            3.908983982892409,
+            -1521.9868870395683,
+            -62.22229690030119
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostic_errors": [
+    {
+      "stage": "hold",
+      "error": "Interaction quality failed; inspect report metrics for grip loss or slip, cut geometry, new cuts on withdrawal, knife-body overlap (>0.2 mm), material leaving the 60 mm workspace, a scissor cut without two-blade compression, a wound left uncut, cut twice or running along the skin, or an excision that leaves tumor behind, stays tied to the rest or that the grasper does not hold it"
+    },
+    {
+      "stage": "open_retract",
+      "step": 1306,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1307,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1308,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1309,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1310,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1311,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1312,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1313,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1314,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1315,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1316,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1317,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1318,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1319,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    },
+    {
+      "stage": "open_retract",
+      "step": 1320,
+      "error": "Material left the 60 mm operating envelope; stop before exporting runaway cut geometry",
+      "classified_detached_flight": true
+    }
+  ],
+  "original_metrics": {
+    "completed": true,
+    "grasp_acquired": true,
+    "lift_m": 0.014002686366438866,
+    "edges_before_incision": 0,
+    "cut_edges": 195,
+    "observed_cut_edges": 195,
+    "retained_cut_edges": 195,
+    "new_edges_during_withdrawal": 0,
+    "cut_wall_triangles": 236,
+    "final_grip_points": 55,
+    "current_grip_points": 0,
+    "grip_lost_after_capture": true,
+    "bite_nodes": 0,
+    "held_bite_nodes": 0,
+    "grip_slip_m": 0.0,
+    "max_knife_body_penetration_m": 2.2714607619337413e-05,
+    "max_blade_body_overlap_m": 2.2714607619337413e-05,
+    "peak_blade_force_n": 13.199865341186523,
+    "max_node_displacement_m": 1.5653682947158813,
+    "degenerate_cut_wall_triangles": 0,
+    "fractures": 2,
+    "fracture_left_n": 0.1781916618347168,
+    "fracture_right_n": 0.18641601502895355,
+    "two_blade_squeeze_m": 0.0012881806308320716,
+    "snips": [
+      {
+        "stage": "incise_1",
+        "fracture_left_n": 0.1781916618347168,
+        "fracture_right_n": 0.18641601502895355,
+        "two_blade_squeeze_m": 0.0012881806308320716
+      },
+      {
+        "stage": "incise_2",
+        "fracture_left_n": 0.2966848611831665,
+        "fracture_right_n": 0.331106573343277,
+        "two_blade_squeeze_m": 0.0018876755245745447
+      }
+    ],
+    "edges_cut_without_fracture": 0,
+    "edges_cut_outside_tab": 0,
+    "uncut_columns": 0,
+    "multiply_cut_columns": 0,
+    "stray_skin_cuts": 35,
+    "slit_length_m": 0.009280320980648184,
+    "material_components": 2,
+    "gripped_pieces": 1,
+    "tumor_nodes_left": 0,
+    "lattice_pieces": 2,
+    "acceptance_passed": false
+  },
+  "healed_connections": 0,
+  "cuts_while_disabled": 0,
+  "cuts_before_any_fracture": 0,
+  "physics_ms": {
+    "mean": 83.80648062037405,
+    "median": 80.70560000487603,
+    "p95": 118.01355504721865,
+    "maximum": 301.18060001404956
+  },
+  "pipeline_ms": {
+    "mean": 101.9334403109419,
+    "median": 94.99289997620508,
+    "p95": 157.4163450015476,
+    "maximum": 308.818000019528
+  },
+  "max_blade_overlap_mm": 0.022714607619337412,
+  "max_wrist_overlap_mm": 0.0,
+  "max_invalid_tets": 0,
+  "stages": [
+    {
+      "stage": "settle",
+      "end": {
+        "step": 30,
+        "stage": "settle",
+        "physics_ms": 71.0434999782592,
+        "pipeline_ms": 80.00060002086684,
+        "grip_points": 0,
+        "jaw_gap_mm": 10.0,
+        "jaw_load_n": [
+          0.0,
+          0.0
+        ],
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "pad_slip_mm": null,
+        "bite_lift_mm": null,
+        "hinge_cm": [
+          -2.374000072479248,
+          7.381999969482422,
+          0.0
+        ],
+        "cut_edges": 0,
+        "fractures": 0,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.8910002708435059,
+        "invalid_tets": 0,
+        "max_displacement_mm": 0.729371964931488,
+        "tumor_com_mm": [
+          -0.0014635184779763222,
+          35.24726486206055,
+          -0.002351620700210333
+        ],
+        "body_com_mm": [
+          -3.4220640372950584e-05,
+          3.528297185897827,
+          -0.0004186993173789233
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "stage": "settle",
+        "step": 30,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 0,
+        "max_triangle_edge_mm": 1.7727844715118408
+      },
+      "physics_ms": {
+        "mean": 55.200876673916355,
+        "median": 66.78105000173673,
+        "p95": 72.48612000548746,
+        "maximum": 73.02130002062768
+      },
+      "pipeline_ms": {
+        "mean": 63.02495666701967,
+        "median": 74.16649998049252,
+        "p95": 81.6967050137464,
+        "maximum": 83.24860001448542
+      }
+    },
+    {
+      "stage": "approach",
+      "end": {
+        "step": 120,
+        "stage": "approach",
+        "physics_ms": 85.45639994554222,
+        "pipeline_ms": 94.96890002628788,
+        "grip_points": 0,
+        "jaw_gap_mm": 10.0,
+        "jaw_load_n": [
+          0.0,
+          0.0
+        ],
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "pad_slip_mm": null,
+        "bite_lift_mm": null,
+        "hinge_cm": [
+          -1.3740266561508179,
+          6.182032108306885,
+          0.0
+        ],
+        "cut_edges": 0,
+        "fractures": 0,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.8910005688667297,
+        "invalid_tets": 0,
+        "max_displacement_mm": 0.7293717861175537,
+        "tumor_com_mm": [
+          -0.0014599715359508991,
+          35.247249603271484,
+          -0.0023398934863507748
+        ],
+        "body_com_mm": [
+          -3.398457556613721e-05,
+          3.5282981395721436,
+          -0.0004271563666407019
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "stage": "approach",
+        "step": 120,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 0,
+        "max_triangle_edge_mm": 1.7727853059768677
+      },
+      "physics_ms": {
+        "mean": 76.73957555283171,
+        "median": 76.12310000695288,
+        "p95": 88.84029501350597,
+        "maximum": 180.22939999355003
+      },
+      "pipeline_ms": {
+        "mean": 85.24849777976569,
+        "median": 85.35090004443191,
+        "p95": 97.68302499433048,
+        "maximum": 186.4384000073187
+      }
+    },
+    {
+      "stage": "bite",
+      "end": {
+        "step": 165,
+        "stage": "bite",
+        "physics_ms": 100.02309997798875,
+        "pipeline_ms": 107.47360001550987,
+        "grip_points": 0,
+        "jaw_gap_mm": 10.0,
+        "jaw_load_n": [
+          5.6426743277882e-09,
+          0.048686493188142776
+        ],
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "pad_slip_mm": null,
+        "bite_lift_mm": null,
+        "hinge_cm": [
+          -0.9151662588119507,
+          5.570221900939941,
+          0.0
+        ],
+        "cut_edges": 0,
+        "fractures": 0,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.3831315040588379,
+        "invalid_tets": 0,
+        "max_displacement_mm": 2.0894131660461426,
+        "tumor_com_mm": [
+          0.3699188232421875,
+          34.888336181640625,
+          0.14687898755073547
+        ],
+        "body_com_mm": [
+          0.12516304850578308,
+          3.4229323863983154,
+          0.03633536025881767
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "stage": "bite",
+        "step": 165,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 0,
+        "max_triangle_edge_mm": 1.775360345840454
+      },
+      "physics_ms": {
+        "mean": 84.96292222860373,
+        "median": 83.36590003455058,
+        "p95": 99.96099998243153,
+        "maximum": 104.59880001144484
+      },
+      "pipeline_ms": {
+        "mean": 93.8002555579361,
+        "median": 92.46660000644624,
+        "p95": 108.48591995891184,
+        "maximum": 114.15700003271922
+      }
+    },
+    {
+      "stage": "close",
+      "end": {
+        "step": 210,
+        "stage": "close",
+        "physics_ms": 92.86440000869334,
+        "pipeline_ms": 100.56749999057502,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.9963747262954712,
+        "jaw_load_n": [
+          2.899796962738037,
+          1.9148200750350952
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 8,
+        "pad_slip_mm": 0.0,
+        "bite_lift_mm": 0.0,
+        "hinge_cm": [
+          -0.8963284492492676,
+          5.545103549957275,
+          0.0
+        ],
+        "cut_edges": 0,
+        "fractures": 0,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1500861644744873,
+        "invalid_tets": 0,
+        "max_displacement_mm": 5.572317123413086,
+        "tumor_com_mm": [
+          0.7840350270271301,
+          34.554847717285156,
+          0.047381021082401276
+        ],
+        "body_com_mm": [
+          0.02642594650387764,
+          3.4920220375061035,
+          -0.0580887570977211
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "stage": "close",
+        "step": 210,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 0,
+        "max_triangle_edge_mm": 1.9035171270370483
+      },
+      "physics_ms": {
+        "mean": 98.50303999976151,
+        "median": 100.88669997639954,
+        "p95": 104.20097996247932,
+        "maximum": 107.05360001884401
+      },
+      "pipeline_ms": {
+        "mean": 107.77956888778135,
+        "median": 110.50589999649674,
+        "p95": 114.29881997173652,
+        "maximum": 117.00179998297244
+      }
+    },
+    {
+      "stage": "lift",
+      "end": {
+        "step": 330,
+        "stage": "lift",
+        "physics_ms": 94.6989000076428,
+        "pipeline_ms": 102.80170000623912,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.2169383466243744,
+        "jaw_load_n": [
+          1.9460701942443848,
+          0.7160806059837341
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 8,
+        "pad_slip_mm": 0.10495848070259468,
+        "bite_lift_mm": 14.163322448730469,
+        "hinge_cm": [
+          -0.8939999938011169,
+          6.971827983856201,
+          0.0
+        ],
+        "cut_edges": 0,
+        "fractures": 0,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.15000000596046448,
+        "invalid_tets": 0,
+        "max_displacement_mm": 12.741814613342285,
+        "tumor_com_mm": [
+          0.9993911981582642,
+          45.23805236816406,
+          0.06556174904108047
+        ],
+        "body_com_mm": [
+          0.20659983158111572,
+          4.626657485961914,
+          0.042687803506851196
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "stage": "lift",
+        "step": 330,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 0,
+        "max_triangle_edge_mm": 2.4709792137145996
+      },
+      "physics_ms": {
+        "mean": 97.46927666856209,
+        "median": 99.35574998962693,
+        "p95": 104.47098498116247,
+        "maximum": 104.97009998653084
+      },
+      "pipeline_ms": {
+        "mean": 108.9441700023599,
+        "median": 110.41794996708632,
+        "p95": 116.82769000472035,
+        "maximum": 124.62709995452315
+      }
+    },
+    {
+      "stage": "blade_approach",
+      "end": {
+        "step": 450,
+        "stage": "blade_approach",
+        "physics_ms": 107.0103999809362,
+        "pipeline_ms": 134.15259995963424,
+        "grip_points": 55,
+        "jaw_gap_mm": 3.0480456352233887,
+        "jaw_load_n": [
+          0.033026352524757385,
+          13.179116249084473
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.30260522016623986,
+        "bite_lift_mm": 14.349918365478516,
+        "hinge_cm": [
+          -0.8939999938011169,
+          6.97988748550415,
+          0.0
+        ],
+        "cut_edges": 0,
+        "fractures": 0,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.15010420978069305,
+        "invalid_tets": 0,
+        "max_displacement_mm": 12.822714805603027,
+        "tumor_com_mm": [
+          0.7079119086265564,
+          45.05144500732422,
+          -0.9744566679000854
+        ],
+        "body_com_mm": [
+          0.16436360776424408,
+          4.5944695472717285,
+          -0.016870856285095215
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "stage": "blade_approach",
+        "step": 450,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 0,
+        "max_triangle_edge_mm": 2.4029781818389893
+      },
+      "physics_ms": {
+        "mean": 99.88006666438498,
+        "median": 100.88409998570569,
+        "p95": 112.22455000679474,
+        "maximum": 116.73240002710372
+      },
+      "pipeline_ms": {
+        "mean": 111.72727666707942,
+        "median": 111.79345002165064,
+        "p95": 126.53435000684112,
+        "maximum": 174.40820002229884
+      }
+    },
+    {
+      "stage": "incise_1",
+      "end": {
+        "step": 600,
+        "stage": "incise_1",
+        "physics_ms": 60.50249998224899,
+        "pipeline_ms": 69.00680001126602,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.535017341375351,
+        "jaw_load_n": [
+          0.2662171423435211,
+          3.9680442810058594
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.26050785182191694,
+        "bite_lift_mm": 14.648175239562988,
+        "hinge_cm": [
+          -0.8939999938011169,
+          7.016341209411621,
+          0.0
+        ],
+        "cut_edges": 97,
+        "fractures": 1,
+        "scissors_gap_mm": 0.2581627666950226,
+        "scissors_load_n": [
+          0.7405680418014526,
+          0.6725017428398132
+        ],
+        "scissors_force_n": 0.060000004768371584,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1499999314546585,
+        "invalid_tets": 0,
+        "max_displacement_mm": 13.224011421203613,
+        "tumor_com_mm": [
+          0.9615563750267029,
+          45.477806091308594,
+          -1.617987036705017
+        ],
+        "body_com_mm": [
+          -0.05193356052041054,
+          4.64349365234375,
+          -0.5580454468727112
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35580,
+        "wall_triangles": 172,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 3,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -3.858675718307495,
+            34.210453033447266,
+            -4.773096084594727
+          ],
+          [
+            2.871687889099121,
+            40.20634078979492,
+            0.748288631439209
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          6.730363368988037,
+          5.995888710021973,
+          5.521384239196777
+        ],
+        "stage": "incise_1",
+        "step": 600,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 1,
+        "max_triangle_edge_mm": 3.3087382316589355
+      },
+      "physics_ms": {
+        "mean": 91.28374733418848,
+        "median": 93.42920003109612,
+        "p95": 128.08609002095181,
+        "maximum": 133.65939998766407
+      },
+      "pipeline_ms": {
+        "mean": 105.69939200261918,
+        "median": 109.09559999709018,
+        "p95": 145.3604849928524,
+        "maximum": 152.14409999316558
+      }
+    },
+    {
+      "stage": "open_1",
+      "end": {
+        "step": 630,
+        "stage": "open_1",
+        "physics_ms": 75.34989999840036,
+        "pipeline_ms": 84.05450003920123,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.9570156931877136,
+        "jaw_load_n": [
+          0.14581768214702606,
+          2.861762523651123
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.2359614077982291,
+        "bite_lift_mm": 14.662747383117676,
+        "hinge_cm": [
+          -0.8939999938011169,
+          7.027921199798584,
+          0.0
+        ],
+        "cut_edges": 97,
+        "fractures": 1,
+        "scissors_gap_mm": 16.737428903579712,
+        "scissors_load_n": [
+          0.0,
+          0.03974822908639908
+        ],
+        "scissors_force_n": 1.0186012268066407,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.15002253651618958,
+        "invalid_tets": 0,
+        "max_displacement_mm": 13.405560493469238,
+        "tumor_com_mm": [
+          1.6484076976776123,
+          45.50655746459961,
+          -0.3740817904472351
+        ],
+        "body_com_mm": [
+          0.44071877002716064,
+          4.485969066619873,
+          -0.053118783980607986
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35580,
+        "wall_triangles": 172,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 3,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -3.2583460807800293,
+            34.3582878112793,
+            -1.915209412574768
+          ],
+          [
+            7.000666618347168,
+            39.90736389160156,
+            2.403115749359131
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.259013175964355,
+          5.549075603485107,
+          4.318325042724609
+        ],
+        "stage": "open_1",
+        "step": 630,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 1,
+        "max_triangle_edge_mm": 2.682901382446289
+      },
+      "physics_ms": {
+        "mean": 77.34926000509101,
+        "median": 73.06920000701211,
+        "p95": 88.06633997592142,
+        "maximum": 232.70769999362528
+      },
+      "pipeline_ms": {
+        "mean": 87.66932332267363,
+        "median": 82.5592500041239,
+        "p95": 99.32676497555804,
+        "maximum": 248.11689998023212
+      }
+    },
+    {
+      "stage": "reposition_2",
+      "end": {
+        "step": 690,
+        "stage": "reposition_2",
+        "physics_ms": 74.95829998515546,
+        "pipeline_ms": 85.26060002623126,
+        "grip_points": 55,
+        "jaw_gap_mm": 2.497226297855377,
+        "jaw_load_n": [
+          0.0,
+          3.8529810905456543
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.23273788653647348,
+        "bite_lift_mm": 14.816919326782227,
+        "hinge_cm": [
+          -0.8939999938011169,
+          7.0417609214782715,
+          0.0
+        ],
+        "cut_edges": 97,
+        "fractures": 1,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.03154037892818451
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.15000514686107635,
+        "invalid_tets": 0,
+        "max_displacement_mm": 13.5216703414917,
+        "tumor_com_mm": [
+          0.789254903793335,
+          45.57679748535156,
+          -2.1493148803710938
+        ],
+        "body_com_mm": [
+          0.13383811712265015,
+          4.518349647521973,
+          -0.647108793258667
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35580,
+        "wall_triangles": 172,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 3,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.53808069229126,
+            33.93103790283203,
+            -4.202131748199463
+          ],
+          [
+            4.983067512512207,
+            40.09688949584961,
+            -0.33904892206192017
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          9.521148681640625,
+          6.1658525466918945,
+          3.8630828857421875
+        ],
+        "stage": "reposition_2",
+        "step": 690,
+        "material_components": 1,
+        "material_component_sizes": [
+          102710
+        ],
+        "lattice_components": 1,
+        "stray_skin_cuts": 1,
+        "max_triangle_edge_mm": 2.6921582221984863
+      },
+      "physics_ms": {
+        "mean": 76.59335332961443,
+        "median": 73.35009999223985,
+        "p95": 92.05154999508522,
+        "maximum": 301.18060001404956
+      },
+      "pipeline_ms": {
+        "mean": 85.49039500649087,
+        "median": 82.48899999307469,
+        "p95": 100.85741003858857,
+        "maximum": 308.818000019528
+      }
+    },
+    {
+      "stage": "incise_2",
+      "end": {
+        "step": 840,
+        "stage": "incise_2",
+        "physics_ms": 101.99690004810691,
+        "pipeline_ms": 154.59449996706098,
+        "grip_points": 55,
+        "jaw_gap_mm": 2.0662319660186768,
+        "jaw_load_n": [
+          0.6893538236618042,
+          4.3400559425354
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.143433573421719,
+        "bite_lift_mm": 15.932920455932617,
+        "hinge_cm": [
+          -0.8939999938011169,
+          7.140513896942139,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 0.0,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1500215232372284,
+        "invalid_tets": 0,
+        "max_displacement_mm": 15.001472473144531,
+        "tumor_com_mm": [
+          1.1810927391052246,
+          49.736854553222656,
+          -0.07373713701963425
+        ],
+        "body_com_mm": [
+          0.00032911161542870104,
+          3.542217969894409,
+          -0.00041337087168358266
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.574794769287109,
+            28.66070556640625,
+            -3.7227091789245605
+          ],
+          [
+            5.713494300842285,
+            45.37444305419922,
+            3.349188804626465
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          11.288290023803711,
+          16.713735580444336,
+          7.071897983551025
+        ],
+        "stage": "incise_2",
+        "step": 840,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.0481207370758057
+      },
+      "physics_ms": {
+        "mean": 96.81910400084841,
+        "median": 99.15969998110086,
+        "p95": 118.74379003711506,
+        "maximum": 138.9317999710329
+      },
+      "pipeline_ms": {
+        "mean": 133.68944066848294,
+        "median": 132.88074999582022,
+        "p95": 191.6450299991993,
+        "maximum": 209.87540000351146
+      }
+    },
+    {
+      "stage": "withdraw",
+      "end": {
+        "step": 960,
+        "stage": "withdraw",
+        "physics_ms": 65.46320003690198,
+        "pipeline_ms": 88.85599998757243,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.7770309746265411,
+        "jaw_load_n": [
+          0.6547642350196838,
+          4.836182594299316
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.14480374771953802,
+        "bite_lift_mm": 15.941551208496094,
+        "hinge_cm": [
+          -0.8939999938011169,
+          7.140513896942139,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 0.0,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999966323375702,
+        "invalid_tets": 0,
+        "max_displacement_mm": 15.34023666381836,
+        "tumor_com_mm": [
+          1.1951028108596802,
+          49.83488464355469,
+          0.0896739661693573
+        ],
+        "body_com_mm": [
+          0.00033981900196522474,
+          3.5422468185424805,
+          -0.00031014191335998476
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.574794769287109,
+            28.66070556640625,
+            -3.7227091789245605
+          ],
+          [
+            5.748743057250977,
+            45.55324172973633,
+            3.6950788497924805
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          11.323537826538086,
+          16.892536163330078,
+          7.417788028717041
+        ],
+        "stage": "withdraw",
+        "step": 960,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.0481207370758057
+      },
+      "physics_ms": {
+        "mean": 68.23192583397031,
+        "median": 63.46589999157004,
+        "p95": 102.18941999482922,
+        "maximum": 109.20339997392148
+      },
+      "pipeline_ms": {
+        "mean": 101.81245582934935,
+        "median": 90.59025000897236,
+        "p95": 158.43046496738677,
+        "maximum": 216.48519998416305
+      }
+    },
+    {
+      "stage": "release",
+      "end": {
+        "step": 1005,
+        "stage": "release",
+        "physics_ms": 51.4427000307478,
+        "pipeline_ms": 71.44369999878109,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.7383424937725067,
+        "jaw_load_n": [
+          0.587676465511322,
+          4.809410095214844
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.14512139892924683,
+        "bite_lift_mm": 15.936322212219238,
+        "hinge_cm": [
+          -0.8939999938011169,
+          7.140513896942139,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 16.77659273147583,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1499999612569809,
+        "invalid_tets": 0,
+        "max_displacement_mm": 15.352226257324219,
+        "tumor_com_mm": [
+          1.1953158378601074,
+          49.8473014831543,
+          0.07112086564302444
+        ],
+        "body_com_mm": [
+          0.0003406803007237613,
+          3.542250394821167,
+          -0.00031900012982077897
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.574794769287109,
+            28.66070556640625,
+            -3.7227091789245605
+          ],
+          [
+            5.7525200843811035,
+            45.566097259521484,
+            3.67427134513855
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          11.327314376831055,
+          16.905391693115234,
+          7.396980285644531
+        ],
+        "stage": "release",
+        "step": 1005,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.0481207370758057
+      },
+      "physics_ms": {
+        "mean": 61.14988666959107,
+        "median": 51.4427000307478,
+        "p95": 75.47576001379637,
+        "maximum": 258.1606000312604
+      },
+      "pipeline_ms": {
+        "mean": 84.6132288958567,
+        "median": 75.58140001492575,
+        "p95": 101.8729000003077,
+        "maximum": 276.77850000327453
+      }
+    },
+    {
+      "stage": "extract",
+      "end": {
+        "step": 1080,
+        "stage": "extract",
+        "physics_ms": 50.19330000504851,
+        "pipeline_ms": 65.3601999511011,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.6741597652435303,
+        "jaw_load_n": [
+          0.49340617656707764,
+          4.49827241897583
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.13736836414185408,
+        "bite_lift_mm": 25.934064865112305,
+        "hinge_cm": [
+          -0.8939999938011169,
+          8.140410423278809,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1500004082918167,
+        "invalid_tets": 0,
+        "max_displacement_mm": 25.28774070739746,
+        "tumor_com_mm": [
+          1.2051286697387695,
+          59.85688781738281,
+          0.03466298431158066
+        ],
+        "body_com_mm": [
+          0.000347339257132262,
+          3.5453178882598877,
+          -0.0003374576917849481
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.574791431427002,
+            28.660924911499023,
+            -3.7226688861846924
+          ],
+          [
+            5.775310516357422,
+            55.571407318115234,
+            3.6136088371276855
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          11.350102424621582,
+          26.910484313964844,
+          7.336277961730957
+        ],
+        "stage": "extract",
+        "step": 1080,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.048119306564331
+      },
+      "physics_ms": {
+        "mean": 61.06063600163907,
+        "median": 60.60379999689758,
+        "p95": 70.81252001225948,
+        "maximum": 274.1317999898456
+      },
+      "pipeline_ms": {
+        "mean": 82.55094399908558,
+        "median": 80.24919999297708,
+        "p95": 98.38635002961382,
+        "maximum": 292.9325000150129
+      }
+    },
+    {
+      "stage": "hold",
+      "end": {
+        "step": 1110,
+        "stage": "hold",
+        "physics_ms": 50.40539999026805,
+        "pipeline_ms": 65.72220002999529,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.6495686769485474,
+        "jaw_load_n": [
+          0.5101218223571777,
+          4.4527788162231445
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.13578477583972087,
+        "bite_lift_mm": 25.93575668334961,
+        "hinge_cm": [
+          -0.8939999938011169,
+          8.140469551086426,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999982714653015,
+        "invalid_tets": 0,
+        "max_displacement_mm": 25.30429458618164,
+        "tumor_com_mm": [
+          1.2114492654800415,
+          59.86465835571289,
+          0.04358536750078201
+        ],
+        "body_com_mm": [
+          0.0003511230170261115,
+          3.545314073562622,
+          -0.0003319630050100386
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.57479190826416,
+            28.660709381103516,
+            -3.722674608230591
+          ],
+          [
+            5.787847518920898,
+            55.584442138671875,
+            3.6322619915008545
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          11.362639427185059,
+          26.923730850219727,
+          7.354936599731445
+        ],
+        "stage": "hold",
+        "step": 1110,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.048095464706421
+      },
+      "physics_ms": {
+        "mean": 56.11924333691908,
+        "median": 60.19245000788942,
+        "p95": 64.78764001221862,
+        "maximum": 66.36330002220348
+      },
+      "pipeline_ms": {
+        "mean": 74.15632000581051,
+        "median": 79.33545002015308,
+        "p95": 84.28770999598783,
+        "maximum": 86.23740001348779
+      }
+    },
+    {
+      "stage": "side_pull",
+      "end": {
+        "step": 1170,
+        "stage": "side_pull",
+        "physics_ms": 64.72989998292178,
+        "pipeline_ms": 89.0225000330247,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.6236254572868347,
+        "jaw_load_n": [
+          0.458622008562088,
+          4.316394329071045
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.1451955155495513,
+        "bite_lift_mm": 25.948165893554688,
+        "hinge_cm": [
+          -0.49401381611824036,
+          8.142000198364258,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1500004231929779,
+        "invalid_tets": 0,
+        "max_displacement_mm": 25.94948959350586,
+        "tumor_com_mm": [
+          5.233023643493652,
+          59.8884162902832,
+          0.08787118643522263
+        ],
+        "body_com_mm": [
+          0.001596481422893703,
+          3.5453178882598877,
+          -0.0003082509501837194
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.574707508087158,
+            28.660680770874023,
+            -3.7226808071136475
+          ],
+          [
+            9.823914527893066,
+            55.63904571533203,
+            3.7030582427978516
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          15.398621559143066,
+          26.97836685180664,
+          7.425739288330078
+        ],
+        "stage": "side_pull",
+        "step": 1170,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.0481252670288086
+      },
+      "physics_ms": {
+        "mean": 59.43741499989604,
+        "median": 62.06394999753684,
+        "p95": 74.8158100002911,
+        "maximum": 82.01329997973517
+      },
+      "pipeline_ms": {
+        "mean": 79.54179500035632,
+        "median": 83.41859997017309,
+        "p95": 100.32763503550085,
+        "maximum": 120.551300002262
+      }
+    },
+    {
+      "stage": "side_hold",
+      "end": {
+        "step": 1215,
+        "stage": "side_hold",
+        "physics_ms": 64.48449997697026,
+        "pipeline_ms": 87.30000001378357,
+        "grip_points": 55,
+        "jaw_gap_mm": 1.572786122560501,
+        "jaw_load_n": [
+          0.5802180767059326,
+          4.33672571182251
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 7,
+        "pad_slip_mm": 0.14781810786837832,
+        "bite_lift_mm": 25.94476318359375,
+        "hinge_cm": [
+          -0.4940005838871002,
+          8.142000198364258,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1500001698732376,
+        "invalid_tets": 0,
+        "max_displacement_mm": 25.965679168701172,
+        "tumor_com_mm": [
+          5.234710693359375,
+          59.89463806152344,
+          0.09908729791641235
+        ],
+        "body_com_mm": [
+          0.0015916082775220275,
+          3.5453200340270996,
+          -0.00030594010604545474
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.574766159057617,
+            28.660680770874023,
+            -3.7226808071136475
+          ],
+          [
+            9.816715240478516,
+            55.635799407958984,
+            3.7149696350097656
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          15.391481399536133,
+          26.97511863708496,
+          7.437650680541992
+        ],
+        "stage": "side_hold",
+        "step": 1215,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.0481200218200684
+      },
+      "physics_ms": {
+        "mean": 69.14419111174841,
+        "median": 66.23850000323728,
+        "p95": 80.75084001757205,
+        "maximum": 132.22379999933764
+      },
+      "pipeline_ms": {
+        "mean": 92.73573777948816,
+        "median": 88.66340003442019,
+        "p95": 107.66584000084549,
+        "maximum": 229.99729996081442
+      }
+    },
+    {
+      "stage": "jaw_open",
+      "end": {
+        "step": 1260,
+        "stage": "jaw_open",
+        "physics_ms": 77.32859998941422,
+        "pipeline_ms": 85.11649997672066,
+        "grip_points": 0,
+        "jaw_gap_mm": 9.996892213821411,
+        "jaw_load_n": [
+          0.0,
+          0.0
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 0,
+        "pad_slip_mm": 25.227719656702668,
+        "bite_lift_mm": 0.7548117637634277,
+        "hinge_cm": [
+          -0.4940005838871002,
+          8.142000198364258,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.7483354210853577,
+        "invalid_tets": 0,
+        "max_displacement_mm": 6.339480400085449,
+        "tumor_com_mm": [
+          5.803354263305664,
+          34.605838775634766,
+          -1.0091774463653564
+        ],
+        "body_com_mm": [
+          0.0028888953384011984,
+          3.51969838142395,
+          0.004020575899630785
+        ],
+        "absolute_envelope_exceeded": false
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.542527198791504,
+            28.525686264038086,
+            -4.172365188598633
+          ],
+          [
+            10.109718322753906,
+            30.12763786315918,
+            3.340681791305542
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          15.65224552154541,
+          1.6019511222839355,
+          7.513046741485596
+        ],
+        "stage": "jaw_open",
+        "step": 1260,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.047658920288086
+      },
+      "physics_ms": {
+        "mean": 93.33447110451137,
+        "median": 79.97070002602413,
+        "p95": 238.12973998719826,
+        "maximum": 259.4276000163518
+      },
+      "pipeline_ms": {
+        "mean": 103.65691110879804,
+        "median": 90.00470000319183,
+        "p95": 249.75322001846504,
+        "maximum": 266.3926999666728
+      }
+    },
+    {
+      "stage": "open_retract",
+      "end": {
+        "step": 1320,
+        "stage": "open_retract",
+        "physics_ms": 79.15399997727945,
+        "pipeline_ms": 87.1233000070788,
+        "grip_points": 0,
+        "jaw_gap_mm": 10.0,
+        "jaw_load_n": [
+          0.0,
+          0.0
+        ],
+        "bite_nodes": 8,
+        "held_bite_nodes": 0,
+        "pad_slip_mm": 1593.3237417905252,
+        "bite_lift_mm": -1557.354736328125,
+        "hinge_cm": [
+          -0.49399998784065247,
+          9.141940116882324,
+          0.0
+        ],
+        "cut_edges": 195,
+        "fractures": 2,
+        "scissors_gap_mm": 16.77672266960144,
+        "scissors_load_n": [
+          0.0,
+          0.0
+        ],
+        "scissors_force_n": 0.0,
+        "blade_overlap_mm": 0.0,
+        "wrist_overlap_mm": 0.0,
+        "min_volume_ratio": 0.3302254378795624,
+        "invalid_tets": 0,
+        "max_displacement_mm": 1565.368408203125,
+        "tumor_com_mm": [
+          3.9940741062164307,
+          -1522.050048828125,
+          -62.128196716308594
+        ],
+        "body_com_mm": [
+          0.0013587194262072444,
+          3.0620548725128174,
+          -0.01824536919593811
+        ],
+        "absolute_envelope_exceeded": true
+      },
+      "audit": {
+        "triangles": 35632,
+        "wall_triangles": 236,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.574789047241211,
+            -1528.72119140625,
+            -60.73162841796875
+          ],
+          [
+            8.955453872680664,
+            30.01471519470215,
+            3.3375537395477295
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          14.530243873596191,
+          1558.73583984375,
+          64.06918334960938
+        ],
+        "stage": "open_retract",
+        "step": 1320,
+        "material_components": 2,
+        "material_component_sizes": [
+          101393,
+          1317
+        ],
+        "lattice_components": 2,
+        "stray_skin_cuts": 35,
+        "max_triangle_edge_mm": 2.0481207370758057
+      },
+      "physics_ms": {
+        "mean": 100.89860499914114,
+        "median": 81.29220001865178,
+        "p95": 250.10212001798203,
+        "maximum": 278.0320000019856
+      },
+      "pipeline_ms": {
+        "mean": 109.18336499792834,
+        "median": 89.56690001650713,
+        "p95": 257.8911799617344,
+        "maximum": 301.47959996247664
+      }
+    }
+  ]
+}

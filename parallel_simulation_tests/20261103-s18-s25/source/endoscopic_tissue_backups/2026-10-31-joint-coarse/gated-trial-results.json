@@ -1,0 +1,84 @@
+[
+  {
+    "label": "algebra",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-joint-coarse\\check_joint_algebra.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-joint-coarse31-gated-probe\\LiverCudaSim.dll",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-joint-coarse\\gated-algebra-results.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "rounding",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-joint-coarse\\check_joint_rounding.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-joint-coarse31-gated-probe\\LiverCudaSim.dll",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-joint-coarse\\gated-rounding-results.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "diagnostic",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-joint-coarse\\check_joint_dynamics_strict.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\strict-green",
+      "--tool",
+      "scissors",
+      "--dll",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-joint-coarse31-gated-probe\\LiverCudaSim.dll"
+    ],
+    "exit_code": 1
+  },
+  {
+    "label": "timing",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\run_batch.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-joint-coarse\\gated-timing-jobs.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "capture",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-wrist-opt\\capture_motion.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\gated-capture",
+      "--scene",
+      "kidney",
+      "--tool",
+      "scissors",
+      "--dll",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-joint-coarse31-gated\\LiverCudaSim.dll"
+    ],
+    "exit_code": 1
+  },
+  {
+    "label": "render",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\replay_single_blas.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\gated-capture\\replay.bin",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\gated-video"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "compare",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\make_review.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-coarse-20261031\\baseline-video\\interactions.mp4",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\gated-video\\interactions.mp4",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\gated-review",
+      "JOINT_GATED"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "motion",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-wrist-opt\\review_motion.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-coarse-20261031\\baseline-capture\\motion.jsonl",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\gated-capture\\motion.jsonl",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\joint-gated-20261031\\gated-review"
+    ],
+    "exit_code": 0
+  }
+]

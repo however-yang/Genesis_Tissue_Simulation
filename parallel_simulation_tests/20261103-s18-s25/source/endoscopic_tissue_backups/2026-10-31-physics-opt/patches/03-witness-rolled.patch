@@ -1,0 +1,11 @@
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -178,6 +178,8 @@
+         // reductions; nine SDF evaluations instead of sixteen per line search.
+         float lo=0,hi=1,l=.381966f,r=.618034f;
+         float dl=shapeDistance(shape,p+dir*l,n,s),dr=shapeDistance(shape,p+dir*r,n,s);
++        // Keep the fixed eight search reductions without duplicating the SDF code.
++        #pragma unroll 1
+         for(int j=0;j<8;j++){
+             if(dl<dr){
+                 hi=r;r=l;dr=dl;l=lo+(hi-lo)*.381966f;

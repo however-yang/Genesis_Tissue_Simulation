@@ -1,0 +1,670 @@
+{
+  "revision": "r24",
+  "independent_timing": true,
+  "display_fps_measured": false,
+  "candidate_repeated": false,
+  "timing_scope": "Single screen only; R24 rejected for cache-identity alias before stability testing.",
+  "timing_jobs": [
+    {
+      "name": "r25-time-base-a1",
+      "command": [
+        "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+        "-X",
+        "utf8",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-release-next\\time_boundary.py",
+        "--case",
+        "kidney-reference",
+        "--dll",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+        "--output",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\release-next-20261101\\r25-time-base-a1",
+        "--end-step",
+        "1215"
+      ],
+      "returncode": 0,
+      "started_utc": "2026-11-01T18:12:48.821406+00:00",
+      "finished_utc": "2026-11-01T18:14:02.304979+00:00",
+      "elapsed_s": 73.41165760002332,
+      "processes_before": [
+        {
+          "pid": 27364,
+          "scripts": [
+            "run_r22_timing.py"
+          ],
+          "created_utc": "2026-11-01T18:12:48.708584+00:00"
+        }
+      ],
+      "processes_after": [
+        {
+          "pid": 27364,
+          "scripts": [
+            "run_r22_timing.py"
+          ],
+          "created_utc": "2026-11-01T18:12:48.708584+00:00"
+        }
+      ],
+      "gpu_before": "8 %, 2869 MiB, 38"
+    },
+    {
+      "name": "r24-control-on-screen",
+      "command": [
+        "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+        "-X",
+        "utf8",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-release-next\\time_boundary.py",
+        "--case",
+        "kidney-reference",
+        "--dll",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-release-next\\package\\artifacts\\release-r24-material-boundary\\bin\\LiverCudaSim.dll",
+        "--output",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\release-next-20261101\\r24-control-on-screen",
+        "--boundary-graph",
+        "1"
+      ],
+      "returncode": 0,
+      "started_utc": "2026-11-01T18:14:02.371866+00:00",
+      "finished_utc": "2026-11-01T18:15:19.880472+00:00",
+      "elapsed_s": 77.44899010000518,
+      "processes_before": [
+        {
+          "pid": 27364,
+          "scripts": [
+            "run_r22_timing.py"
+          ],
+          "created_utc": "2026-11-01T18:12:48.708584+00:00"
+        }
+      ],
+      "processes_after": [
+        {
+          "pid": 27364,
+          "scripts": [
+            "run_r22_timing.py"
+          ],
+          "created_utc": "2026-11-01T18:12:48.708584+00:00"
+        }
+      ],
+      "gpu_before": "1 %, 2865 MiB, 65"
+    },
+    {
+      "name": "r25-time-base-a2",
+      "command": [
+        "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+        "-X",
+        "utf8",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-release-next\\time_boundary.py",
+        "--case",
+        "kidney-reference",
+        "--dll",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+        "--output",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\release-next-20261101\\r25-time-base-a2",
+        "--end-step",
+        "1215"
+      ],
+      "returncode": 0,
+      "started_utc": "2026-11-01T18:20:36.305610+00:00",
+      "finished_utc": "2026-11-01T18:21:45.797621+00:00",
+      "elapsed_s": 69.4277573999716,
+      "processes_before": [
+        {
+          "pid": 27364,
+          "scripts": [
+            "run_r22_timing.py"
+          ],
+          "created_utc": "2026-11-01T18:12:48.708584+00:00"
+        }
+      ],
+      "processes_after": [
+        {
+          "pid": 27364,
+          "scripts": [
+            "run_r22_timing.py"
+          ],
+          "created_utc": "2026-11-01T18:12:48.708584+00:00"
+        }
+      ],
+      "gpu_before": "0 %, 2885 MiB, 68"
+    }
+  ],
+  "runs": {
+    "r25-time-base-a1": {
+      "final_state": {
+        "material_components": 2,
+        "lattice_components": 2,
+        "grip_points": 55,
+        "cut_edges": 195
+      },
+      "phases": {
+        "prefix": {
+          "physics_ms": {
+            "n": 1185,
+            "mean": 43.29536025287615,
+            "p95": 52.13272001128644,
+            "maximum": 60.57339999824762
+          },
+          "pipeline_ms": {
+            "n": 1185,
+            "mean": 57.23144337569289,
+            "p95": 89.75864000385626,
+            "maximum": 117.18639999162406
+          },
+          "repair_ms": {
+            "n": 1185,
+            "mean": 6.772065317044074,
+            "p95": 30.958059977274388,
+            "maximum": 50.022499985061586
+          }
+        },
+        "before_cut": {
+          "physics_ms": {
+            "n": 420,
+            "mean": 39.73310571441072,
+            "p95": 45.449234990519464,
+            "maximum": 48.662699991837144
+          },
+          "pipeline_ms": {
+            "n": 420,
+            "mean": 46.87983190732276,
+            "p95": 52.9370150208706,
+            "maximum": 63.42700001550838
+          },
+          "repair_ms": {
+            "n": 420,
+            "mean": 0.2217571438190394,
+            "p95": 0.40048501687124344,
+            "maximum": 1.1907000443898141
+          }
+        },
+        "cutting": {
+          "physics_ms": {
+            "n": 390,
+            "mean": 48.44819128047675,
+            "p95": 54.31539501005317,
+            "maximum": 60.57339999824762
+          },
+          "pipeline_ms": {
+            "n": 390,
+            "mean": 65.84868692115356,
+            "p95": 105.46466502128168,
+            "maximum": 117.18639999162406
+          },
+          "repair_ms": {
+            "n": 390,
+            "mean": 9.984008718628246,
+            "p95": 47.11238500312901,
+            "maximum": 50.022499985061586
+          }
+        },
+        "held_after": {
+          "physics_ms": {
+            "n": 375,
+            "mean": 41.92614106725281,
+            "p95": 43.591200007358566,
+            "maximum": 50.1504999701865
+          },
+          "pipeline_ms": {
+            "n": 375,
+            "mean": 59.86331493298834,
+            "p95": 67.92619999614544,
+            "maximum": 90.57609998853877
+          },
+          "repair_ms": {
+            "n": 375,
+            "mean": 10.767989333408574,
+            "p95": 15.98926002625376,
+            "maximum": 40.92830000445247
+          }
+        },
+        "free_release": {
+          "physics_ms": null,
+          "pipeline_ms": null,
+          "repair_ms": null
+        }
+      }
+    },
+    "r24-control-on-screen": {
+      "final_state": {
+        "material_components": 2,
+        "lattice_components": 2,
+        "grip_points": 0,
+        "cut_edges": 182
+      },
+      "phases": {
+        "prefix": {
+          "physics_ms": {
+            "n": 1185,
+            "mean": 43.774456961398734,
+            "p95": 52.8344800346531,
+            "maximum": 64.02769999112934
+          },
+          "pipeline_ms": {
+            "n": 1185,
+            "mean": 55.57679780532963,
+            "p95": 68.35203999653459,
+            "maximum": 90.20520001649857
+          },
+          "repair_ms": {
+            "n": 1185,
+            "mean": 4.530535527811492,
+            "p95": 11.342740012332795,
+            "maximum": 31.856300018262118
+          }
+        },
+        "before_cut": {
+          "physics_ms": {
+            "n": 420,
+            "mean": 40.51000571357907,
+            "p95": 46.108729983097874,
+            "maximum": 49.158499983605
+          },
+          "pipeline_ms": {
+            "n": 420,
+            "mean": 47.662894046931925,
+            "p95": 54.430315011995845,
+            "maximum": 64.94910002220422
+          },
+          "repair_ms": {
+            "n": 420,
+            "mean": 0.21707880978716448,
+            "p95": 0.35180500126443803,
+            "maximum": 1.0647000162862241
+          }
+        },
+        "cutting": {
+          "physics_ms": {
+            "n": 390,
+            "mean": 48.47089589576428,
+            "p95": 56.17802997003309,
+            "maximum": 64.02769999112934
+          },
+          "pipeline_ms": {
+            "n": 390,
+            "mean": 59.74567640910092,
+            "p95": 72.27967999642715,
+            "maximum": 82.0778000052087
+          },
+          "repair_ms": {
+            "n": 390,
+            "mean": 3.758509487856944,
+            "p95": 11.070684980950318,
+            "maximum": 28.598400007467717
+          }
+        },
+        "held_after": {
+          "physics_ms": {
+            "n": 375,
+            "mean": 42.54634586721659,
+            "p95": 45.363200013525784,
+            "maximum": 52.926399977877736
+          },
+          "pipeline_ms": {
+            "n": 375,
+            "mean": 60.10473626681293,
+            "p95": 70.48044999246486,
+            "maximum": 90.20520001649857
+          },
+          "repair_ms": {
+            "n": 375,
+            "mean": 10.164514133551469,
+            "p95": 15.858909999951724,
+            "maximum": 31.856300018262118
+          }
+        },
+        "free_release": {
+          "physics_ms": {
+            "n": 77,
+            "mean": 51.70770519709384,
+            "p95": 53.797959990333766,
+            "maximum": 55.49370002700016
+          },
+          "pipeline_ms": {
+            "n": 77,
+            "mean": 58.49956103688251,
+            "p95": 61.817919998429716,
+            "maximum": 64.17789997067302
+          },
+          "repair_ms": {
+            "n": 77,
+            "mean": 0.17051168644873352,
+            "p95": 0.28246002038940793,
+            "maximum": 0.7563999970443547
+          }
+        }
+      }
+    },
+    "r25-time-base-a2": {
+      "final_state": {
+        "material_components": 2,
+        "lattice_components": 2,
+        "grip_points": 55,
+        "cut_edges": 189
+      },
+      "phases": {
+        "prefix": {
+          "physics_ms": {
+            "n": 1185,
+            "mean": 44.05617535886461,
+            "p95": 53.173020016402006,
+            "maximum": 61.59800000023097
+          },
+          "pipeline_ms": {
+            "n": 1185,
+            "mean": 53.93204194123224,
+            "p95": 89.05483997659758,
+            "maximum": 109.6038999967277
+          },
+          "repair_ms": {
+            "n": 1185,
+            "mean": 2.773635106245724,
+            "p95": 30.768079997505993,
+            "maximum": 50.409500021487474
+          }
+        },
+        "before_cut": {
+          "physics_ms": {
+            "n": 420,
+            "mean": 40.24146285664756,
+            "p95": 45.911609995528124,
+            "maximum": 47.65309998765588
+          },
+          "pipeline_ms": {
+            "n": 420,
+            "mean": 47.249242856854664,
+            "p95": 53.61913500528317,
+            "maximum": 62.9649999900721
+          },
+          "repair_ms": {
+            "n": 420,
+            "mean": 0.25912428668345366,
+            "p95": 0.3619500203058123,
+            "maximum": 11.139100010041147
+          }
+        },
+        "cutting": {
+          "physics_ms": {
+            "n": 390,
+            "mean": 48.72225871837985,
+            "p95": 56.102274981094524,
+            "maximum": 61.59800000023097
+          },
+          "pipeline_ms": {
+            "n": 390,
+            "mean": 63.99161051137922,
+            "p95": 100.74979999044439,
+            "maximum": 109.6038999967277
+          },
+          "repair_ms": {
+            "n": 390,
+            "mean": 7.911951282772068,
+            "p95": 38.44757500046397,
+            "maximum": 50.409500021487474
+          }
+        },
+        "held_after": {
+          "physics_ms": {
+            "n": 375,
+            "mean": 43.47592666745186,
+            "p95": 46.612680004909635,
+            "maximum": 48.416599980555475
+          },
+          "pipeline_ms": {
+            "n": 375,
+            "mean": 50.95482560278227,
+            "p95": 55.74369998066686,
+            "maximum": 60.03929994767532
+          },
+          "repair_ms": {
+            "n": 375,
+            "mean": 0.24603840056806803,
+            "p95": 0.427999981911853,
+            "maximum": 5.198300001211464
+          }
+        },
+        "free_release": {
+          "physics_ms": null,
+          "pipeline_ms": null,
+          "repair_ms": null
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "baseline_vs_on": {
+      "prefix": {
+        "physics_ms": {
+          "left_means": [
+            43.29536025287615,
+            44.05617535886461
+          ],
+          "right_means": [
+            43.774456961398734
+          ],
+          "left_mean": 43.67576780587038,
+          "right_mean": 43.774456961398734,
+          "delta_ms": 0.09868915552835489
+        },
+        "pipeline_ms": {
+          "left_means": [
+            57.23144337569289,
+            53.93204194123224
+          ],
+          "right_means": [
+            55.57679780532963
+          ],
+          "left_mean": 55.58174265846257,
+          "right_mean": 55.57679780532963,
+          "delta_ms": -0.004944853132933247
+        },
+        "repair_ms": {
+          "left_means": [
+            6.772065317044074,
+            2.773635106245724
+          ],
+          "right_means": [
+            4.530535527811492
+          ],
+          "left_mean": 4.772850211644899,
+          "right_mean": 4.530535527811492,
+          "delta_ms": -0.24231468383340715
+        }
+      },
+      "before_cut": {
+        "physics_ms": {
+          "left_means": [
+            39.73310571441072,
+            40.24146285664756
+          ],
+          "right_means": [
+            40.51000571357907
+          ],
+          "left_mean": 39.98728428552914,
+          "right_mean": 40.51000571357907,
+          "delta_ms": 0.5227214280499268
+        },
+        "pipeline_ms": {
+          "left_means": [
+            46.87983190732276,
+            47.249242856854664
+          ],
+          "right_means": [
+            47.662894046931925
+          ],
+          "left_mean": 47.064537382088716,
+          "right_mean": 47.662894046931925,
+          "delta_ms": 0.5983566648432088
+        },
+        "repair_ms": {
+          "left_means": [
+            0.2217571438190394,
+            0.25912428668345366
+          ],
+          "right_means": [
+            0.21707880978716448
+          ],
+          "left_mean": 0.24044071525124655,
+          "right_mean": 0.21707880978716448,
+          "delta_ms": -0.023361905464082067
+        }
+      },
+      "cutting": {
+        "physics_ms": {
+          "left_means": [
+            48.44819128047675,
+            48.72225871837985
+          ],
+          "right_means": [
+            48.47089589576428
+          ],
+          "left_mean": 48.5852249994283,
+          "right_mean": 48.47089589576428,
+          "delta_ms": -0.11432910366401927
+        },
+        "pipeline_ms": {
+          "left_means": [
+            65.84868692115356,
+            63.99161051137922
+          ],
+          "right_means": [
+            59.74567640910092
+          ],
+          "left_mean": 64.9201487162664,
+          "right_mean": 59.74567640910092,
+          "delta_ms": -5.174472307165473
+        },
+        "repair_ms": {
+          "left_means": [
+            9.984008718628246,
+            7.911951282772068
+          ],
+          "right_means": [
+            3.758509487856944
+          ],
+          "left_mean": 8.947980000700158,
+          "right_mean": 3.758509487856944,
+          "delta_ms": -5.189470512843213
+        }
+      },
+      "held_after": {
+        "physics_ms": {
+          "left_means": [
+            41.92614106725281,
+            43.47592666745186
+          ],
+          "right_means": [
+            42.54634586721659
+          ],
+          "left_mean": 42.701033867352336,
+          "right_mean": 42.54634586721659,
+          "delta_ms": -0.15468800013574935
+        },
+        "pipeline_ms": {
+          "left_means": [
+            59.86331493298834,
+            50.95482560278227
+          ],
+          "right_means": [
+            60.10473626681293
+          ],
+          "left_mean": 55.409070267885305,
+          "right_mean": 60.10473626681293,
+          "delta_ms": 4.695665998927623
+        },
+        "repair_ms": {
+          "left_means": [
+            10.767989333408574,
+            0.24603840056806803
+          ],
+          "right_means": [
+            10.164514133551469
+          ],
+          "left_mean": 5.507013866988321,
+          "right_mean": 10.164514133551469,
+          "delta_ms": 4.657500266563148
+        }
+      },
+      "free_release": {
+        "physics_ms": {
+          "left_means": [],
+          "right_means": [
+            51.70770519709384
+          ],
+          "left_mean": null,
+          "right_mean": 51.70770519709384,
+          "delta_ms": null
+        },
+        "pipeline_ms": {
+          "left_means": [],
+          "right_means": [
+            58.49956103688251
+          ],
+          "left_mean": null,
+          "right_mean": 58.49956103688251,
+          "delta_ms": null
+        },
+        "repair_ms": {
+          "left_means": [],
+          "right_means": [
+            0.17051168644873352
+          ],
+          "left_mean": null,
+          "right_mean": 0.17051168644873352,
+          "delta_ms": null
+        }
+      }
+    }
+  },
+  "quality": {
+    "steps": 1320,
+    "completed": true,
+    "invalid_tets": 0,
+    "healed_connections": 0,
+    "cuts_while_disabled": 0,
+    "free_release_frames": 77,
+    "closed_body_frames": 77,
+    "closed_piece_frames": 77,
+    "observed_contains_max_mm": 0.021997711717914644,
+    "contains_valid_for_acceptance": true,
+    "stage_nonmanifold_edges": {
+      "settle": 0,
+      "approach": 0,
+      "bite": 0,
+      "close": 0,
+      "lift": 0,
+      "blade_approach": 0,
+      "incise_1": 0,
+      "open_1": 0,
+      "reposition_2": 0,
+      "incise_2": 0,
+      "withdraw": 0,
+      "release": 0,
+      "extract": 0,
+      "hold": 0,
+      "side_pull": 0,
+      "side_hold": 0,
+      "jaw_open": 0,
+      "open_retract": 0
+    },
+    "video_frames": 1321,
+    "decoded_frames": 1321,
+    "original_quality_failed": true,
+    "dispatch_audit": {
+      "applicable": false,
+      "note": "Boundary grouping revisions do not use the R22/R23 repair-dispatch optimization."
+    },
+    "visual_review": "See the explicit review notes in the experiment report; no automated realism pass."
+  },
+  "protected_files": {
+    "endoscopic_tissue/native/bin-contact-groups31/LiverCudaSim.dll": true,
+    "endoscopic_tissue/run.py": true,
+    "endoscopic_tissue/scenario.py": true,
+    "endoscopic_tissue/native_backend.py": true,
+    "endoscopic_tissue/rendering.py": true,
+    "endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu": true,
+    "endoscopic_tissue/native/vendor/cuda/cut.cu": true,
+    "endoscopic_tissue/native/bin-scissors/LiverCudaSim.dll": true,
+    "endoscopic_tissue/native/bin/LiverCudaSim.dll": true
+  },
+  "accepted": false,
+  "default_replaced": false,
+  "acceptance_note": "Requires stable no-regression timing, complete surgical video review, valid closed meshes, and interaction regressions. No pass inferred from completing a run or from containment on nonclosed meshes."
+}

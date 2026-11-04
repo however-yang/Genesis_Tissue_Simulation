@@ -1,0 +1,89 @@
+{
+  "note": "Graphs disabled; includes launch gaps; nested assembly sections overlap. Do not sum all sections or use as runtime FPS.",
+  "runs": {
+    "baseline": {
+      "steps": 1110,
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "sections_ms_per_step": {
+        "begin frame, cut tick and rebuild between substeps": 1.581725045045045,
+        "cg assembly: mask": 0.10729324324324323,
+        "cg assembly: start": 0.017355945945945948,
+        "cg assembly: stencil and residual": 2.3938786486486485,
+        "cg: assembly": 2.7164587387387393,
+        "cg: feasible": 0.8273148648648649,
+        "cg: iterations": 5.27601135135135,
+        "cg: line search": 1.3726794594594594,
+        "cg: trust, projection": 0.03460936936936936,
+        "loop: coarse modes": 4.284878018018017,
+        "loop: contact discovery": 4.841337117117116,
+        "loop: local sweeps": 5.655968738738738,
+        "loop: manifold, contact marks": 3.2639228828828823,
+        "loop: regional mode": 1.7592506306306306,
+        "loop: rigid modes": 1.1478045945945947,
+        "loop: tool, safe and global coarse": 3.310862432432432,
+        "post: blade and contact reactions, velocity": 0.38050612612612617,
+        "post: fragment contact": 2.455653063063063,
+        "post: free-component nullspace": 0.40307702702702697,
+        "pre: predictor, recovery query": 2.3455928828828827,
+        "pre: tool, contact discovery, manifold": 2.418312972972973,
+        "substep prologue: liveness, fragment contact, predict": 2.7729415315315316
+      }
+    },
+    "additive": {
+      "steps": 1110,
+      "dll_sha256": "10d022f91d30c992b03d0592dce3a616457d005a7c7a130172d333cd74aebde6",
+      "sections_ms_per_step": {
+        "begin frame, cut tick and rebuild between substeps": 1.5610269369369372,
+        "cg assembly: mask": 0.10715216216216215,
+        "cg assembly: start": 0.01596855855855856,
+        "cg assembly: stencil and residual": 2.393273963963964,
+        "cg: assembly": 2.150065045045046,
+        "cg: feasible": 0.8671402702702704,
+        "cg: iterations": 2.930322702702703,
+        "cg: line search": 1.384537927927928,
+        "cg: trust, projection": 0.034580810810810804,
+        "loop: coarse modes": 4.265244864864865,
+        "loop: contact discovery": 5.0688969369369365,
+        "loop: local sweeps": 5.646656846846847,
+        "loop: manifold, contact marks": 3.2962807207207208,
+        "loop: regional mode": 1.7625385585585585,
+        "loop: rigid modes": 1.1354618918918917,
+        "loop: tool, safe and global coarse": 3.3973009009009014,
+        "post: blade and contact reactions, velocity": 0.39570558558558566,
+        "post: fragment contact": 2.4988284684684685,
+        "post: free-component nullspace": 0.4105060360360361,
+        "pre: predictor, recovery query": 2.3391354054054054,
+        "pre: tool, contact discovery, manifold": 2.621854054054054,
+        "substep prologue: liveness, fragment contact, predict": 2.753785945945946
+      }
+    },
+    "groups": {
+      "steps": 1110,
+      "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+      "sections_ms_per_step": {
+        "begin frame, cut tick and rebuild between substeps": 1.5740512612612612,
+        "cg assembly: mask": 0.10695090090090091,
+        "cg assembly: start": 0.015155315315315316,
+        "cg assembly: stencil and residual": 2.43509027027027,
+        "cg: assembly": 2.761643243243243,
+        "cg: feasible": 0.8394927027027027,
+        "cg: iterations": 5.2920100900900895,
+        "cg: line search": 1.3831294594594592,
+        "cg: trust, projection": 0.034910990990990994,
+        "loop: coarse modes": 4.247359279279279,
+        "loop: contact discovery": 4.758666036036035,
+        "loop: local sweeps": 5.6711890990991005,
+        "loop: manifold, contact marks": 3.228675765765766,
+        "loop: regional mode": 1.7778327027027023,
+        "loop: rigid modes": 1.1100874774774774,
+        "loop: tool, safe and global coarse": 3.3399977477477476,
+        "post: blade and contact reactions, velocity": 0.3502235135135136,
+        "post: fragment contact": 2.494648018018018,
+        "post: free-component nullspace": 0.4142710810810811,
+        "pre: predictor, recovery query": 2.342645135135135,
+        "pre: tool, contact discovery, manifold": 2.433404954954955,
+        "substep prologue: liveness, fragment contact, predict": 2.7852487387387392
+      }
+    }
+  }
+}

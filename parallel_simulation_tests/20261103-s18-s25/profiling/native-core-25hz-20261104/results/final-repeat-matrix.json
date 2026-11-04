@@ -1,0 +1,63 @@
+[
+  {
+    "name": "final-repeat-0-tool-gpu-body",
+    "case": {
+      "name": "tool-gpu-body",
+      "core": 2,
+      "gpu_body": true,
+      "dll": "native-final-v7/build/lib/libLiverCudaSim.so"
+    },
+    "returncode": 2,
+    "completed": false,
+    "quality_passed": false,
+    "performance": {
+      "frames": 793,
+      "mean_ms": 41.147496697351826,
+      "p50_ms": 39.543596,
+      "p95_ms": 55.596058799999994,
+      "p99_ms": 68.00373284000008,
+      "max_ms": 79.4442,
+      "fps": 24.30281500124303,
+      "over_50ms": 93,
+      "rolling20_min_hz": 15.507633841336073
+    },
+    "gpu_body_statistics": {
+      "calls": 793,
+      "gpu_calls": 793,
+      "cpu_fallbacks": 0,
+      "threshold_fallbacks": 0,
+      "paired_calls": 0,
+      "numeric_mismatches": 0,
+      "decision_mismatches": 0,
+      "max_abs_error_native_cm": 0.0
+    },
+    "error": null,
+    "elapsed_s": 91.75029563903809
+  },
+  {
+    "name": "final-repeat-1-reference",
+    "case": {
+      "name": "reference",
+      "core": 0,
+      "gpu_body": false,
+      "dll": "native-final-v7/build/lib/libLiverCudaSim.so"
+    },
+    "returncode": 0,
+    "completed": true,
+    "quality_passed": true,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 44.55894523546099,
+      "p50_ms": 45.844032,
+      "p95_ms": 54.4112167,
+      "p99_ms": 60.89539944000004,
+      "max_ms": 75.168969,
+      "fps": 22.442182926811697,
+      "over_50ms": 269,
+      "rolling20_min_hz": 17.35362133634685
+    },
+    "gpu_body_statistics": null,
+    "error": null,
+    "elapsed_s": 113.50115728378296
+  }
+]

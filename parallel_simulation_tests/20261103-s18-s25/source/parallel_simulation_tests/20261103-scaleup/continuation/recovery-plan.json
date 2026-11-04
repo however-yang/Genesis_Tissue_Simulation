@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "purpose": "P0 queue recovery and pending complete-frame diagnostic; no default adoption",
+  "inputs_sha256": {
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/recover_video.py": "f71d06fc0ca4df61ad4ee2ab17ef2d65aa7b955c0a188ea9c3a1e637b1ab9d62",
+    "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/profile_complete_frames.py": "51f0dca7d6f54e4f9329dfb1292c3c985eefdd0f6f44ecead87e6cc5acd992f4",
+    "/srv/disk2/hryang/genesis-exec/builds/57f184c-release-training-r3-sm80/lib/libLiverCudaSim.so": "5f89e18a6e9151b426fec67ca323b7e27da55aea0c01c514259f531ad338448b"
+  },
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONPATH": "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYOPENGL_PLATFORM": "egl",
+    "EGL_DEVICE_ID": "1",
+    "XDG_CACHE_HOME": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/cache"
+  },
+  "jobs": [
+    {
+      "id": "recover-final-video",
+      "args": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "-B",
+        "-u",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/recover_video.py",
+        "--output",
+        "{attempt}/recovered"
+      ],
+      "cwd": "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+      "max_idle": 900,
+      "max_wall": 1800,
+      "progress_globs": [
+        "{attempt}/recovered/**/*.log",
+        "{attempt}/recovered/**/interactions-h264.mp4"
+      ],
+      "results": [
+        {
+          "path": "{attempt}/recovered/result.json",
+          "require": {
+            "completed": true,
+            "old_partial_video_preserved": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "r3-complete-frame-profile",
+      "args": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "-B",
+        "-u",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/profile_complete_frames.py",
+        "--release",
+        "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+        "--library-dir",
+        "/srv/disk2/hryang/genesis-exec/builds/57f184c-release-training-r3-sm80/lib",
+        "--output",
+        "{attempt}/profile"
+      ],
+      "cwd": "/srv/disk2/hryang/genesis-exec/releases/0643e10991cf",
+      "max_idle": 900,
+      "max_wall": 2400,
+      "progress_globs": [
+        "{attempt}/profile/**/*.json"
+      ],
+      "results": [
+        {
+          "path": "{attempt}/profile/result.json",
+          "require": {
+            "completed": true,
+            "diagnostic_only": true
+          }
+        }
+      ]
+    }
+  ]
+}

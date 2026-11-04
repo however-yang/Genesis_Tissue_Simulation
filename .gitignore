@@ -160,3 +160,22 @@ outputs/
 
 # Local benchmark archive (not versioned)
 /benchmarks/
+
+# Local simulation runtimes and large raw profiling evidence
+/envs/
+/builds/
+/cache/
+/resources/
+/incoming/
+*.dll
+*.a
+*.cubin
+*.nsys-rep
+*.sqlite
+*.sqlite-journal
+*.pstats
+*.envsnap
+*.bin
+*.npy
+*.npz
+!parallel_simulation_tests/**/results/topology-mre/*.npz

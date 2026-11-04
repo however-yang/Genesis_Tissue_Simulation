@@ -1,0 +1,416 @@
+{
+  "case": "kidney-reference",
+  "scene": "kidney",
+  "settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      0.6,
+      -0.8,
+      0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 2
+  },
+  "steps": 1320,
+  "expected_steps": 1320,
+  "truncated": false,
+  "final_state": {
+    "material_components": 2,
+    "lattice_components": 2,
+    "grip_points": 0,
+    "cut_edges": 195
+  },
+  "dll": "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-completion\\package\\artifacts\\release-r20-support-cache\\bin\\LiverCudaSim.dll",
+  "dll_sha256": "6c89212852ddace0420767d1ed677cb7e0935f92d92f048634a7dd44bc945800",
+  "physics_ms": {
+    "mean": 44.75405232551284,
+    "median": 43.465750000905246,
+    "p95": 53.42107500764541,
+    "maximum": 63.360099971760064
+  },
+  "pipeline_ms": {
+    "mean": 52.90157271259421,
+    "median": 48.99989999830723,
+    "p95": 82.33360001177061,
+    "maximum": 106.02449998259544
+  },
+  "stages": {
+    "settle": {
+      "physics_ms": {
+        "mean": 34.391653328202665,
+        "median": 34.270949981873855,
+        "p95": 35.39063500938937,
+        "maximum": 35.48419999424368
+      },
+      "pipeline_ms": {
+        "mean": 38.834773326137416,
+        "median": 38.75604999484494,
+        "p95": 39.98270998126827,
+        "maximum": 40.29229999287054
+      }
+    },
+    "approach": {
+      "physics_ms": {
+        "mean": 34.643815556773916,
+        "median": 34.5177500275895,
+        "p95": 35.83323499769904,
+        "maximum": 36.368199973367155
+      },
+      "pipeline_ms": {
+        "mean": 39.22480777707986,
+        "median": 39.10110000288114,
+        "p95": 40.93096000433434,
+        "maximum": 41.61509999539703
+      }
+    },
+    "bite": {
+      "physics_ms": {
+        "mean": 36.88206444623776,
+        "median": 35.28609999921173,
+        "p95": 42.422679997980595,
+        "maximum": 42.97810001298785
+      },
+      "pipeline_ms": {
+        "mean": 41.37572000424067,
+        "median": 39.8257999913767,
+        "p95": 47.013059991877526,
+        "maximum": 47.10289998911321
+      }
+    },
+    "close": {
+      "physics_ms": {
+        "mean": 42.5815511132694,
+        "median": 42.60380001505837,
+        "p95": 43.992960010655224,
+        "maximum": 45.760100008919835
+      },
+      "pipeline_ms": {
+        "mean": 47.357482221236246,
+        "median": 47.449100005906075,
+        "p95": 48.799239995423704,
+        "maximum": 50.34209997393191
+      }
+    },
+    "lift": {
+      "physics_ms": {
+        "mean": 42.10202166820333,
+        "median": 42.01220002141781,
+        "p95": 43.51172499009408,
+        "maximum": 44.414900010451674
+      },
+      "pipeline_ms": {
+        "mean": 46.990683333812434,
+        "median": 46.85429998789914,
+        "p95": 48.370259974035434,
+        "maximum": 49.311499984469265
+      }
+    },
+    "blade_approach": {
+      "physics_ms": {
+        "mean": 43.9976216701325,
+        "median": 43.23375000967644,
+        "p95": 48.35448500234634,
+        "maximum": 49.24439999740571
+      },
+      "pipeline_ms": {
+        "mean": 48.9393050011131,
+        "median": 48.08149999007583,
+        "p95": 53.26097998477053,
+        "maximum": 55.34819996682927
+      }
+    },
+    "incise_1": {
+      "physics_ms": {
+        "mean": 52.22484999763159,
+        "median": 52.37569997552782,
+        "p95": 56.91190499346702,
+        "maximum": 63.360099971760064
+      },
+      "pipeline_ms": {
+        "mean": 74.83678066288121,
+        "median": 79.61539999814704,
+        "p95": 102.94362500135317,
+        "maximum": 106.02449998259544
+      }
+    },
+    "open_1": {
+      "physics_ms": {
+        "mean": 49.54372999685196,
+        "median": 49.93554999236949,
+        "p95": 51.87503997585736,
+        "maximum": 52.10349999833852
+      },
+      "pipeline_ms": {
+        "mean": 66.80915333563462,
+        "median": 63.38875001529232,
+        "p95": 101.43723498331381,
+        "maximum": 105.40679999394342
+      }
+    },
+    "reposition_2": {
+      "physics_ms": {
+        "mean": 47.40825666716167,
+        "median": 47.21250000875443,
+        "p95": 49.1524900047807,
+        "maximum": 50.42020004475489
+      },
+      "pipeline_ms": {
+        "mean": 52.48847666565174,
+        "median": 52.14385001454502,
+        "p95": 54.70913000172004,
+        "maximum": 55.891500029247254
+      }
+    },
+    "incise_2": {
+      "physics_ms": {
+        "mean": 47.125896000458546,
+        "median": 44.58460002206266,
+        "p95": 55.91964501363691,
+        "maximum": 60.613300011027604
+      },
+      "pipeline_ms": {
+        "mean": 52.30973199630777,
+        "median": 49.57535001449287,
+        "p95": 62.35088001121767,
+        "maximum": 66.94119999883696
+      }
+    },
+    "withdraw": {
+      "physics_ms": {
+        "mean": 43.20850916604589,
+        "median": 43.04210000555031,
+        "p95": 44.77574503980577,
+        "maximum": 46.85089999111369
+      },
+      "pipeline_ms": {
+        "mean": 49.5577658371379,
+        "median": 48.185600026044995,
+        "p95": 58.173354977043346,
+        "maximum": 59.768599981907755
+      }
+    },
+    "release": {
+      "physics_ms": {
+        "mean": 42.816895559533606,
+        "median": 42.83950000535697,
+        "p95": 44.019279966596514,
+        "maximum": 44.74109999136999
+      },
+      "pipeline_ms": {
+        "mean": 57.32634000143864,
+        "median": 57.551999983843416,
+        "p95": 63.38129999348894,
+        "maximum": 64.29810001282021
+      }
+    },
+    "extract": {
+      "physics_ms": {
+        "mean": 43.46447733308499,
+        "median": 43.38859999552369,
+        "p95": 44.621420005569234,
+        "maximum": 46.075700025539845
+      },
+      "pipeline_ms": {
+        "mean": 54.37785866903141,
+        "median": 53.59429999953136,
+        "p95": 59.185519989114255,
+        "maximum": 63.136600016150624
+      }
+    },
+    "hold": {
+      "physics_ms": {
+        "mean": 43.6760799998107,
+        "median": 43.6601499968674,
+        "p95": 44.749914994463325,
+        "maximum": 44.841599999926984
+      },
+      "pipeline_ms": {
+        "mean": 50.85423665780885,
+        "median": 49.25420001382008,
+        "p95": 58.794164980645284,
+        "maximum": 61.53370003448799
+      }
+    },
+    "side_pull": {
+      "physics_ms": {
+        "mean": 43.36624999899262,
+        "median": 43.41354998177849,
+        "p95": 44.30830501078162,
+        "maximum": 45.11469998396933
+      },
+      "pipeline_ms": {
+        "mean": 49.135274999813795,
+        "median": 48.630000004777685,
+        "p95": 52.65597503166645,
+        "maximum": 58.45919996500015
+      }
+    },
+    "side_hold": {
+      "physics_ms": {
+        "mean": 43.709608886597884,
+        "median": 43.56920003192499,
+        "p95": 44.531640014611185,
+        "maximum": 45.3609999967739
+      },
+      "pipeline_ms": {
+        "mean": 48.69647110786496,
+        "median": 48.63560001831502,
+        "p95": 49.59499998949468,
+        "maximum": 50.11529999319464
+      }
+    },
+    "jaw_open": {
+      "physics_ms": {
+        "mean": 45.84104221624633,
+        "median": 43.38149999966845,
+        "p95": 54.478640004526824,
+        "maximum": 55.89610000606626
+      },
+      "pipeline_ms": {
+        "mean": 50.64005110956108,
+        "median": 48.39260003063828,
+        "p95": 58.856180030852556,
+        "maximum": 60.20190002163872
+      }
+    },
+    "open_retract": {
+      "physics_ms": {
+        "mean": 52.66485166212078,
+        "median": 52.637699991464615,
+        "p95": 53.556799978832714,
+        "maximum": 54.26990002160892
+      },
+      "pipeline_ms": {
+        "mean": 57.22999333132369,
+        "median": 57.15915001928806,
+        "p95": 58.6748850037111,
+        "maximum": 59.20030002016574
+      }
+    }
+  },
+  "telemetry": [
+    {
+      "stage": "settle",
+      "reading": "2026/11/01 05:06:53.757, P2, 90 %, 1920 MHz, 9501 MHz, 268.49 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "approach",
+      "reading": "2026/11/01 05:06:57.347, P2, 91 %, 1920 MHz, 9501 MHz, 320.45 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "bite",
+      "reading": "2026/11/01 05:06:59.278, P2, 91 %, 1920 MHz, 9501 MHz, 320.31 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "close",
+      "reading": "2026/11/01 05:07:01.466, P2, 91 %, 1920 MHz, 9501 MHz, 310.58 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "lift",
+      "reading": "2026/11/01 05:07:07.162, P2, 90 %, 1920 MHz, 9501 MHz, 306.14 W, 73",
+      "error": ""
+    },
+    {
+      "stage": "blade_approach",
+      "reading": "2026/11/01 05:07:13.103, P2, 92 %, 1920 MHz, 9501 MHz, 291.27 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "incise_1",
+      "reading": "2026/11/01 05:07:24.399, P2, 95 %, 1920 MHz, 9501 MHz, 285.42 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "open_1",
+      "reading": "2026/11/01 05:07:26.461, P2, 91 %, 1920 MHz, 9501 MHz, 289.03 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "reposition_2",
+      "reading": "2026/11/01 05:07:29.666, P2, 92 %, 1920 MHz, 9501 MHz, 291.34 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "incise_2",
+      "reading": "2026/11/01 05:07:37.574, P2, 91 %, 1920 MHz, 9501 MHz, 302.86 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "withdraw",
+      "reading": "2026/11/01 05:07:43.576, P2, 90 %, 1920 MHz, 9501 MHz, 306.42 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "release",
+      "reading": "2026/11/01 05:07:46.212, P2, 91 %, 1920 MHz, 9501 MHz, 302.56 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "extract",
+      "reading": "2026/11/01 05:07:50.344, P2, 91 %, 1920 MHz, 9501 MHz, 304.22 W, 73",
+      "error": ""
+    },
+    {
+      "stage": "hold",
+      "reading": "2026/11/01 05:07:51.939, P2, 92 %, 1920 MHz, 9501 MHz, 303.77 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "side_pull",
+      "reading": "2026/11/01 05:07:54.942, P2, 92 %, 1920 MHz, 9501 MHz, 306.82 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "side_hold",
+      "reading": "2026/11/01 05:07:57.194, P2, 91 %, 1920 MHz, 9501 MHz, 306.01 W, 73",
+      "error": ""
+    },
+    {
+      "stage": "jaw_open",
+      "reading": "2026/11/01 05:07:59.523, P2, 91 %, 1920 MHz, 9501 MHz, 296.76 W, 72",
+      "error": ""
+    },
+    {
+      "stage": "open_retract",
+      "reading": "2026/11/01 05:08:03.007, P2, 94 %, 1920 MHz, 9501 MHz, 291.33 W, 72",
+      "error": ""
+    }
+  ],
+  "spike_policy": "When enabled: first core >100ms after 30 warmup steps; profile the following frame and retain both raw samples.",
+  "note": "Native timing only; no renderer or interaction diagnostics; not display FPS."
+}

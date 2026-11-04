@@ -1,0 +1,111 @@
+{
+  "performance_benefit": true,
+  "blade_mean_ms": 44.017916409219865,
+  "both_mean_ms": 43.41663284787234,
+  "blade_mean_p95_ms": 51.34716375,
+  "both_mean_p95_ms": 50.418178299999994,
+  "qualified": true,
+  "production_replaced": false,
+  "final_checks": [
+    {
+      "name": "all-queries-v2-checked-physics",
+      "returncode": 0,
+      "passed": null,
+      "completed": true,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 34.01420068297872,
+        "p50_ms": 36.009460000000004,
+        "p95_ms": 42.83813075,
+        "p99_ms": 47.73603247000002,
+        "max_ms": 52.86894,
+        "fps": 29.39948550666419,
+        "over_50ms": 4,
+        "rolling20_min_hz": 22.038593939425674
+      }
+    },
+    {
+      "name": "all-queries-v2-current-frame",
+      "returncode": 0,
+      "passed": true,
+      "completed": null,
+      "quality_passed": null,
+      "error": null,
+      "performance": null
+    },
+    {
+      "name": "all-queries-v2-snapshot-roundtrip",
+      "returncode": 0,
+      "passed": true,
+      "completed": null,
+      "quality_passed": null,
+      "error": null,
+      "performance": null
+    },
+    {
+      "name": "all-queries-v2-blade-profile",
+      "returncode": 0,
+      "passed": null,
+      "completed": false,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 482,
+        "mean_ms": 38.43716053319502,
+        "p50_ms": 40.7941465,
+        "p95_ms": 47.34421315,
+        "p99_ms": 61.05900053999999,
+        "max_ms": 93.273087,
+        "fps": 26.01648993130963,
+        "over_50ms": 12,
+        "rolling20_min_hz": 17.772743478359097
+      }
+    },
+    {
+      "name": "all-queries-v2-candidate-profile",
+      "returncode": 0,
+      "passed": null,
+      "completed": false,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 482,
+        "mean_ms": 38.17085345643154,
+        "p50_ms": 40.3747295,
+        "p95_ms": 46.1395238,
+        "p99_ms": 57.85794088,
+        "max_ms": 92.540403,
+        "fps": 26.197999506125964,
+        "over_50ms": 12,
+        "rolling20_min_hz": 17.968345821011745
+      }
+    }
+  ],
+  "candidate": {
+    "native_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-all-queries-v2/source",
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-all-queries-v2/build/lib/libLiverCudaSim.so",
+    "dll_sha256": "9300d14dd550d6be4240f1d5af68d121d9bbc7accb79488d2557ce85f6ba94f6",
+    "execution": {
+      "query_mode": 3,
+      "query_threads": 64,
+      "assembly_blocks": 512,
+      "manifold_blocks": 1024,
+      "compact_blocks": 0,
+      "bound_cache": true
+    },
+    "selected_for_final_verification": true,
+    "formal_physics_domain_approved": false,
+    "production_replaced": false,
+    "rejected": [
+      "grid-both256",
+      "coarse-exact-zero",
+      "existing-group-compaction",
+      "triangle-aabb-prefilter"
+    ],
+    "reason": "Dispatch batching plus exact adjacent-stage coarse-bound coefficient reuse",
+    "qualification_pending": true,
+    "harness": "profile_all_queries.py"
+  }
+}

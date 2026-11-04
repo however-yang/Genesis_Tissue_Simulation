@@ -1,0 +1,1957 @@
+{
+  "schema": "nsys_node_intervals_v2",
+  "database": "results/readonly-v8-profile-trace.sqlite",
+  "captured_frames": 12,
+  "mean": {
+    "wall_ms": 60.017367416666666,
+    "kernel_union_ms": 30.491657916666668,
+    "memcpy_union_ms": 0.4248752500000001,
+    "memset_union_ms": 0.8032430833333333,
+    "cuda_union_ms": 31.71964558333333,
+    "graph_envelope_ms": 0.0,
+    "opengl_union_ms": 4.347751166666667,
+    "gpu_union_ms": 36.06739675
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "wall_ms": 68.500415,
+      "kernel_union_ms": 29.278001,
+      "memcpy_union_ms": 0.358239,
+      "memset_union_ms": 0.795611,
+      "cuda_union_ms": 30.431691,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 0.004832,
+      "gpu_union_ms": 30.436523
+    },
+    {
+      "frame": 1,
+      "wall_ms": 83.147767,
+      "kernel_union_ms": 30.336823,
+      "memcpy_union_ms": 0.544895,
+      "memset_union_ms": 0.824287,
+      "cuda_union_ms": 31.706005,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 18.447459,
+      "gpu_union_ms": 50.153464
+    },
+    {
+      "frame": 2,
+      "wall_ms": 82.964503,
+      "kernel_union_ms": 30.451647,
+      "memcpy_union_ms": 0.594909,
+      "memset_union_ms": 0.810492,
+      "cuda_union_ms": 31.857048,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.919181,
+      "gpu_union_ms": 35.776229
+    },
+    {
+      "frame": 3,
+      "wall_ms": 51.93791,
+      "kernel_union_ms": 30.434159,
+      "memcpy_union_ms": 0.349791,
+      "memset_union_ms": 0.800347,
+      "cuda_union_ms": 31.584105,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.739789,
+      "gpu_union_ms": 35.323894
+    },
+    {
+      "frame": 4,
+      "wall_ms": 51.884756,
+      "kernel_union_ms": 30.452653,
+      "memcpy_union_ms": 0.350397,
+      "memset_union_ms": 0.805307,
+      "cuda_union_ms": 31.607941,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.981324,
+      "gpu_union_ms": 35.589265
+    },
+    {
+      "frame": 5,
+      "wall_ms": 66.163563,
+      "kernel_union_ms": 30.663607,
+      "memcpy_union_ms": 0.564286,
+      "memset_union_ms": 0.799163,
+      "cuda_union_ms": 32.027056,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.780556,
+      "gpu_union_ms": 35.807612
+    },
+    {
+      "frame": 6,
+      "wall_ms": 52.656247,
+      "kernel_union_ms": 30.284248,
+      "memcpy_union_ms": 0.356255,
+      "memset_union_ms": 0.797596,
+      "cuda_union_ms": 31.438099,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 4.032235,
+      "gpu_union_ms": 35.470334
+    },
+    {
+      "frame": 7,
+      "wall_ms": 52.010724,
+      "kernel_union_ms": 30.718041,
+      "memcpy_union_ms": 0.349402,
+      "memset_union_ms": 0.795603,
+      "cuda_union_ms": 31.86279,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.665773,
+      "gpu_union_ms": 35.528563
+    },
+    {
+      "frame": 8,
+      "wall_ms": 51.420009,
+      "kernel_union_ms": 30.594218,
+      "memcpy_union_ms": 0.349374,
+      "memset_union_ms": 0.800508,
+      "cuda_union_ms": 31.7441,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.492398,
+      "gpu_union_ms": 35.236498
+    },
+    {
+      "frame": 9,
+      "wall_ms": 56.595766,
+      "kernel_union_ms": 31.211751,
+      "memcpy_union_ms": 0.581694,
+      "memset_union_ms": 0.803005,
+      "cuda_union_ms": 32.596322,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.644845,
+      "gpu_union_ms": 36.241167
+    },
+    {
+      "frame": 10,
+      "wall_ms": 51.40037,
+      "kernel_union_ms": 30.681035,
+      "memcpy_union_ms": 0.350463,
+      "memset_union_ms": 0.800956,
+      "cuda_union_ms": 31.832326,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 3.464622,
+      "gpu_union_ms": 35.296948
+    },
+    {
+      "frame": 11,
+      "wall_ms": 51.526379,
+      "kernel_union_ms": 30.793712,
+      "memcpy_union_ms": 0.348798,
+      "memset_union_ms": 0.806042,
+      "cuda_union_ms": 31.948264,
+      "graph_envelope_ms": 0.0,
+      "opengl_union_ms": 0.0,
+      "gpu_union_ms": 31.948264
+    }
+  ],
+  "kernels": [
+    {
+      "name": "k_FindSurfaceBatched(int, unsigned int, bool, ContactShape, ContactShape, float, const SurfaceVertex *, const unsigned int *, const float3 *, const float3 *, SurfaceContact *, int *, const float4 *, const float3 *, const CoupledTool *, float, float, bool, const int *, const SurfaceContact *, const int *, int, const unsigned char *, int *, int *)",
+      "calls": 432,
+      "calls_per_frame": 36.0,
+      "sum_ms_per_frame": 4.540327416666667
+    },
+    {
+      "name": "k_CoarseAccumulateBoundCache(const UnifiedState *, CoarseBlock *, CoarseBoundTerm *, float *, CoarseBlock **)",
+      "calls": 432,
+      "calls_per_frame": 36.0,
+      "sum_ms_per_frame": 3.8415565833333334
+    },
+    {
+      "name": "k_AssembleUnifiedInteractions(const UnifiedState *, int)",
+      "calls": 2304,
+      "calls_per_frame": 192.0,
+      "sum_ms_per_frame": 2.4068984166666665
+    },
+    {
+      "name": "k_UnifiedManifold(const SurfaceContact *, const int *, const int *, const SurfaceVertex *, const float3 *, const float3 *, const CoupledTool *, float, float, float, SurfaceContact *, int *, int *, int *, float *, int *, int)",
+      "calls": 540,
+      "calls_per_frame": 45.0,
+      "sum_ms_per_frame": 1.7347716666666668
+    },
+    {
+      "name": "void k_UnifiedVertex<(bool)0>(const UnifiedState *, const int *, const int *)",
+      "calls": 1152,
+      "calls_per_frame": 96.0,
+      "sum_ms_per_frame": 1.7267086666666667
+    },
+    {
+      "name": "void k_MaterialStencilAssemble<(bool)0>(const UnifiedState *, __half *, float *, float3 *, Symmetric3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 1.1122450833333333
+    },
+    {
+      "name": "k_UnifiedTool(UnifiedState *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 1.0874345
+    },
+    {
+      "name": "k_RepairMinimumVolume(int, int, const int *, const int4 *, const float *, const int *, const float *, float3 *, float, const int *)",
+      "calls": 4464,
+      "calls_per_frame": 372.0,
+      "sum_ms_per_frame": 0.9502080833333334
+    },
+    {
+      "name": "k_MgGalerkin(MultigridLevel, MultigridLevel)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.7901896666666667
+    },
+    {
+      "name": "k_BladeCoarse(const UnifiedState *, const UnifiedState *, CoarseBlock *, bool)",
+      "calls": 864,
+      "calls_per_frame": 72.0,
+      "sum_ms_per_frame": 0.78391575
+    },
+    {
+      "name": "k_CacheBladeBackContacts(const SurfaceContact *, const int *, const int *, int *, SurfaceContact *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.6480851666666666
+    },
+    {
+      "name": "k_MgCholesky(MultigridLevel, float *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.4476939166666667
+    },
+    {
+      "name": "k_MaterialLineTets(const UnifiedState *, const float3 *, MaterialLineSearch *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.4010616666666667
+    },
+    {
+      "name": "k_RigidCenters(const UnifiedState *, CoarseBlock *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.3896351666666667
+    },
+    {
+      "name": "k_CoarseBoundFromCache(const UnifiedState *, CoarseBlock *, CoarseBoundTerm *, float *, CoarseBlock **)",
+      "calls": 432,
+      "calls_per_frame": 36.0,
+      "sum_ms_per_frame": 0.3843469166666667
+    },
+    {
+      "name": "k_PressureLine(const UnifiedState *, CoarseBlock *, int)",
+      "calls": 504,
+      "calls_per_frame": 42.0,
+      "sum_ms_per_frame": 0.3333729166666667
+    },
+    {
+      "name": "k_JoinSafeCoarse(const UnifiedState *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.328537
+    },
+    {
+      "name": "k_MgRestrict(MultigridLevel, MultigridLevel)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.2901829166666667
+    },
+    {
+      "name": "k_MgPost(MultigridLevel)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.2825345
+    },
+    {
+      "name": "k_BladeReaction(UnifiedState *, int *, float, float *, BladeHistory *, bool, bool, float *, float)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.2678254166666667
+    },
+    {
+      "name": "k_SurfaceDepth(int, ContactShape, const float3 *, float *, const CoupledTool *, int, float, float)",
+      "calls": 96,
+      "calls_per_frame": 8.0,
+      "sum_ms_per_frame": 0.25707341666666667
+    },
+    {
+      "name": "k_MgFactorInverse(MultigridLevel, const float *, float *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.24600633333333335
+    },
+    {
+      "name": "void k_CoarseWeights<(bool)0>(UnifiedState *, int)",
+      "calls": 576,
+      "calls_per_frame": 48.0,
+      "sum_ms_per_frame": 0.23575283333333336
+    },
+    {
+      "name": "k_ReadGripObservation(int, const GripPoint *, const unsigned int *, const int *, const float3 *, const CoupledTool *, XpbdToolState, float, float *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.22742025
+    },
+    {
+      "name": "k_ClassifyContactGroups(int, int, const ContactGroupBounds *, unsigned char *, const CoupledTool *, float, float, float, bool, bool)",
+      "calls": 432,
+      "calls_per_frame": 36.0,
+      "sum_ms_per_frame": 0.2022495
+    },
+    {
+      "name": "k_UnifiedPredictor(const UnifiedState *, const int *, const int *)",
+      "calls": 288,
+      "calls_per_frame": 24.0,
+      "sum_ms_per_frame": 0.20151608333333335
+    },
+    {
+      "name": "k_UnifiedPatchBasis(UnifiedState *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.19153183333333335
+    },
+    {
+      "name": "k_MarkCoarseContact(const UnifiedState *, int)",
+      "calls": 648,
+      "calls_per_frame": 54.0,
+      "sum_ms_per_frame": 0.19024966666666665
+    },
+    {
+      "name": "k_MgGalerkinFine(const UnifiedState *, const __half *, const float *, const unsigned short *, MultigridLevel)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.17660466666666666
+    },
+    {
+      "name": "k_RestrictMaterialDirection(const UnifiedState *, const float3 *, float *, const int *, int *)",
+      "calls": 288,
+      "calls_per_frame": 24.0,
+      "sum_ms_per_frame": 0.16549525
+    },
+    {
+      "name": "k_FeasibleVertex(int, int, int, int, const int *, const int *, const int *, const int *, const float3 *, const float3 *, const float3 *, const float3 *, float3 *, const int *, float)",
+      "calls": 576,
+      "calls_per_frame": 48.0,
+      "sum_ms_per_frame": 0.15735358333333335
+    },
+    {
+      "name": "k_MgFineRestrict(const UnifiedState *, const __half *, const float *, const unsigned short *, const float3 *, const float3 *, MultigridLevel)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.15652691666666665
+    },
+    {
+      "name": "k_AccumulateSafeCoarse(const UnifiedState *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.15561808333333335
+    },
+    {
+      "name": "k_UpdateSurfacePoints(int, const SurfaceVertex *, const unsigned int *, const float3 *, const float3 *, float4 *, float3 *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.14870308333333335
+    },
+    {
+      "name": "k_AppendQueryKinds(int, int, const int *, const int *, int *, int *)",
+      "calls": 432,
+      "calls_per_frame": 36.0,
+      "sum_ms_per_frame": 0.13956191666666665
+    },
+    {
+      "name": "k_CoarseSolve(const UnifiedState *, CoarseBlock *)",
+      "calls": 576,
+      "calls_per_frame": 48.0,
+      "sum_ms_per_frame": 0.13838283333333334
+    },
+    {
+      "name": "k_CoarseBegin(const UnifiedState *, CoarseBlock *)",
+      "calls": 576,
+      "calls_per_frame": 48.0,
+      "sum_ms_per_frame": 0.13553216666666665
+    },
+    {
+      "name": "k_MaterialStencilProduct(const UnifiedState *, const float3 *, const float3 *, float3 *, const __half *, const float *, const unsigned short *, float3 *, MaterialCGSum *, int)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.13423416666666665
+    },
+    {
+      "name": "k_PredictorInteractionEnergy(const UnifiedState *, CoarseBlock *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.12802833333333333
+    },
+    {
+      "name": "k_MgFinePost(const UnifiedState *, const __half *, const float *, const unsigned short *, const Symmetric3 *, const float3 *, const float3 *, float3 *, MaterialCGSum *, int)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.12344191666666667
+    },
+    {
+      "name": "void k_CoarseApply<(bool)0>(const UnifiedState *, const CoarseBlock *)",
+      "calls": 432,
+      "calls_per_frame": 36.0,
+      "sum_ms_per_frame": 0.1201675
+    },
+    {
+      "name": "k_FinishSafeCoarse(const UnifiedState *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.11356991666666667
+    },
+    {
+      "name": "k_CacheUnifiedTetData(const UnifiedState *, float3 *, float *, bool)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.11232208333333332
+    },
+    {
+      "name": "k_InitSafeCoarse(const UnifiedState *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.11157833333333333
+    },
+    {
+      "name": "k_FlattenSafeCoarse(const UnifiedState *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.11081816666666668
+    },
+    {
+      "name": "k_CheckCandidateVolume(int, const int *, const int *, const float3 *, const float3 *, const float3 *, const float3 *, float, int *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.1061965
+    },
+    {
+      "name": "k_FragmentVolumes(int, const int *, const int *, const int *, int *, int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.103021
+    },
+    {
+      "name": "k_PredictorTetEnergy(const UnifiedState *, CoarseBlock *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.10166083333333333
+    },
+    {
+      "name": "k_RefreshGrip(int, GripPoint *, const unsigned int *, const int *, int *, int *, int *, int *)",
+      "calls": 60,
+      "calls_per_frame": 5.0,
+      "sum_ms_per_frame": 0.08826075
+    },
+    {
+      "name": "k_ComputeComponentFP(int, int3, const unsigned int *, const unsigned int *, const Conn4096Gpu *, const int *, const int *, const IsectGpu *, const float3 *, const int *, const float *, float4 *, const int *, const float3 *, float, int, const int *, const int *, const float *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.08603683333333333
+    },
+    {
+      "name": "k_SeverLinks(int, int3, const GridEdgeGpu2 *, const unsigned int *, int *, BendPairGpuC *, unsigned int *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.08258616666666667
+    },
+    {
+      "name": "k_MaterialLineNodes(const UnifiedState *, const float3 *, MaterialLineSearch *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.08077316666666667
+    },
+    {
+      "name": "void k_SweepSites<(bool)0>(const UnifiedState *, SweepList, int, int *, int *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.07880233333333334
+    },
+    {
+      "name": "k_MaterialQuality(int, const int *, const int *, const float3 *, const float3 *, const float3 *, const float3 *, float *, const float *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.07360766666666667
+    },
+    {
+      "name": "k_ApplyMaterialRestriction(int, float3 *, const float *, const int *, const UnifiedState *)",
+      "calls": 288,
+      "calls_per_frame": 24.0,
+      "sum_ms_per_frame": 0.07091933333333333
+    },
+    {
+      "name": "k_JoinComponents(int, const int *, const int *, int *, const unsigned int *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.07029575
+    },
+    {
+      "name": "k_CountCutContacts(const SurfaceContact *, const int *, const int *, int *)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.06945275
+    },
+    {
+      "name": "k_MgCoarsest(MultigridLevel, const float *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.06658375
+    },
+    {
+      "name": "void k_MaterialStencilActiveMask<(bool)0>(const UnifiedState *, unsigned short *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.06426883333333333
+    },
+    {
+      "name": "k_RigidFeasible(const UnifiedState *, CoarseBlock *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.06357566666666667
+    },
+    {
+      "name": "k_PressureLineClear(const UnifiedState *, CoarseBlock *)",
+      "calls": 252,
+      "calls_per_frame": 21.0,
+      "sum_ms_per_frame": 0.06342908333333333
+    },
+    {
+      "name": "k_PressureLineSelect(const UnifiedState *, CoarseBlock *)",
+      "calls": 252,
+      "calls_per_frame": 21.0,
+      "sum_ms_per_frame": 0.0627145
+    },
+    {
+      "name": "k_UnifiedReaction(const UnifiedState *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.061940916666666665
+    },
+    {
+      "name": "k_CacheContacts(const SurfaceContact *, const int *, const int *, int *, SurfaceContact *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.061711666666666665
+    },
+    {
+      "name": "k_MgPre(MultigridLevel)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.05848258333333334
+    },
+    {
+      "name": "k_MgProlong(MultigridLevel, MultigridLevel)",
+      "calls": 324,
+      "calls_per_frame": 27.0,
+      "sum_ms_per_frame": 0.05766916666666667
+    },
+    {
+      "name": "k_MaterialRestrictionClear(const UnifiedState *, float *)",
+      "calls": 288,
+      "calls_per_frame": 24.0,
+      "sum_ms_per_frame": 0.05646583333333333
+    },
+    {
+      "name": "k_FragmentQueries(int, int, const int *, const int *, const SurfaceVertex *, const int *, const int *, const float *, int *, int *, int, const int *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.05419433333333334
+    },
+    {
+      "name": "k_SpreadShellOwners(int, const int *, unsigned long long *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.05325833333333334
+    },
+    {
+      "name": "k_BuildPatch(int, const GripPoint *, float *, GripPatch *)",
+      "calls": 60,
+      "calls_per_frame": 5.0,
+      "sum_ms_per_frame": 0.053053
+    },
+    {
+      "name": "k_ComputeParticleRot(int, const float3 *, const int *, const int *, const int *, const RotGpu *, RotGpu *)",
+      "calls": 28,
+      "calls_per_frame": 2.3333333333333335,
+      "sum_ms_per_frame": 0.05282625
+    },
+    {
+      "name": "k_BuildPatchShape(int, int, const GripPoint *, float, float *, GripPatch *)",
+      "calls": 60,
+      "calls_per_frame": 5.0,
+      "sum_ms_per_frame": 0.04997575
+    },
+    {
+      "name": "k_BindSurface(int, const int *, const float3 *, const int *, const unsigned int *, const int *, const float3 *, SurfaceVertex *, const float3 *, const float4 *, const unsigned int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.047524833333333336
+    },
+    {
+      "name": "k_MaterialCGAdvance(const UnifiedState *, const unsigned short *, float3 *, const float3 *, const float3 *, float3 *, MaterialCGSum *, int)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.04489816666666666
+    },
+    {
+      "name": "k_BuildCutTriangles(int, int, int3, float, const unsigned int *, const unsigned int *, const unsigned int *, const Conn4096Gpu *, const float4 *, const float3 *, int *, unsigned int *, unsigned int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.041159916666666664
+    },
+    {
+      "name": "k_RigidApply(const UnifiedState *, const CoarseBlock *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.04090916666666666
+    },
+    {
+      "name": "k_RigidContactKinds(const UnifiedState *, CoarseBlock *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.04078391666666666
+    },
+    {
+      "name": "k_RigidNodes(const UnifiedState *, CoarseBlock *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.040189166666666665
+    },
+    {
+      "name": "k_RigidCenterFinish(const UnifiedState *, CoarseBlock *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.04009833333333333
+    },
+    {
+      "name": "k_RigidEnergy(const UnifiedState *, CoarseBlock *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.0388715
+    },
+    {
+      "name": "k_MarkVolumeRecovery(const UnifiedState *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.038282583333333335
+    },
+    {
+      "name": "k_RefreshLiveness(int, int, int, int, const int *, const int *, const int *, const int *, const XpbdBendPairGpu *, const int *, const int *, const int *, const float *, const int *, const int *, int *, int *, float *, int *, const unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.03706383333333334
+    },
+    {
+      "name": "k_BuildContactGroups(int, const float4 *, const float3 *, ContactGroupBounds *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.036848
+    },
+    {
+      "name": "k_MgFinePre(const UnifiedState *, const unsigned short *, const Symmetric3 *, const float3 *, float3 *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.03446116666666666
+    },
+    {
+      "name": "k_MgNeighbors(MultigridLevel, const unsigned int *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.033461
+    },
+    {
+      "name": "k_PredictorNodeEnergy(const UnifiedState *, CoarseBlock *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.03151175
+    },
+    {
+      "name": "k_MgFineProlong(const UnifiedState *, const unsigned short *, MultigridLevel, float3 *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.02876266666666667
+    },
+    {
+      "name": "k_ClearCutFP(int, float *, int *, float4 *, int *, unsigned int *, int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.028389333333333332
+    },
+    {
+      "name": "k_MaterialCGClear(int, MaterialCGSum *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.02715708333333333
+    },
+    {
+      "name": "k_NeedFeasible(int, const int *, const int *, const float3 *, const float3 *, const float3 *, const float3 *, const float3 *, int *, float, const int *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.027122666666666666
+    },
+    {
+      "name": "k_MaterialLineClear(int, MaterialLineSearch *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.02707983333333333
+    },
+    {
+      "name": "k_SpreadScissorsLevels(int, int3, const GridEdgeGpu2 *, const int *, const int *, const float3 *, const int *, const int *, const int *, unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.026482666666666668
+    },
+    {
+      "name": "k_TrainingScatterForce(int, const GripPoint *, float, float3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.02629591666666667
+    },
+    {
+      "name": "k_MgParent(MultigridLevel, int, const unsigned int *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.02620525
+    },
+    {
+      "name": "k_LevelScissorsColumns(int, int3, float, const GridEdgeGpu2 *, const int *, const int *, const float3 *, const float3 *, const float3 *, const float3 *, const int *, const int *, const int *, unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.025887833333333332
+    },
+    {
+      "name": "k_TopologyStale(const unsigned int *, unsigned int *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.024850583333333332
+    },
+    {
+      "name": "k_MgNumber(MultigridLevel, const unsigned int *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.024591833333333334
+    },
+    {
+      "name": "k_PredictTool(CoupledTool *, XpbdToolState, XpbdToolState, float, float, float, float, float, float, float, float, float, float3, float, int)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.02395458333333333
+    },
+    {
+      "name": "k_FragmentPassCondition(unsigned long long, const int *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.02389583333333333
+    },
+    {
+      "name": "k_ExpandVertices(unsigned int, const int *, const unsigned int *, const float4 *, const float3 *, int, const float4 *, const float3 *, float3 *, float3 *, const float4 *, const float3 *, const int *, float, float4 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.022928
+    },
+    {
+      "name": "k_MgClear(MultigridLevel, const unsigned int *)",
+      "calls": 144,
+      "calls_per_frame": 12.0,
+      "sum_ms_per_frame": 0.02275458333333333
+    },
+    {
+      "name": "k_TrainingFinishMetrics(float *, const unsigned int *, const float *, TrainingMetrics *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.02270916666666667
+    },
+    {
+      "name": "void k_SweepSites<(bool)1>(const UnifiedState *, SweepList, int, int *, int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.02151183333333333
+    },
+    {
+      "name": "k_MgClaim(MultigridLevel, MultigridLevel, const unsigned int *)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.02100533333333333
+    },
+    {
+      "name": "k_ClearTetEdgeSupport(int, int *, const unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.02088791666666667
+    },
+    {
+      "name": "k_TopoFaces(int, int, int, const float3 *, const float4 *, const int *, unsigned long long *, int *, int *, unsigned long long *, int *, float *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.020765333333333334
+    },
+    {
+      "name": "k_MaterialLineApply(const UnifiedState *, const float3 *, const MaterialLineSearch *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.019637083333333333
+    },
+    {
+      "name": "k_IndexFaces(int, const int *, int, int4 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.019525083333333332
+    },
+    {
+      "name": "k_MarkTetEdgeSupport(int, const int *, const int *, int *, const unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.018263916666666668
+    },
+    {
+      "name": "k_FeaturePoints(int, float, int, const int *, const int *, const float3 *, const IsectGpu *, const int *, const float3 *, float4 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.018173166666666667
+    },
+    {
+      "name": "void k_CoarseWeights<(bool)1>(UnifiedState *, int)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.01814391666666667
+    },
+    {
+      "name": "k_SurfaceReaction(int, float, const SurfaceContact *, float4 *, float4 *, ContactShape, ContactShape)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.018095916666666666
+    },
+    {
+      "name": "k_FlattenComponents(int, int *, const unsigned int *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.017711666666666667
+    },
+    {
+      "name": "k_AccumulateCutFP(int, const unsigned int *, const CutPointGpu *, const RotGpu *, const float3 *, int3, const GridEdgeGpu2 *, const unsigned int *, const unsigned int *, const Conn4096Gpu *, float *, int *, const int *, int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.01766133333333333
+    },
+    {
+      "name": "k_TrainingCutMetrics(int, const GridEdgeGpu2 *, int3, const float3 *, const float3 *, const int *, const int *, const int *, const int *, const unsigned char *, TrainingMetrics *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.017432
+    },
+    {
+      "name": "k_SelectPredictor(const UnifiedState *, const CoarseBlock *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.016952
+    },
+    {
+      "name": "k_CutScissorsLevels(int, int3, const GridEdgeGpu2 *, const int *, const float3 *, const float3 *, const float3 *, const int *, const int *, const RotGpu *, const int *, const unsigned int *, float4 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.016765083333333333
+    },
+    {
+      "name": "k_CommitPending(int, const int *, float4 *, const GridEdgeGpu2 *, int3, float, float, const float3 *, unsigned int *, const unsigned int *, CutPointGpu *, unsigned int *, int, const RotGpu *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.016346666666666666
+    },
+    {
+      "name": "k_PrepareFeasible(int, const int *, const float3 *, float3 *, float3 *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.016250416666666666
+    },
+    {
+      "name": "k_InitComponents(int, int *, const unsigned int *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.0160105
+    },
+    {
+      "name": "k_NormalizePatch(int, float *, GripPatch *)",
+      "calls": 60,
+      "calls_per_frame": 5.0,
+      "sum_ms_per_frame": 0.015634666666666665
+    },
+    {
+      "name": "k_SeverPieceSeams(int, const int *, const GridEdgeGpu2 *, int3, float, float, const float3 *, int *, BendPairGpuC *, const unsigned long long *, unsigned int *, const unsigned int *, CutPointGpu *, unsigned int *, int, const RotGpu *, unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.0151705
+    },
+    {
+      "name": "k_predict(int, float, float3, const float3 *, const float3 *, const float *, float3 *, float3 *, float3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.014861166666666667
+    },
+    {
+      "name": "k_BladeSweep(const CoupledTool *, float3 *, const BladeHistory *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.014855916666666667
+    },
+    {
+      "name": "k_FragmentSupports(int, const int *, const float *, const int *, int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.014850583333333334
+    },
+    {
+      "name": "k_MgCoarseInverse(MultigridLevel, const float *, float *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.014784
+    },
+    {
+      "name": "k_FragmentIncomingVelocity(int, const int *, const int *, const int *, const float3 *, const float3 *, float3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.014405166666666667
+    },
+    {
+      "name": "k_MgDense(MultigridLevel, float *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.014162583333333334
+    },
+    {
+      "name": "k_MaterialReady(UnifiedState *, bool)",
+      "calls": 108,
+      "calls_per_frame": 9.0,
+      "sum_ms_per_frame": 0.014095916666666666
+    },
+    {
+      "name": "k_ConfigureScissors(CoupledTool *, XpbdScissorsState, float, float, float, float)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.014058583333333334
+    },
+    {
+      "name": "k_PredictorClear(int, CoarseBlock *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.014050583333333333
+    },
+    {
+      "name": "k_NormalizeCutFP(int, const int *, float3 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.01338925
+    },
+    {
+      "name": "k_EndTool(CoupledTool *)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.012650583333333333
+    },
+    {
+      "name": "k_UnifiedTargets(UnifiedState *, bool)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.012631916666666666
+    },
+    {
+      "name": "k_MaterialRecoveryRequested(const UnifiedState *, int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.012066583333333334
+    },
+    {
+      "name": "k_update_velocity(int, float, const float *, const float3 *, const float3 *, float3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.011735833333333334
+    },
+    {
+      "name": "k_UnifiedAggregate(const UnifiedState *, const int *, SurfaceContact *, bool)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.011642583333333335
+    },
+    {
+      "name": "k_Stitch(int, int, int3, const GridEdgeGpu *, int *, unsigned int *, int, const unsigned int *, const unsigned int *, const Conn4096Gpu *, const float4 *, const float *, const float *, const float4 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.011621166666666667
+    },
+    {
+      "name": "k_TrainingForceEMA(int, float, float, int, const float3 *, float *, const int *, int *, unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.01157325
+    },
+    {
+      "name": "k_MaterialFreeNodes(const UnifiedState *, int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.010746666666666667
+    },
+    {
+      "name": "k_GripReaction(int, const GripPoint *, XpbdToolState, float, float4 *, float4 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.010741333333333334
+    },
+    {
+      "name": "k_NormalsScatter(unsigned int, const int *, const unsigned int *, const float4 *, int *, int, const float4 *, int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.010416
+    },
+    {
+      "name": "k_MgClaimFine(const UnifiedState *, MultigridLevel, const unsigned int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.010245333333333334
+    },
+    {
+      "name": "k_UnsupportedFlight(int, const int *, const int *, const int *, const float *, const float3 *, float3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.009834583333333334
+    },
+    {
+      "name": "k_apply_velscale(int, float, const float *, float3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.00886925
+    },
+    {
+      "name": "k_MaterialCGBegin(const UnifiedState *, float3 *, float3 *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.008858583333333335
+    },
+    {
+      "name": "k_MaterialFloorRecovery(const UnifiedState *, const MaterialLineSearch *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.008722666666666667
+    },
+    {
+      "name": "k_ClearPatch(GripPatch *)",
+      "calls": 60,
+      "calls_per_frame": 5.0,
+      "sum_ms_per_frame": 0.008706666666666666
+    },
+    {
+      "name": "k_CurrentSurfaceBodyCheck(int, const float3 *, BodyCheckParameters, BodyCheckResult *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.00852
+    },
+    {
+      "name": "k_SeedShellOwners(int, const int *, const int *, unsigned long long *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.008482666666666666
+    },
+    {
+      "name": "k_RefreshPressureEntry(int, const int *, const float3 *, const RotGpu *, float3 *, RotGpu *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.008373333333333333
+    },
+    {
+      "name": "k_AdvectIntactSurface(int, const int *, const float3 *, const float3 *, const float4 *, const unsigned int *, float4 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.007562583333333333
+    },
+    {
+      "name": "k_MaterialRecoveryOnly(UnifiedState *, bool)",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.007272
+    },
+    {
+      "name": "k_DebugScanTris(unsigned int, const int *, const unsigned int *, const float4 *, const float4 *, float, unsigned int *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.007015916666666667
+    },
+    {
+      "name": "k_TopoWeld(int, int, const TopoPoint *, int *, int *, const int *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.006464
+    },
+    {
+      "name": "k_PreparePressureEntry(int *, const int *, const int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.006448
+    },
+    {
+      "name": "k_LookupConnectivity(int, const unsigned int *, const unsigned int *, const Conn4096Gpu *, unsigned int *, unsigned int *, const unsigned int *, unsigned int *, bool)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.006298666666666667
+    },
+    {
+      "name": "k_ColumnAxis(const float3 *, const int *, const int *, int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.006042583333333333
+    },
+    {
+      "name": "k_FinishPressureEntry(int *, const int *, bool)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.00588
+    },
+    {
+      "name": "k_RebuildIsectWorld(int, const IsectGpu *, const float3 *, float3 *, int3, const float3 *, const int *, const RotGpu *, const float *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.005733333333333333
+    },
+    {
+      "name": "k_DilateRingHop(int, const int *, const int *, int *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.005709333333333333
+    },
+    {
+      "name": "k_CountIsolated(int, const int *, unsigned int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.005688
+    },
+    {
+      "name": "k_ComputeTetAlpha(int, float, const float *, const float *, float *, float *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.005413166666666667
+    },
+    {
+      "name": "k_CompactFaces(int, const int4 *, const int *, int *, unsigned int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.005149333333333333
+    },
+    {
+      "name": "k_NormalsNormalize(int, const int *, float3 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.005088
+    },
+    {
+      "name": "k_FragmentAvailability(UnifiedState *, const int *)",
+      "calls": 36,
+      "calls_per_frame": 3.0,
+      "sum_ms_per_frame": 0.00472
+    },
+    {
+      "name": "k_CarveRimBridge(int, const int *, const int *, int *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.003981333333333333
+    },
+    {
+      "name": "k_TrainingCollectEMA(int, const int *, const float *, float *, TrainingMetrics *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.00356525
+    },
+    {
+      "name": "k_ClearNormals(int, int *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.0033999166666666665
+    },
+    {
+      "name": "k_TopoRound(int, const float3 *, TopoPoint *, int *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.0032479166666666663
+    },
+    {
+      "name": "k_SetGravity(int, const float *, float3, float3 *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.0031653333333333334
+    },
+    {
+      "name": "k_TopoCount(int, const int *, const int *, int *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.003112
+    },
+    {
+      "name": "k_ClearFaceTable(int, int4 *)",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.002912
+    },
+    {
+      "name": "k_TopoInit(float *)",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.0017413333333333332
+    }
+  ],
+  "cuda_api": [
+    {
+      "name": "cudaMemcpy_v3020",
+      "calls": 656,
+      "calls_per_frame": 54.666666666666664,
+      "sum_ms_per_frame": 25.93487066666667
+    },
+    {
+      "name": "cudaGraphLaunch_v10000",
+      "calls": 216,
+      "calls_per_frame": 18.0,
+      "sum_ms_per_frame": 4.01708875
+    },
+    {
+      "name": "cudaGraphExecDestroy_v10000",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 2.8004619166666664
+    },
+    {
+      "name": "cudaLaunchKernel_v7000",
+      "calls": 7832,
+      "calls_per_frame": 652.6666666666666,
+      "sum_ms_per_frame": 1.9371435833333333
+    },
+    {
+      "name": "cudaGraphInstantiate_v12000",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.5505248333333334
+    },
+    {
+      "name": "cudaMemsetAsync_v3020",
+      "calls": 1968,
+      "calls_per_frame": 164.0,
+      "sum_ms_per_frame": 0.52440175
+    },
+    {
+      "name": "cudaFree_v3020",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.32153133333333334
+    },
+    {
+      "name": "cudaMalloc_v3020",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.29543975
+    },
+    {
+      "name": "cudaMemcpyAsync_v3020",
+      "calls": 384,
+      "calls_per_frame": 32.0,
+      "sum_ms_per_frame": 0.18570325
+    },
+    {
+      "name": "cudaGraphDestroy_v10000",
+      "calls": 16,
+      "calls_per_frame": 1.3333333333333333,
+      "sum_ms_per_frame": 0.09050558333333333
+    },
+    {
+      "name": "cudaGraphExecUpdate_v10020",
+      "calls": 4,
+      "calls_per_frame": 0.3333333333333333,
+      "sum_ms_per_frame": 0.08246891666666667
+    },
+    {
+      "name": "cudaDeviceSynchronize_v3020",
+      "calls": 28,
+      "calls_per_frame": 2.3333333333333335,
+      "sum_ms_per_frame": 0.06361925
+    },
+    {
+      "name": "cudaMemset_v3020",
+      "calls": 44,
+      "calls_per_frame": 3.6666666666666665,
+      "sum_ms_per_frame": 0.014841166666666666
+    },
+    {
+      "name": "cudaStreamEndCapture_v10000",
+      "calls": 20,
+      "calls_per_frame": 1.6666666666666667,
+      "sum_ms_per_frame": 0.010654083333333333
+    },
+    {
+      "name": "cudaGraphAddKernelNode_v10000",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.00624625
+    },
+    {
+      "name": "cudaGraphAddNode_v12020",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.0033374166666666665
+    },
+    {
+      "name": "cudaGraphConditionalHandleCreate_v12030",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.00213925
+    },
+    {
+      "name": "cudaGraphCreate_v10000",
+      "calls": 8,
+      "calls_per_frame": 0.6666666666666666,
+      "sum_ms_per_frame": 0.0012320833333333333
+    },
+    {
+      "name": "cudaStreamBeginCapture_v10000",
+      "calls": 8,
+      "calls_per_frame": 0.6666666666666666,
+      "sum_ms_per_frame": 0.0011885833333333332
+    },
+    {
+      "name": "cudaStreamBeginCaptureToGraph_v12030",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.0009691666666666667
+    },
+    {
+      "name": "cudaStreamGetCaptureInfo_v2_v11030",
+      "calls": 4,
+      "calls_per_frame": 0.3333333333333333,
+      "sum_ms_per_frame": 0.00040666666666666667
+    },
+    {
+      "name": "cudaStreamUpdateCaptureDependencies_v11030",
+      "calls": 4,
+      "calls_per_frame": 0.3333333333333333,
+      "sum_ms_per_frame": 0.0003704166666666667
+    }
+  ],
+  "gl_api": [
+    {
+      "name": "glReadPixels",
+      "calls": 48,
+      "calls_per_frame": 4.0,
+      "sum_ms_per_frame": 2.6320219166666665
+    },
+    {
+      "name": "glGenerateMipmap",
+      "calls": 1,
+      "calls_per_frame": 0.08333333333333333,
+      "sum_ms_per_frame": 0.42436975
+    },
+    {
+      "name": "glBindFramebuffer",
+      "calls": 72,
+      "calls_per_frame": 6.0,
+      "sum_ms_per_frame": 0.10572725
+    },
+    {
+      "name": "eglMakeCurrent",
+      "calls": 24,
+      "calls_per_frame": 2.0,
+      "sum_ms_per_frame": 0.04563916666666666
+    },
+    {
+      "name": "glDrawElementsInstanced",
+      "calls": 204,
+      "calls_per_frame": 17.0,
+      "sum_ms_per_frame": 0.03160166666666667
+    },
+    {
+      "name": "glBlitFramebuffer",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.02887825
+    },
+    {
+      "name": "glClear",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.02477333333333333
+    },
+    {
+      "name": "glFlush",
+      "calls": 24,
+      "calls_per_frame": 2.0,
+      "sum_ms_per_frame": 0.02315341666666667
+    },
+    {
+      "name": "glDrawArraysInstanced",
+      "calls": 274,
+      "calls_per_frame": 22.833333333333332,
+      "sum_ms_per_frame": 0.016548833333333332
+    },
+    {
+      "name": "glDrawArrays",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.011219083333333334
+    },
+    {
+      "name": "glDrawBuffers",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.00167825
+    },
+    {
+      "name": "glClearColor",
+      "calls": 12,
+      "calls_per_frame": 1.0,
+      "sum_ms_per_frame": 0.0009060833333333334
+    }
+  ],
+  "gl_workloads": [
+    {
+      "name": "glReadPixels",
+      "calls": 40,
+      "calls_per_frame": 3.3333333333333335,
+      "sum_ms_per_frame": 1.7656390833333333
+    },
+    {
+      "name": "glClear",
+      "calls": 10,
+      "calls_per_frame": 0.8333333333333334,
+      "sum_ms_per_frame": 1.2349483333333333
+    },
+    {
+      "name": "glGenerateMipmap",
+      "calls": 1,
+      "calls_per_frame": 0.08333333333333333,
+      "sum_ms_per_frame": 1.179898
+    },
+    {
+      "name": "glDrawBuffers",
+      "calls": 10,
+      "calls_per_frame": 0.8333333333333334,
+      "sum_ms_per_frame": 0.07846075
+    },
+    {
+      "name": "glBlitFramebuffer",
+      "calls": 10,
+      "calls_per_frame": 0.8333333333333334,
+      "sum_ms_per_frame": 0.06371708333333334
+    },
+    {
+      "name": "glBindFramebuffer",
+      "calls": 41,
+      "calls_per_frame": 3.4166666666666665,
+      "sum_ms_per_frame": 0.012978583333333333
+    },
+    {
+      "name": "glDrawArraysInstanced",
+      "calls": 10,
+      "calls_per_frame": 0.8333333333333334,
+      "sum_ms_per_frame": 0.012109333333333335
+    }
+  ],
+  "caveats": [
+    "CPU API times are wall-clock envelopes including prior GPU wait and possible driver spin. They cannot be added to actual GPU intervals.",
+    "Graph envelopes are reported separately; GPU union uses actual kernel/copy/memset node intervals, not graph envelopes.",
+    "On-CPU thread time includes native driver spin. No scheduler trace or hardware performance counters were available; CPU/GPU residuals are not proof of cache/bandwidth or GIL causes.",
+    "Profiled windows are instrumentation diagnostics, not unprofiled FPS acceptance."
+  ],
+  "copies": {
+    "Device-to-Device": {
+      "calls": 536,
+      "bytes": 448245192,
+      "gpu_ms": 1.6452689999999968
+    },
+    "Device-to-Host": {
+      "calls": 556,
+      "bytes": 50959952,
+      "gpu_ms": 3.3072830000000053
+    },
+    "Host-to-Device": {
+      "calls": 84,
+      "bytes": 39840,
+      "gpu_ms": 0.14595100000000014
+    }
+  },
+  "cuda_api_device_overlap": [
+    {
+      "name": "cudaMemcpy_v3020",
+      "calls_per_frame": 54.666666666666664,
+      "wall_ms_per_frame": 25.93487066666667,
+      "cuda_active_during_api_ms_per_frame": 23.50307375,
+      "no_cuda_activity_during_api_ms_per_frame": 2.4317969166666664
+    },
+    {
+      "name": "cudaGraphLaunch_v10000",
+      "calls_per_frame": 18.0,
+      "wall_ms_per_frame": 4.01708875,
+      "cuda_active_during_api_ms_per_frame": 3.4482,
+      "no_cuda_activity_during_api_ms_per_frame": 0.56888875
+    },
+    {
+      "name": "cudaGraphExecDestroy_v10000",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 2.8004619166666664,
+      "cuda_active_during_api_ms_per_frame": 2.4986286666666664,
+      "no_cuda_activity_during_api_ms_per_frame": 0.30183325
+    },
+    {
+      "name": "cudaLaunchKernel_v7000",
+      "calls_per_frame": 652.6666666666666,
+      "wall_ms_per_frame": 1.9371435833333333,
+      "cuda_active_during_api_ms_per_frame": 1.27537025,
+      "no_cuda_activity_during_api_ms_per_frame": 0.6617733333333333
+    },
+    {
+      "name": "cudaGraphInstantiate_v12000",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 0.5505248333333334,
+      "cuda_active_during_api_ms_per_frame": 0.0,
+      "no_cuda_activity_during_api_ms_per_frame": 0.5505248333333334
+    },
+    {
+      "name": "cudaMemsetAsync_v3020",
+      "calls_per_frame": 164.0,
+      "wall_ms_per_frame": 0.52440175,
+      "cuda_active_during_api_ms_per_frame": 0.3442934166666667,
+      "no_cuda_activity_during_api_ms_per_frame": 0.18010833333333334
+    },
+    {
+      "name": "cudaFree_v3020",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 0.32153133333333334,
+      "cuda_active_during_api_ms_per_frame": 0.06767666666666668,
+      "no_cuda_activity_during_api_ms_per_frame": 0.2538546666666667
+    },
+    {
+      "name": "cudaMalloc_v3020",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 0.29543975,
+      "cuda_active_during_api_ms_per_frame": 0.0,
+      "no_cuda_activity_during_api_ms_per_frame": 0.29543975
+    },
+    {
+      "name": "cudaMemcpyAsync_v3020",
+      "calls_per_frame": 32.0,
+      "wall_ms_per_frame": 0.18570325,
+      "cuda_active_during_api_ms_per_frame": 0.15793016666666665,
+      "no_cuda_activity_during_api_ms_per_frame": 0.027773083333333334
+    },
+    {
+      "name": "cudaGraphDestroy_v10000",
+      "calls_per_frame": 1.3333333333333333,
+      "wall_ms_per_frame": 0.09050558333333333,
+      "cuda_active_during_api_ms_per_frame": 0.0,
+      "no_cuda_activity_during_api_ms_per_frame": 0.09050558333333333
+    },
+    {
+      "name": "cudaGraphExecUpdate_v10020",
+      "calls_per_frame": 0.3333333333333333,
+      "wall_ms_per_frame": 0.08246891666666667,
+      "cuda_active_during_api_ms_per_frame": 0.0,
+      "no_cuda_activity_during_api_ms_per_frame": 0.08246891666666667
+    },
+    {
+      "name": "cudaDeviceSynchronize_v3020",
+      "calls_per_frame": 2.3333333333333335,
+      "wall_ms_per_frame": 0.06361925,
+      "cuda_active_during_api_ms_per_frame": 0.04919966666666666,
+      "no_cuda_activity_during_api_ms_per_frame": 0.014419583333333335
+    },
+    {
+      "name": "cudaMemset_v3020",
+      "calls_per_frame": 3.6666666666666665,
+      "wall_ms_per_frame": 0.014841166666666666,
+      "cuda_active_during_api_ms_per_frame": 0.008971,
+      "no_cuda_activity_during_api_ms_per_frame": 0.005870166666666667
+    },
+    {
+      "name": "cudaStreamEndCapture_v10000",
+      "calls_per_frame": 1.6666666666666667,
+      "wall_ms_per_frame": 0.010654083333333333,
+      "cuda_active_during_api_ms_per_frame": 0.0021370833333333333,
+      "no_cuda_activity_during_api_ms_per_frame": 0.008517
+    },
+    {
+      "name": "cudaGraphAddKernelNode_v10000",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 0.00624625,
+      "cuda_active_during_api_ms_per_frame": 0.002264,
+      "no_cuda_activity_during_api_ms_per_frame": 0.00398225
+    },
+    {
+      "name": "cudaGraphAddNode_v12020",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 0.0033374166666666665,
+      "cuda_active_during_api_ms_per_frame": 0.0018014166666666667,
+      "no_cuda_activity_during_api_ms_per_frame": 0.001536
+    },
+    {
+      "name": "cudaGraphConditionalHandleCreate_v12030",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 0.00213925,
+      "cuda_active_during_api_ms_per_frame": 0.0014293333333333332,
+      "no_cuda_activity_during_api_ms_per_frame": 0.0007099166666666666
+    },
+    {
+      "name": "cudaGraphCreate_v10000",
+      "calls_per_frame": 0.6666666666666666,
+      "wall_ms_per_frame": 0.0012320833333333333,
+      "cuda_active_during_api_ms_per_frame": 0.0007929166666666666,
+      "no_cuda_activity_during_api_ms_per_frame": 0.0004391666666666667
+    },
+    {
+      "name": "cudaStreamBeginCapture_v10000",
+      "calls_per_frame": 0.6666666666666666,
+      "wall_ms_per_frame": 0.0011885833333333332,
+      "cuda_active_during_api_ms_per_frame": 0.000531,
+      "no_cuda_activity_during_api_ms_per_frame": 0.0006575833333333334
+    },
+    {
+      "name": "cudaStreamBeginCaptureToGraph_v12030",
+      "calls_per_frame": 1.0,
+      "wall_ms_per_frame": 0.0009691666666666667,
+      "cuda_active_during_api_ms_per_frame": 0.0004135833333333333,
+      "no_cuda_activity_during_api_ms_per_frame": 0.0005555833333333334
+    },
+    {
+      "name": "cudaStreamGetCaptureInfo_v2_v11030",
+      "calls_per_frame": 0.3333333333333333,
+      "wall_ms_per_frame": 0.00040666666666666667,
+      "cuda_active_during_api_ms_per_frame": 0.00040666666666666667,
+      "no_cuda_activity_during_api_ms_per_frame": 0.0
+    },
+    {
+      "name": "cudaStreamUpdateCaptureDependencies_v11030",
+      "calls_per_frame": 0.3333333333333333,
+      "wall_ms_per_frame": 0.0003704166666666667,
+      "cuda_active_during_api_ms_per_frame": 0.0003704166666666667,
+      "no_cuda_activity_during_api_ms_per_frame": 0.0
+    }
+  ],
+  "cpu_spans_per_frame": {
+    "control": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.08562958333333333,
+      "exclusive_wall_ms": 0.08562958333333333,
+      "thread_cpu_ms": 0.08601108333333335,
+      "exclusive_cpu_ms": 0.08601108333333335
+    },
+    "api.LCS_SetGraspTool": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.08480158333333332,
+      "exclusive_wall_ms": 0.08480158333333332,
+      "thread_cpu_ms": 0.08513558333333336,
+      "exclusive_cpu_ms": 0.08513558333333336
+    },
+    "api.LCS_SetScissors": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.01237025,
+      "exclusive_wall_ms": 0.01237025,
+      "thread_cpu_ms": 0.012431583333333334,
+      "exclusive_cpu_ms": 0.012431583333333334
+    },
+    "api.LCS_SetGravity": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.024173749999999997,
+      "exclusive_wall_ms": 0.024173749999999997,
+      "thread_cpu_ms": 0.024384250000000007,
+      "exclusive_cpu_ms": 0.024384250000000007
+    },
+    "api.LCS_Step": {
+      "calls": 12,
+      "inclusive_wall_ms": 34.90252941666666,
+      "exclusive_wall_ms": 34.90252941666666,
+      "thread_cpu_ms": 34.883461,
+      "exclusive_cpu_ms": 34.883461
+    },
+    "api.LCS_Finalize": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.38480425,
+      "exclusive_wall_ms": 0.38480425,
+      "thread_cpu_ms": 0.38509675000000004,
+      "exclusive_cpu_ms": 0.38509675000000004
+    },
+    "api.LCS_RefineContactSurface": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.3411519166666666,
+      "exclusive_wall_ms": 0.3411519166666666,
+      "thread_cpu_ms": 0.34134183333333334,
+      "exclusive_cpu_ms": 0.34134183333333334
+    },
+    "api.LCS_GetCornerPos": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.18023,
+      "exclusive_wall_ms": 0.18023,
+      "thread_cpu_ms": 0.1807676666666667,
+      "exclusive_cpu_ms": 0.1807676666666667
+    },
+    "api.LCS_GetTopologyRevision": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.02505775,
+      "exclusive_wall_ms": 0.02505775,
+      "thread_cpu_ms": 0.025156166666666663,
+      "exclusive_cpu_ms": 0.025156166666666663
+    },
+    "api.LCS_GetGraspCoreFlags": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.07523175,
+      "exclusive_wall_ms": 0.07523175,
+      "thread_cpu_ms": 0.07539533333333333,
+      "exclusive_cpu_ms": 0.07539533333333333
+    },
+    "api.LCS_GetSolvedTool": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.2759259166666666,
+      "exclusive_wall_ms": 0.2759259166666666,
+      "thread_cpu_ms": 0.2761146666666667,
+      "exclusive_cpu_ms": 0.2761146666666667
+    },
+    "api.LCS_GetSolvedJaw": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.021106333333333335,
+      "exclusive_wall_ms": 0.021106333333333335,
+      "thread_cpu_ms": 0.02117275,
+      "exclusive_cpu_ms": 0.02117275
+    },
+    "api.LCS_GetPressureBlade": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.05018125000000001,
+      "exclusive_wall_ms": 0.05018125000000001,
+      "thread_cpu_ms": 0.050296666666666656,
+      "exclusive_cpu_ms": 0.050296666666666656
+    },
+    "api.LCS_GetScissors": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.06389066666666667,
+      "exclusive_wall_ms": 0.06389066666666667,
+      "thread_cpu_ms": 0.06396625,
+      "exclusive_cpu_ms": 0.06396625
+    },
+    "api.LCS_GetScissorsLoads": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.022497,
+      "exclusive_wall_ms": 0.022497,
+      "thread_cpu_ms": 0.02259,
+      "exclusive_cpu_ms": 0.02259
+    },
+    "api.LCS_GetContactReaction": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.027071833333333333,
+      "exclusive_wall_ms": 0.027071833333333333,
+      "thread_cpu_ms": 0.027113833333333334,
+      "exclusive_cpu_ms": 0.027113833333333334
+    },
+    "api.LCS_GetJawLoad": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.02361033333333333,
+      "exclusive_wall_ms": 0.02361033333333333,
+      "thread_cpu_ms": 0.023721333333333334,
+      "exclusive_cpu_ms": 0.023721333333333334
+    },
+    "native.observe": {
+      "calls": 12,
+      "inclusive_wall_ms": 1.3366784166666665,
+      "exclusive_wall_ms": 0.4598793333333333,
+      "thread_cpu_ms": 1.33720275,
+      "exclusive_cpu_ms": 0.45872474999999996
+    },
+    "native.step": {
+      "calls": 12,
+      "inclusive_wall_ms": 37.40404566666666,
+      "exclusive_wall_ms": 0.31753608333333333,
+      "thread_cpu_ms": 37.38287916666667,
+      "exclusive_cpu_ms": 0.3138254166666667
+    },
+    "api.LCS_GetTrainingMetrics": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.17861191666666665,
+      "exclusive_wall_ms": 0.17861191666666665,
+      "thread_cpu_ms": 0.17916816666666666,
+      "exclusive_cpu_ms": 0.17916816666666666
+    },
+    "native.material_quality": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.21849025000000002,
+      "exclusive_wall_ms": 0.03987833333333333,
+      "thread_cpu_ms": 0.21863891666666666,
+      "exclusive_cpu_ms": 0.03947075
+    },
+    "damage.assess": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.26871325,
+      "exclusive_wall_ms": 0.26871325,
+      "thread_cpu_ms": 0.26908316666666665,
+      "exclusive_cpu_ms": 0.26908316666666665
+    },
+    "api.LCS_GetSurfaceCounts": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.028153166666666663,
+      "exclusive_wall_ms": 0.028153166666666663,
+      "thread_cpu_ms": 0.028296083333333336,
+      "exclusive_cpu_ms": 0.028296083333333336
+    },
+    "api.LCS_GetSurface": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.22935825,
+      "exclusive_wall_ms": 0.22935825,
+      "thread_cpu_ms": 0.22657433333333335,
+      "exclusive_cpu_ms": 0.22657433333333335
+    },
+    "api.LCS_GetSurfaceAux": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.13620174999999998,
+      "exclusive_wall_ms": 0.13620174999999998,
+      "thread_cpu_ms": 0.1363675,
+      "exclusive_cpu_ms": 0.1363675
+    },
+    "api.LCS_GetCutDebug": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.07269325,
+      "exclusive_wall_ms": 0.07269325,
+      "thread_cpu_ms": 0.07290533333333334,
+      "exclusive_cpu_ms": 0.07290533333333334
+    },
+    "native.surface": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.7614866666666668,
+      "exclusive_wall_ms": 0.29508025000000004,
+      "thread_cpu_ms": 0.7581156666666665,
+      "exclusive_cpu_ms": 0.2939724166666667
+    },
+    "quality.tissue_tool_overlap": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.466486,
+      "exclusive_wall_ms": 0.466486,
+      "thread_cpu_ms": 0.4671020000000001,
+      "exclusive_cpu_ms": 0.4671020000000001
+    },
+    "quality.topology": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.23413825000000002,
+      "exclusive_wall_ms": 0.23413825000000002,
+      "thread_cpu_ms": 0.23178241666666666,
+      "exclusive_cpu_ms": 0.23178241666666666
+    },
+    "quality.assess": {
+      "calls": 12,
+      "inclusive_wall_ms": 1.7364094999999997,
+      "exclusive_wall_ms": 1.03578525,
+      "thread_cpu_ms": 1.7333967499999996,
+      "exclusive_cpu_ms": 1.0345123333333333
+    },
+    "quality.instrument_distance": {
+      "calls": 12,
+      "inclusive_wall_ms": 1.5462626666666666,
+      "exclusive_wall_ms": 1.5462626666666666,
+      "thread_cpu_ms": 1.3264162499999999,
+      "exclusive_cpu_ms": 1.3264162499999999
+    },
+    "quality.all": {
+      "calls": 12,
+      "inclusive_wall_ms": 4.633780333333333,
+      "exclusive_wall_ms": 0.102418,
+      "thread_cpu_ms": 4.406037250000002,
+      "exclusive_cpu_ms": 0.10038649999999999
+    },
+    "grasp.assess": {
+      "calls": 12,
+      "inclusive_wall_ms": 1.2016411666666669,
+      "exclusive_wall_ms": 1.2016411666666669,
+      "thread_cpu_ms": 1.2023849999999998,
+      "exclusive_cpu_ms": 1.2023849999999998
+    },
+    "state.snapshot": {
+      "calls": 12,
+      "inclusive_wall_ms": 1.9301217499999999,
+      "exclusive_wall_ms": 0.6451339166666666,
+      "thread_cpu_ms": 1.907262916666667,
+      "exclusive_cpu_ms": 0.6213440833333334
+    },
+    "environment.step": {
+      "calls": 12,
+      "inclusive_wall_ms": 44.867454916666674,
+      "exclusive_wall_ms": 0.8995071666666669,
+      "thread_cpu_ms": 44.59605983333333,
+      "exclusive_cpu_ms": 0.8998805000000001
+    },
+    "render.update_mesh": {
+      "calls": 12,
+      "inclusive_wall_ms": 1.3543439166666669,
+      "exclusive_wall_ms": 1.3543439166666669,
+      "thread_cpu_ms": 1.3550533333333334,
+      "exclusive_cpu_ms": 1.3550533333333334
+    },
+    "render.update_scene": {
+      "calls": 12,
+      "inclusive_wall_ms": 0.3991939999999999,
+      "exclusive_wall_ms": 0.3991939999999999,
+      "thread_cpu_ms": 0.4001044166666667,
+      "exclusive_cpu_ms": 0.4001044166666667
+    },
+    "render.gpu_post": {
+      "calls": 12,
+      "inclusive_wall_ms": 3.5878785000000004,
+      "exclusive_wall_ms": 3.5878785000000004,
+      "thread_cpu_ms": 3.587188833333333,
+      "exclusive_cpu_ms": 3.587188833333333
+    },
+    "gl._forward_pass": {
+      "calls": 12,
+      "inclusive_wall_ms": 4.563379083333333,
+      "exclusive_wall_ms": 0.9755005833333331,
+      "thread_cpu_ms": 4.56133225,
+      "exclusive_cpu_ms": 0.9741434166666666
+    },
+    "render.rasterizer": {
+      "calls": 12,
+      "inclusive_wall_ms": 8.213044333333334,
+      "exclusive_wall_ms": 3.6496652500000004,
+      "thread_cpu_ms": 8.211974833333333,
+      "exclusive_cpu_ms": 3.6506425833333336
+    },
+    "render.camera": {
+      "calls": 12,
+      "inclusive_wall_ms": 8.662934,
+      "exclusive_wall_ms": 0.050695666666666674,
+      "thread_cpu_ms": 8.661358833333333,
+      "exclusive_cpu_ms": 0.04927958333333333
+    },
+    "render.rgbd": {
+      "calls": 12,
+      "inclusive_wall_ms": 8.850342916666667,
+      "exclusive_wall_ms": 0.18740891666666668,
+      "thread_cpu_ms": 8.849032333333332,
+      "exclusive_cpu_ms": 0.18767349999999997
+    },
+    "vision.all": {
+      "calls": 12,
+      "inclusive_wall_ms": 12.03829675,
+      "exclusive_wall_ms": 1.8336099166666664,
+      "thread_cpu_ms": 12.038120666666664,
+      "exclusive_cpu_ms": 1.8340349999999999
+    },
+    "policy.observation": {
+      "calls": 12,
+      "inclusive_wall_ms": 2.950222333333333,
+      "exclusive_wall_ms": 2.950222333333333,
+      "thread_cpu_ms": 2.9510585833333334,
+      "exclusive_cpu_ms": 2.9510585833333334
+    },
+    "frame": {
+      "calls": 12,
+      "inclusive_wall_ms": 60.042618833333336,
+      "exclusive_wall_ms": 0.10101525000000001,
+      "thread_cpu_ms": 59.76880891666667,
+      "exclusive_cpu_ms": 0.09755874999999999
+    },
+    "api.LCS_GetNbrIdx": {
+      "calls": 4,
+      "inclusive_wall_ms": 0.11199625,
+      "exclusive_wall_ms": 0.11199625,
+      "thread_cpu_ms": 0.11218333333333334,
+      "exclusive_cpu_ms": 0.11218333333333334
+    },
+    "api.LCS_GetCutEdgeFractions": {
+      "calls": 4,
+      "inclusive_wall_ms": 0.08334666666666667,
+      "exclusive_wall_ms": 0.08334666666666667,
+      "thread_cpu_ms": 0.08353383333333335,
+      "exclusive_cpu_ms": 0.08353383333333335
+    }
+  }
+}

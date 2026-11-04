@@ -1,0 +1,593 @@
+--- a/rendering.py
++++ b/rendering.py
+@@ -236,9 +236,11 @@
+ 
+     def __init__(self, settings: Settings, width=1280, height=960, viewer=False, supersample=2,
+                  kidney: Kidney | None = None, camera=BLOCK_CAMERA,
+-                 camera_fov=43, lamp_gain=1., roughness_scale=1., gpu_postprocess=False, gpu_aligned_depth=False):
++                 camera_fov=43, lamp_gain=1., roughness_scale=1., gpu_postprocess=False, gpu_aligned_depth=False, fused_mesh=False, persistent_soup=False):
+         if supersample not in (1, 2):
+             raise ValueError("supersample must be 1 or 2")
++        self.persistent_soup=bool(persistent_soup)
++        self.fused_mesh = bool(fused_mesh)
+         self.settings = settings
+         self.width, self.height = width, height
+         if not 5 <= camera_fov <= 120 or not .1 <= lamp_gain <= 2 or not .1 <= roughness_scale <= 2:
+@@ -374,10 +376,15 @@
+                 parts.append((mount, self.cartridge))
+             self.knife_parts = [self.add_part(mesh, material) for mesh, material in parts]
+ 
++        if self.fused_mesh:
++            from .training.mesh_kernels import ExactBoundsUpload
++            jit=self.scene.visualizer.context.jit
++            jit.update_buffer=ExactBoundsUpload(jit)
+         self._gpu_post = None
+         if gpu_postprocess:
+             from .training.gpu_postprocess import GPUPostprocess
+             self._gpu_post = GPUPostprocess(self, aligned=gpu_aligned_depth)
++
+ 
+     def add_mesh(self, mesh, material):
+         node = pyrender.Mesh.from_trimesh(mesh, material=material, smooth=True,
+@@ -403,57 +410,73 @@
+         # independent texture projections, so no projection-index expansion is needed.
+         soup = triangles.size == len(refined.vertices) and np.array_equal(
+             triangles.ravel(), np.arange(len(refined.vertices), dtype=np.int32))
+-        wall = refined.anchors[triangles[:, 0], 3] > .5
+-        rest = refined.anchors[:, :3].reshape(-1, 3, 3) if soup else refined.anchors[triangles, :3]
+-        # Dominant rest-space projection prevents stretched textures on
+-        # vertical sides; the selected plane is stable during deformation.
+-        projection = np.abs(np.cross(rest[:, 1] - rest[:, 0], rest[:, 2] - rest[:, 0])).argmax(axis=1)
+-        positions = to_genesis(refined.vertices)
+-        normals = refined.normals @ TO_GENESIS.T
++        prepared = None
++        if self.fused_mesh and soup and self.colors is None:
++            from .training.mesh_kernels import prepare_soup
++            prepared=prepare_soup(refined.vertices,refined.normals,refined.anchors,np.float32(self.texture_cm))
++        else:
++            wall = refined.anchors[triangles[:, 0], 3] > .5
++            rest = refined.anchors[:, :3].reshape(-1, 3, 3) if soup else refined.anchors[triangles, :3]
++            # Dominant rest-space projection prevents stretched textures on
++            # vertical sides; the selected plane is stable during deformation.
++            projection = np.abs(np.cross(rest[:, 1] - rest[:, 0], rest[:, 2] - rest[:, 0])).argmax(axis=1)
++            positions = to_genesis(refined.vertices)
++            normals = refined.normals @ TO_GENESIS.T
+         context = self.scene.visualizer.context
++        refresh_soup_centers=False
+         for part, (is_wall, material) in enumerate(((False, self.skin), (True, self.interior))):
+-            selected = wall == is_wall
++            selected = wall == is_wall if prepared is None else None
+             mesh = self.tissue_meshes[part]
+-            if not np.any(selected):
++            if (not np.any(selected)) if prepared is None else (not len(prepared[part][0])):
+                 if mesh is not None:
+                     self.scene.clear_debug_object(mesh)
+                     self.tissue_meshes[part] = None
+                 continue
+             # One vertex per surface vertex and projection axis, since the texture coordinates of a vertex depend on
+             # the axis of its triangle.
+-            if soup:
+-                ids = triangles[selected].ravel()
+-                axes = np.repeat(projection[selected], 3)
+-                indices = np.arange(len(ids), dtype=np.int32).reshape(-1, 3)
++            if prepared is not None:
++                part_positions,part_normals,texcoord,ids=prepared[part]
++                indices=np.arange(len(ids),dtype=np.int32).reshape(-1,3);colors=None
+             else:
+-                keys = triangles[selected] * 3 + projection[selected, None]
+-                is_used = np.zeros(3 * len(refined.vertices), dtype=bool)
+-                is_used[keys] = True
+-                used = np.flatnonzero(is_used)
+-                ids, axes = used // 3, used % 3
+-                indices = (np.cumsum(is_used) - 1)[keys]
+-            texcoord = refined.anchors[ids[:, None], UV_AXES[axes]] / self.texture_cm
+-            colors = None if self.colors is None else self.colors(refined.anchors[ids, :3], is_wall)
++                if soup:
++                    ids = triangles[selected].ravel()
++                    axes = np.repeat(projection[selected], 3)
++                    indices = np.arange(len(ids), dtype=np.int32).reshape(-1, 3)
++                else:
++                    keys = triangles[selected] * 3 + projection[selected, None]
++                    is_used = np.zeros(3 * len(refined.vertices), dtype=bool)
++                    is_used[keys] = True
++                    used = np.flatnonzero(is_used)
++                    ids, axes = used // 3, used % 3
++                    indices = (np.cumsum(is_used) - 1)[keys]
++                texcoord = refined.anchors[ids[:, None], UV_AXES[axes]] / self.texture_cm
++                colors = None if self.colors is None else self.colors(refined.anchors[ids, :3], is_wall)
++                part_positions,part_normals=positions[ids],normals[ids]
+             with self.scene.visualizer.viewer_lock:
+                 # Reconstruction may reorder vertices without changing their count.
+                 # Update every attribute; reuse storage only with identical indexing.
+                 if mesh is not None:
+                     primitive = mesh.primitives[0]
+-                    if len(primitive.positions) != len(ids) or not np.array_equal(primitive.indices, indices):
+-                        context.clear_debug_object(mesh)
+-                        mesh = None
++                    persistent=bool(self.persistent_soup and prepared is not None)
++                    if (getattr(primitive,'_persistent_soup',False)!=persistent
++                            or (not persistent and (len(primitive.positions)!=len(ids) or not np.array_equal(primitive.indices,indices)))):
++                        context.clear_debug_object(mesh);mesh=None
++                    elif persistent and len(primitive.positions)!=len(ids):
++                        refresh_soup_centers=True
+                 if mesh is None:
+                     primitive = pyrender.Primitive(
+-                        positions=positions[ids], normals=normals[ids], texcoord_0=texcoord, color_0=colors,
+-                        indices=indices, material=material, poses=np.eye(4)[None], stream_positions=True)
++                        positions=part_positions, normals=part_normals, texcoord_0=texcoord, color_0=colors,
++                        indices=None if self.persistent_soup and prepared is not None else indices, material=material, poses=np.eye(4)[None], stream_positions=True)
++                    primitive._persistent_soup=bool(self.persistent_soup and prepared is not None)
+                     mesh = pyrender.Mesh([primitive], name="endo_" + str(gs.UID()))
+                     context.add_external_node(mesh)
+                     self.tissue_meshes[part] = mesh
+                 else:
+-                    primitive.positions = positions[ids]
+-                    primitive.normals = normals[ids]
++                    primitive.positions = part_positions
++                    primitive.normals = part_normals
+                     primitive.texcoord_0 = texcoord
+                     primitive.color_0 = colors
++                primitive._fresh_exact_bounds = prepared[2][part] if prepared is not None else None
+                 node = context.external_nodes[mesh.name]
+                 context.jit.update_buffer(node, "pos", primitive.positions)
+                 # Upload even on the first frame: streamed primitives initially
+@@ -462,6 +485,15 @@
+                 attributes = primitive.texcoord_0 if colors is None else np.hstack((primitive.texcoord_0, primitive.color_0))
+                 context.jit.update_buffer(node, "vertex", attributes)
+ 
++        if refresh_soup_centers:
++            with self.scene.visualizer.viewer_lock:
++                # Match the geometry centers a full set_primitive rebuild would refresh,
++                # retaining the original opaque draw order and scene bounds.
++                for item in self.tissue_meshes:
++                    if item is None:continue
++                    primitive=item.primitives[0];index=context.jit._primitive_index.get(primitive)
++                    bounds=getattr(primitive,'_fresh_exact_bounds',None)
++                    if index is not None and bounds is not None:context.jit.centroid_geom[index]=.5*(bounds[0]+bounds[1])
+         axis, normal = np.array(self.settings.jaw_axis), np.array(self.settings.jaw_normal)
+         self.place(self.grasper_body, obs.hinge, self.jaw_frame)
+         for node, frame in zip(self.grasper_jaws, self.jaw_frames.posed_jaws(np.zeros(3), axis, normal, obs.jaw_gap)):
+@@ -485,7 +517,7 @@
+             return
+         self.place(self.knife_parts, obs.blade[:3], np.eye(3))
+ 
+-    def render(self, depth=False):
++    def render(self, depth=False, *, output_rgb=False):
+         """Render the endoscopic image in OpenCV channel order (BGR), and with `depth` its depth map in metres.
+ 
+         The image passes through the lens distortion (BARREL) and the vignette. The depth map is that of the pinhole
+@@ -497,6 +529,7 @@
+         self.scene.visualizer.context.set_node_pose(self.lamp, lamp_pose)
+         self.lamp.light.intensity = LAMP_IRRADIANCE * self.lamp_gain * np.sum((lookat - pos) ** 2)
+         if self._gpu_post is not None:
++            self._gpu_post.output_rgb=bool(output_rgb)
+             self._gpu_post.active = True
+             try:
+                 frame_bgr, depth_m, _, _ = self.camera.render(rgb=True, depth=depth, force_render=True)
+@@ -514,7 +547,8 @@
+             # Depth is sampled, not color-filtered, and remains in metres.
+             depth_m = depth_m[::2, ::2] if depth else None
+         frame = cv2.cvtColor(cv2.remap(buffer, *self.lens_map, cv2.INTER_LINEAR), cv2.COLOR_RGB2BGR)
+-        return cv2.multiply(frame, self.vignette, dtype=cv2.CV_8U), depth_m
++        frame=cv2.multiply(frame,self.vignette,dtype=cv2.CV_8U)
++        return (cv2.cvtColor(frame,cv2.COLOR_BGR2RGB) if output_rgb else frame),depth_m
+ 
+     def capture(self, stage, sim_time, cut_edges, grip_points):
+         """Render the endoscopic image as an RGB PIL image, with its depth map in metres."""
+--- /dev/null
++++ b/training/color_kernels.py
+@@ -0,0 +1,16 @@
++"""One-pass packing with NumPy-owned, independent contiguous HWC RGB output."""
++import numpy as np
++from numba import njit
++
++@njit(nogil=True,cache=False)
++def _pack_rgb_into(image,result):
++    for y in range(image.shape[0]):
++        for x in range(image.shape[1]):
++            result[y,x,0]=image[y,x,0]
++            result[y,x,1]=image[y,x,1]
++            result[y,x,2]=image[y,x,2]
++
++def pack_rgb(image):
++    result=np.empty((image.shape[0],image.shape[1],3),dtype=np.uint8)
++    _pack_rgb_into(image,result)
++    return result
+--- /dev/null
++++ b/training/distance_kernels.py
+@@ -0,0 +1,112 @@
++"""Scalar fused versions of the existing rigid-envelope distance diagnostics.
++No fastmath, altered sampling, geometric approximation, or changed thresholds.
++"""
++import numpy as np
++from numba import njit
++
++@njit(nogil=True,cache=False)
++def dot3(a,b):return (a[0]*b[0]+a[1]*b[1])+a[2]*b[2]
++
++@njit(nogil=True,cache=False)
++def vertices(center,frame,half):
++    result=np.empty((8,3),np.float64)
++    for i in range(8):
++        for k in range(3):
++            value=0.
++            for j in range(3):value+=((1. if i&(1<<j) else -1.)*half[j])*frame[j,k]
++            result[i,k]=center[k]+value
++    return result
++
++@njit(nogil=True,cache=False)
++def box_distance(center_a,frame_a,half_a,center_b,frame_b,half_b):
++    maximum=-np.inf
++    for i in range(15):
++        if i<3:axis=frame_a[i].copy()
++        elif i<6:axis=frame_b[i-3].copy()
++        else:
++            a=frame_a[(i-6)//3];b=frame_b[(i-6)%3]
++            axis=np.array((a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]))
++        length=np.sqrt(dot3(axis,axis))
++        if length<=1e-10:continue
++        axis/=length
++        sep=abs(dot3(axis,center_b-center_a))
++        support_a=0.;support_b=0.
++        for k in range(3):
++            support_a+=abs(dot3(axis,frame_a[k]))*half_a[k]
++            support_b+=abs(dot3(axis,frame_b[k]))*half_b[k]
++        maximum=max(maximum,(sep-support_a)-support_b)
++    if maximum<=0:return maximum
++    av=vertices(center_a,frame_a,half_a);bv=vertices(center_b,frame_b,half_b);best=np.inf
++    for direction in range(2):
++        points=av if direction==0 else bv
++        frame=frame_b if direction==0 else frame_a
++        center=center_b if direction==0 else center_a
++        half=half_b if direction==0 else half_a
++        for i in range(8):
++            rel=points[i]-center;distance=0.
++            for k in range(3):
++                q=max(abs(dot3(rel,frame[k]))-half[k],0.)
++                distance+=q*q
++            best=min(best,distance)
++    # All 12x12 segment pairs with the same interior and four endpoint cases.
++    for ai in range(8):
++        for ak in range(3):
++            if ai&(1<<ak):continue
++            a=av[ai];u=av[ai^(1<<ak)]-a;aa=dot3(u,u)
++            for bi in range(8):
++                for bk in range(3):
++                    if bi&(1<<bk):continue
++                    c=bv[bi];v=bv[bi^(1<<bk)]-c;w=a-c
++                    cc=dot3(v,v);bb=dot3(u,v);dd=dot3(u,w);ee=dot3(v,w);det=aa*cc-bb*bb
++                    for case in range(5):
++                        if case==0:
++                            if det<=1e-24:continue
++                            s=(bb*ee-cc*dd)/det;t=(aa*ee-bb*dd)/det
++                            if s<0 or s>1 or t<0 or t>1:continue
++                        elif case==1 or case==3:
++                            s=0. if case==1 else 1.;t=min(1.,max(0.,(ee+s*bb)/max(cc,1e-30)))
++                        else:
++                            t=0. if case==2 else 1.;s=min(1.,max(0.,(t*bb-dd)/max(aa,1e-30)))
++                        q=(w+s*u)-t*v;best=min(best,dot3(q,q))
++    return np.sqrt(max(0.,best))
++
++@njit(nogil=True,cache=False)
++def capsule_box_distance(start,end,radius,center,frame,half):
++    a=np.empty(3,np.float64);b=np.empty(3,np.float64)
++    for k in range(3):a[k]=dot3(start-center,frame[k]);b[k]=dot3(end-center,frame[k])
++    u=b-a;cuts=np.empty(8,np.float64);cuts[0]=0.;cuts[1]=1.;n=2
++    for k in range(3):
++        if abs(u[k])>1e-15:
++            for side in (-1.,1.):
++                t=(side*half[k]-a[k])/u[k]
++                if 0<t<1:cuts[n]=t;n+=1
++    cuts=np.sort(cuts[:n]);samples=np.empty(15,np.float64);samples[:n]=cuts;count=n
++    for i in range(n-1):
++        lo,hi=cuts[i],cuts[i+1]
++        if lo==hi:continue
++        middle=a+(lo+hi)*.5*u;v=np.zeros(3,np.float64);c=np.zeros(3,np.float64)
++        for k in range(3):
++            if abs(middle[k])>half[k]:v[k]=u[k];c[k]=a[k]-np.sign(middle[k])*half[k]
++        vv=dot3(v,v)
++        if vv>1e-30:samples[count]=min(hi,max(lo,-dot3(v,c)/vv));count+=1
++    best=np.inf
++    for i in range(count):
++        point=a+samples[i]*u;distance=0.
++        for k in range(3):
++            q=max(abs(point[k])-half[k],0.);distance+=q*q
++        best=min(best,distance)
++    return np.sqrt(best)-radius
++
++@njit(nogil=True,cache=False)
++def between_pads(positions,hinge,frame,bounds,sn,cs):
++    result=np.ones(len(positions),np.bool_)
++    for i in range(len(positions)):
++        dx=positions[i,0]-hinge[0];dy=positions[i,1]-hinge[1];dz=positions[i,2]-hinge[2]
++        x=(dx*frame[0,0]+dy*frame[0,1])+dz*frame[0,2]
++        y=(dx*frame[1,0]+dy*frame[1,1])+dz*frame[1,2]
++        z=(dx*frame[2,0]+dy*frame[2,1])+dz*frame[2,2]
++        for jaw in range(2):
++            side=1 if jaw==0 else -1
++            along=x*cs+side*y*sn;across=y*cs-side*x*sn
++            if not (abs(along-bounds[jaw,0,0])<=bounds[jaw,1,0] and side*(across-bounds[jaw,0,1])<=-bounds[jaw,1,1] and abs(z-bounds[jaw,0,2])<=bounds[jaw,1,2]):result[i]=False
++    return result
+--- a/training/env.py
++++ b/training/env.py
+@@ -70,6 +70,7 @@
+     outcome_semantics: str = "legacy_v1"
+     instrument_collision_checks: bool = False
+     fast_topology_checks: bool = False
++    gpu_topology_checks: bool = False
+ 
+     def __post_init__(self):
+         if self.outcome_semantics not in ("legacy_v1", "physical_outcome_v1"):
+@@ -78,6 +79,8 @@
+             raise TypeError("instrument_collision_checks must be bool")
+         if type(self.fast_topology_checks) is not bool:
+             raise TypeError("fast_topology_checks must be bool")
++        if type(self.gpu_topology_checks) is not bool or (self.gpu_topology_checks and not self.full_surface_checks):
++            raise ValueError('GPU topology checks require full surface checks and explicit bool')
+         if self.max_steps < 1:
+             raise ValueError("max_steps must be positive")
+         if type(self.failure_telemetry) is not bool:
+@@ -166,7 +169,10 @@
+             self.grid = build_grid(SCISSORS_SPACING*scene_config.spacing_scale,
+                                    vertical_spacing=scene.vertical_spacing*scene_config.spacing_scale,
+                                    density=self.settings.density_kg_m3, **geometry)
+-        if self.config.fast_topology_checks:
++        if self.config.gpu_topology_checks:
++            from .gpu_topology import topology_statistics
++            self.quality=QualityMonitor(self.grid,self.config.limits,topology_function=lambda surface:topology_statistics(self.native,surface))
++        elif self.config.fast_topology_checks:
+             from .topology_fast import topology_statistics_fast
+             self.quality = QualityMonitor(self.grid, self.config.limits, topology_function=topology_statistics_fast)
+         else:
+@@ -255,6 +261,7 @@
+                                 outcome_semantics=self.config.outcome_semantics,
+                                 instrument_collision_checks=self.config.instrument_collision_checks,
+                                 fast_topology_checks=self.config.fast_topology_checks,
++                                gpu_topology_checks=self.config.gpu_topology_checks,
+                                 quality_limits=asdict(self.config.limits),
+                                 preparation_steps=self.native.tick, initial_zero_gravity_native_steps=1,
+                                 action_semantics="absolute_target; one native dt per step",
+--- a/training/gpu_postprocess.py
++++ b/training/gpu_postprocess.py
+@@ -20,6 +20,7 @@
+ uniform float znear;
+ uniform float zfar;
+ uniform bool emit_aligned;
++uniform bool emit_rgb;
+ layout(location=0) out uvec4 color;
+ layout(location=1) out float depth;
+ layout(location=2) out float aligned_depth;
+@@ -46,7 +47,7 @@
+            +pixel(q+ivec2(0,1))*(32-fx)*fy+pixel(q+ivec2(1,1))*fx*fy;
+  ivec3 interpolated=(sum+512)>>10;
+  precise vec3 shaded=vec3(interpolated)*texelFetch(vignette_tex,p,0).r;
+- color=uvec4(uvec3(clamp(roundEven(shaded.bgr),0,255)),255);
++ color=uvec4(uvec3(clamp(roundEven(emit_rgb?shaded.rgb:shaded.bgr),0,255)),255);
+  depth=linear_depth(texelFetch(depth_tex,ivec2(p.x,textureSize(depth_tex,0).y-1-p.y),0).r);
+  if(emit_aligned){
+   // CV_32FC2 conversion followed by INTER_NEAREST uses ties-to-even.
+@@ -71,6 +72,7 @@
+             raise ValueError('GPU postprocess currently requires supersample=1; never silently reduces supersampling')
+         self.view, self.gl = view, gl
+         self.active = False
++        self.output_rgb=False
+         self.aligned_enabled = bool(aligned)
+         self.aligned_depth = self.aligned_valid = None
+         raster = view.camera._rasterizer
+@@ -110,7 +112,7 @@
+                 gl.glUseProgram(self.program)
+                 for i,name in enumerate(('color_tex','depth_tex','map_tex','vignette_tex')):
+                     gl.glUniform1i(gl.glGetUniformLocation(self.program,name),i)
+-                self.near_location=gl.glGetUniformLocation(self.program,'znear');self.far_location=gl.glGetUniformLocation(self.program,'zfar');self.aligned_location=gl.glGetUniformLocation(self.program,'emit_aligned')
++                self.near_location=gl.glGetUniformLocation(self.program,'znear');self.far_location=gl.glGetUniformLocation(self.program,'zfar');self.aligned_location=gl.glGetUniformLocation(self.program,'emit_aligned');self.rgb_location=gl.glGetUniformLocation(self.program,'emit_rgb')
+         finally:
+             self.context.make_uncurrent()
+         # Keep this closure dynamic so a profiler can wrap self.read per instance.
+@@ -161,6 +163,7 @@
+             for cap in (gl.GL_DEPTH_TEST,gl.GL_CULL_FACE,gl.GL_BLEND,gl.GL_MULTISAMPLE,gl.GL_SCISSOR_TEST,gl.GL_FRAMEBUFFER_SRGB):gl.glDisable(cap)
+             gl.glColorMask(True,True,True,True);gl.glUseProgram(self.program);gl.glBindVertexArray(self.vao)
+             emit=self.aligned_enabled and bool(flags & RenderFlags.RET_DEPTH)
++            gl.glUniform1i(self.rgb_location,int(self.output_rgb))
+             gl.glUniform1i(self.aligned_location,int(emit));gl.glDrawBuffers(4 if emit else 2,[gl.GL_COLOR_ATTACHMENT0+i for i in range(4 if emit else 2)])
+             camera=scene.main_camera_node.camera
+             gl.glUniform1f(self.near_location,camera.znear);gl.glUniform1f(self.far_location,camera.zfar if camera.zfar is not None else -1)
+--- /dev/null
++++ b/training/gpu_topology.py
+@@ -0,0 +1,30 @@
++"""Same positional topology criteria using a read-only current-soup CUDA ABI."""
++import ctypes
++import numpy as np
++
++
++def decode(metrics,bounds):
++    wall=int(metrics[1]);box=bounds.reshape(2,3)
++    return dict(triangles=int(metrics[0]),wall_triangles=wall,degenerate_triangles=int(metrics[2]),
++                positional_boundary_edges=int(metrics[3]),positional_nonmanifold_edges=int(metrics[4]),
++                duplicate_triangles=int(metrics[5]),winding_consistent=bool(metrics[6]),
++                wall_bounds_native_mm=(box*np.float32(10)).tolist() if wall else None,
++                wall_extent_mm_not_incision_depth=((box[1]-box[0])*np.float32(10)).tolist() if wall else None)
++
++
++def topology_statistics(native,surface):
++    # The environment passes the unmodified result of native.surface from this
++    # same completed tick; the ABI additionally checks the current vertex count.
++    n=len(surface.vertices)
++    if n<=0 or n>1<<20 or surface.triangles.size!=n or not np.array_equal(surface.triangles.ravel(),np.arange(n,dtype=np.int32)):
++        from .topology_fast import topology_statistics_fast
++        return topology_statistics_fast(surface)
++    function=native.dll.LCS_GetExactTopology
++    function.argtypes=[ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p];function.restype=ctypes.c_int
++    metrics=np.empty(9,np.int32);bounds=np.empty(6,np.float32)
++    status=function(n,metrics.ctypes.data,bounds.ctypes.data)
++    if status:raise RuntimeError('Current reconstructed topology readback failed: '+str(status))
++    if metrics[7] or metrics[8]:
++        from .topology_fast import topology_statistics_fast
++        return topology_statistics_fast(surface)
++    return decode(metrics,bounds)
+--- a/training/grasp.py
++++ b/training/grasp.py
+@@ -17,17 +17,13 @@
+ 
+ def between_pads(positions_m, tools, pad_bounds_m, jaw_length_m):
+     """Same two rotating pad surfaces as the existing interaction diagnostic."""
+-    local = pad_coordinates(positions_m, tools)
+-    sn = min(tools['grasper_gap_m']/(2*jaw_length_m), .95)
+-    cs = np.sqrt(1-sn*sn)
+-    enclosed = np.ones(len(local), bool)
+-    for side, (center, half) in zip((1, -1), np.asarray(pad_bounds_m).reshape(2,2,3)):
+-        along = local[:, 0]*cs + side*local[:, 1]*sn
+-        across = local[:, 1]*cs - side*local[:, 0]*sn
+-        enclosed &= ((np.abs(along-center[0]) <= half[0])
+-                     & (side*(across-center[1]) <= -half[1])
+-                     & (np.abs(local[:, 2]-center[2]) <= half[2]))
+-    return enclosed
++    # Same orthonormal frame, fused transform and pad comparisons.
++    axis=np.asarray(tools['grasper_axis'],float);axis=axis/np.linalg.norm(axis)
++    normal=np.asarray(tools['grasper_normal'],float);normal=normal-axis*np.dot(axis,normal)
++    normal=normal/np.linalg.norm(normal);frame=np.stack((axis,normal,np.cross(axis,normal)))
++    sn=min(tools['grasper_gap_m']/(2*jaw_length_m),.95);cs=np.sqrt(1-sn*sn)
++    from .distance_kernels import between_pads as fused
++    return fused(positions_m,np.asarray(tools['grasper_hinge_m'],float),frame,np.asarray(pad_bounds_m).reshape(2,2,3),sn,cs)
+ 
+ 
+ class GraspMonitor:
+--- a/training/instrument_collision.py
++++ b/training/instrument_collision.py
+@@ -105,3 +105,13 @@
+     end = (np.asarray(scissors_hinge)+SCISSORS_WRIST_FRONT*np.asarray(scissors_axis))*.01
+     return min(*(box_distance(x,y) for x in a for y in b),
+                *(capsule_box_distance(start,end,scissors.jaws.shaft_radius*.01,x) for x in a))
++
++
++# Keep all pose validation and all envelope construction on the original path.
++def box_distance(a,b):
++    from .distance_kernels import box_distance as fused
++    return float(fused(a.center,a.frame,a.half,b.center,b.frame,b.half))
++
++def capsule_box_distance(start,end,radius,box):
++    from .distance_kernels import capsule_box_distance as fused
++    return float(fused(start,end,radius,box.center,box.frame,box.half))
+--- /dev/null
++++ b/training/mesh_kernels.py
+@@ -0,0 +1,52 @@
++"""Fresh per-frame preparation of the existing triangle soup (no layout cache)."""
++import numpy as np
++from numba import njit
++
++@njit(nogil=True,cache=False)
++def prepare_soup(vertices,normals,anchors,texture_cm):
++    n=len(vertices);wall_count=0
++    for t in range(n//3):
++        if anchors[3*t,3]>.5:wall_count+=1
++    counts=((n//3-wall_count)*3,wall_count*3)
++    pos0=np.empty((counts[0],3),np.float32);pos1=np.empty((counts[1],3),np.float32)
++    norm0=np.empty((counts[0],3),np.float32);norm1=np.empty((counts[1],3),np.float32)
++    uv0=np.empty((counts[0],2),np.float32);uv1=np.empty((counts[1],2),np.float32)
++    ids0=np.empty(counts[0],np.int32);ids1=np.empty(counts[1],np.int32)
++    bounds=np.empty((2,2,3),np.float32)
++    for part in range(2):
++        bounds[part,0,:]=np.inf;bounds[part,1,:]=-np.inf
++    offsets=np.zeros(2,np.int32)
++    for t in range(n//3):
++        a=3*t;b=a+1;c=a+2
++        # Match float32 numpy subtract/cross and first-axis argmax ties.
++        x0=anchors[b,0]-anchors[a,0];x1=anchors[b,1]-anchors[a,1];x2=anchors[b,2]-anchors[a,2]
++        y0=anchors[c,0]-anchors[a,0];y1=anchors[c,1]-anchors[a,1];y2=anchors[c,2]-anchors[a,2]
++        cross0=abs(x1*y2-x2*y1);cross1=abs(x2*y0-x0*y2);cross2=abs(x0*y1-x1*y0)
++        axis=0;largest=cross0
++        if cross1>largest:axis=1;largest=cross1
++        if cross2>largest:axis=2
++        u=1 if axis==0 else 0;v=1 if axis==2 else 2
++        part=1 if anchors[a,3]>.5 else 0;start=offsets[part];offsets[part]+=3
++        positions=pos1 if part else pos0;ns=norm1 if part else norm0;uv=uv1 if part else uv0;ids=ids1 if part else ids0
++        for k in range(3):
++            i=a+k;j=start+k;ids[j]=i
++            positions[j,0]=vertices[i,0]*np.float32(.01);positions[j,1]=-vertices[i,2]*np.float32(.01);positions[j,2]=vertices[i,1]*np.float32(.01)
++            ns[j,0]=normals[i,0];ns[j,1]=-normals[i,2];ns[j,2]=normals[i,1]
++            uv[j,0]=anchors[i,u]/texture_cm;uv[j,1]=anchors[i,v]/texture_cm
++            for dim in range(3):
++                bounds[part,0,dim]=min(bounds[part,0,dim],positions[j,dim]);bounds[part,1,dim]=max(bounds[part,1,dim],positions[j,dim])
++    return (pos0,norm0,uv0,ids0),(pos1,norm1,uv1,ids1),bounds
++
++class ExactBoundsUpload:
++    """Only bypass repeated min/max when bounds came from the same fresh vertices."""
++    def __init__(self,jit):self.jit=jit;self.original=jit.update_buffer
++    def __call__(self,node,buffer_name,data):
++        primitive=node.mesh.primitives[0] if node.mesh is not None and len(node.mesh.primitives)==1 else None
++        bounds=getattr(primitive,'_fresh_exact_bounds',None) if primitive is not None else None
++        if buffer_name!='pos' or bounds is None:return self.original(node,buffer_name,data)
++        self.jit._buffer[(primitive,buffer_name)]=data
++        index=self.jit._primitive_index.get(primitive)
++        if index is not None and len(data):
++            self.jit.bounds_geom[index]=bounds
++            if getattr(primitive,'_persistent_soup',False):self.jit.n_indices[index]=-len(data)
++        self.jit._scene.bump_revision()
+--- a/training/snapshot.py
++++ b/training/snapshot.py
+@@ -302,14 +302,14 @@
+             'full_surface_checks': env.config.full_surface_checks, 'quality_limits': asdict(env.config.limits),
+             'outcome_semantics': env.config.outcome_semantics,
+             'instrument_collision_checks': env.config.instrument_collision_checks,
+-            'fast_topology_checks': env.config.fast_topology_checks}
++            'fast_topology_checks': env.config.fast_topology_checks, 'gpu_topology_checks': getattr(env.config,'gpu_topology_checks',False)}
+ 
+ 
+ def source_binding():
+     here = Path(__file__).parent
+     return {p.name: sha256(p) for p in [here/name for name in
+         ('snapshot.py', 'env.py', 'native.py', 'quality.py', 'grasp.py', 'tasks.py', 'damage.py',
+-         'physics.py', 'actions.py', 'vision.py', 'lineage.py', 'geometry.py', 'outcomes.py', 'policies.py', 'instrument_collision.py', 'visual_randomization.py', 'visual_labels.py','pixel_labels.py', 'topology_fast.py', 'topology_hash.py', 'egl_device.py', 'quality_kernels.py', 'gpu_postprocess.py', 'pixel_compose_fast.py')]}
++         'physics.py', 'actions.py', 'vision.py', 'lineage.py', 'geometry.py', 'outcomes.py', 'policies.py', 'instrument_collision.py', 'visual_randomization.py', 'visual_labels.py','pixel_labels.py', 'topology_fast.py', 'topology_hash.py', 'egl_device.py', 'quality_kernels.py', 'gpu_postprocess.py', 'pixel_compose_fast.py', 'distance_kernels.py', 'mesh_kernels.py', 'color_kernels.py', 'gpu_topology.py')]}
+ 
+ 
+ def take_snapshot(env):
+--- a/training/vision.py
++++ b/training/vision.py
+@@ -31,6 +31,7 @@
+         if config.get('gpu_aligned_depth',False) and not config.get('gpu_postprocess',False):
+             raise ValueError('GPU aligned depth requires explicit GPU postprocessing')
+         self.gpu_aligned_depth=bool(config.get('gpu_aligned_depth',False))
++        self.direct_rgb=bool(config.get('direct_rgb',False))
+         self.labels=tuple(config.get('privileged_labels',()))
+         if set(self.labels)-{'segmentation','surface_supports','pixel_supports'}:
+             raise ValueError('Unknown privileged visual label')
+@@ -56,7 +57,7 @@
+         if selected_gpu.startswith('GPU-'):
+             from .egl_device import bind
+             self.device_binding=bind(selected_gpu)
+-        self.view = EndoscopicView(env.settings,width,height,supersample=1,kidney=scene.shape,camera=camera,gpu_postprocess=config.get('gpu_postprocess',False),gpu_aligned_depth=config.get('gpu_aligned_depth',False),**extra)
++        self.view = EndoscopicView(env.settings,width,height,supersample=1,kidney=scene.shape,camera=camera,gpu_postprocess=config.get('gpu_postprocess',False),gpu_aligned_depth=config.get('gpu_aligned_depth',False),fused_mesh=config.get('fused_mesh',False),persistent_soup=config.get('persistent_soup',False),**extra)
+         camera = self.view.camera
+         # Coordinates of each final image pixel in the upright pinhole image.
+         xy, _ = cv2.convertMaps(*self.view.lens_map, cv2.CV_32FC2)
+@@ -83,7 +84,7 @@
+         self.manifest['privileged_labels'] = list(self.labels)
+         self.manifest['render_device_binding']=self.device_binding
+         self.manifest['opencv_threads']=cv2.getNumThreads()
+-        self.manifest['performance_options']=dict(gpu_postprocess=bool(config.get('gpu_postprocess',False)),gpu_aligned_depth=self.gpu_aligned_depth)
++        self.manifest['performance_options']=dict(gpu_postprocess=bool(config.get('gpu_postprocess',False)),gpu_aligned_depth=self.gpu_aligned_depth,fused_mesh=bool(config.get('fused_mesh',False)),persistent_soup=bool(config.get('persistent_soup',False)),direct_rgb=self.direct_rgb)
+         self.manifest['label_semantics'] = 'segmentation: 0 background, 1 tissue, 2 grasper, 3 scissors; surface bindings: contact-affine supports plus offset, invalid rows explicit; pixel supports: up to 24 node IDs and composed weights plus offset, perspective-correct single-sample visible triangles, explicit validity mask'
+         if self.visual_sample is not None:
+             self.manifest['randomization'] = self.visual_sample
+@@ -100,7 +101,8 @@
+         started = time.perf_counter()
+         surface = env.last_surface if env.last_surface is not None else env.native.surface()
+         self.view.update(surface, env.observed)
+-        frame_bgr, pinhole = self.view.render(depth=True)
++        if self.direct_rgb:frame_bgr,pinhole=self.view.render(depth=True,output_rgb=True)
++        else:frame_bgr,pinhole=self.view.render(depth=True)
+         if self.gpu_aligned_depth:
+             depth,valid=self.view._gpu_post.aligned_depth,self.view._gpu_post.aligned_valid
+             if depth is None or valid is None or depth.shape!=pinhole.shape:
+@@ -108,7 +110,10 @@
+         else:
+             depth, valid = align_depth_to_endoscope(pinhole, self.view.lens_map, self.view.vignette,
+                                                   self.view.camera.near, self.view.camera.far)
+-        rgb=cv2.cvtColor(frame_bgr,cv2.COLOR_BGR2RGB)
++        if self.direct_rgb:
++            from .color_kernels import pack_rgb
++            rgb=pack_rgb(frame_bgr)
++        else:rgb=cv2.cvtColor(frame_bgr,cv2.COLOR_BGR2RGB)
+         if self.randomization is not None:
+             rgb,depth,valid=self.randomization.noise(rgb,depth,valid,seed=self.visual_sample['seed'],
+                                                     native_tick=state.metadata['native_tick'])

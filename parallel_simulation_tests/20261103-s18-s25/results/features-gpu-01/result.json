@@ -1,0 +1,396 @@
+{
+  "schema": "s18_s25_gpu_smoke_v1",
+  "completed": true,
+  "checks": {
+    "five_restores": [
+      {
+        "branch": 0,
+        "position_max_abs_cm": 0.0,
+        "native_archive_exact": true,
+        "lineage": null,
+        "context_branch": "real-gpu-0"
+      },
+      {
+        "branch": 1,
+        "position_max_abs_cm": 0.0,
+        "native_archive_exact": true,
+        "lineage": null,
+        "context_branch": "real-gpu-1"
+      },
+      {
+        "branch": 2,
+        "position_max_abs_cm": 0.0,
+        "native_archive_exact": true,
+        "lineage": null,
+        "context_branch": "real-gpu-2"
+      },
+      {
+        "branch": 3,
+        "position_max_abs_cm": 0.0,
+        "native_archive_exact": true,
+        "lineage": null,
+        "context_branch": "real-gpu-3"
+      },
+      {
+        "branch": 4,
+        "position_max_abs_cm": 0.0,
+        "native_archive_exact": true,
+        "lineage": null,
+        "context_branch": "real-gpu-4"
+      }
+    ],
+    "visual_label_quality": {
+      "tissue_pixels": 26738,
+      "valid_material_pixels": 40,
+      "visibility_disagreement_pixels": 0,
+      "surface_valid_vertices": 61,
+      "surface_vertices": 45168,
+      "semantics": "contact-affine supports plus offset; invalid pixels are not supervision"
+    },
+    "visual_capture_ms": 1232.8170989640057,
+    "labels_do_not_mutate_native_archive": true,
+    "pixel_reprojection_error_px": {
+      "count": 40,
+      "max": 0.9989798066291977,
+      "p95": 0.9989494649564703
+    },
+    "material_to_render_depth_max_error_m": 0.00027720630168914795,
+    "repeated_render_rgb_max_difference": 0,
+    "force_free_observation": [
+      "grasper_axis",
+      "grasper_gap_m",
+      "grasper_normal",
+      "scissors_axis",
+      "scissors_gap_m",
+      "scissors_normal"
+    ]
+  },
+  "scope": "single-state actual CUDA readback and five pool-session restores; not C1-C5, multiprocess or 20Hz acceptance",
+  "context": {
+    "schema": "native_training_transition_v1",
+    "git_commit": "ebbfa5afe2110b4103c847f2f8bd26c680adf4c8",
+    "dll_path": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/native-s25/build/lib/libLiverCudaSim.so",
+    "dll_sha256": "baba073911ab00add4f4cde3851c5ba3ff477e511d0d9d31baca8c75b077d006",
+    "binary_source_binding": "unverified_prebuilt_binary_kept_as_independent_baseline",
+    "current_adapter_and_asset_sha256": {
+      "endoscopic_tissue/native_backend.py": "9e3e73bed3d9a530d9454281322538ff5fa51c12bba6afb6d5798ae8de85e41d",
+      "endoscopic_tissue/scenario.py": "dfed259a4ddd15261d4d6023c94dad29bfc7bdb12f7ffa99c4caa680eba94715",
+      "endoscopic_tissue/grid.py": "724244986bfbe174cb0a397672ccbe8455a2b921522e3aae3a35440c8311e6ce",
+      "endoscopic_tissue/kidney.py": "8581ebc3de6a0aabde31d23f22391b7942915c1207f8d057e39a26d40673a980",
+      "endoscopic_tissue/instrument_geometry.py": "9804179b7fc23f590148f5d914006845ef4198e26ad33faf55cc38cae3221a1b",
+      "endoscopic_tissue/surface_diagnostics.py": "93fc0c4850ef7e5b35b591cbc3137d3a49d6d3d588c209e150a89fec7d16313d",
+      "endoscopic_tissue/training/__init__.py": "82db0f1e70d6bd7a157c8ee4a8646f6f8bf44b342f9973de027c31ddd0cb44d2",
+      "endoscopic_tissue/training/acceptance_queue.py": "ac859591a6e321dd2ca9bbcf6f7866c57bbaf0a62f3b8c72a2dcf1b985dfce03",
+      "endoscopic_tissue/training/actions.py": "0a8c891a61972bb9d4d2e582ab50a0579c020af73dbab543ab38bf6c9293cf5f",
+      "endoscopic_tissue/training/audit_physics.py": "a2148816abbb5476a325cf4254bdfc89d20ef69fc0b2d90088d1baa3d0327538",
+      "endoscopic_tissue/training/collect.py": "2430c82169373f896fe095ced2a5ba7a9dc01b4aff3d63dca134d51647f7cb5b",
+      "endoscopic_tissue/training/cutting.py": "c91cc9add07faf2d40d551b7edd2f7f77c728523495ce8acf9c8579b9eaade5d",
+      "endoscopic_tissue/training/damage.py": "5ffbbea803444d92908b139e4293240584429e5cab362de82677b5f86ffda382",
+      "endoscopic_tissue/training/data.py": "fb3273e6dbd9dc74da6e141d8ac3da855583833b84a3a50c9529ea63225a6c4e",
+      "endoscopic_tissue/training/env.py": "4d4d7a14b4e6b7764fecfc5443be9f50cee3e0e605dbaae434bd74002c183a77",
+      "endoscopic_tissue/training/experiment.py": "5a52675e5ce0d025971b6dfd3e87c4a1f005483cee51e6fa834099ba5d885798",
+      "endoscopic_tissue/training/geometry.py": "1df7cb2de30c079ec34e88b1a20bd30553d44ac192ff53fe82af2927a8f44f7d",
+      "endoscopic_tissue/training/grasp.py": "b96bde7fd053b5e581c2465187bc09b71a0ef2aa2fcf1637a5091a71a8afcbe6",
+      "endoscopic_tissue/training/instrument_collision.py": "e81bb5af71ada29bf7f3f474b80ca3361cd22c0ec8549da5b3838c5fdd4c074b",
+      "endoscopic_tissue/training/lineage.py": "b1a23f2d12438b162e60286a8d22a4ddbaa7b49bd7b8116c5f9ef82cd535edf6",
+      "endoscopic_tissue/training/native.py": "8fcd00537ca98ad106e2f48cb4e1eb40776637784d151b55a45a1a80fe8c7d49",
+      "endoscopic_tissue/training/outcomes.py": "5bc9570d1151488cf4e94492083457024f816a7e16a099cae48a37cb18140c51",
+      "endoscopic_tissue/training/parallel.py": "463c746ab27c625c13660d97c36825d4c445a0b1a2ac4a1903a6f0f1430af0ec",
+      "endoscopic_tissue/training/physics.py": "29318d7a2a97df3c46fc71d18ec8d4c60f3b90080292c86e2ff1ee6f89fbef81",
+      "endoscopic_tissue/training/pixel_labels.py": "3bd8977df2c5235525bb6d65e1066299fb340abea1b5f490843faa3d935b032c",
+      "endoscopic_tissue/training/policies.py": "bfbaee005cbc9ef4b6c963ed32fc97a92446edd0467a72c97a214da160a6eaa8",
+      "endoscopic_tissue/training/pool_session.py": "2859c19fc16bc87adfe158a9bd574dc9ce452f7f16326f90a4b372bc65789bb1",
+      "endoscopic_tissue/training/prepared_snapshot.py": "3d586feaa232eab10d6f3efcf7b7ad467f16343c9f81e42a226ee8eab539d487",
+      "endoscopic_tissue/training/provenance.py": "0d4f1d2035581e5e077256eb40eb8f83fc26d10903115b92f8af3210e303eb8b",
+      "endoscopic_tissue/training/quality.py": "4d62b7bfea8f85af8de2966a5d987018cbcae4671bd15235e5cc3a6f7a127060",
+      "endoscopic_tissue/training/resources.py": "a8dc9f99bfc6d5f40e082210fd8d524b8c2618dbec417510fbb8780668a49f47",
+      "endoscopic_tissue/training/server_queue.py": "6cfbe2fad2ec0baba4e3c1dd3960a351ad4c848b2336b48ea9f880695ec339da",
+      "endoscopic_tissue/training/snapshot.py": "773da14fd21c4820416015c7cd5b8a80af5f99bc006ae33f161f12a8ed42e86a",
+      "endoscopic_tissue/training/splits.py": "2886046b3ef1026689fff59af5f04465e55afc14df6520c369a20d06a71c2dc3",
+      "endoscopic_tissue/training/tasks.py": "0ceffdbfee9f44c8c834f68de0972514be89989d8a368d88a54e33f6dfd8a7f6",
+      "endoscopic_tissue/training/test_contract.py": "07edb0bb6ca4fca5a03b6983c7f5ad2afa4e56b49063be93d7ffabf504fd9737",
+      "endoscopic_tissue/training/test_damage.py": "73a4dcbda3efe10ce58bd66ae8ba639a9967bcf3edfd6f1678d292ee9cbb1aef",
+      "endoscopic_tissue/training/test_extensions.py": "da757fc794cf7ece7901321e35d2f8fa7e09d754f7f6a1a5fc323051f58adb8d",
+      "endoscopic_tissue/training/test_geometry.py": "6f5e6f7c497ba879b7a6b82ae688c10f364b1e2030d79e736b7521d8f3075bc4",
+      "endoscopic_tissue/training/test_physics.py": "945fbaa6cac4277b4f8261ba614b20f9335f3ea9d8c5df81c59150aaace1b585",
+      "endoscopic_tissue/training/test_snapshot.py": "1df657e61c604f8fc39619682fd125c110dfa6a98ad902a05a5b8c044858a0c4",
+      "endoscopic_tissue/training/test_splits.py": "a77c5bf481822b6b1292c92c06e21d6e0dea281de2f3bf0d3491ecdbbdaeabfc",
+      "endoscopic_tissue/training/test_tasks.py": "bfcdcc460929fe3a318935e0a8a0db5fa797143d4ffb5989c4584642597ff70a",
+      "endoscopic_tissue/training/topology_fast.py": "f73c4b0fe36ac4b06718a07cb8fbb69c35131933c641589c4fa105eb8d3c1fc0",
+      "endoscopic_tissue/training/vision.py": "8414e96b4d22b355251c432bc9ed6ff3a2b41959b747f75bf053222e37fbe24a",
+      "endoscopic_tissue/training/visual_labels.py": "e838a2bf257d2b589df4755e84fee5f90d313b4b43baadae9f41439edc97f5b1",
+      "endoscopic_tissue/training/visual_randomization.py": "0ee703f11d48e89053397b08153e2ded8f1be32814f8449038be8b78d8c251e6",
+      "endoscopic_tissue/assets/instruments/Haptic_grasper_jaws_down.obj": "6f3899a9d5599e461664759425a3d24e13fe58511c0af75a8b9ba1a3147efd91",
+      "endoscopic_tissue/assets/instruments/Haptic_grasper_jaws_up.obj": "d259182ec3ee2560ab00a58981470cd79263caab2012dcf8adb413488122afc4",
+      "endoscopic_tissue/assets/instruments/davinci/LICENSE": "5b2aad84e955c1c53dfb3f5edc122157ec2c816545380547d1fb47466540592f",
+      "endoscopic_tissue/assets/instruments/davinci/README.md": "4323a3cfe57dd7dc0893e7ed12b900ab9faec5d71067922f970b534b00f3bb19",
+      "endoscopic_tissue/assets/instruments/davinci/images/tool_cadiere_classic.png": "802a5a59779459674f210d29ad985dea3968cbfcde90b58640826d6480f5ed35",
+      "endoscopic_tissue/assets/instruments/davinci/meshes/classic/tool/gripper_cadiere_8mm.stl": "a5206c7d510f38229771366a285cb56fbaf5ede753c20fd0ce77f8acdcada270",
+      "endoscopic_tissue/assets/instruments/davinci/meshes/classic/tool/shaft_8mm.stl": "6643d09f8b1e2cb70657eb2ac9b845d00851744bc40f6ad405a7de80ee885f19",
+      "endoscopic_tissue/assets/instruments/davinci/meshes/classic/tool/wrist_8mm/pitch.stl": "19b5b25d5dfb983308a03505a2c66328cefc3a53903d30e19492ce2a517d71ec",
+      "endoscopic_tissue/assets/instruments/davinci/meshes/classic/tool/wrist_8mm/roll.stl": "8227eb7392442dbeec64120fdd72e38f97cbaee9a852926ee82b387f989b14be",
+      "endoscopic_tissue/assets/instruments/davinci/meshes/classic/tool/wrist_8mm/yaw.stl": "e7bf3a987e520c26f0e74d238fbf88b1bd2c67b4528c8cfcc641bab97df802ca",
+      "endoscopic_tissue/assets/instruments/davinci/source_manifest.json": "c68db322389697593c23a1ff09a504612e7f15fb500acdea53337881206af115",
+      "endoscopic_tissue/assets/instruments/davinci/urdf/include/classic/tool.macro.xacro": "9f410e08581a08445f9bd74723debb3b8bf48e54694a42b03f304db0e27bcbee",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/LICENSE": "a0a526d3a2b94ab3afad8bfc6bd03f9f3148f64ed8d42a62f82eeac279ace73e",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/README.md": "79beff0be762b3ec80c93719a91d8db982c75724b43f5ef415c5c6b0f8045c89",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/meshes/instruments/tip/179/tip_179_1.mtl": "a47ec73c7ecf518624dd5a3053d5ea5f5ffd258acc8597a5bb45f6f0edad452d",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/meshes/instruments/tip/179/tip_179_1.obj": "26806f6cd70515e7a9619ef8367c2aef987c4b59a5d04ce374c0dac8c7fc76fc",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/meshes/instruments/tip/179/tip_179_2.mtl": "be4f69d0448a4d0e9f6e207fcdc0b7edf9aba3eb428c0d10a65b133e186f9147",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/meshes/instruments/tip/179/tip_179_2.obj": "3590e1dba0651bd835ef15e6c620872ef9749fdf78edb4a02c7cf963417c72d2",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/source_manifest.json": "b9543def165781dd050b66e69dd63e77ea6c45d1937f73ac2ce843502adcc9a1",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/urdf/common/instrument.urdf.xacro": "d43e93157b6015a4e6f7d4b3471d978e11207afcf13f61d0c99f397bd261faeb",
+      "endoscopic_tissue/assets/instruments/dvrk_scissors/urdf/common/instruments/tip/tip_179.urdf.xacro": "f6304059cdb9e00e6c97c2430aae85354e372f9479faa4e7db7b162a6776ad90"
+    },
+    "abi": {
+      "LCS_PhysicsAbiVersion": {
+        "native": 52,
+        "python": 52
+      },
+      "LCS_GraspToolAbiVersion": {
+        "native": 92,
+        "python": 92
+      },
+      "LCS_PressureBladeAbiVersion": {
+        "native": 52,
+        "python": 52
+      },
+      "LCS_ScissorsAbiVersion": {
+        "native": 244,
+        "python": 244
+      },
+      "LCS_ScissorsResultAbiVersion": {
+        "native": 124,
+        "python": 124
+      }
+    },
+    "contact_model_version": 28,
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 6000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        0.6,
+        -0.8,
+        0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "scene_config": {
+      "scene": "wall-traction",
+      "preparation": "settled",
+      "contact_model": null,
+      "dt_s": null,
+      "substeps": null,
+      "spacing_scale": 1.0,
+      "physics": null,
+      "geometry": null
+    },
+    "action_bounds": {
+      "lower": [
+        -0.021500000000000002,
+        0.0315,
+        -0.0005,
+        0.0,
+        0.033600000000000005,
+        0.009968,
+        0.0378,
+        -0.03490658503988659,
+        1.53588974175501,
+        -0.9948376736367679,
+        0.0
+      ],
+      "upper": [
+        -0.0205,
+        0.0325,
+        0.0005,
+        0.0,
+        0.034600000000000006,
+        0.010968,
+        0.0388,
+        0.03490658503988659,
+        1.6057029118347832,
+        -0.9250245035569946,
+        1.0
+      ],
+      "max_rate": [
+        0.002,
+        0.002,
+        0.002,
+        0.0,
+        0.002,
+        0.002,
+        0.002,
+        0.08726646259971647,
+        0.08726646259971647,
+        0.08726646259971647,
+        1.0
+      ]
+    },
+    "coordinate_axes": "native_world_xyz",
+    "units": {
+      "position": "m",
+      "angle": "rad",
+      "force": "N",
+      "time": "s"
+    },
+    "observation_completeness": "partial; internal velocity and contact/fracture history not fully exported",
+    "velocity_source": "finite_difference_of_accepted_positions_not_internal_solver_velocity",
+    "domain_validation": "unvalidated; interface checks do not approve a physics training domain",
+    "native_physics_parameters": {
+      "grasp_core_break_force_n": 150.0,
+      "grasp_dynamic_friction": 0.4,
+      "grasp_friction": 0.6,
+      "tear_exempt_rings": 1,
+      "tear_stretch_ratio": 0.0
+    },
+    "canonical_settings": {
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "blade_drive_stiffness": 1200,
+      "blade_friction": 0.15,
+      "blade_length": 1.6,
+      "blade_mass_kg": 0.02,
+      "blade_preload_n": 5.0,
+      "blade_radius": 0.04,
+      "contact_model": 2,
+      "contact_refine_passes": 8,
+      "cut_force_n": 0.12,
+      "cutting_tool": "scissors",
+      "density_kg_m3": 1050,
+      "dt": 0.03333333333333333,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "jaw_axis": [
+        0.6,
+        -0.8,
+        0
+      ],
+      "jaw_length": 1.99,
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "jaw_open_gap": 1.0,
+      "jaw_width": 0.52,
+      "poisson": 0.25,
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "start_force_n": 0.2,
+      "strain_damping_s": 0.04,
+      "substeps": 3,
+      "young_pa": 6000
+    },
+    "overridden_fields": {},
+    "physics_config_sha256": "e2e73aacb1559b50932c7e58c6de1c1cb4e7d5524326bc8a186a4493d3e73fd2",
+    "physical_defaults_changed": false,
+    "episode_id": "1441daff4dac4a64aa4dc1ddae7898a4",
+    "seed": 7,
+    "goal": null,
+    "reset_lineage_id": "1441daff4dac4a64aa4dc1ddae7898a4",
+    "sensitivity_overrides_are_not_default_replacements": true,
+    "cutting_enabled": true,
+    "diagnostic_continue": false,
+    "full_surface_checks": true,
+    "failure_telemetry": true,
+    "outcome_semantics": "physical_outcome_v1",
+    "instrument_collision_checks": false,
+    "quality_limits": {
+      "max_displacement_m": 0.06,
+      "max_body_overlap_m": 0.0002,
+      "max_estimated_speed_m_s": 2.0
+    },
+    "preparation_steps": 30,
+    "initial_zero_gravity_native_steps": 1,
+    "action_semantics": "absolute_target; one native dt per step",
+    "initialization_tick_excluded_from_episode_time": true,
+    "node_count": 76050,
+    "material_node_count": 30417,
+    "active_node_count": 38425,
+    "reset_wall_time_ms": 4468.070129049011,
+    "context_sha256": "09fda9f058c7602a1ec776f35aad031d255d84a1ddf3d297e7e11d805b75e010",
+    "observation": {
+      "name": "tool_kinematics_v1",
+      "visual_tracking": false,
+      "position_source": "slew_limited_policy_target",
+      "force_sensor_required": false,
+      "privileged_fields_separate": true
+    },
+    "privileged_fields": [
+      "positions_m",
+      "topology"
+    ],
+    "snapshot_cache_budget_bytes": 2147483648
+  },
+  "snapshot_metadata": {
+    "branch_from_step": 0,
+    "dll_sha256": "baba073911ab00add4f4cde3851c5ba3ff477e511d0d9d31baca8c75b077d006",
+    "native_bytes": 1258372762,
+    "native_compressed_sha256": "640f1fe635e0aef53d3c8c40bda9af11437880222bc8ae4041a69453c43086e3",
+    "native_tick": 30,
+    "parent_episode_id": "1441daff4dac4a64aa4dc1ddae7898a4",
+    "physics_config_sha256": "a9137888ce6f10e572047825b3f2d3c9f3ab486d67eb80209107c3338eed208f",
+    "python_bytes": 9101725,
+    "python_compressed_sha256": "ee77d5d6fd43d20233c47b25e493bc7b9877f3929d3915bfbf9efef1d7d8c556",
+    "python_source_sha256": {
+      "actions.py": "0a8c891a61972bb9d4d2e582ab50a0579c020af73dbab543ab38bf6c9293cf5f",
+      "damage.py": "5ffbbea803444d92908b139e4293240584429e5cab362de82677b5f86ffda382",
+      "env.py": "4d4d7a14b4e6b7764fecfc5443be9f50cee3e0e605dbaae434bd74002c183a77",
+      "geometry.py": "1df7cb2de30c079ec34e88b1a20bd30553d44ac192ff53fe82af2927a8f44f7d",
+      "grasp.py": "b96bde7fd053b5e581c2465187bc09b71a0ef2aa2fcf1637a5091a71a8afcbe6",
+      "instrument_collision.py": "e81bb5af71ada29bf7f3f474b80ca3361cd22c0ec8549da5b3838c5fdd4c074b",
+      "lineage.py": "b1a23f2d12438b162e60286a8d22a4ddbaa7b49bd7b8116c5f9ef82cd535edf6",
+      "native.py": "8fcd00537ca98ad106e2f48cb4e1eb40776637784d151b55a45a1a80fe8c7d49",
+      "outcomes.py": "5bc9570d1151488cf4e94492083457024f816a7e16a099cae48a37cb18140c51",
+      "physics.py": "29318d7a2a97df3c46fc71d18ec8d4c60f3b90080292c86e2ff1ee6f89fbef81",
+      "pixel_labels.py": "3bd8977df2c5235525bb6d65e1066299fb340abea1b5f490843faa3d935b032c",
+      "policies.py": "bfbaee005cbc9ef4b6c963ed32fc97a92446edd0467a72c97a214da160a6eaa8",
+      "quality.py": "4d62b7bfea8f85af8de2966a5d987018cbcae4671bd15235e5cc3a6f7a127060",
+      "snapshot.py": "773da14fd21c4820416015c7cd5b8a80af5f99bc006ae33f161f12a8ed42e86a",
+      "tasks.py": "0ceffdbfee9f44c8c834f68de0972514be89989d8a368d88a54e33f6dfd8a7f6",
+      "vision.py": "8414e96b4d22b355251c432bc9ed6ff3a2b41959b747f75bf053222e37fbe24a",
+      "visual_labels.py": "e838a2bf257d2b589df4755e84fee5f90d313b4b43baadae9f41439edc97f5b1",
+      "visual_randomization.py": "0ee703f11d48e89053397b08153e2ded8f1be32814f8449038be8b78d8c251e6"
+    },
+    "reset_lineage_id": "1441daff4dac4a64aa4dc1ddae7898a4",
+    "schema": "environment_snapshot_v1",
+    "snapshot_wall_ms": 4497.187155997381,
+    "state_abi": 1,
+    "vision_manifest_sha256": null,
+    "vision_required": false
+  }
+}

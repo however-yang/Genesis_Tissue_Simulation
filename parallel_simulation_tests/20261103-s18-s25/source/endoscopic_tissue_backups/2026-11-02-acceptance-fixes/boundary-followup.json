@@ -1,0 +1,140 @@
+{
+  "note": "Serial controlled ABBA, then functional acceptance and full capture rendering. No default adoption.",
+  "jobs": [
+    {
+      "name": "boundary-controlled-a1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-controlled-b1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-controlled-b2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-controlled-a2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-wall-snapshot-r0",
+      "worker": "environment_snapshot_trial.py",
+      "args": [],
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-three-snips-candidate-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-boundary-r0/result.json"
+      ]
+    },
+    {
+      "name": "boundary-flap-snapshot-r0",
+      "worker": "environment_snapshot_trial.py",
+      "args": [
+        "--scene",
+        "flap"
+      ],
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-three-snips-candidate-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-boundary-r0/result.json"
+      ]
+    },
+    {
+      "name": "boundary-wall-vision-r0",
+      "worker": "environment_snapshot_trial.py",
+      "args": [
+        "--vision"
+      ],
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-wall-snapshot-r0/result.json"
+      ]
+    },
+    {
+      "name": "render-regrasp-boundary-r0-original",
+      "worker": "render_trial.py",
+      "args": [
+        "--case",
+        "regrasp-boundary-r0/original",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "render-regrasp-boundary-r0-restored",
+      "worker": "render_trial.py",
+      "args": [
+        "--case",
+        "regrasp-boundary-r0/restored",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "render-boundary-three-snips-baseline-r0",
+      "worker": "render_trial.py",
+      "args": [
+        "--case",
+        "boundary-three-snips-baseline-r0",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "render-boundary-three-snips-candidate-r0",
+      "worker": "render_trial.py",
+      "args": [
+        "--case",
+        "boundary-three-snips-candidate-r0",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "regrasp-boundary-r1",
+      "worker": "regrasp_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2",
+        "--repeat",
+        "1"
+      ],
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-wall-snapshot-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-boundary-r0/result.json"
+      ]
+    },
+    {
+      "name": "regrasp-boundary-r2",
+      "worker": "regrasp_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2",
+        "--repeat",
+        "2"
+      ],
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/boundary-wall-snapshot-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-boundary-r1/result.json"
+      ]
+    }
+  ]
+}

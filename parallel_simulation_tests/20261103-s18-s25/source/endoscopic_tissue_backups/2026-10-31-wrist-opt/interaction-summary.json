@@ -1,0 +1,1091 @@
+[
+  {
+    "name": "baseline",
+    "steps": 1110,
+    "status": "failed",
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014000626280903816,
+      "edges_before_incision": 0,
+      "cut_edges": 197,
+      "observed_cut_edges": 197,
+      "retained_cut_edges": 197,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 262,
+      "final_grip_points": 55,
+      "current_grip_points": 55,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0,
+      "max_knife_body_penetration_m": 0.00003717243777433377,
+      "max_blade_body_overlap_m": 0.00003717243777433377,
+      "peak_blade_force_n": 22.045610427856445,
+      "max_node_displacement_m": 0.025379499420523643,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.15667074918746948,
+      "fracture_right_n": 0.14072321355342865,
+      "two_blade_squeeze_m": 0.0013280409809492777,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.20529811084270477,
+          "fracture_right_n": 0.1919889748096466,
+          "two_blade_squeeze_m": 0.0013280409809492777
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.15667074918746948,
+          "fracture_right_n": 0.14072321355342865,
+          "two_blade_squeeze_m": 0.0018291329078871522
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 44,
+      "slit_length_m": 0.009280320980648184,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "frames": 1111,
+    "stage_peaks": {
+      "lift": {
+        "jaw_gap_mm": 1.9865185022354126,
+        "kidney_relative_rms_speed_mm_s": 0.6015658378601074,
+        "tumor_rms_speed_mm_s": 4.229762554168701,
+        "left_blade_load_n": 0,
+        "right_blade_load_n": 0
+      },
+      "incise_1": {
+        "jaw_gap_mm": 4.548937082290649,
+        "kidney_relative_rms_speed_mm_s": 1.432555079460144,
+        "tumor_rms_speed_mm_s": 4.0515923500061035,
+        "left_blade_load_n": 2.752629041671753,
+        "right_blade_load_n": 2.6892309188842773
+      },
+      "incise_2": {
+        "jaw_gap_mm": 3.9558041095733643,
+        "kidney_relative_rms_speed_mm_s": 20.330738067626953,
+        "tumor_rms_speed_mm_s": 26.774917602539062,
+        "left_blade_load_n": 2.594472646713257,
+        "right_blade_load_n": 0.6217374801635742
+      },
+      "withdraw": {
+        "jaw_gap_mm": 2.571623921394348,
+        "kidney_relative_rms_speed_mm_s": 0.05288266763091087,
+        "tumor_rms_speed_mm_s": 1.6590598821640015,
+        "left_blade_load_n": 0,
+        "right_blade_load_n": 0
+      }
+    },
+    "audit": [
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "settle"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "approach"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "bite"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "close"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "lift"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "blade_approach"
+      },
+      {
+        "triangles": 35596,
+        "wall_triangles": 186,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -3.4295196533203125,
+            34.206390380859375,
+            -4.929106712341309
+          ],
+          [
+            2.4517126083374023,
+            40.430419921875,
+            1.0348113775253296
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          5.881232261657715,
+          6.224031448364258,
+          5.9639177322387695
+        ],
+        "recorded_nonmanifold_edges": 3,
+        "stage": "incise_1"
+      },
+      {
+        "triangles": 35596,
+        "wall_triangles": 186,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.7880096435546875,
+            34.66408920288086,
+            -1.9212372303009033
+          ],
+          [
+            4.5023674964904785,
+            39.846717834472656,
+            2.6136555671691895
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          9.290377616882324,
+          5.182628631591797,
+          4.534893035888672
+        ],
+        "recorded_nonmanifold_edges": 3,
+        "stage": "open_1"
+      },
+      {
+        "triangles": 35596,
+        "wall_triangles": 186,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.109821319580078,
+            34.14568328857422,
+            -4.845020771026611
+          ],
+          [
+            4.493643760681152,
+            40.39484405517578,
+            -0.1803111881017685
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          9.603466033935547,
+          6.2491607666015625,
+          4.664709568023682
+        ],
+        "recorded_nonmanifold_edges": 3,
+        "stage": "reposition_2"
+      },
+      {
+        "triangles": 35652,
+        "wall_triangles": 262,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.626526355743408,
+            28.59459686279297,
+            -4.014388561248779
+          ],
+          [
+            5.121719837188721,
+            44.997291564941406,
+            3.609696626663208
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.748245239257812,
+          16.402694702148438,
+          7.624084949493408
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "incise_2"
+      },
+      {
+        "triangles": 35652,
+        "wall_triangles": 262,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.626526355743408,
+            28.59459686279297,
+            -4.014388561248779
+          ],
+          [
+            5.239370346069336,
+            45.084957122802734,
+            3.6374216079711914
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.865897178649902,
+          16.4903621673584,
+          7.651810646057129
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "withdraw"
+      },
+      {
+        "triangles": 35652,
+        "wall_triangles": 262,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.626526355743408,
+            28.59459686279297,
+            -4.014388561248779
+          ],
+          [
+            5.138704776763916,
+            45.046295166015625,
+            3.5954055786132812
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.765230178833008,
+          16.45170021057129,
+          7.6097941398620605
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "release"
+      },
+      {
+        "triangles": 35652,
+        "wall_triangles": 262,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -5.626509666442871,
+            28.59499740600586,
+            -4.014195442199707
+          ],
+          [
+            5.161240100860596,
+            55.056034088134766,
+            3.4286952018737793
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.787749290466309,
+          26.461036682128906,
+          7.442890167236328
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "extract"
+      }
+    ]
+  },
+  {
+    "name": "initial",
+    "steps": 1110,
+    "status": "failed",
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014023576863110065,
+      "edges_before_incision": 0,
+      "cut_edges": 199,
+      "observed_cut_edges": 199,
+      "retained_cut_edges": 199,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 250,
+      "final_grip_points": 55,
+      "current_grip_points": 55,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0,
+      "max_knife_body_penetration_m": 0.000011205322749874014,
+      "max_blade_body_overlap_m": 0.000011205322749874014,
+      "peak_blade_force_n": 28.896791458129883,
+      "max_node_displacement_m": 0.025592966005206108,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.10403282940387726,
+      "fracture_right_n": 0.1478196531534195,
+      "two_blade_squeeze_m": 0.0013446123732645343,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.23756177723407745,
+          "fracture_right_n": 0.2832794487476349,
+          "two_blade_squeeze_m": 0.0015272608150459332
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.10403282940387726,
+          "fracture_right_n": 0.1478196531534195,
+          "two_blade_squeeze_m": 0.0013446123732645343
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 50,
+      "slit_length_m": 0.008832033348418276,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "frames": 1111,
+    "stage_peaks": {
+      "lift": {
+        "jaw_gap_mm": 2.058213949203491,
+        "kidney_relative_rms_speed_mm_s": 0.5986670851707458,
+        "tumor_rms_speed_mm_s": 4.263064861297607,
+        "left_blade_load_n": 0,
+        "right_blade_load_n": 0
+      },
+      "incise_1": {
+        "jaw_gap_mm": 4.917709529399872,
+        "kidney_relative_rms_speed_mm_s": 1.497243046760559,
+        "tumor_rms_speed_mm_s": 4.9608964920043945,
+        "left_blade_load_n": 2.381039619445801,
+        "right_blade_load_n": 2.0243563652038574
+      },
+      "incise_2": {
+        "jaw_gap_mm": 3.5788026452064514,
+        "kidney_relative_rms_speed_mm_s": 18.682912826538086,
+        "tumor_rms_speed_mm_s": 27.251501083374023,
+        "left_blade_load_n": 2.042386531829834,
+        "right_blade_load_n": 0.4982726275920868
+      },
+      "withdraw": {
+        "jaw_gap_mm": 2.1776530146598816,
+        "kidney_relative_rms_speed_mm_s": 0.021345874294638634,
+        "tumor_rms_speed_mm_s": 1.0031918287277222,
+        "left_blade_load_n": 0,
+        "right_blade_load_n": 0
+      }
+    },
+    "audit": [
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "settle"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "approach"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "bite"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "close"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "lift"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "blade_approach"
+      },
+      {
+        "triangles": 35604,
+        "wall_triangles": 194,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.15478515625,
+            34.155269622802734,
+            -4.748057842254639
+          ],
+          [
+            2.105407476425171,
+            39.67808151245117,
+            0.7924914956092834
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          6.260192394256592,
+          5.522811412811279,
+          5.540549278259277
+        ],
+        "recorded_nonmanifold_edges": 2,
+        "stage": "incise_1"
+      },
+      {
+        "triangles": 35604,
+        "wall_triangles": 194,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.699872970581055,
+            34.54351806640625,
+            -2.339815378189087
+          ],
+          [
+            4.716691017150879,
+            39.372962951660156,
+            2.339048147201538
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          9.416563034057617,
+          4.829442501068115,
+          4.678863525390625
+        ],
+        "recorded_nonmanifold_edges": 2,
+        "stage": "open_1"
+      },
+      {
+        "triangles": 35604,
+        "wall_triangles": 194,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.853754043579102,
+            33.912715911865234,
+            -5.062314987182617
+          ],
+          [
+            4.968385219573975,
+            39.46742248535156,
+            -0.6780258417129517
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          9.822139739990234,
+          5.554707050323486,
+          4.384289264678955
+        ],
+        "recorded_nonmanifold_edges": 2,
+        "stage": "reposition_2"
+      },
+      {
+        "triangles": 35656,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.649936199188232,
+            28.59337615966797,
+            -3.3510208129882812
+          ],
+          [
+            5.403517723083496,
+            45.03154373168945,
+            3.357572555541992
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.05345344543457,
+          16.438167572021484,
+          6.708593368530273
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "incise_2"
+      },
+      {
+        "triangles": 35656,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.649936199188232,
+            28.59337615966797,
+            -3.3510303497314453
+          ],
+          [
+            5.496169090270996,
+            45.17947769165039,
+            3.652726173400879
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.14610481262207,
+          16.586101531982422,
+          7.003756523132324
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "withdraw"
+      },
+      {
+        "triangles": 35656,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.649936199188232,
+            28.59337615966797,
+            -3.3510305881500244
+          ],
+          [
+            5.5152363777160645,
+            45.181175231933594,
+            3.619905948638916
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.165172576904297,
+          16.587799072265625,
+          6.9709367752075195
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "release"
+      },
+      {
+        "triangles": 35656,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.649888515472412,
+            28.59404754638672,
+            -3.3511195182800293
+          ],
+          [
+            5.533541679382324,
+            55.19975662231445,
+            3.603663444519043
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.183429718017578,
+          26.605709075927734,
+          6.9547834396362305
+        ],
+        "recorded_nonmanifold_edges": 0,
+        "stage": "extract"
+      }
+    ]
+  },
+  {
+    "name": "dedicated",
+    "steps": 1110,
+    "status": "failed",
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.013992360793054104,
+      "edges_before_incision": 0,
+      "cut_edges": 198,
+      "observed_cut_edges": 198,
+      "retained_cut_edges": 198,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 250,
+      "final_grip_points": 55,
+      "current_grip_points": 55,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0,
+      "max_knife_body_penetration_m": 0.000011825314866133474,
+      "max_blade_body_overlap_m": 0.000011825314866133474,
+      "peak_blade_force_n": 12.963655471801758,
+      "max_node_displacement_m": 0.025331109762191772,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.19396573305130005,
+      "fracture_right_n": 0.10734626650810242,
+      "two_blade_squeeze_m": 0.001249214359728007,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.19396573305130005,
+          "fracture_right_n": 0.20246437191963196,
+          "two_blade_squeeze_m": 0.001249214359728007
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.43607887625694275,
+          "fracture_right_n": 0.10734626650810242,
+          "two_blade_squeeze_m": 0.0017601221783108646
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 36,
+      "slit_length_m": 0.010176896667960985,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "frames": 1111,
+    "stage_peaks": {
+      "lift": {
+        "jaw_gap_mm": 1.9788151979446411,
+        "kidney_relative_rms_speed_mm_s": 0.6035107374191284,
+        "tumor_rms_speed_mm_s": 4.218809604644775,
+        "left_blade_load_n": 0,
+        "right_blade_load_n": 0
+      },
+      "incise_1": {
+        "jaw_gap_mm": 4.756992161273956,
+        "kidney_relative_rms_speed_mm_s": 1.228513479232788,
+        "tumor_rms_speed_mm_s": 8.079484939575195,
+        "left_blade_load_n": 2.1182503700256348,
+        "right_blade_load_n": 1.935961127281189
+      },
+      "incise_2": {
+        "jaw_gap_mm": 2.3381441831588745,
+        "kidney_relative_rms_speed_mm_s": 20.963735580444336,
+        "tumor_rms_speed_mm_s": 20.385009765625,
+        "left_blade_load_n": 3.13869047164917,
+        "right_blade_load_n": 1.2270687818527222
+      },
+      "withdraw": {
+        "jaw_gap_mm": 1.655757874250412,
+        "kidney_relative_rms_speed_mm_s": 0.008599361404776573,
+        "tumor_rms_speed_mm_s": 0.33199214935302734,
+        "left_blade_load_n": 0,
+        "right_blade_load_n": 0
+      }
+    },
+    "audit": [
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "settle"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "approach"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "bite"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "close"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "lift"
+      },
+      {
+        "triangles": 35416,
+        "wall_triangles": 0,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": null,
+        "wall_extent_mm_not_incision_depth": null,
+        "recorded_nonmanifold_edges": 0,
+        "stage": "blade_approach"
+      },
+      {
+        "triangles": 35608,
+        "wall_triangles": 208,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -2.4259791374206543,
+            33.78752899169922,
+            -4.638556480407715
+          ],
+          [
+            4.727321624755859,
+            40.40542984008789,
+            1.5997915267944336
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          7.153301239013672,
+          6.617903709411621,
+          6.238348007202148
+        ],
+        "recorded_nonmanifold_edges": 2,
+        "stage": "incise_1"
+      },
+      {
+        "triangles": 35608,
+        "wall_triangles": 208,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.1727614402771,
+            33.99551773071289,
+            -3.209244966506958
+          ],
+          [
+            5.336779594421387,
+            40.30979919433594,
+            2.723940849304199
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          9.509540557861328,
+          6.314282417297363,
+          5.933185577392578
+        ],
+        "recorded_nonmanifold_edges": 2,
+        "stage": "open_1"
+      },
+      {
+        "triangles": 35608,
+        "wall_triangles": 208,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.6488356590271,
+            33.53532409667969,
+            -5.25449275970459
+          ],
+          [
+            5.075250625610352,
+            40.633209228515625,
+            -0.33105921745300293
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          9.72408676147461,
+          7.097887992858887,
+          4.923433780670166
+        ],
+        "recorded_nonmanifold_edges": 2,
+        "stage": "reposition_2"
+      },
+      {
+        "triangles": 35640,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.623275279998779,
+            28.639781951904297,
+            -4.3187103271484375
+          ],
+          [
+            5.425544738769531,
+            45.40046691894531,
+            3.334684133529663
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.048819541931152,
+          16.760684967041016,
+          7.6533942222595215
+        ],
+        "recorded_nonmanifold_edges": 1,
+        "stage": "incise_2"
+      },
+      {
+        "triangles": 35640,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.623275279998779,
+            28.63975715637207,
+            -4.065367698669434
+          ],
+          [
+            5.503445148468018,
+            45.44687271118164,
+            3.334684133529663
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.126720428466797,
+          16.80711555480957,
+          7.400052070617676
+        ],
+        "recorded_nonmanifold_edges": 1,
+        "stage": "withdraw"
+      },
+      {
+        "triangles": 35640,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.623275279998779,
+            28.639755249023438,
+            -4.126579284667969
+          ],
+          [
+            5.543933391571045,
+            45.47483825683594,
+            3.334684133529663
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.167208671569824,
+          16.8350830078125,
+          7.4612627029418945
+        ],
+        "recorded_nonmanifold_edges": 1,
+        "stage": "release"
+      },
+      {
+        "triangles": 35640,
+        "wall_triangles": 250,
+        "degenerate_triangles": 0,
+        "positional_boundary_edges": 0,
+        "positional_nonmanifold_edges": 0,
+        "duplicate_triangles": 0,
+        "winding_consistent": true,
+        "wall_bounds_native_mm": [
+          [
+            -4.623285293579102,
+            28.639541625976562,
+            -3.950354814529419
+          ],
+          [
+            5.55054235458374,
+            55.45421600341797,
+            3.3346140384674072
+          ]
+        ],
+        "wall_extent_mm_not_incision_depth": [
+          10.173828125,
+          26.814674377441406,
+          7.284969329833984
+        ],
+        "recorded_nonmanifold_edges": 1,
+        "stage": "extract"
+      }
+    ]
+  }
+]

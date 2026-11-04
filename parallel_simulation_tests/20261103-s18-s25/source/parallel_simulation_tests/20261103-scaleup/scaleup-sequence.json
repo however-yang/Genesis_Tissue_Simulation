@@ -1,0 +1,51 @@
+[
+  {
+    "name": "m64a",
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+      "-B",
+      "-u",
+      "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/mps_benchmark.py",
+      "--name",
+      "m64a",
+      "--workers",
+      "64",
+      "--cpus",
+      "28,31,0,11,3,12,27,21,17,8,32,35,6,9,26,30,16,29,18,36,10,4,2,13,7,23,34,25,37,15,19,5",
+      "--attempt-capacity",
+      "--max-gpu-mib",
+      "80000",
+      "--stop-after",
+      "settle",
+      "--timeout",
+      "600"
+    ],
+    "exit_code": 1,
+    "started": 1793694340.9825284,
+    "finished": 1793694394.820231
+  },
+  {
+    "name": "post64-reset",
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+      "-B",
+      "-u",
+      "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/benchmark.py",
+      "--name",
+      "post64-reset",
+      "--workers",
+      "1",
+      "--episodes",
+      "2",
+      "--cpus",
+      "28,31,0,11,3,12,27,21,17,8,32,35,6,9,26,30,16,29,18,36,10,4,2,13,7,23,34,25,37,15,19,5",
+      "--stop-after",
+      "settle",
+      "--timeout",
+      "300"
+    ],
+    "exit_code": 0,
+    "started": 1793694395.174685,
+    "finished": 1793694412.9337652
+  }
+]

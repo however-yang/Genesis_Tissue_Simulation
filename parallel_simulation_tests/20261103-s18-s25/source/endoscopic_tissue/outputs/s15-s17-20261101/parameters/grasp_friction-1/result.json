@@ -1,0 +1,97 @@
+{
+  "name": "grasp_friction-1",
+  "config": {
+    "dll_path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+    "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+    "bounds": {
+      "lower": [
+        0.010799999999999999,
+        0.0314,
+        0.0175,
+        1.0,
+        0.024999999999999998,
+        0.009968,
+        0.025500000000000002,
+        -0.03490658503988659,
+        1.53588974175501,
+        -0.9948376736367679,
+        0.0
+      ],
+      "upper": [
+        0.0118,
+        0.0324,
+        0.018500000000000003,
+        1.0,
+        0.026,
+        0.010968,
+        0.026500000000000003,
+        0.03490658503988659,
+        1.6057029118347832,
+        -0.9250245035569946,
+        1.0
+      ],
+      "max_rate": [
+        0.002,
+        0.002,
+        0.002,
+        0.0,
+        0.002,
+        0.002,
+        0.002,
+        0.08726646259971647,
+        0.08726646259971647,
+        0.08726646259971647,
+        1.0
+      ]
+    },
+    "scene": {
+      "scene": "wall",
+      "preparation": "held",
+      "contact_model": 1,
+      "dt_s": null,
+      "substeps": null,
+      "spacing_scale": 1.0,
+      "physics": {
+        "young_pa": null,
+        "start_force_n": null,
+        "blade_friction": null,
+        "grasp_friction": 1.2,
+        "tear_stretch_ratio": null,
+        "tear_exempt_rings": null,
+        "grasp_core_break_force_n": null
+      }
+    },
+    "cutting_enabled": false,
+    "max_steps": 8,
+    "full_surface_checks": true,
+    "diagnostic_continue": false,
+    "limits": {
+      "max_displacement_m": 0.06,
+      "max_body_overlap_m": 0.0002,
+      "max_estimated_speed_m_s": 2.0
+    }
+  },
+  "native_preparation_passed": true,
+  "quality_passed": true,
+  "exception": null,
+  "reset_wall_time_ms": 49804.69019996235,
+  "material_nodes": 30417,
+  "physical_defaults_changed": true,
+  "overridden_fields": {
+    "settings.contact_model": {
+      "canonical": 2,
+      "actual": 1
+    },
+    "native.grasp_dynamic_friction": {
+      "canonical": 0.4,
+      "actual": 0.8
+    },
+    "native.grasp_friction": {
+      "canonical": 0.6,
+      "actual": 1.2
+    }
+  },
+  "native_step_mean_ms": 64.43825001042569,
+  "native_step_p95_ms": 67.27856002398767,
+  "wall_seconds": 50.84524649998639
+}

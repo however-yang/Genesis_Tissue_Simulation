@@ -1,0 +1,47 @@
+{
+  "schema": "tissue_experiment_v1",
+  "purpose": "collection",
+  "dll": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+  "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+  "episode_timeout_s": 600,
+  "min_free_disk_bytes": 1073741824,
+  "episodes": [
+    {
+      "id": "friction-hold-success",
+      "scene": "wall-traction",
+      "preparation": "held",
+      "contact_model": 1,
+      "seed": 5100,
+      "steps": 30,
+      "policy": {
+        "kind": "hold"
+      },
+      "goal": {
+        "kind": "hold",
+        "hold_nodes": [
+          67394,
+          67395,
+          69085,
+          70775
+        ],
+        "required_hold_s": 0.5,
+        "displacement_m": [
+          0,
+          0,
+          0
+        ],
+        "position_tolerance_m": 0.0005,
+        "weights": {
+          "progress": 1,
+          "outside_damage": 1,
+          "grasp": 0,
+          "slip_m": 0,
+          "time_s": 0,
+          "action": 0
+        },
+        "material_reference_sha256": "623e618a6b6f36bda80440bdf3816ebfad49ead40c1170307d4dfc1846572ce4",
+        "label": "explicit_friction_hold_positive_control"
+      }
+    }
+  ]
+}

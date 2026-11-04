@@ -1,0 +1,20 @@
+{
+  "passed": false,
+  "reasons": [
+    "baseline: mean below 20 Hz",
+    "baseline: P95 slower than 50 ms",
+    "baseline: sustained 20-frame window below 20 Hz",
+    "candidate: mean below 20 Hz",
+    "candidate: P95 slower than 50 ms",
+    "candidate: sustained 20-frame window below 20 Hz"
+  ],
+  "gate": "20 Hz complete unique RGB-D frames, mean/P95/sustained windows and paired nonregression",
+  "note": "A paired result is preliminary; ABBA repetition and interaction review still required before adoption",
+  "adoption_allowed": false,
+  "additional_reasons": [
+    "No repeated ABBA comparison under comparable CPU load",
+    "No live input/display/transport latency or visual interaction regression acceptance",
+    "S18/S22 acceptance incomplete",
+    "Default supersample=2 not benchmarked; these runs use supersample=1"
+  ]
+}

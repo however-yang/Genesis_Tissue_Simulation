@@ -1,0 +1,106 @@
+{
+  "case": "boundary-three-snips-baseline-r0",
+  "config": {
+    "dll_path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-s15-training-snapshot1\\LiverCudaSim.dll",
+    "dll_sha256": "612da147ea6358627359c9a0414d51a4ff71ca7f787bf439e2c6edcd2d3b958c",
+    "bounds": {
+      "lower": [
+        -0.221,
+        -0.168,
+        -0.2,
+        0.0,
+        -0.1659,
+        -0.189532,
+        -0.1617,
+        -0.2,
+        1.3707963267948966,
+        -1.1599310885968812,
+        0.0
+      ],
+      "upper": [
+        0.17900000000000002,
+        0.232,
+        0.2,
+        1.0,
+        0.23410000000000003,
+        0.21046800000000002,
+        0.2383,
+        0.2,
+        1.7707963267948965,
+        -0.7599310885968813,
+        1.0
+      ],
+      "max_rate": [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ]
+    },
+    "scene": {
+      "scene": "wall-traction",
+      "preparation": "settled",
+      "contact_model": null,
+      "dt_s": null,
+      "substeps": null,
+      "spacing_scale": 1.0,
+      "physics": {
+        "young_pa": null,
+        "start_force_n": null,
+        "blade_friction": null,
+        "grasp_friction": null,
+        "tear_stretch_ratio": null,
+        "tear_exempt_rings": null,
+        "grasp_core_break_force_n": null
+      },
+      "geometry": null
+    },
+    "cutting_enabled": true,
+    "max_steps": 1440,
+    "full_surface_checks": true,
+    "diagnostic_continue": true,
+    "limits": {
+      "max_displacement_m": 0.06,
+      "max_body_overlap_m": 0.0002,
+      "max_estimated_speed_m_s": 2.0
+    },
+    "failure_telemetry": true
+  },
+  "error": null,
+  "wall_s": 372.78526549995877,
+  "transitions": 1410,
+  "snips": {
+    "incise_1": {
+      "first_material_cut_stage_step": 37,
+      "material_edges": 28,
+      "steps": 150
+    },
+    "incise_2": {
+      "first_material_cut_stage_step": 47,
+      "material_edges": 14,
+      "steps": 150
+    },
+    "incise_3": {
+      "first_material_cut_stage_step": 51,
+      "material_edges": 16,
+      "steps": 150
+    }
+  },
+  "completed_requested_stages": true,
+  "full_script": true,
+  "three_snips_created_material_cuts": true,
+  "quality_failures": 0,
+  "scope_failures": 0,
+  "preparation_failures": 0,
+  "passed": true,
+  "split_probe_note": null,
+  "independent_checks": 19,
+  "candidate_adopted": false
+}

@@ -1,0 +1,37 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+index 45170b3..3e266d0 100644
+--- a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -88,6 +88,7 @@ static int g_fragmentCapacity=0;
+ #include "../solver/material/coupled_material.cuh"
+ #include "../solver/material/material_stencil.cuh"
+ #include "../solver/material/material_multigrid.cuh"
++#include "../../../../../endoscopic_tissue_backups/2026-10-31-material-contact-next/additive_multigrid.cuh"
+ static __half* d_cgMatrix=nullptr;
+ static float* d_cgScale=nullptr;
+ static unsigned short* d_cgStencil=nullptr;
+@@ -2711,22 +2712,8 @@ static void assembleMultigrid(cudaStream_t stream){
+ }
+ // z = M^-1 r by one V(1,1) cycle, adding r'z into the slot `slot` of each component's PCG sums.
+ static void applyMultigrid(cudaStream_t stream,const float3* r,float3* z,MaterialCGSum* sums,int slot){
+-    MultigridLevel* L=g_multigrid;const int top=g_multigridLevels;
+-    cudaMemsetAsync(L[1].r,0,(size_t)L[1].capacity*sizeof(float3),stream);
+-    k_MgFinePre<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,d_cgH,r,d_multigridFine);
+-    k_MgFineRestrict<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,r,d_multigridFine,L[1]);
+-    for(int l=1;l<top;l++){
+-        cudaMemsetAsync(L[l+1].r,0,(size_t)L[l+1].capacity*sizeof(float3),stream);
+-        k_MgPre<<<Gr(L[l].capacity),64,0,stream>>>(L[l]);
+-        k_MgRestrict<<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1]);
+-    }
+-    k_MgCoarsest<<<Gr(3*MG_COARSEST),64,0,stream>>>(L[top],d_multigridInverse);
+-    for(int l=top-1;l>=1;l--){
+-        k_MgProlong<<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1]);
+-        k_MgPost<<<Gr(L[l].capacity),64,0,stream>>>(L[l]);
+-    }
+-    k_MgFineProlong<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,L[1],d_multigridFine);
+-    k_MgFinePost<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,d_cgH,r,d_multigridFine,z,sums,slot);
++    applyAdditiveMultigrid(stream,d_unified,g_activeNodes,d_cgStencil,d_cgH,r,z,sums,slot,
++        g_multigrid,g_multigridLevels,d_multigridInverse);
+ }
+
+ // Cut edges can change BETWEEN substeps and during final reconstruction.

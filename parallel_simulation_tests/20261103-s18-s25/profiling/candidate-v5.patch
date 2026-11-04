@@ -1,0 +1,716 @@
+--- a/endoscopic_tissue/instrument_geometry.py
++++ b/endoscopic_tissue/instrument_geometry.py
+@@ -241,18 +241,9 @@
+     highs = np.array(((reach, reach, extremes[:, 2].max() + .01),
+                       (SCISSORS_WRIST_FRONT + radius, radius, radius)))[..., None]
+     # Coordinates run along the rows, so every comparison below is a contiguous sweep.
+-    coords = np.stack((axis, normal, width)) @ (surface_vertices - hinge).T
+-    corners = tuple(coords[:, triangles[:, k]] for k in range(3))
+-    lowest = np.minimum(np.minimum(*corners[:2]), corners[2])
+-    highest = np.maximum(np.maximum(*corners[:2]), corners[2])
+-    near_vertices = np.zeros(len(surface_vertices), dtype=bool)
+-    near_triangles = np.zeros(len(triangles), dtype=bool)
+-    for low, high in zip(lows, highs):
+-        near_vertices |= ((coords >= low) & (coords <= high)).all(axis=0)
+-        near_triangles |= ((highest >= low) & (lowest <= high)).all(axis=0)
+-    # numpy multiplies a single row through other BLAS kernels than many rows, which round differently: two samples
+-    # always reach the tests, keeping the result bit-identical to the tests over all samples.
+-    near_vertices[:2] = True
++    from .training.quality_kernels import nearby_surface
++    near_vertices, near_triangles = nearby_surface(surface_vertices, triangles,
++        np.asarray(hinge), np.stack((axis, normal, width)), lows[...,0], highs[...,0])
+     v = surface_vertices[triangles[near_triangles]]
+     samples = np.concatenate((surface_vertices[near_vertices], v.mean(axis=1),
+                               (v[:, 0] + v[:, 1]) / 2, (v[:, 1] + v[:, 2]) / 2,
+--- a/endoscopic_tissue/rendering.py
++++ b/endoscopic_tissue/rendering.py
+@@ -236,7 +236,7 @@
+ 
+     def __init__(self, settings: Settings, width=1280, height=960, viewer=False, supersample=2,
+                  kidney: Kidney | None = None, camera=BLOCK_CAMERA,
+-                 camera_fov=43, lamp_gain=1., roughness_scale=1.):
++                 camera_fov=43, lamp_gain=1., roughness_scale=1., gpu_postprocess=False, gpu_aligned_depth=False):
+         if supersample not in (1, 2):
+             raise ValueError("supersample must be 1 or 2")
+         self.settings = settings
+@@ -374,6 +374,11 @@
+                 parts.append((mount, self.cartridge))
+             self.knife_parts = [self.add_part(mesh, material) for mesh, material in parts]
+ 
++        self._gpu_post = None
++        if gpu_postprocess:
++            from .training.gpu_postprocess import GPUPostprocess
++            self._gpu_post = GPUPostprocess(self, aligned=gpu_aligned_depth)
++
+     def add_mesh(self, mesh, material):
+         node = pyrender.Mesh.from_trimesh(mesh, material=material, smooth=True,
+                                          name="endo_" + str(gs.UID()), is_marker=False,
+@@ -491,6 +496,13 @@
+         lamp_pose[:3, 3] = pos
+         self.scene.visualizer.context.set_node_pose(self.lamp, lamp_pose)
+         self.lamp.light.intensity = LAMP_IRRADIANCE * self.lamp_gain * np.sum((lookat - pos) ** 2)
++        if self._gpu_post is not None:
++            self._gpu_post.active = True
++            try:
++                frame_bgr, depth_m, _, _ = self.camera.render(rgb=True, depth=depth, force_render=True)
++            finally:
++                self._gpu_post.active = False
++            return frame_bgr, depth_m
+         rgb, depth_m, _, _ = self.camera.render(rgb=True, depth=depth, force_render=True)
+         # The image is an upright view of the bottom-up GL buffer. The buffer itself needs no copy for OpenCV, and
+         # the lens map samples it upside down.
+@@ -510,4 +522,7 @@
+         return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)), depth
+ 
+     def close(self):
++        if self._gpu_post is not None:
++            self._gpu_post.close()
++            self._gpu_post = None
+         gs.destroy()
+--- /dev/null
++++ b/endoscopic_tissue/training/gpu_postprocess.py
+@@ -0,0 +1,191 @@
++"""Opt-in GPU endoscope postprocessing, with unchanged CPU-returned RGB-D.
++
++Only EndoscopicView.render activates the hook. Direct camera calls, segmentation,
++and unsupported modes use the original renderer. No CUDA/GL host round trip is
++introduced: the multisample framebuffer resolves into resident textures, followed
++by one full-screen shader. OpenCV's 1/32-pixel interpolation and uint8 rounding are
++reproduced explicitly rather than approximated with hardware bilinear filtering.
++"""
++from contextlib import contextmanager
++import numpy as np
++
++VERTEX = '''#version 410 core
++void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_Position=vec4(p*2-1,0,1);}
++'''
++FRAGMENT = '''#version 410 core
++uniform sampler2D color_tex;
++uniform sampler2D depth_tex;
++uniform isampler2D map_tex;
++uniform sampler2D vignette_tex;
++uniform float znear;
++uniform float zfar;
++uniform bool emit_aligned;
++layout(location=0) out uvec4 color;
++layout(location=1) out float depth;
++layout(location=2) out float aligned_depth;
++layout(location=3) out uint aligned_valid;
++ivec3 pixel(ivec2 p){
++ ivec2 size=textureSize(color_tex,0);
++ if(any(lessThan(p,ivec2(0)))||any(greaterThanEqual(p,size)))return ivec3(0);
++ return ivec3(roundEven(texelFetch(color_tex,p,0).rgb*255.0));
++}
++float linear_depth(float z){
++ precise float ndc=z*2.0-1.0;
++ precise float numerator=znear*zfar;
++ precise float difference=zfar-znear;
++ precise float term=ndc*difference;
++ precise float denominator=(zfar+znear)-term;
++ precise float value=numerator/denominator;
++ if(zfar<0)value=znear/(1.0-ndc);
++ return value*2.0;
++}
++void main(){
++ ivec2 p=ivec2(gl_FragCoord.xy);ivec4 m=texelFetch(map_tex,p,0);
++ int fx=m.z&31,fy=m.z>>5;ivec2 q=m.xy;
++ ivec3 sum=pixel(q)*(32-fx)*(32-fy)+pixel(q+ivec2(1,0))*fx*(32-fy)
++           +pixel(q+ivec2(0,1))*(32-fx)*fy+pixel(q+ivec2(1,1))*fx*fy;
++ ivec3 interpolated=(sum+512)>>10;
++ precise vec3 shaded=vec3(interpolated)*texelFetch(vignette_tex,p,0).r;
++ color=uvec4(uvec3(clamp(roundEven(shaded.bgr),0,255)),255);
++ depth=linear_depth(texelFetch(depth_tex,ivec2(p.x,textureSize(depth_tex,0).y-1-p.y),0).r);
++ if(emit_aligned){
++  // CV_32FC2 conversion followed by INTER_NEAREST uses ties-to-even.
++  ivec2 nearest=ivec2(roundEven(vec2(q)+vec2(fx,fy)/32.0));
++  ivec2 size=textureSize(depth_tex,0);
++  float value=0.0;
++  if(all(greaterThanEqual(nearest,ivec2(0)))&&all(lessThan(nearest,size)))
++   value=linear_depth(texelFetch(depth_tex,nearest,0).r);
++  bool valid=value>znear && value<zfar*(1.0-1e-3) && !isnan(value) && !isinf(value)
++             && texelFetch(vignette_tex,p,0).r>0.0;
++  aligned_depth=valid?value:0.0;
++  aligned_valid=valid?1u:0u;
++ }
++}
++'''
++
++class GPUPostprocess:
++    def __init__(self, view, *, aligned=False):
++        from OpenGL import GL as gl
++        from OpenGL.GL.shaders import compileShader, compileProgram
++        if view.supersample != 1:
++            raise ValueError('GPU postprocess currently requires supersample=1; never silently reduces supersampling')
++        self.view, self.gl = view, gl
++        self.active = False
++        self.aligned_enabled = bool(aligned)
++        self.aligned_depth = self.aligned_valid = None
++        raster = view.camera._rasterizer
++        if not raster._offscreen:
++            raise ValueError('GPU postprocess requires the offscreen endoscope renderer')
++        self.context = raster._renderer
++        self.target = raster._camera_targets[view.camera.uid]
++        self.original = self.target._read_main_framebuffer
++        self.textures = []
++        self.context.make_current()
++        try:
++            with self.state():
++                self.program=compileProgram(compileShader(VERTEX,gl.GL_VERTEX_SHADER),compileShader(FRAGMENT,gl.GL_FRAGMENT_SHADER))
++                self.vao=int(gl.glGenVertexArrays(1))
++                self.raw_fbo=int(gl.glGenFramebuffers(1));self.out_fbo=int(gl.glGenFramebuffers(1))
++                self.color=self.texture(gl.GL_RGBA8,gl.GL_RGBA,gl.GL_UNSIGNED_BYTE)
++                self.depth=self.texture(gl.GL_DEPTH_COMPONENT24,gl.GL_DEPTH_COMPONENT,gl.GL_UNSIGNED_INT)
++                mapping=np.zeros((view.height,view.width,4),np.int32)
++                mapping[...,:2]=view.lens_map[0];mapping[...,2]=view.lens_map[1]
++                self.mapping=self.texture(gl.GL_RGBA32I,gl.GL_RGBA_INTEGER,gl.GL_INT,mapping)
++                self.vignette=self.texture(gl.GL_R32F,gl.GL_RED,gl.GL_FLOAT,np.ascontiguousarray(view.vignette[...,0]))
++                self.output_color=self.texture(gl.GL_RGBA8UI,gl.GL_RGBA_INTEGER,gl.GL_UNSIGNED_BYTE)
++                self.output_depth=self.texture(gl.GL_R32F,gl.GL_RED,gl.GL_FLOAT)
++                extra=[]
++                if aligned:
++                    self.output_aligned=self.texture(gl.GL_R32F,gl.GL_RED,gl.GL_FLOAT)
++                    self.output_valid=self.texture(gl.GL_R8UI,gl.GL_RED_INTEGER,gl.GL_UNSIGNED_BYTE)
++                    extra=[(gl.GL_COLOR_ATTACHMENT2,self.output_aligned),(gl.GL_COLOR_ATTACHMENT3,self.output_valid)]
++                for fbo,attachments in [(self.raw_fbo,[(gl.GL_COLOR_ATTACHMENT0,self.color),(gl.GL_DEPTH_ATTACHMENT,self.depth)]),
++                                        (self.out_fbo,[(gl.GL_COLOR_ATTACHMENT0,self.output_color),(gl.GL_COLOR_ATTACHMENT1,self.output_depth)]+extra)]:
++                    gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER,fbo)
++                    for attachment,texture in attachments:
++                        gl.glFramebufferTexture2D(gl.GL_DRAW_FRAMEBUFFER,attachment,gl.GL_TEXTURE_2D,texture,0)
++                    gl.glDrawBuffers(1 if fbo==self.raw_fbo else 2,[gl.GL_COLOR_ATTACHMENT0] if fbo==self.raw_fbo else [gl.GL_COLOR_ATTACHMENT0,gl.GL_COLOR_ATTACHMENT1])
++                    if gl.glCheckFramebufferStatus(gl.GL_DRAW_FRAMEBUFFER)!=gl.GL_FRAMEBUFFER_COMPLETE:
++                        raise RuntimeError('GPU postprocess framebuffer incomplete')
++                gl.glUseProgram(self.program)
++                for i,name in enumerate(('color_tex','depth_tex','map_tex','vignette_tex')):
++                    gl.glUniform1i(gl.glGetUniformLocation(self.program,name),i)
++                self.near_location=gl.glGetUniformLocation(self.program,'znear');self.far_location=gl.glGetUniformLocation(self.program,'zfar');self.aligned_location=gl.glGetUniformLocation(self.program,'emit_aligned')
++        finally:
++            self.context.make_uncurrent()
++        # Keep this closure dynamic so a profiler can wrap self.read per instance.
++        self.target._read_main_framebuffer=lambda scene,flags:self.read(scene,flags)
++
++    def texture(self, internal, format_, type_, data=None):
++        gl=self.gl;texture=int(gl.glGenTextures(1));self.textures.append(texture)
++        gl.glBindTexture(gl.GL_TEXTURE_2D,texture)
++        gl.glTexParameteri(gl.GL_TEXTURE_2D,gl.GL_TEXTURE_MIN_FILTER,gl.GL_NEAREST)
++        gl.glTexParameteri(gl.GL_TEXTURE_2D,gl.GL_TEXTURE_MAG_FILTER,gl.GL_NEAREST)
++        gl.glTexImage2D(gl.GL_TEXTURE_2D,0,internal,self.view.width,self.view.height,0,format_,type_,data)
++        return texture
++
++    @contextmanager
++    def state(self):
++        gl=self.gl
++        integers={name:int(gl.glGetIntegerv(enum)) for name,enum in [('draw',gl.GL_DRAW_FRAMEBUFFER_BINDING),('read',gl.GL_READ_FRAMEBUFFER_BINDING),
++            ('program',gl.GL_CURRENT_PROGRAM),('vao',gl.GL_VERTEX_ARRAY_BINDING),('active',gl.GL_ACTIVE_TEXTURE),('pack_buffer',gl.GL_PIXEL_PACK_BUFFER_BINDING),
++            ('pack',gl.GL_PACK_ALIGNMENT),('unpack',gl.GL_UNPACK_ALIGNMENT),('read_buffer',gl.GL_READ_BUFFER)]}
++        viewport=gl.glGetIntegerv(gl.GL_VIEWPORT);color_mask=gl.glGetBooleanv(gl.GL_COLOR_WRITEMASK)
++        caps=(gl.GL_DEPTH_TEST,gl.GL_CULL_FACE,gl.GL_BLEND,gl.GL_MULTISAMPLE,gl.GL_SCISSOR_TEST,gl.GL_FRAMEBUFFER_SRGB)
++        enabled={cap:bool(gl.glIsEnabled(cap)) for cap in caps};textures=[]
++        for i in range(4):
++            gl.glActiveTexture(gl.GL_TEXTURE0+i);textures.append(int(gl.glGetIntegerv(gl.GL_TEXTURE_BINDING_2D)))
++        gl.glActiveTexture(gl.GL_TEXTURE0)
++        try:yield
++        finally:
++            for i,texture in enumerate(textures):
++                gl.glActiveTexture(gl.GL_TEXTURE0+i);gl.glBindTexture(gl.GL_TEXTURE_2D,texture)
++            gl.glActiveTexture(integers['active'])
++            gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER,integers['draw']);gl.glBindFramebuffer(gl.GL_READ_FRAMEBUFFER,integers['read'])
++            gl.glReadBuffer(integers['read_buffer']);gl.glUseProgram(integers['program']);gl.glBindVertexArray(integers['vao'])
++            gl.glBindBuffer(gl.GL_PIXEL_PACK_BUFFER,integers['pack_buffer']);gl.glPixelStorei(gl.GL_PACK_ALIGNMENT,integers['pack']);gl.glPixelStorei(gl.GL_UNPACK_ALIGNMENT,integers['unpack'])
++            gl.glViewport(*viewport);gl.glColorMask(*color_mask)
++            for cap,enabled_ in enabled.items():(gl.glEnable if enabled_ else gl.glDisable)(cap)
++
++    def read(self,scene,flags):
++        from genesis.ext.pyrender.constants import RenderFlags
++        if not self.active or flags & (RenderFlags.SEG|RenderFlags.DEPTH_ONLY|RenderFlags.RGBA):
++            return self.original(scene,flags)
++        gl=self.gl;w,h=self.view.width,self.view.height
++        with self.state():
++            gl.glBindFramebuffer(gl.GL_READ_FRAMEBUFFER,self.target._main_fb_ms)
++            gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER,self.raw_fbo)
++            bits=gl.GL_COLOR_BUFFER_BIT | (gl.GL_DEPTH_BUFFER_BIT if flags & RenderFlags.RET_DEPTH else 0)
++            gl.glBlitFramebuffer(0,0,w,h,0,0,w,h,bits,gl.GL_NEAREST)
++            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER,self.out_fbo);gl.glViewport(0,0,w,h)
++            for cap in (gl.GL_DEPTH_TEST,gl.GL_CULL_FACE,gl.GL_BLEND,gl.GL_MULTISAMPLE,gl.GL_SCISSOR_TEST,gl.GL_FRAMEBUFFER_SRGB):gl.glDisable(cap)
++            gl.glColorMask(True,True,True,True);gl.glUseProgram(self.program);gl.glBindVertexArray(self.vao)
++            emit=self.aligned_enabled and bool(flags & RenderFlags.RET_DEPTH)
++            gl.glUniform1i(self.aligned_location,int(emit));gl.glDrawBuffers(4 if emit else 2,[gl.GL_COLOR_ATTACHMENT0+i for i in range(4 if emit else 2)])
++            camera=scene.main_camera_node.camera
++            gl.glUniform1f(self.near_location,camera.znear);gl.glUniform1f(self.far_location,camera.zfar if camera.zfar is not None else -1)
++            for i,texture in enumerate((self.color,self.depth,self.mapping,self.vignette)):
++                gl.glActiveTexture(gl.GL_TEXTURE0+i);gl.glBindTexture(gl.GL_TEXTURE_2D,texture)
++            gl.glDrawArrays(gl.GL_TRIANGLES,0,3)
++            gl.glBindBuffer(gl.GL_PIXEL_PACK_BUFFER,0);gl.glPixelStorei(gl.GL_PACK_ALIGNMENT,1)
++            color=np.empty((h,w,4),np.uint8);gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT0)
++            gl.glReadPixels(0,0,w,h,gl.GL_RGBA_INTEGER,gl.GL_UNSIGNED_BYTE,color)
++            color=color[...,:3]
++            if flags & RenderFlags.RET_DEPTH:
++                depth=np.empty((h,w),np.float32);gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT1)
++                gl.glReadPixels(0,0,w,h,gl.GL_RED,gl.GL_FLOAT,depth)
++                if emit:
++                    aligned=np.empty((h,w),np.float32);valid=np.empty((h,w),np.uint8)
++                    gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT2);gl.glReadPixels(0,0,w,h,gl.GL_RED,gl.GL_FLOAT,aligned)
++                    gl.glReadBuffer(gl.GL_COLOR_ATTACHMENT3);gl.glReadPixels(0,0,w,h,gl.GL_RED_INTEGER,gl.GL_UNSIGNED_BYTE,valid)
++                    self.aligned_depth,self.aligned_valid=aligned,valid.view(np.bool_)
++                else:self.aligned_depth=self.aligned_valid=None
++                return color,depth
++            return (color,)
++
++    def close(self):
++        self.target._read_main_framebuffer=self.original
++        gl=self.gl;self.context.make_current()
++        try:
++            gl.glDeleteProgram(self.program);gl.glDeleteVertexArrays(1,[self.vao]);gl.glDeleteFramebuffers(2,[self.raw_fbo,self.out_fbo]);gl.glDeleteTextures(self.textures)
++        finally:self.context.make_uncurrent()
+--- a/endoscopic_tissue/training/parallel.py
++++ b/endoscopic_tissue/training/parallel.py
+@@ -19,7 +19,7 @@
+ from .resources import gpu_sample
+ 
+ 
+-def _serve(connection, config, release, directory, gpu_uuid, cpus):
++def _serve(connection, config, release, directory, gpu_uuid, cpus, shared_image_spec=None):
+     os.environ.update(CUDA_VISIBLE_DEVICES=gpu_uuid, PYTHONNOUSERSITE='1',
+         PYTHONDONTWRITEBYTECODE='1', OPENBLAS_NUM_THREADS='1', OMP_NUM_THREADS='1',
+         MKL_NUM_THREADS='1', NUMEXPR_NUM_THREADS='1', XDG_CACHE_HOME=str(directory/'cache'))
+@@ -29,6 +29,9 @@
+     os.dup2(log.fileno(),1);os.dup2(log.fileno(),2)
+     environment=writer=session=None
+     try:
++        if shared_image_spec is not None:
++            from .shared_images import ImageWriter
++            connection=ImageWriter(connection,shared_image_spec)
+         from endoscopic_tissue.training.env import EnvironmentConfig, SceneConfig, NativeEnvironment
+         from endoscopic_tissue.training.actions import ActionBounds
+         from endoscopic_tissue.training.physics import PhysicsOverrides
+@@ -82,8 +85,10 @@
+     benchmark. Use the guarded benchmark for capacity/performance acceptance;
+     this pool is a small integration pilot, not a certified RL training domain.
+     """
+-    def __init__(self, configs, *, release, output, gpu_uuids, cpus, startup_timeout=120):
++    def __init__(self, configs, *, release, output, gpu_uuids, cpus, startup_timeout=120, shared_image_bytes=0):
+         if not configs or not gpu_uuids or not cpus or len(configs)>16:raise ValueError('Pilot pool supports 1..16 workers with explicit GPUs and CPUs')
++        if type(shared_image_bytes) is not int or not 0<=shared_image_bytes<=64*1024**2 or 0<shared_image_bytes<=64:raise ValueError('Invalid shared image byte budget')
++        self.image_buffers=[]
+         self.processes=[];self.connections=[];self.pending={};self.locks=[];self.next_request=0;self.closed=False
+         self.output=Path(output);self.output.mkdir(parents=True,exist_ok=False)
+         self.release=Path(release).resolve()
+@@ -108,15 +113,25 @@
+             for index,config in enumerate(configs):
+                 directory=self.output/f'worker-{index:03d}';directory.mkdir()
+                 (directory/'configuration.json').write_text(json.dumps(config,indent=2))
++                image=None
++                if shared_image_bytes:
++                    from .shared_images import ImageBuffer
++                    image=ImageBuffer(shared_image_bytes);self.image_buffers.append(image)
+                 parent,child=context.Pipe(duplex=True)
+                 proc=context.Process(target=_serve,args=(child,config,self.release,directory,
+-                    gpu_uuids[index%len(gpu_uuids)],[cpus[index%len(cpus)]]))
++                    gpu_uuids[index%len(gpu_uuids)],[cpus[index%len(cpus)]],None if image is None else image.spec))
+                 proc.start();child.close();self.processes.append(proc);self.connections.append(parent)
+             deadline=time.monotonic()+startup_timeout
+             for connection in self.connections:
+                 if not connection.poll(max(0,deadline-time.monotonic())):raise TimeoutError('Worker startup timeout')
+                 result=connection.recv()
+                 if not result.get('ready'):raise RuntimeError(str(result))
++            if self.image_buffers:
++                from .shared_images import ImageReader
++                self.connections=[ImageReader(c,b) for c,b in zip(self.connections,self.image_buffers)]
++                # Every worker has attached before ready; keep mappings, remove names now.
++                for image in self.image_buffers:image.memory.unlink()
++            (self.output/'image-transport.json').write_text(json.dumps(dict(mode='shared_memory_owned_copy' if shared_image_bytes else 'pipe',bytes_per_worker=shared_image_bytes,consumer_owns_copied_arrays=True),indent=2))
+             atexit.register(self.close)
+         except BaseException:
+             self.close();raise
+@@ -162,9 +177,10 @@
+             self._guard()
+         results=[]
+         for connection in ready:
+-            worker=self.connections.index(connection);request,started,command=self.pending.pop(worker)
++            worker=self.connections.index(connection);request,started,command=self.pending[worker]
+             message=connection.recv()
+             if message.get('request')!=request:raise RuntimeError('Request/response mismatch')
++            self.pending.pop(worker)
+             message.update(worker_id=worker,roundtrip_ms=(time.perf_counter()-started)*1000)
+             results.append(message)
+         return results
+@@ -179,6 +195,8 @@
+         for proc in self.processes:
+             if proc.is_alive():proc.terminate();proc.join(5)
+             if proc.is_alive():proc.kill();proc.join()
++        for image in self.image_buffers:image.close()
++        self.image_buffers.clear()
+         for lock in self.locks:lock.close()
+ 
+     def __enter__(self):return self
+--- /dev/null
++++ b/endoscopic_tissue/training/pixel_compose_fast.py
+@@ -0,0 +1,37 @@
++"""Fused CPU output materialization; no float contraction or approximation.
++
++The public contract is CPU arrays (~252 MB at 1280x960). Fusing the gathers,
++validation and stores avoids several equally large temporary arrays and another
++GPU transfer. A future GPU-consumer contract should keep this data on device.
++"""
++import numpy as np
++from numba import njit
++
++@njit(cache=False,nogil=True)
++def compose(flat,bary,triangles,node_ids,node_weights,offsets,vertex_valid):
++    n=len(flat)
++    ids=np.empty((n,24),np.int32);weights=np.empty((n,24),np.float32)
++    offset=np.empty((n,3),np.float32);valid=np.empty(n,np.bool_)
++    for row in range(n):
++        tri=flat[row];good=tri>=0 and tri<len(triangles)
++        if good:
++            b0,b1,b2=bary[row]
++            good=(np.isfinite(b0) and np.isfinite(b1) and np.isfinite(b2)
++                  and b0>=-1e-7 and b1>=-1e-7 and b2>=-1e-7
++                  and abs((b0+b1)+b2-1)<1e-6)
++        if good:
++            a,b,c=triangles[tri]
++            good=vertex_valid[a] and vertex_valid[b] and vertex_valid[c]
++        valid[row]=good
++        if good:
++            for v in range(3):
++                vertex=triangles[tri,v]
++                for k in range(8):
++                    ids[row,v*8+k]=node_ids[vertex,k]
++                    weights[row,v*8+k]=node_weights[vertex,k]*bary[row,v]
++            for k in range(3):
++                offset[row,k]=(offsets[a,k]*b0+offsets[b,k]*b1)+offsets[c,k]*b2
++        else:
++            for k in range(24):ids[row,k]=-1;weights[row,k]=0
++            for k in range(3):offset[row,k]=0
++    return ids,weights,offset,valid
+--- a/endoscopic_tissue/training/quality.py
++++ b/endoscopic_tissue/training/quality.py
+@@ -10,16 +10,8 @@
+ 
+ 
+ def material_components(neighbors, material):
+-    ids = np.flatnonzero(material)
+-    mapping = np.full(len(material), -1, dtype=np.int32)
+-    mapping[ids] = np.arange(len(ids))
+-    targets = neighbors[ids, 1::2]
+-    owner, slot = np.where(targets >= 0)
+-    target = targets[owner, slot]
+-    keep = material[target]
+-    owner, target = owner[keep], mapping[target[keep]]
+-    graph = coo_matrix((np.ones(len(owner), np.uint8), (owner, target)), shape=(len(ids), len(ids))).tocsr()
+-    return int(connected_components(graph, directed=False, return_labels=False))
++    from .quality_kernels import connected_material
++    return int(connected_material(neighbors, material))
+ 
+ 
+ @dataclass(frozen=True)
+@@ -47,19 +39,19 @@
+         finite_quality = bool(np.isfinite(material_quality).all())
+         values = {"min_volume_ratio": float(material_quality[0]) if finite_quality else None,
+                   "invalid_tets": int(material_quality[1]) if finite_quality else None}
+-        if not np.isfinite(observed.nodes).all() or not finite_quality:
++        from .quality_kernels import node_extrema
++        finite_nodes, max_displacement, max_speed = node_extrema(
++            observed.nodes, previous.nodes if previous is not None else np.empty((0,3), np.float32),
++            self.grid.positions, self.grid.active, np.float32(.01/settings.dt))
++        max_displacement, max_speed = float(max_displacement), float(max_speed)
++        if not finite_nodes or not finite_quality:
+             failures.append("non_finite_state")
+         if values["invalid_tets"]:
+             failures.append("invalid_material_tetrahedra")
+-        active = self.grid.active != 0
+-        displacement = np.linalg.norm(observed.nodes[active] - self.grid.positions[active], axis=1) * .01
+-        max_displacement = float(displacement.max(initial=0))
+         values["max_displacement_m"] = max_displacement if np.isfinite(max_displacement) else None
+         if max_displacement > self.limits.max_displacement_m:
+             failures.append("workspace_displacement_exceeded")
+         if previous is not None:
+-            speed = np.linalg.norm(observed.nodes[active] - previous.nodes[active], axis=1) * (.01 / settings.dt)
+-            max_speed = float(speed.max(initial=0))
+             values["max_estimated_speed_m_s"] = max_speed if np.isfinite(max_speed) else None
+             if max_speed > self.limits.max_estimated_speed_m_s:
+                 failures.append("estimated_speed_limit_exceeded")
+--- /dev/null
++++ b/endoscopic_tissue/training/quality_kernels.py
+@@ -0,0 +1,97 @@
++"""Fused CPU diagnostics over arrays already required by the training record.
++
++No fast-math, changed thresholds, or temporal caching. Float32 arithmetic matches
++the NumPy reference's subtraction, squared norm, sqrt, and unit conversion.
++"""
++import numpy as np
++from numba import njit
++
++@njit(cache=False)
++def node_extrema(nodes, previous, rest, active, speed_scale):
++    finite = True
++    displacement = np.float32(0)
++    speed = np.float32(0)
++    displacement_nan = False
++    speed_nan = False
++    for i in range(len(nodes)):
++        for k in range(3):
++            if not np.isfinite(nodes[i, k]):
++                finite = False
++        if active[i] == 0:
++            continue
++        d0 = nodes[i, 0] - rest[i, 0]
++        d1 = nodes[i, 1] - rest[i, 1]
++        d2 = nodes[i, 2] - rest[i, 2]
++        distance = np.sqrt((d0*d0 + d1*d1) + d2*d2) * np.float32(.01)
++        displacement_nan |= np.isnan(distance)
++        displacement = max(displacement, distance)
++        if len(previous):
++            d0 = nodes[i, 0] - previous[i, 0]
++            d1 = nodes[i, 1] - previous[i, 1]
++            d2 = nodes[i, 2] - previous[i, 2]
++            value = np.sqrt((d0*d0 + d1*d1) + d2*d2) * speed_scale
++            speed_nan |= np.isnan(value)
++            speed = max(speed, value)
++    if displacement_nan:
++        displacement = np.float32(np.nan)
++    if speed_nan:
++        speed = np.float32(np.nan)
++    return finite, displacement, speed
++
++@njit(cache=False)
++def connected_material(neighbors, material):
++    # Same undirected positive-axis material graph as scipy.connected_components.
++    parent = np.full(len(material), -1, np.int32)
++    size = np.ones(len(material), np.int32)
++    count = 0
++    for i in range(len(material)):
++        if material[i]:
++            parent[i] = i
++            count += 1
++    for i in range(len(material)):
++        if parent[i] < 0:
++            continue
++        for slot in (1, 3, 5):
++            j = neighbors[i, slot]
++            if j < 0 or not material[j]:
++                continue
++            a, b = i, j
++            while parent[a] != a:
++                parent[a] = parent[parent[a]]
++                a = parent[a]
++            while parent[b] != b:
++                parent[b] = parent[parent[b]]
++                b = parent[b]
++            if a != b:
++                if size[a] < size[b]:
++                    a, b = b, a
++                parent[b] = a
++                size[a] += size[b]
++                count -= 1
++    return count
++
++@njit(cache=False)
++def nearby_surface(vertices, triangles, hinge, frame, lows, highs):
++    """Conservative broad phase only; original narrow-phase samples stay intact."""
++    coords = np.empty((len(vertices),3), np.float64)
++    near_vertices = np.zeros(len(vertices), np.bool_)
++    for i in range(len(vertices)):
++        x=vertices[i,0]-hinge[0];y=vertices[i,1]-hinge[1];z=vertices[i,2]-hinge[2]
++        for k in range(3):
++            coords[i,k]=(frame[k,0]*x+frame[k,1]*y)+frame[k,2]*z
++        for box in range(len(lows)):
++            inside=True
++            for k in range(3):
++                inside &= coords[i,k]>=lows[box,k]-1e-12 and coords[i,k]<=highs[box,k]+1e-12
++            near_vertices[i] |= inside
++    near_vertices[:min(2,len(vertices))]=True
++    near_triangles = np.zeros(len(triangles), np.bool_)
++    for i in range(len(triangles)):
++        a,b,c=triangles[i]
++        for box in range(len(lows)):
++            inside=True
++            for k in range(3):
++                low=min(coords[a,k],coords[b,k],coords[c,k]);high=max(coords[a,k],coords[b,k],coords[c,k])
++                inside &= high>=lows[box,k]-1e-12 and low<=highs[box,k]+1e-12
++            near_triangles[i] |= inside
++    return near_vertices, near_triangles
+--- /dev/null
++++ b/endoscopic_tissue/training/shared_images.py
+@@ -0,0 +1,94 @@
++"""Bounded worker-local image transport; public observations still own CPU arrays.
++
++One outstanding request per worker is enforced by ParallelNativePool. The worker
++publishes a generation only after copying all images. The parent copies them into
++ordinary independent arrays before returning (and before another action can be
++sent). No shared view escapes the reader, so retaining observations is safe.
++"""
++from multiprocessing.shared_memory import SharedMemory
++import struct
++import time
++import numpy as np
++
++KEYS={'rgb':np.dtype('uint8'),'depth_m':np.dtype('float32'),'depth_valid':np.dtype('bool')}
++HEADER=64
++
++class ImageBuffer:
++    def __init__(self,size):
++        if type(size) is not int or not HEADER<size<=64*1024**2:raise ValueError('Image buffer budget must be 65 bytes..64 MiB')
++        self.memory=SharedMemory(create=True,size=size)
++        self.size=size
++        self.memory.buf[:HEADER]=bytes(HEADER)
++    @property
++    def spec(self):return dict(name=self.memory.name,size=self.size)
++    def close(self):
++        try:self.memory.close()
++        finally:
++            try:self.memory.unlink()
++            except FileNotFoundError:pass
++
++class ImageWriter:
++    def __init__(self,connection,spec):
++        self.connection=connection;self.memory=SharedMemory(name=spec['name']);self.size=spec['size']
++        if self.memory.size!=self.size:
++            self.memory.close();raise ValueError('Shared image size mismatch')
++    def recv(self):return self.connection.recv()
++    def send(self,message):
++        obs=message.get('observation')
++        if not isinstance(obs,dict) or not any(k in obs for k in KEYS):return self.connection.send(message)
++        started=time.perf_counter();entries=[];offset=HEADER
++        for key,dtype in KEYS.items():
++            if key not in obs:continue
++            value=obs[key]
++            if not isinstance(value,np.ndarray) or value.dtype!=dtype or value.ndim not in (2,3):raise ValueError('Unexpected image array: '+key)
++            if key=='rgb' and (value.ndim!=3 or value.shape[-1]!=3):raise ValueError('Expected HWC RGB')
++            if key!='rgb' and value.ndim!=2:raise ValueError('Expected 2D depth/mask')
++            offset=(offset+63)//64*64
++            entries.append(dict(key=key,offset=offset,shape=list(value.shape),dtype=dtype.str,nbytes=value.nbytes));offset+=value.nbytes
++        if offset>self.size:raise MemoryError('Observation exceeds explicit shared image budget; frame not dropped')
++        generation=message['request']
++        if type(generation) is not int or not 0<generation<2**64:raise ValueError('Invalid image generation')
++        struct.pack_into('<Q',self.memory.buf,0,0)
++        for item in entries:
++            target=np.ndarray(item['shape'],dtype=np.dtype(item['dtype']),buffer=self.memory.buf,offset=item['offset'])
++            np.copyto(target,obs[item['key']]);del target
++        struct.pack_into('<Q',self.memory.buf,0,generation)
++        forwarded=dict(message);forwarded['observation']={k:v for k,v in obs.items() if k not in KEYS}
++        forwarded['_shared_images']=dict(schema=1,generation=generation,entries=entries)
++        forwarded['image_transport']=dict(mode='shared_memory_owned_copy',bytes=sum(x['nbytes'] for x in entries),worker_copy_ms=(time.perf_counter()-started)*1000)
++        return self.connection.send(forwarded)
++    def close(self):
++        try:self.connection.close()
++        finally:self.memory.close()
++
++class ImageReader:
++    def __init__(self,connection,owner):self.connection=connection;self.owner=owner
++    def fileno(self):return self.connection.fileno()
++    def poll(self,*args):return self.connection.poll(*args)
++    def send(self,*args):return self.connection.send(*args)
++    def recv(self):
++        message=self.connection.recv();descriptor=message.pop('_shared_images',None)
++        if descriptor is None:return message
++        started=time.perf_counter();memory=self.owner.memory
++        if descriptor.get('schema')!=1 or descriptor.get('generation')!=message.get('request'):raise ValueError('Wrong image message generation')
++        generation=descriptor['generation']
++        if struct.unpack_from('<Q',memory.buf,0)[0]!=generation:raise ValueError('Stale image generation before copy')
++        entries=descriptor.get('entries',[])
++        if len(entries)>len(KEYS):raise ValueError('Too many image arrays')
++        seen=set();previous_end=HEADER;obs=message['observation']
++        for item in entries:
++            key=item['key'];shape=item['shape'];dtype=np.dtype(item['dtype']);offset=item['offset']
++            if key not in KEYS or key in seen or key in obs or dtype!=KEYS[key]:raise ValueError('Invalid image key/dtype')
++            if (not isinstance(shape,list) or len(shape)!=(3 if key=='rgb' else 2)
++                    or any(type(n) is not int or not 0<n<=16384 for n in shape)
++                    or (key=='rgb' and shape[-1]!=3)):raise ValueError('Invalid image shape')
++            count=1
++            for n in shape:count*=n
++            size=count*dtype.itemsize
++            if type(offset) is not int or offset<previous_end or offset%64 or size!=item['nbytes'] or offset+size>self.owner.size:raise ValueError('Image extent exceeds buffer')
++            obs[key]=np.ndarray(shape,dtype=dtype,buffer=memory.buf,offset=offset).copy()
++            previous_end=offset+size;seen.add(key)
++        if struct.unpack_from('<Q',memory.buf,0)[0]!=generation:raise ValueError('Image overwritten during copy')
++        message['image_transport']['parent_copy_ms']=(time.perf_counter()-started)*1000
++        return message
++    def close(self):self.connection.close()
+--- a/endoscopic_tissue/training/snapshot.py
++++ b/endoscopic_tissue/training/snapshot.py
+@@ -309,7 +309,7 @@
+     here = Path(__file__).parent
+     return {p.name: sha256(p) for p in [here/name for name in
+         ('snapshot.py', 'env.py', 'native.py', 'quality.py', 'grasp.py', 'tasks.py', 'damage.py',
+-         'physics.py', 'actions.py', 'vision.py', 'lineage.py', 'geometry.py', 'outcomes.py', 'policies.py', 'instrument_collision.py', 'visual_randomization.py', 'visual_labels.py','pixel_labels.py', 'topology_fast.py', 'topology_hash.py', 'egl_device.py')]}
++         'physics.py', 'actions.py', 'vision.py', 'lineage.py', 'geometry.py', 'outcomes.py', 'policies.py', 'instrument_collision.py', 'visual_randomization.py', 'visual_labels.py','pixel_labels.py', 'topology_fast.py', 'topology_hash.py', 'egl_device.py', 'quality_kernels.py', 'gpu_postprocess.py', 'pixel_compose_fast.py')]}
+ 
+ 
+ def take_snapshot(env):
+--- a/endoscopic_tissue/training/vision.py
++++ b/endoscopic_tissue/training/vision.py
+@@ -28,6 +28,9 @@
+         threads=config.get('opencv_threads',1)
+         if type(threads) is not int or not 1<=threads<=8:raise ValueError('opencv_threads must be an explicit integer in [1,8]')
+         cv2.setNumThreads(threads)
++        if config.get('gpu_aligned_depth',False) and not config.get('gpu_postprocess',False):
++            raise ValueError('GPU aligned depth requires explicit GPU postprocessing')
++        self.gpu_aligned_depth=bool(config.get('gpu_aligned_depth',False))
+         self.labels=tuple(config.get('privileged_labels',()))
+         if set(self.labels)-{'segmentation','surface_supports','pixel_supports'}:
+             raise ValueError('Unknown privileged visual label')
+@@ -53,7 +56,7 @@
+         if selected_gpu.startswith('GPU-'):
+             from .egl_device import bind
+             self.device_binding=bind(selected_gpu)
+-        self.view = EndoscopicView(env.settings,width,height,supersample=1,kidney=scene.shape,camera=camera,**extra)
++        self.view = EndoscopicView(env.settings,width,height,supersample=1,kidney=scene.shape,camera=camera,gpu_postprocess=config.get('gpu_postprocess',False),gpu_aligned_depth=config.get('gpu_aligned_depth',False),**extra)
+         camera = self.view.camera
+         # Coordinates of each final image pixel in the upright pinhole image.
+         xy, _ = cv2.convertMaps(*self.view.lens_map, cv2.CV_32FC2)
+@@ -74,10 +77,13 @@
+                          'segmentation':'optional privileged truth; never a deployment observation',
+                          'drop_policy':'no silent drops; capture error terminates observation',
+                          'source_sha256':{p:sha256(ROOT/p) for p in
+-                             ('endoscopic_tissue/rendering.py','genesis/vis/camera.py')}}
++                             ('endoscopic_tissue/rendering.py','genesis/vis/camera.py',
++                              'endoscopic_tissue/training/gpu_postprocess.py',
++                              'endoscopic_tissue/training/pixel_compose_fast.py','endoscopic_tissue/training/visual_labels.py')}}
+         self.manifest['privileged_labels'] = list(self.labels)
+         self.manifest['render_device_binding']=self.device_binding
+         self.manifest['opencv_threads']=cv2.getNumThreads()
++        self.manifest['performance_options']=dict(gpu_postprocess=bool(config.get('gpu_postprocess',False)),gpu_aligned_depth=self.gpu_aligned_depth)
+         self.manifest['label_semantics'] = 'segmentation: 0 background, 1 tissue, 2 grasper, 3 scissors; surface bindings: contact-affine supports plus offset, invalid rows explicit; pixel supports: up to 24 node IDs and composed weights plus offset, perspective-correct single-sample visible triangles, explicit validity mask'
+         if self.visual_sample is not None:
+             self.manifest['randomization'] = self.visual_sample
+@@ -95,8 +101,13 @@
+         surface = env.last_surface if env.last_surface is not None else env.native.surface()
+         self.view.update(surface, env.observed)
+         frame_bgr, pinhole = self.view.render(depth=True)
+-        depth, valid = align_depth_to_endoscope(pinhole, self.view.lens_map, self.view.vignette,
+-                                                self.view.camera.near, self.view.camera.far)
++        if self.gpu_aligned_depth:
++            depth,valid=self.view._gpu_post.aligned_depth,self.view._gpu_post.aligned_valid
++            if depth is None or valid is None or depth.shape!=pinhole.shape:
++                raise RuntimeError('Missing synchronized GPU depth alignment')
++        else:
++            depth, valid = align_depth_to_endoscope(pinhole, self.view.lens_map, self.view.vignette,
++                                                  self.view.camera.near, self.view.camera.far)
+         rgb=cv2.cvtColor(frame_bgr,cv2.COLOR_BGR2RGB)
+         if self.randomization is not None:
+             rgb,depth,valid=self.randomization.noise(rgb,depth,valid,seed=self.visual_sample['seed'],
+--- a/endoscopic_tissue/training/visual_labels.py
++++ b/endoscopic_tissue/training/visual_labels.py
+@@ -35,18 +35,10 @@
+         raise ValueError('Expected integer visible triangle IDs and perspective-correct barycentrics')
+     flat=index.reshape(-1);bary=bary.reshape(-1,3)
+     triangles=np.asarray(bindings['triangles'])
+-    selected=(flat>=0)&(flat<len(triangles))
+-    ids=np.full((len(flat),24),-1,np.int32);weights=np.zeros((len(flat),24),np.float32)
+-    offset=np.zeros((len(flat),3),np.float32);valid=np.zeros(len(flat),bool)
+-    rows=np.flatnonzero(selected)
+-    verts=triangles[flat[rows]]
+-    good=np.isfinite(bary[rows]).all(axis=1)&(bary[rows]>=-1e-7).all(axis=1)&(np.abs(bary[rows].sum(axis=1)-1)<1e-6)
+-    good &= np.asarray(bindings['valid'])[verts].all(axis=1)
+-    rows,verts=rows[good],verts[good]
+-    ids[rows]=np.asarray(bindings['node_ids'])[verts].reshape(-1,24)
+-    weights[rows]=(np.asarray(bindings['weights'])[verts]*bary[rows,:,None]).reshape(-1,24)
+-    offset[rows]=(np.asarray(bindings['offset_m'])[verts]*bary[rows,:,None]).sum(axis=1)
+-    valid[rows]=True
++    from .pixel_compose_fast import compose
++    ids,weights,offset,valid=compose(flat,bary,triangles,
++        np.asarray(bindings['node_ids']),np.asarray(bindings['weights']),
++        np.asarray(bindings['offset_m']),np.asarray(bindings['valid']))
+     return dict(node_ids=ids.reshape(index.shape+(24,)),weights=weights.reshape(index.shape+(24,)),
+                 offset_m=offset.reshape(index.shape+(3,)),valid=valid.reshape(index.shape))
+ 

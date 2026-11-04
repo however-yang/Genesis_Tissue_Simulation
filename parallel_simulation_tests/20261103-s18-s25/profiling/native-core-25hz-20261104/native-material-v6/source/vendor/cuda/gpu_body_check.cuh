@@ -1,0 +1,74 @@
+// Read-only diagnostic over CURRENT expanded soup. No force, topology, solver
+// state, allocation archive, samples, or acceptance threshold is modified.
+struct BodyCheckParameters {double p[57];int flags;};
+struct BodyCheckResult {double body,wrist;int unsupported;};
+static BodyCheckResult* d_bodyCheckResult=nullptr;
+static cudaError_t bodyCheckEnsure(){return d_bodyCheckResult?cudaSuccess:(::cudaMalloc)(reinterpret_cast<void**>(&d_bodyCheckResult),sizeof(BodyCheckResult));}
+static void bodyCheckShutdown(){if(d_bodyCheckResult)(::cudaFree)(d_bodyCheckResult);d_bodyCheckResult=nullptr;}
+__device__ inline double bodyDot(const double* a,double x,double y,double z){
+    return __dadd_rn(__dadd_rn(__dmul_rn(a[0],x),__dmul_rn(a[1],y)),__dmul_rn(a[2],z));
+}
+__device__ inline float bodyFloatDot(float3 a,const double* b){
+    return __fadd_rn(__fadd_rn(__fmul_rn(a.x,(float)b[0]),__fmul_rn(a.y,(float)b[1])),__fmul_rn(a.z,(float)b[2]));
+}
+__device__ inline float3 bodyMean(float3 a,float3 b,float3 c){
+    return make_float3(__fdiv_rn(__fadd_rn(__fadd_rn(a.x,b.x),c.x),3.f),__fdiv_rn(__fadd_rn(__fadd_rn(a.y,b.y),c.y),3.f),__fdiv_rn(__fadd_rn(__fadd_rn(a.z,b.z),c.z),3.f));
+}
+__device__ inline float3 bodyMid(float3 a,float3 b){return make_float3(__fmul_rn(__fadd_rn(a.x,b.x),.5f),__fmul_rn(__fadd_rn(a.y,b.y),.5f),__fmul_rn(__fadd_rn(a.z,b.z),.5f));}
+__device__ inline void bodyCheckPoint(float3 point,const BodyCheckParameters& parameters,double& body,double& wrist,int& bad){
+    const double* p=parameters.p;
+    if(!isfinite(point.x)||!isfinite(point.y)||!isfinite(point.z)||fmaxf(fabsf(point.x),fmaxf(fabsf(point.y),fabsf(point.z)))>100.f){bad=1;return;}
+    float3 rf=make_float3(__fsub_rn(point.x,(float)p[0]),__fsub_rn(point.y,(float)p[1]),__fsub_rn(point.z,(float)p[2]));
+    double x=parameters.flags&1?(double)rf.x:(double)point.x-p[0];
+    double y=parameters.flags&1?(double)rf.y:(double)point.y-p[1];
+    double z=parameters.flags&1?(double)rf.z:(double)point.z-p[2];
+    for(int side=0;side<2;side++){
+        const double* frame=p+6+9*side;const double* box=p+24+6*side;const double* orientation=p+36+9*side;
+        double lx=bodyDot(frame,x,y,z)-box[0],ly=bodyDot(frame+3,x,y,z)-box[1],lz=bodyDot(frame+6,x,y,z)-box[2];
+        double depth=INFINITY;
+        for(int k=0;k<3;k++)depth=fmin(depth,box[3+k]-fabs(bodyDot(orientation+3*k,lx,ly,lz)));
+        body=fmax(body,depth);
+    }
+    double radial;
+    if((parameters.flags&3)==3){
+        float along=bodyFloatDot(rf,p+3);along=fminf((float)p[55],fmaxf(-(float)p[54],along));
+        float dx=__fsub_rn(rf.x,__fmul_rn(along,(float)p[3])),dy=__fsub_rn(rf.y,__fmul_rn(along,(float)p[4])),dz=__fsub_rn(rf.z,__fmul_rn(along,(float)p[5]));
+        radial=(double)__fsqrt_rn(__fadd_rn(__fadd_rn(__fmul_rn(dx,dx),__fmul_rn(dy,dy)),__fmul_rn(dz,dz)));
+    }else{
+        double along=fmin(p[55],fmax(-p[54],bodyDot(p+3,x,y,z)));
+        double dx=x-along*p[3],dy=y-along*p[4],dz=z-along*p[5];radial=sqrt(dx*dx+dy*dy+dz*dz);
+    }
+    wrist=fmax(wrist,p[56]-radial);
+}
+__global__ void k_CurrentSurfaceBodyCheck(int triangles,const float3* positions,BodyCheckParameters parameters,BodyCheckResult* result){
+    int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=triangles)return;
+    float3 a=positions[3*t],b=positions[3*t+1],c=positions[3*t+2];double body=0,wrist=0;int bad=0;
+    bodyCheckPoint(a,parameters,body,wrist,bad);bodyCheckPoint(b,parameters,body,wrist,bad);bodyCheckPoint(c,parameters,body,wrist,bad);
+    bodyCheckPoint(bodyMean(a,b,c),parameters,body,wrist,bad);
+    bodyCheckPoint(bodyMid(a,b),parameters,body,wrist,bad);bodyCheckPoint(bodyMid(b,c),parameters,body,wrist,bad);bodyCheckPoint(bodyMid(c,a),parameters,body,wrist,bad);
+    if(body>0)atomicMax(reinterpret_cast<unsigned long long*>(&result->body),(unsigned long long)__double_as_longlong(body));
+    if(wrist>0)atomicMax(reinterpret_cast<unsigned long long*>(&result->wrist),(unsigned long long)__double_as_longlong(wrist));
+    if(bad)atomicExch(&result->unsupported,1);
+}
+static int bodyCheckCompute(int count,const float3* positions,const double* values,int flags,double* output){
+    if(count<=0||count%3||!positions||!values||!output||(flags&~3))return -10001;
+    BodyCheckParameters parameters;for(int i=0;i<57;i++){if(!std::isfinite(values[i])||fabs(values[i])>100.)return 1;parameters.p[i]=values[i];}parameters.flags=flags;
+    if(values[54]<0||values[55]<0||values[56]<0)return 1;
+    cudaError_t e=bodyCheckEnsure();if(e!=cudaSuccess)return -(int)e;
+    e=cudaMemset(d_bodyCheckResult,0,sizeof(BodyCheckResult));if(e!=cudaSuccess)return -(int)e;
+    k_CurrentSurfaceBodyCheck<<<(count/3+127)/128,128>>>(count/3,positions,parameters,d_bodyCheckResult);
+    e=cudaGetLastError();if(e!=cudaSuccess)return -(int)e;
+    BodyCheckResult result;e=cudaMemcpy(&result,d_bodyCheckResult,sizeof(result),cudaMemcpyDeviceToHost);if(e!=cudaSuccess)return -(int)e;
+    if(result.unsupported)return 1;output[0]=result.body;output[1]=result.wrist;return 0;
+}
+int recon_current_body_depth(int expected,const double* parameters,int flags,double* output){
+    int count=0;int code=recon_get_counts(&count,nullptr);if(code)return code;if(count!=expected)return -10002;
+    return bodyCheckCompute(count,d_expandPos,parameters,flags,output);
+}
+int recon_test_body_depth(int count,const float* positions,const double* parameters,int flags,double* output){
+    if(count<=0||count%3||count>(1<<20)||!positions)return -10001;float3* copy=nullptr;
+    cudaError_t e=(::cudaMalloc)(reinterpret_cast<void**>(&copy),(size_t)count*sizeof(float3));
+    if(e==cudaSuccess)e=cudaMemcpy(copy,positions,(size_t)count*sizeof(float3),cudaMemcpyHostToDevice);
+    int code=e==cudaSuccess?bodyCheckCompute(count,copy,parameters,flags,output):-(int)e;
+    if(copy)(::cudaFree)(copy);return code;
+}

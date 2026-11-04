@@ -1,0 +1,28 @@
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -375,12 +375,14 @@
+     // push tissue through the opposite face on the next substep.
+     // Retain the incident side only for the same voxel, cut mask AND component.
+     // The actual material witness is rebuilt below from current vertex weights.
+-    SurfaceContact retained;bool keep=body && contacts[slot].count>0;
++    // Capsules use their preload plane or a fresh trace below. Only boxes use
++    // this retained plane; computing it for a capsule cannot affect the result.
++    SurfaceContact retained;bool keep=body && !to.capsule && contacts[slot].count>0;
+     for(int k=0;k<3 && keep;k++)keep=vertices[3*t+k].count>0 &&
+         contacts[slot].component[k]==vertices[3*t+k].component &&
+         contacts[slot].owner[k]==vertices[3*t+k].voxel && contacts[slot].mask[k]==vertices[3*t+k].mask;
+     if(keep)retained=contacts[slot];
+-    if(!keep && body && cacheSlots && cache && cacheComponents){
++    if(!keep && body && !to.capsule && cacheSlots && cache && cacheComponents){
+         uint3 key[3];bool valid=true;
+         for(int k=0;k<3;k++){const SurfaceVertex& v=vertices[3*t+k];valid=valid && v.count>0;key[k]=make_uint3(v.voxel,v.mask,v.component+1);}
+         if(valid){
+@@ -391,7 +393,7 @@
+             }
+         }
+     }
+-    if(!keep && body && cacheSlots && cache && !cacheComponents){
++    if(!keep && body && !to.capsule && cacheSlots && cache && !cacheComponents){
+         int key[3];bool intact=true;
+         for(int k=0;k<3;k++){const SurfaceVertex& v=vertices[3*t+k];key[k]=v.voxel;intact=intact && v.count>0 && v.component<0 && v.mask==0;}
+         if(intact){

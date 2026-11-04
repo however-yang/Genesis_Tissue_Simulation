@@ -1,0 +1,37 @@
+{
+  "spec": {
+    "schema": "tissue_experiment_v1",
+    "purpose": "collection",
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/native-s25/build/lib/libLiverCudaSim.so",
+    "dll_sha256": "3950d6219d57bb9a7bd8770c62365c08590662cb10688f94d939705195645f4c",
+    "episode_timeout_s": 240,
+    "episodes": [
+      {
+        "id": "queue-smoke",
+        "seed": 0,
+        "scene": "wall-traction",
+        "preparation": "settled",
+        "steps": 3,
+        "outcome_semantics": "physical_outcome_v1",
+        "fast_topology_checks": true,
+        "policy": {
+          "kind": "hold",
+          "observation_contract": "tool_kinematics_v1"
+        }
+      }
+    ]
+  },
+  "case": {
+    "id": "queue-smoke",
+    "seed": 0,
+    "scene": "wall-traction",
+    "preparation": "settled",
+    "steps": 3,
+    "outcome_semantics": "physical_outcome_v1",
+    "fast_topology_checks": true,
+    "policy": {
+      "kind": "hold",
+      "observation_contract": "tool_kinematics_v1"
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "series": [
+    {
+      "name": "baseline-a1",
+      "steps": 1110,
+      "core_ms": 42.965383153054276,
+      "pipeline_ms": 56.80153378388249,
+      "stages": {
+        "settle": 33.69802333181724,
+        "approach": 34.06982999812398,
+        "bite": 35.99773999820981,
+        "close": 41.689697781112045,
+        "lift": 41.30570583511144,
+        "blade_approach": 42.68680750101339,
+        "incise_1": 51.03920867006915,
+        "open_1": 48.80339667045822,
+        "reposition_2": 45.31104999672001,
+        "incise_2": 45.852199331469215,
+        "withdraw": 41.68458833203962,
+        "release": 42.07081110734079,
+        "extract": 42.11159066762775,
+        "hold": 42.30436999350786
+      }
+    },
+    {
+      "name": "indexed-b1",
+      "steps": 1110,
+      "core_ms": 43.33874837784852,
+      "pipeline_ms": 62.205419909819405,
+      "stages": {
+        "settle": 33.97468333326591,
+        "approach": 33.579276664467116,
+        "bite": 35.5561177776609,
+        "close": 42.52504888896106,
+        "lift": 41.133329997925706,
+        "blade_approach": 42.86717250215588,
+        "incise_1": 52.34147600053499,
+        "open_1": 51.23769333392071,
+        "reposition_2": 47.644688327757954,
+        "incise_2": 45.96648400028547,
+        "withdraw": 41.93987500135942,
+        "release": 41.80495333340433,
+        "extract": 42.046562663745135,
+        "hold": 42.04720999502266
+      }
+    },
+    {
+      "name": "indexed-b2",
+      "steps": 1110,
+      "core_ms": 43.4148297284369,
+      "pipeline_ms": 58.10378504505901,
+      "stages": {
+        "settle": 33.7158699966191,
+        "approach": 33.658281105130705,
+        "bite": 35.97745111005174,
+        "close": 42.098337780529015,
+        "lift": 41.33742749642503,
+        "blade_approach": 43.14716749940999,
+        "incise_1": 52.51933933740171,
+        "open_1": 50.50864999454158,
+        "reposition_2": 47.48187333364816,
+        "incise_2": 46.30556732959425,
+        "withdraw": 42.104204166389536,
+        "release": 41.50210888797624,
+        "extract": 41.61852266484251,
+        "hold": 42.292706664496414
+      }
+    },
+    {
+      "name": "baseline-a2",
+      "steps": 1110,
+      "core_ms": 99.57224342317598,
+      "pipeline_ms": 112.29929630628888,
+      "stages": {
+        "settle": 33.81237000382195,
+        "approach": 33.99349777868742,
+        "bite": 36.07519555112554,
+        "close": 41.782180001286584,
+        "lift": 41.67928416378951,
+        "blade_approach": 42.5639749984839,
+        "incise_1": 52.30684133595787,
+        "open_1": 48.74544666381553,
+        "reposition_2": 44.697094993898645,
+        "incise_2": 151.29547799859816,
+        "withdraw": 218.72935250091055,
+        "release": 209.7989511106991,
+        "extract": 211.68586533904696,
+        "hold": 219.63930999821363
+      }
+    }
+  ],
+  "decision": "Not adopted. Do not use the ABBA mean as a speedup: baseline-a2 becomes persistently slow after the second incision. Cause unconfirmed; anomaly retained. Ordinary-stage comparison does not establish a speed gain."
+}

@@ -1,0 +1,163 @@
+{
+  "schema": "tissue_experiment_result_v1",
+  "spec_sha256": "6de867466edf1bc6a7b8e432f6fe74d3996e9d3eafddad53143f06e831dddba5",
+  "episodes": [
+    {
+      "id": "queue-smoke",
+      "seed": 0,
+      "group": "bfc950bbb5028c8631ceb78b6d8c0de2617f6f0da652cb90ff4930be20da5247",
+      "status": "recorded",
+      "training_domain_approved": false,
+      "config": {
+        "dll_path": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/native-s25/build/lib/libLiverCudaSim.so",
+        "dll_sha256": "3950d6219d57bb9a7bd8770c62365c08590662cb10688f94d939705195645f4c",
+        "bounds": {
+          "lower": [
+            -0.021500000000000002,
+            0.0315,
+            -0.0005,
+            0.0,
+            0.033600000000000005,
+            0.009968,
+            0.0378,
+            -0.03490658503988659,
+            1.53588974175501,
+            -0.9948376736367679,
+            0.0
+          ],
+          "upper": [
+            -0.0205,
+            0.0325,
+            0.0005,
+            0.0,
+            0.034600000000000006,
+            0.010968,
+            0.0388,
+            0.03490658503988659,
+            1.6057029118347832,
+            -0.9250245035569946,
+            1.0
+          ],
+          "max_rate": [
+            0.002,
+            0.002,
+            0.002,
+            0.0,
+            0.002,
+            0.002,
+            0.002,
+            0.08726646259971647,
+            0.08726646259971647,
+            0.08726646259971647,
+            1.0
+          ]
+        },
+        "scene": {
+          "scene": "wall-traction",
+          "preparation": "settled",
+          "contact_model": null,
+          "dt_s": null,
+          "substeps": null,
+          "spacing_scale": 1.0,
+          "physics": null,
+          "geometry": null
+        },
+        "cutting_enabled": false,
+        "max_steps": 3,
+        "full_surface_checks": true,
+        "diagnostic_continue": false,
+        "limits": {
+          "max_displacement_m": 0.06,
+          "max_body_overlap_m": 0.0002,
+          "max_estimated_speed_m_s": 2.0
+        },
+        "failure_telemetry": false,
+        "outcome_semantics": "physical_outcome_v1",
+        "instrument_collision_checks": false,
+        "fast_topology_checks": true
+      },
+      "split": "train",
+      "collect_wall_s": 1.2643754419405013,
+      "transitions": 3,
+      "states": 4,
+      "reason": "time_limit",
+      "outcomes": {
+        "valid_transitions": 3,
+        "invalid_transitions": 0,
+        "damage_terminals": 0,
+        "scope_terminals": 0
+      },
+      "reset_wall_ms": 7915.012350073084,
+      "policy": {
+        "observation": {
+          "name": "tool_kinematics_v1",
+          "visual_tracking": false,
+          "position_source": "slew_limited_policy_target",
+          "force_sensor_required": false,
+          "privileged_fields_separate": true
+        },
+        "implementation": "tissue_policy_v1",
+        "configuration": {
+          "kind": "hold",
+          "observation_contract": "tool_kinematics_v1"
+        },
+        "seed": 0,
+        "privileged_observation": false,
+        "policy_sha256": "da0b36be6e3152c5638e224d1795a42cb0d50f5c10ed8878f6c28473bd75a9d3"
+      },
+      "task_evaluated": false,
+      "task_success": false,
+      "task_failure": null,
+      "valid_reward_sum": null,
+      "valid_reward_transitions": 0,
+      "offline_reward_match": false,
+      "transitions_per_wall_second": 2.3727129620579688,
+      "timing_ms": {
+        "native_step": {
+          "mean": 25.010360637679696,
+          "p95": 27.60133205447346,
+          "max": 27.953592943958938
+        },
+        "quality_and_export": {
+          "mean": 29.20826803892851,
+          "p95": 34.36643406748772,
+          "max": 34.81669106986374
+        },
+        "snapshot": {
+          "mean": 6.300919999678929,
+          "p95": 10.299500671681017,
+          "max": 10.892029968090355
+        },
+        "surface_export": {
+          "mean": 1.8930796068161726,
+          "p95": 2.4403843795880675,
+          "max": 2.5180589873343706
+        },
+        "total": {
+          "mean": 61.64659202719728,
+          "p95": 69.41625321051106,
+          "max": 70.6360680051148
+        }
+      },
+      "wall_s": 9.287474137963727,
+      "worker_peak_rss_bytes": 458207232,
+      "supervised_wall_s": 12.48325241508428
+    }
+  ],
+  "summary": {
+    "attempted_episodes": 1,
+    "recorded_episodes": 1,
+    "task_evaluated_episodes": 0,
+    "task_successes": 0,
+    "success_fraction_of_all_attempts": 0.0,
+    "failures_and_timeouts": [],
+    "recorded_transitions": 3,
+    "outcomes": {
+      "valid_transitions": 3,
+      "invalid_transitions": 0,
+      "damage_terminals": 0,
+      "scope_terminals": 0
+    },
+    "training_domain_approved": false
+  }
+}

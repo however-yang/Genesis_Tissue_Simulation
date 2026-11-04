@@ -1,0 +1,302 @@
+{
+  "jobs": [
+    {
+      "name": "cpu-regression-v3",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v3-source/endoscopic_tissue/training",
+        "-t",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v3-source"
+      ],
+      "env": {}
+    },
+    {
+      "name": "alignment-v3",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/check_alignment_v3.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/alignment-v3"
+      ],
+      "env": {}
+    },
+    {
+      "name": "invariants-v2",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/probe_invariants_v2.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/invariants-v2",
+        "--gpu",
+        "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+        "--preparation",
+        "cut_ready",
+        "--cut",
+        "--randomized"
+      ],
+      "env": {}
+    },
+    {
+      "name": "replay-render-v2",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/check_replay_render.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/replay-render-v2"
+      ],
+      "env": {}
+    },
+    {
+      "name": "baseline-training-profile",
+      "argv": [
+        "/opt/nvidia/nsight-systems/2025.3.2/bin/nsys",
+        "profile",
+        "--trace=cuda,nvtx,opengl",
+        "--sample=none",
+        "--cpuctxsw=none",
+        "--capture-range=cudaProfilerApi",
+        "--capture-range-end=stop",
+        "--force-overwrite=true",
+        "--export=sqlite",
+        "--output=/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/baseline-training-profile-trace",
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/profile_v3.py",
+        "--source",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/baseline-source",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/baseline-training-profile",
+        "--profile",
+        "--vision",
+        "--count",
+        "8",
+        "--max-frames",
+        "478",
+        "--render-warmup",
+        "4",
+        "--cpus",
+        "7,19,20,25"
+      ],
+      "env": {}
+    },
+    {
+      "name": "final-profile",
+      "argv": [
+        "/opt/nvidia/nsight-systems/2025.3.2/bin/nsys",
+        "profile",
+        "--trace=cuda,nvtx,opengl",
+        "--sample=none",
+        "--cpuctxsw=none",
+        "--capture-range=cudaProfilerApi",
+        "--capture-range-end=stop",
+        "--cuda-graph-trace=node",
+        "--force-overwrite=true",
+        "--export=sqlite",
+        "--output=/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/final-profile-trace",
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/profile_v3.py",
+        "--source",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/final-profile",
+        "--gpu-postprocess",
+        "--cache-surface-layout",
+        "--profile",
+        "--count",
+        "8",
+        "--max-frames",
+        "478",
+        "--render-warmup",
+        "4",
+        "--cpus",
+        "7,19,20,25"
+      ],
+      "env": {}
+    },
+    {
+      "name": "final-labels-profile",
+      "argv": [
+        "/opt/nvidia/nsight-systems/2025.3.2/bin/nsys",
+        "profile",
+        "--trace=cuda,nvtx,opengl",
+        "--sample=none",
+        "--cpuctxsw=none",
+        "--capture-range=cudaProfilerApi",
+        "--capture-range-end=stop",
+        "--cuda-graph-trace=node",
+        "--force-overwrite=true",
+        "--export=sqlite",
+        "--output=/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/final-labels-profile-trace",
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/profile_v3.py",
+        "--source",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/final-labels-profile",
+        "--gpu-postprocess",
+        "--cache-surface-layout",
+        "--profile",
+        "--count",
+        "8",
+        "--max-frames",
+        "478",
+        "--render-warmup",
+        "4",
+        "--cpus",
+        "7,19,20,25",
+        "--labels"
+      ],
+      "env": {}
+    },
+    {
+      "name": "pool-baseline-1",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/pool_benchmark.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-baseline-1",
+        "--workers",
+        "1",
+        "--vision"
+      ],
+      "env": {
+        "PROFILE_POOL_SOURCE": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/baseline-source"
+      }
+    },
+    {
+      "name": "pool-baseline-2",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/pool_benchmark.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-baseline-2",
+        "--workers",
+        "2",
+        "--vision"
+      ],
+      "env": {
+        "PROFILE_POOL_SOURCE": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/baseline-source"
+      }
+    },
+    {
+      "name": "pool-final-1",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/pool_benchmark.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-final-1",
+        "--workers",
+        "1",
+        "--vision",
+        "--optimized"
+      ],
+      "env": {
+        "PROFILE_POOL_SOURCE": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source"
+      }
+    },
+    {
+      "name": "pool-final-2",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/pool_benchmark.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-final-2",
+        "--workers",
+        "2",
+        "--vision",
+        "--optimized"
+      ],
+      "env": {
+        "PROFILE_POOL_SOURCE": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source"
+      }
+    },
+    {
+      "name": "pool-physics-1",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/pool_benchmark.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-physics-1",
+        "--workers",
+        "1",
+        "--optimized"
+      ],
+      "env": {
+        "PROFILE_POOL_SOURCE": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source"
+      }
+    },
+    {
+      "name": "pool-physics-2",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/pool_benchmark.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-physics-2",
+        "--workers",
+        "2",
+        "--optimized"
+      ],
+      "env": {
+        "PROFILE_POOL_SOURCE": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source"
+      }
+    },
+    {
+      "name": "pool-final-2-trace",
+      "argv": [
+        "/opt/nvidia/nsight-systems/2025.3.2/bin/nsys",
+        "profile",
+        "--cuda-graph-trace=node",
+        "--trace=cuda,nvtx,opengl",
+        "--sample=none",
+        "--cpuctxsw=none",
+        "--capture-range=nvtx",
+        "--nvtx-capture=pool-measure",
+        "--capture-range-end=stop",
+        "--force-overwrite=true",
+        "--export=sqlite",
+        "--output=/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-final-2-trace",
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/pool_benchmark.py",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/pool-final-2-trace",
+        "--workers",
+        "2",
+        "--vision",
+        "--optimized"
+      ],
+      "env": {
+        "PROFILE_POOL_SOURCE": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source",
+        "NSYS_NVTX_PROFILER_REGISTER_ONLY": "0"
+      }
+    },
+    {
+      "name": "baseline-rgbd-unbound",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/profile_v3.py",
+        "--source",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/baseline-source",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/baseline-rgbd-unbound"
+      ],
+      "env": {}
+    },
+    {
+      "name": "final-rgbd-unbound",
+      "argv": [
+        "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/tools/profile_v3.py",
+        "--source",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/candidate-v2-source",
+        "--output",
+        "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/results/final-rgbd-unbound",
+        "--gpu-postprocess",
+        "--cache-surface-layout"
+      ],
+      "env": {}
+    }
+  ]
+}

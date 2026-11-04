@@ -1,0 +1,112 @@
+--- R3/unified_vertex.cuh
++++ R9/unified_vertex.cuh
+@@ -1,3 +1,4 @@
++#include "vertex_cone_algebra.cuh"
+ #include "../../cutting/pressure_cut_state.cuh"
+ // Experimental primal vertex-block solver. Original implementation following
+ // Chen et al., Vertex Block Descent, SIGGRAPH 2024, sections 3 and 4.
+@@ -613,7 +614,7 @@
+     gradient=mkf3(v[0],v[1],v[2]);H={v[3],v[4],v[5],v[6],v[7],v[8]};
+ }
+ // The local solve of vertex i by the 32 lanes of a warp, which split its incident tets and edges.
+-template<bool AllowFragments=true> __device__ inline void unifiedVertexSolve(const UnifiedState& s,int i,int lane){
++template<bool AllowFragments=true,bool FeasibleVertex=false> __device__ inline void unifiedVertexSolve(const UnifiedState& s,int i,int lane){
+     float inv=s.invMass[i];
+     float3 p=s.pos[i],gradient=mkf3(0,0,0);Symmetric3 H={};
+     if(lane==0){
+@@ -678,6 +679,72 @@
+         if(dj<0)scale=fminf(scale,fmaxf(0.f,.9f*(J-s.minimum)/(-dj)));
+     }
+     for(int offset=16;offset;offset/=2)scale=fminf(scale,__shfl_xor_sync(0xffffffff,scale,offset));
++    // R9 experiment: a scalar J limiter can discard tangential descent when
++    // one incident tetrahedron is at its floor. Solve the SAME local quadratic
++    // under affine per-vertex J constraints. No material/contact parameter,
++    // attachment, time integration or position projection is changed.
++    if constexpr(FeasibleVertex){
++        if(scale<.25f && (s.degree[i]>0 || (s.secondary && s.secondary->degree[i]>0))){
++            float3 original=step*scale;
++            repair_cone::Plane planes[8];int selected[8],count=0;
++            repair_cone::Matrix matrix={H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
++            repair_cone::Vector g={gradient.x,gradient.y,gradient.z};
++            for(int pass=0;pass<8;pass++){
++                float worst=1.f,lower=0;float3 normal=mkf3(0,0,0);int chosen=2147483647;
++                for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=32){
++                    int t=s.incident[k];if(!s.live[t])continue;int id[4];unifiedTetIds(s,t,id);
++                    float3 a=s.pos[id[0]],u=s.pos[id[1]]-a,v=s.pos[id[2]]-a,w=s.pos[id[3]]-a;
++                    float det=unifiedKuhn(s,t).metric[6],J=dot3(u,cross3(v,w))*det;
++                    float3 g1=cross3(v,w),g2=cross3(w,u),g3=cross3(u,v);
++                    float3 n=(i==id[0]?(g1+g2+g3)*(-1.f):i==id[1]?g1:i==id[2]?g2:g3)*det;
++                    float margin=fmaxf(0.f,.9f*(J-s.minimum)),d=dot3(n,step);
++                    float alpha=d<0?fminf(1.f,margin/(-d)):1.f;
++                    if(alpha<worst || (alpha==worst && t<chosen)){
++                        worst=alpha;chosen=t;normal=n;lower=-margin;
++                    }
++                }
++                float bound=worst;
++                for(int o=16;o;o/=2)bound=fminf(bound,__shfl_xor_sync(0xffffffff,bound,o));
++                int owner=(worst==bound)?lane:32;
++                for(int o=16;o;o/=2)owner=min(owner,__shfl_xor_sync(0xffffffff,owner,o));
++                chosen=__shfl_sync(0xffffffff,chosen,owner);
++                normal=mkf3(__shfl_sync(0xffffffff,normal.x,owner),__shfl_sync(0xffffffff,normal.y,owner),__shfl_sync(0xffffffff,normal.z,owner));
++                lower=__shfl_sync(0xffffffff,lower,owner);
++                int done=bound>=.99999f;
++                if(lane==0 && !done){
++                    for(int j=0;j<count;j++)if(selected[j]==chosen)done=1;
++                    double length=sqrt(double(normal.x)*normal.x+double(normal.y)*normal.y+double(normal.z)*normal.z);
++                    if(!(length>0))done=1;
++                    if(!done){
++                        selected[count]=chosen;planes[count++]={{normal.x/length,normal.y/length,normal.z/length},lower/length};
++                        repair_cone::Vector best;
++                        if(repair_cone::solve(matrix,g,planes,count,best))step=mkf3(best.x,best.y,best.z);
++                        else done=1;
++                    }
++                }
++                done=__shfl_sync(0xffffffff,done,0);
++                step=mkf3(__shfl_sync(0xffffffff,step.x,0),__shfl_sync(0xffffffff,step.y,0),__shfl_sync(0xffffffff,step.z,0));
++                if(done)break;
++            }
++            // Recheck ALL live incident tets, including constraints outside the
++            // bounded eight-plane search. Preserve the original safety factor.
++            float safe=1.f;
++            for(int k=s.offsets[i]+lane;k<s.offsets[i+1];k+=32){
++                int t=s.incident[k];if(!s.live[t])continue;int id[4];unifiedTetIds(s,t,id);
++                float3 a=s.pos[id[0]],u=s.pos[id[1]]-a,v=s.pos[id[2]]-a,w=s.pos[id[3]]-a;
++                float det=unifiedKuhn(s,t).metric[6],J=dot3(u,cross3(v,w))*det;
++                float3 g1=cross3(v,w),g2=cross3(w,u),g3=cross3(u,v);
++                float3 n=(i==id[0]?(g1+g2+g3)*(-1.f):i==id[1]?g1:i==id[2]?g2:g3)*det;
++                float d=dot3(n,step);
++                if(d<0)safe=fminf(safe,fmaxf(0.f,.9f*(J-s.minimum)/(-d)));
++            }
++            for(int o=16;o;o/=2)safe=fminf(safe,__shfl_xor_sync(0xffffffff,safe,o));
++            float3 trial=step*safe;
++            double oldCost=repair_cone::energy(matrix,g,{original.x,original.y,original.z});
++            double newCost=repair_cone::energy(matrix,g,{trial.x,trial.y,trial.z});
++            step=isfinite(newCost) && newCost<=oldCost?trial:original;scale=1.f;
++        }
++    }
+     // Same-color vertices share neither a lattice tetrahedron nor an axial
+     // cut-rim edge. Embedded interactions were assembled before this kernel,
+     // so each vertex can commit directly without a second whole-grid pass.
+@@ -685,9 +752,9 @@
+ }
+ // Solves the vertices of one lattice color listed by k_SweepSites, one warp per vertex: with one thread per vertex, a
+ // color's few thousand threads leave most of the GPU idle while each walks its tets in turn.
+-template<bool AllowFragments=true> __global__ void k_UnifiedVertex(const UnifiedState* state,const int* sites,const int* count){
++template<bool AllowFragments=true,bool FeasibleVertex=false> __global__ void k_UnifiedVertex(const UnifiedState* state,const int* sites,const int* count){
+     const UnifiedState& s=*state;int lane=threadIdx.x%32,warps=gridDim.x*blockDim.x/32;
+-    for(int k=(blockIdx.x*blockDim.x+threadIdx.x)/32;k<*count;k+=warps)unifiedVertexSolve<AllowFragments>(s,sites[k],lane);
++    for(int k=(blockIdx.x*blockDim.x+threadIdx.x)/32;k<*count;k+=warps)unifiedVertexSolve<AllowFragments,FeasibleVertex>(s,sites[k],lane);
+ }
+ __global__ void k_UnifiedTool(UnifiedState* state){
+     UnifiedState& s=*state;CoupledTool& b=*s.tool;
+--- R3/xpbd_solver.cu
++++ R9/xpbd_solver.cu
+@@ -3196,7 +3196,7 @@
+             k_SweepSites<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,SweepRepair,sites,d_sweepSites,d_sweepCount);
+             for(int c=0;c<8;c++){
+                 k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);k_AssembleFragmentInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);
+-                k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);
++                k_UnifiedVertex<true,true><<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);
+             }
+             k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);
+             // Fracture has already consumed this substep's actual blade sweep.

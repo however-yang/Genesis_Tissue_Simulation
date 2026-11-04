@@ -1,0 +1,19 @@
+import json,subprocess,time
+from pathlib import Path
+p=Path(__file__).resolve().parents[1];py='/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python';m=json.loads((p/'manifest.json').read_text());h=p/'tools/profile_coarse.py';dll=p/'native-coarse/build/lib/libLiverCudaSim.so'
+assert json.loads((p/'results/querythreads-selection.json').read_text())['runs'][-1]['completed']
+base=[py,str(h),'--source',m['baseline_source'],'--dll',str(dll),'--cpus','7,19,20,25','--query-mode','1','--query-threads','128','--assembly-blocks','128','--manifold-blocks','1024','--gpu-topology']
+def run(name,flags):
+ args=base+['--output',str(p/'results'/name)]+flags
+ with (p/'coarse-commands.jsonl').open('a') as f:f.write(json.dumps(dict(name=name,argv=args))+'\n')
+ print('START',name,flush=True)
+ with (p/'logs'/str(name+'.txt')).open('w') as f:r=subprocess.run(args,stdout=f,stderr=subprocess.STDOUT)
+ d=json.loads((p/'results'/name/'result.json').read_text());print('END',name,r.returncode,{k:d.get(k) for k in ['completed','quality_passed','performance','native_validation','coarse_validation','error']},flush=True)
+ if r.returncode:raise SystemExit(r.returncode)
+ return d
+validation=run('coarse-captured-validation',['--no-render','--exact-zero-coarse','--validate-native','--start','470','--count','4','--max-frames','474'])
+assert validation['coarse_validation']['passed'] and validation['native_validation']['passed']
+flags=['--vision','--gpu-postprocess','--gpu-aligned-depth','--fused-mesh','--persistent-soup','--direct-rgb','--opencv-threads','1']
+control=run('coarse-control-rgbd',flags)
+candidate=run('coarse-exact-zero-rgbd',flags+['--exact-zero-coarse'])
+(p/'results/coarse-selection.json').write_text(json.dumps(dict(validation_passed=True,control={k:control.get(k) for k in ['completed','quality_passed','performance']},candidate={k:candidate.get(k) for k in ['completed','quality_passed','performance']}),indent=2))

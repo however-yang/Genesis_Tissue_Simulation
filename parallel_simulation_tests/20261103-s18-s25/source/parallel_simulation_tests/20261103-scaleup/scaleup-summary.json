@@ -1,0 +1,202 @@
+{
+  "32": {
+    "attempted": 32,
+    "completed_full_episodes": 32,
+    "passed_full_episodes": 31,
+    "aggregate_all_steps_s": 71.6717929802455,
+    "aggregate_steps_from_accepted_episodes_s": 69.43204944961282,
+    "effective_episodes_hour": 173.58012362403207,
+    "mean_per_env_steps_s": 2.2661120135641717,
+    "peak_gpu_mib": 59229.0,
+    "mean_gpu_percent": 96.36328125,
+    "duration_s": 642.9307553768158,
+    "failed_episodes": [
+      {
+        "path": "runs/m32a/worker-014/episode-000/result.json",
+        "failure_steps": [
+          {
+            "tick": 1124,
+            "stage": "incise_3",
+            "quality": {
+              "checked_metrics_passed": false,
+              "numerical_failure_reasons": [
+                "surface_topology_failure"
+              ],
+              "scope_failure_reasons": [],
+              "within_declared_local_scope": true,
+              "unchecked": [
+                "true_curved_edge_pointwise_cut_correspondence",
+                "internal_solver_residual",
+                "free_fragment_continuous_collision",
+                "task_region_cut_completion",
+                "friction_grasp_task_success"
+              ],
+              "metrics": {
+                "min_volume_ratio": 0.15001551806926727,
+                "invalid_tets": 0,
+                "max_displacement_m": 0.005396606866270304,
+                "max_estimated_speed_m_s": 0.009851910173892975,
+                "new_cut_edges": 1,
+                "healed_edges": 0,
+                "unexpected_neighbor_changes": 0,
+                "material_components": 1,
+                "blade_body_overlap_m": 0.0,
+                "wrist_overlap_m": 0.0,
+                "surface_topology": {
+                  "triangles": 15286,
+                  "wall_triangles": 240,
+                  "degenerate_triangles": 0,
+                  "positional_boundary_edges": 0,
+                  "positional_nonmanifold_edges": 1,
+                  "duplicate_triangles": 0,
+                  "winding_consistent": true,
+                  "wall_bounds_native_mm": [
+                    [
+                      7.095761299133301,
+                      8.318305015563965,
+                      14.721898078918457
+                    ],
+                    [
+                      24.775291442871094,
+                      12.746563911437988,
+                      20.88079833984375
+                    ]
+                  ],
+                  "wall_extent_mm_not_incision_depth": [
+                    17.679529190063477,
+                    4.428258895874023,
+                    6.158901214599609
+                  ]
+                }
+              },
+              "training_domain_approved": false
+            }
+          }
+        ]
+      }
+    ],
+    "long_duration_stability_certified": false
+  },
+  "64": {
+    "attempted": 64,
+    "imports_ready": 64,
+    "full_episodes": 0,
+    "complete": false,
+    "peak_gpu_mib": 76988.0,
+    "worker_error_groups": {
+      "RuntimeError: LCS_Step failed with native status -2": [
+        "worker-002",
+        "worker-003",
+        "worker-004",
+        "worker-006",
+        "worker-010",
+        "worker-012",
+        "worker-023",
+        "worker-027",
+        "worker-039",
+        "worker-041",
+        "worker-043",
+        "worker-045",
+        "worker-046",
+        "worker-053"
+      ],
+      "RuntimeError: LCS_Init failed with native status -46": [
+        "worker-011",
+        "worker-015",
+        "worker-019",
+        "worker-024",
+        "worker-025",
+        "worker-026",
+        "worker-031",
+        "worker-034",
+        "worker-035",
+        "worker-040",
+        "worker-042",
+        "worker-054",
+        "worker-056",
+        "worker-057",
+        "worker-060",
+        "worker-062"
+      ]
+    },
+    "observed_mps_client_limit": 48,
+    "mps_limit_evidence": "mps/m64a/l/server.log: Maximum number of clients (48) reached.",
+    "cuda_status_interpretation": {
+      "-2": "negative cudaErrorMemoryAllocation; allocation failure",
+      "-46": "negative cudaErrorDevicesUnavailable; MPS server rejected extra clients"
+    },
+    "status": "RuntimeError('A worker crashed; retaining all results')",
+    "result_files": 64,
+    "completed_short_settles": 34,
+    "not_a_64_environment_throughput_measurement": true
+  },
+  "recovery": {
+    "duration_s_including_reset_checks_and_output": 14.279216527938843,
+    "workers": 1,
+    "complete": true,
+    "expected_episodes": 2,
+    "recorded_episodes": 2,
+    "passed_full_episodes": 0,
+    "failed_or_partial_episodes": 2,
+    "aggregate_steps_s": 4.201911210086594,
+    "valid_episodes_per_hour": 0.0,
+    "worker_rates": [
+      {
+        "name": "worker-000",
+        "steps": 60,
+        "steps_s": 5.148944796525847,
+        "completed": true
+      }
+    ],
+    "timings_ms": {},
+    "gpu_memory_mib": {
+      "mean": 938.5,
+      "median": 630.0,
+      "p95": 1864.0,
+      "max": 1864.0
+    },
+    "gpu_utilization_percent": {
+      "mean": 6.833333333333333,
+      "median": 4.0,
+      "p95": 18.0,
+      "max": 18.0
+    },
+    "gpu_memory_utilization_percent": {
+      "mean": 0.3333333333333333,
+      "median": 0.0,
+      "p95": 1.0,
+      "max": 1.0
+    },
+    "host_cpu_percent": {
+      "mean": 76.88333333333334,
+      "median": 77.9,
+      "p95": 86.4,
+      "max": 86.4
+    },
+    "summed_worker_rss_mib": {
+      "mean": 238.08333333333334,
+      "median": 322.83984375,
+      "p95": 332.4140625,
+      "max": 332.4140625
+    },
+    "results": [
+      {
+        "path": "runs/post64-reset/worker-000/episode-000/result.json",
+        "passed": true,
+        "full_script": false,
+        "quality_failures": 0,
+        "scope_failures": 0,
+        "snips": {}
+      },
+      {
+        "path": "runs/post64-reset/worker-000/episode-001/result.json",
+        "passed": true,
+        "full_script": false,
+        "quality_failures": 0,
+        "scope_failures": 0,
+        "snips": {}
+      }
+    ]
+  },
+  "scope": "Same pinned wall/three-snips physics and acceptance as prior study; CPU/shared-server load not controlled; 32 workers had one rejected episode."
+}

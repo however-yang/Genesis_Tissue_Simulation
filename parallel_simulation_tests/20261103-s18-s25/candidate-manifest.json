@@ -1,0 +1,100 @@
+{
+  "schema": "s18_s25_candidate_handoff_v1",
+  "accepted": false,
+  "physics_or_interaction_nonregression_certified": false,
+  "rendering_inclusive_20hz_passed": false,
+  "native_sha256": "3950d6219d57bb9a7bd8770c62365c08590662cb10688f94d939705195645f4c",
+  "base_commit": "ebbfa5afe2110b4103c847f2f8bd26c680adf4c8",
+  "tests": {
+    "training_cpu": 116,
+    "core_cpu": 20,
+    "performance_gate_cpu": 6
+  },
+  "evidence": {
+    "results/pool-two-workers-02/result.json": {
+      "sha256": "8a33164640fafadf274a958466bb27a986d9c862a7717ca6061011531d19a2a3",
+      "completed": true,
+      "passed": null,
+      "scope": "two real workers, typed reset, five cached Python-state restores, lineage and isolation; native byte equality checked separately",
+      "phase": null
+    },
+    "results/diagnostics-01/s25-cut-randomized/attempt-000/probe/result.json": {
+      "sha256": "106185b59bb0a3d284df839d470b8d12fd7e6c690addae7564d5b726607c03d4",
+      "completed": true,
+      "passed": true,
+      "scope": "single-state actual CUDA readback and five pool-session restores; not C1-C5, multiprocess or 20Hz acceptance",
+      "phase": null
+    },
+    "results/remaining-probes-02/s18-lift-assisted/attempt-000/probe/result.json": {
+      "sha256": "50f1b491a01435a4a3e4f740120208674140019084e7ee13c137e9ca0a5a9b9e",
+      "completed": true,
+      "passed": true,
+      "scope": "one settled-tip bite then original-target lift pilot, not C1-C5 or integrated reset",
+      "phase": null
+    },
+    "results/coupling-dose-pilot-01/result.json": {
+      "sha256": "aa10e05bb1d7929d6d5ba889d163f588de1ad25a657ae69c009b790b3004c578",
+      "completed": false,
+      "passed": false,
+      "scope": "one assisted geometry screening: 0/4 mm added pull, not registered C1, no repetitions or CI, not calibrated failure dose",
+      "phase": null
+    },
+    "results/remaining-probes-01/s19-dose-y/attempt-000/probe/result.json": {
+      "sha256": "53fd705e827ccebdde84a6b56cb82b02d20c3ddccd3ec952606b807507a17a3b",
+      "completed": true,
+      "passed": false,
+      "scope": "one tear=2 4 mm controlled pull, not calibration",
+      "phase": null
+    },
+    "results/remaining-probes-02/s19-dose-z/attempt-000/probe/result.json": {
+      "sha256": "83790c78dad0e2932b4c2e19ece05c87a3d54f79df69ddb262d7fd81ee5c49a2",
+      "completed": true,
+      "passed": false,
+      "scope": "one tear=2 4 mm controlled pull, not calibration",
+      "phase": null
+    },
+    "queue/job-87bac15a65a2499fbbf1abcafdef1024/status.json": {
+      "sha256": "aa1374b0be58356f0688e39e65a74753ed2d80fc1b9086a4294ac0ffd98f20ae",
+      "completed": null,
+      "passed": null,
+      "scope": null,
+      "phase": "execution_complete"
+    }
+  },
+  "source_sha256": {
+    "endoscopic_tissue/rendering.py": "310875b24d61cd91f27b644e1a9f4c628855769f91d9edef39c9ed000bfca810",
+    "endoscopic_tissue/training/acceptance_queue.py": "92b0e591bc71cb8ec02b20845f21381fa7b67577c5f9fa44a2c6aa1022418179",
+    "endoscopic_tissue/training/data.py": "fb3273e6dbd9dc74da6e141d8ac3da855583833b84a3a50c9529ea63225a6c4e",
+    "endoscopic_tissue/training/egl_device.py": "99f8a57b4f5b93f32d747c826602964ef2b67224dc72d4430b2c14e55cd0f2ca",
+    "endoscopic_tissue/training/env.py": "3e749afeddb0d3d765bcd24268ab2435695412680db74643c604b3ff8b47d957",
+    "endoscopic_tissue/training/experiment.py": "5a54a7848a100e13177315c761e454df24a0367727e5da8c554743402e6d9881",
+    "endoscopic_tissue/training/geometry.py": "1df7cb2de30c079ec34e88b1a20bd30553d44ac192ff53fe82af2927a8f44f7d",
+    "endoscopic_tissue/training/instrument_collision.py": "e81bb5af71ada29bf7f3f474b80ca3361cd22c0ec8549da5b3838c5fdd4c074b",
+    "endoscopic_tissue/training/outcomes.py": "5bc9570d1151488cf4e94492083457024f816a7e16a099cae48a37cb18140c51",
+    "endoscopic_tissue/training/parallel.py": "e760adda51b67e0ec7b03a2d8da34f51b23f40d40bf0086e9f8302edc6f10efa",
+    "endoscopic_tissue/training/pixel_labels.py": "6727e4f64e61d3bcb7701c9e22ad9e26032008ffa4382d589b53c422197a49cb",
+    "endoscopic_tissue/training/policies.py": "bfbaee005cbc9ef4b6c963ed32fc97a92446edd0467a72c97a214da160a6eaa8",
+    "endoscopic_tissue/training/pool_session.py": "fda4930d547ddeca16ca9eb5541e906b7223d01e6d8160765b79060ef35ffe4f",
+    "endoscopic_tissue/training/prepared_snapshot.py": "3d586feaa232eab10d6f3efcf7b7ad467f16343c9f81e42a226ee8eab539d487",
+    "endoscopic_tissue/training/quality.py": "5d834385b7681b0f49e2c2ffe9a91e46a58ca2368813e5ac422bad1cdf22b1fe",
+    "endoscopic_tissue/training/resources.py": "37a3ac986d1577d5d950c06d93c14da16b892e36bb390e3eea37528c4f9cc028",
+    "endoscopic_tissue/training/server_queue.py": "5e2dc5f5c4dd4f13d823a904491d3bcd29f32d81d2f6f4519d4fe338d110a1c1",
+    "endoscopic_tissue/training/snapshot.py": "580411b1bd101ddd27d0a34ff90a267a7d012da29759f15f49a305f30faf1217",
+    "endoscopic_tissue/training/tasks.py": "0ceffdbfee9f44c8c834f68de0972514be89989d8a368d88a54e33f6dfd8a7f6",
+    "endoscopic_tissue/training/test_extensions.py": "f3997cbf323c5524b15ea66683f29a30a542bc7adbc7ee8c9f4d46a30e54bdb7",
+    "endoscopic_tissue/training/topology_fast.py": "1ed5e094c23899a9812def365cfa5dffe39284d04c095332d4c374f3a717e021",
+    "endoscopic_tissue/training/topology_hash.py": "4e97ceb34137ad42fdca66d1cdadf59983b7c900bc496858fa4f1e15992e9e32",
+    "endoscopic_tissue/training/vision.py": "ced3c79b1c32b1f7d0ab5b91d377ba5cb89d14348d2791b8bac58b2de019544c",
+    "endoscopic_tissue/training/visual_labels.py": "b3f89fe808fc2461ab495ecfe5fbd6eb3f553844680633ad09ea5b70eb298066",
+    "endoscopic_tissue/training/visual_randomization.py": "0ee703f11d48e89053397b08153e2ded8f1be32814f8449038be8b78d8c251e6",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/README.md": "244e3af4828c03a9c3d3d1e0ed1ed9a9838793697c43fa789453c433b1f3578a",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/REPORT.md": "60ccb93dd92d528b3fed85bde82051b580b5accbf7c0c532818a7ec4c8dcce18",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/S24_ASSESSMENT.md": "ef86baaaa15d9f419f4dfc2c6fad5b2a2bceebd69f1af9e51b1b238472d9c589",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/adoption-gate.json": "7f21ad24982a4d16f56c7e294a51bc8c938edc013b0101b474e2b8e3eaf6a623",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/native-manifest.json": "69791b1abac7b9aced653ad94edc7c10afdbcf1a816c633de3d2fe86b3bf2d60",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/native-overlay/vendor/cuda/xpbd/labels_readback.cuh": "0e54c5d28441e384a053a545b76f51d5862457423af4a8f4604d44c3553d176c",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/native-overlay/vendor/cuda/xpbd/xpbd_solver.cu": "8592e610e838fb4a61157af6366efc5bcb79a389b65ea539dee812870782613d",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/performance-summary.csv": "570342a4c6a750e1019754aacfb7d7c1792703a43cd439cc22bef8d124145d61",
+    "parallel_simulation_tests/20261103-s18-s25-candidate/performance-summary.json": "00795dc595c7f713406a772a9347c0e47eec01d14baabdcbf219d6e00670d80a"
+  }
+}

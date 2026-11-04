@@ -1,0 +1,29 @@
+{
+  "schema": "interactive_frame_probe_v1",
+  "scope": "one accepted physics step and one fresh RGB-D render per frame; display/encoding not timed",
+  "source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/source",
+  "adapter_sha256": "3e749afeddb0d3d765bcd24268ab2435695412680db74643c604b3ff8b47d957",
+  "dll_sha256": "3950d6219d57bb9a7bd8770c62365c08590662cb10688f94d939705195645f4c",
+  "gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "scene": "wall-traction",
+  "features": true,
+  "render": {
+    "width": 1280,
+    "height": 960,
+    "supersample": 1,
+    "depth": true,
+    "render_every": 1
+  },
+  "fast_topology_checks": true,
+  "supervision": "separate monitoring thread, not timed as frame work",
+  "frames": [],
+  "completed": false,
+  "quality_passed": false,
+  "initialization_excluded": true,
+  "render_device_binding": {
+    "egl_index": 1,
+    "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+  },
+  "error": "RuntimeError('Selected GPU not idle, including graphics contexts')"
+}

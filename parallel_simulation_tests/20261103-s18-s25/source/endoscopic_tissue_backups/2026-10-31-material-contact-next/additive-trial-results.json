@@ -1,0 +1,67 @@
+[
+  {
+    "label": "diagnostic",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-material-contact-next\\check_additive.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\diagnostic-a3",
+      "--dll",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-additive31-accurate-probe\\LiverCudaSim.dll"
+    ],
+    "exit_code": 1
+  },
+  {
+    "label": "timing",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\run_batch.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-material-contact-next\\additive-timing-jobs.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "captures",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\run_batch.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-material-contact-next\\additive-capture-jobs.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "render-baseline",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\replay_single_blas.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\baseline-capture\\replay.bin",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\baseline-video"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "render-additive",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\replay_single_blas.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-capture\\replay.bin",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-video"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "compare",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-30-perf-opt\\make_review.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\baseline-video\\interactions.mp4",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-video\\interactions.mp4",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-review",
+      "ADDITIVE_MG"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "motion",
+    "args": [
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-wrist-opt\\review_motion.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\baseline-capture\\motion.jsonl",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-capture\\motion.jsonl",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\material-contact-next-20261031\\additive\\additive-review"
+    ],
+    "exit_code": 0
+  }
+]

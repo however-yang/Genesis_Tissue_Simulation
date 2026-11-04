@@ -1,0 +1,26 @@
+{
+  "native_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-all-queries-v2/source",
+  "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-all-queries-v2/build/lib/libLiverCudaSim.so",
+  "dll_sha256": "9300d14dd550d6be4240f1d5af68d121d9bbc7accb79488d2557ce85f6ba94f6",
+  "execution": {
+    "query_mode": 3,
+    "query_threads": 64,
+    "assembly_blocks": 512,
+    "manifold_blocks": 1024,
+    "compact_blocks": 0,
+    "bound_cache": true
+  },
+  "selected_for_final_verification": true,
+  "formal_physics_domain_approved": false,
+  "production_replaced": false,
+  "rejected": [
+    "grid-both256",
+    "coarse-exact-zero",
+    "existing-group-compaction",
+    "triangle-aabb-prefilter"
+  ],
+  "reason": "Dispatch batching plus exact adjacent-stage coarse-bound coefficient reuse",
+  "qualification_pending": false,
+  "harness": "profile_all_queries.py",
+  "local_validation_passed": true
+}

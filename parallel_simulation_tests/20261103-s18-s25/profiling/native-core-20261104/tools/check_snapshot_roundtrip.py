@@ -1,0 +1,44 @@
+"""Real cut-state snapshot/restore with GPU checks; does not assert future determinism."""
+import argparse,ctypes,os,sys,json,hashlib,traceback
+from pathlib import Path
+p=Path(__file__).resolve().parents[1];parser=argparse.ArgumentParser();parser.add_argument('--source',type=Path,required=True);parser.add_argument('--dll',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--compact-blocks',type=int,default=0);parser.add_argument('--query-mode',type=int,default=1);parser.add_argument('--query-threads',type=int,default=64);parser.add_argument('--assembly-blocks',type=int,default=128);parser.add_argument('--manifold-blocks',type=int,default=1024);parser.add_argument('--exact-zero-coarse',action='store_true');parser.add_argument('--gpu-topology',action='store_true');a=parser.parse_args();a.output.mkdir(exist_ok=False)
+os.sched_setaffinity(0,[7,19,20,25]);os.environ.update(CUDA_VISIBLE_DEVICES='GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa',PYTHONDONTWRITEBYTECODE='1',OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1',XDG_CACHE_HOME=str(a.output/'cache'));sys.path.insert(0,str(a.source))
+from endoscopic_tissue.training.env import NativeEnvironment,EnvironmentConfig,SceneConfig
+from endoscopic_tissue.training.collect import local_bounds
+from endoscopic_tissue.training.provenance import sha256
+from endoscopic_tissue.training.snapshot import SnapshotBackend,source_binding
+from endoscopic_tissue.training.acceptance_queue import GPUReservation
+from threadpoolctl import threadpool_limits
+result=dict(passed=False,future_trajectory_determinism_claimed=False);env=guard=None
+try:
+ guard=GPUReservation(os.environ['CUDA_VISIBLE_DEVICES'],a.output);scene=SceneConfig(preparation='cut_ready')
+ native=ctypes.CDLL(str(a.dll))
+ for symbol,args in [('LCS_SetQueryCompactBlocks',[a.compact_blocks]),('LCS_SetBatchQueryMode',[a.query_mode]),('LCS_SetNativeSchedule',[a.assembly_blocks,a.manifold_blocks]),('LCS_SetQueryThreads',[a.query_threads]),('LCS_SetExactZeroCoarse',[int(a.exact_zero_coarse)])]:
+  if hasattr(native,symbol):
+   fun=getattr(native,symbol);fun.argtypes=[ctypes.c_int]*len(args);fun.restype=ctypes.c_int;assert fun(*args)==0
+ with threadpool_limits(limits=1):
+  env=NativeEnvironment(EnvironmentConfig(str(a.dll),sha256(a.dll),local_bounds(scene),scene,cutting_enabled=True,max_steps=100,full_surface_checks=True,outcome_semantics='physical_outcome_v1',instrument_collision_checks=True,fast_topology_checks=True,**(dict(gpu_topology_checks=True) if a.gpu_topology else {})))
+  env.reset(7);action=env.previous_action.copy();action[10]=1.;cut=False
+  for _ in range(20):
+   guard({os.getpid()});t=env.step(action);assert t.after is not None and not t.terminated and not t.truncated,t.reason;cut|=any(e['kind']=='cut_onset' for e in t.after.metadata.get('events',[]))
+  assert cut,'Actual cut not exercised';saved=env.snapshot();backend=SnapshotBackend(env.native);before=hashlib.sha256(backend.save()).hexdigest();tick=env.native.tick
+  if a.gpu_topology:
+   from endoscopic_tissue.training.gpu_topology import topology_statistics
+   from endoscopic_tissue.training.topology_fast import topology_statistics_fast
+   for _ in range(3):assert topology_statistics(env.native,env.last_surface)==topology_statistics_fast(env.last_surface)
+   result['repeated_diagnostic_archive_unchanged']=before==hashlib.sha256(backend.save()).hexdigest();assert result['repeated_diagnostic_archive_unchanged']
+  for _ in range(4):
+   guard({os.getpid()});t=env.step(action);assert t.after is not None and not t.terminated and not t.truncated,t.reason
+  restored=env.restore(saved,branch_label='performance-private-workspace-roundtrip');after=hashlib.sha256(backend.save()).hexdigest();result['native_archive_restored_bit_exact']=before==after;assert result['native_archive_restored_bit_exact']
+  assert env.native.tick==tick
+  if a.gpu_topology:
+   assert topology_statistics(env.native,env.last_surface)==topology_statistics_fast(env.last_surface)
+   result['post_restore_diagnostic_archive_unchanged']=after==hashlib.sha256(backend.save()).hexdigest();assert result['post_restore_diagnostic_archive_unchanged']
+  t=env.step(action);assert t.after is not None and not t.terminated and not t.truncated,t.reason
+  result.update(passed=True,actual_cut_onset=cut,post_restore_step_checked_metrics_passed=t.after.metadata['quality']['checked_metrics_passed'],python_helper_binding=source_binding(),dll_sha256=sha256(a.dll))
+except BaseException as e:result.update(error=repr(e),traceback=traceback.format_exc())
+finally:
+ if env:env.close()
+ if guard:guard.close()
+ (a.output/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
+if not result['passed']:raise SystemExit(2)

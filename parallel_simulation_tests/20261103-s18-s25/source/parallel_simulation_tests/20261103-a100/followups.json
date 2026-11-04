@@ -1,0 +1,111 @@
+[
+  {
+    "name": "serial-repeat",
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+      "-B",
+      "-u",
+      "benchmark.py",
+      "--name",
+      "plain-1-repeat",
+      "--workers",
+      "1",
+      "--episodes",
+      "2",
+      "--cpus",
+      "24,4,25,22,8,35,31,14",
+      "--timeout",
+      "900"
+    ],
+    "started": 1793691943.0218916,
+    "finished": 1793692364.5248106,
+    "exit_code": 0,
+    "expected_exit_code": 0
+  },
+  {
+    "name": "profile",
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+      "-B",
+      "-u",
+      "benchmark.py",
+      "--name",
+      "profile-1-r0",
+      "--workers",
+      "1",
+      "--profile",
+      "--stop-after",
+      "incise_1",
+      "--cpus",
+      "24,4,25,22,8,35,31,14",
+      "--timeout",
+      "600"
+    ],
+    "started": 1793692364.5262043,
+    "finished": 1793692452.6102135,
+    "exit_code": 0,
+    "expected_exit_code": 0
+  },
+  {
+    "name": "pool-integration",
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+      "-B",
+      "-u",
+      "mps_benchmark.py",
+      "--name",
+      "mpspool",
+      "--workers",
+      "16",
+      "--pool-test",
+      "--timeout",
+      "600"
+    ],
+    "started": 1793692452.6105843,
+    "finished": 1793692508.5958655,
+    "exit_code": 0,
+    "expected_exit_code": 0
+  },
+  {
+    "name": "capacity-32",
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+      "-B",
+      "-u",
+      "benchmark.py",
+      "--name",
+      "capacity-32",
+      "--workers",
+      "32",
+      "--stop-after",
+      "settle",
+      "--cpus",
+      "24,4,25,22,8,35,31,14"
+    ],
+    "started": 1793692508.5967333,
+    "finished": 1793692508.8481367,
+    "exit_code": 1,
+    "expected_exit_code": 1
+  },
+  {
+    "name": "capacity-64",
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+      "-B",
+      "-u",
+      "benchmark.py",
+      "--name",
+      "capacity-64",
+      "--workers",
+      "64",
+      "--stop-after",
+      "settle",
+      "--cpus",
+      "24,4,25,22,8,35,31,14"
+    ],
+    "started": 1793692508.8493674,
+    "finished": 1793692509.1044095,
+    "exit_code": 1,
+    "expected_exit_code": 1
+  }
+]

@@ -1,0 +1,102 @@
+{
+  "completed": true,
+  "source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/final-source",
+  "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/native-gpu-diagnostics-v2/build/lib/libLiverCudaSim.so",
+  "dll_sha256": "24a8c12cb8b47684558ac637e698e27ab19e443995f800ec2e2f01a1379c5a54",
+  "flags": [
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1",
+    "--gpu-topology"
+  ],
+  "production_replaced": false,
+  "runs": [
+    {
+      "name": "final-v4-control-a",
+      "modified": false,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 64.24389393262412,
+        "p50_ms": 65.0397815,
+        "p95_ms": 75.7584913,
+        "p99_ms": 88.65489225,
+        "max_ms": 100.007908,
+        "fps": 15.565681635810424,
+        "over_50ms": 1207,
+        "rolling20_min_hz": 12.323677824185667
+      }
+    },
+    {
+      "name": "final-rgbd-a",
+      "modified": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 46.61541920283688,
+        "p50_ms": 47.6234775,
+        "p95_ms": 57.15441565,
+        "p99_ms": 64.21699220000004,
+        "max_ms": 77.889689,
+        "fps": 21.452129297576775,
+        "over_50ms": 503,
+        "rolling20_min_hz": 16.518681129700347
+      }
+    },
+    {
+      "name": "final-rgbd-b",
+      "modified": true,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 46.68624764042553,
+        "p50_ms": 47.696873499999995,
+        "p95_ms": 57.05170835,
+        "p99_ms": 64.64464360000001,
+        "max_ms": 89.721093,
+        "fps": 21.41958393619328,
+        "over_50ms": 511,
+        "rolling20_min_hz": 16.36678640015665
+      }
+    },
+    {
+      "name": "final-v4-control-b",
+      "modified": false,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 63.848480411347516,
+        "p50_ms": 64.8791595,
+        "p95_ms": 74.7899379,
+        "p99_ms": 88.10860168000002,
+        "max_ms": 98.907614,
+        "fps": 15.662079873435395,
+        "over_50ms": 1194,
+        "rolling20_min_hz": 12.291503157537512
+      }
+    }
+  ],
+  "candidate_mean_frame_ms": 46.650833421631205,
+  "control_mean_frame_ms": 64.04618717198582,
+  "aggregate_wall_speedup": 1.3728840939053553,
+  "checked_no_image_performance": {
+    "frames": 1410,
+    "mean_ms": 37.24054772198582,
+    "p50_ms": 38.238606,
+    "p95_ms": 48.4549085,
+    "p99_ms": 54.05338857000004,
+    "max_ms": 61.958756,
+    "fps": 26.852451458699328,
+    "over_50ms": 48,
+    "rolling20_min_hz": 19.037512847941485
+  },
+  "current_frame_regression_passed": true,
+  "parameters_and_thresholds_unchanged": true,
+  "mean_and_p95_20hz": false,
+  "rolling20_floor_20hz": false,
+  "every_frame_50ms": false,
+  "formal_physics_domain_approved": false,
+  "stable_20hz_passed": false,
+  "real_snapshot_roundtrip_passed": true
+}

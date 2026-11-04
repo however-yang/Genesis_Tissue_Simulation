@@ -1,0 +1,21 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+index 45170b3..7cfb3bc 100644
+--- a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -1,3 +1,8 @@
++// Diagnostic-only host counters; no extra GPU queries or changed graph selection.
++static int g_solverGraphCounts[3]={0,0,0};
++extern "C" __declspec(dllexport) int LCS_ReadSolverGraphCounts(int* out){
++    if(!out)return -1;for(int i=0;i<3;i++){out[i]=g_solverGraphCounts[i];g_solverGraphCounts[i]=0;}return 0;
++}
+ // Unified tissue solver and legacy XPBD entry points; see README.md (system architecture).
+ // physics.cu binds the live shared buffers here. Domain headers keep their original include order.
+
+@@ -3191,6 +3196,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
+     k_MaterialFreeNodes<<<Gr(g_N),64>>>(d_unified,d_substepQuery+1);
+     e=cudaMemcpy(query,d_substepQuery,2*sizeof(int),cudaMemcpyDeviceToHost);if(e!=cudaSuccess)return -(int)e;
+     const int recoveryRequested=query[0];const bool loaded=!query[1];
++    ++g_solverGraphCounts[recoveryRequested?2:loaded?0:1];
+     cudaGraphExec_t& selectedGraph=recoveryRequested?g_unifiedRecoveryGraph:loaded?g_unifiedLoadedGraph:g_unifiedGraph;
+     bool& selectedGraphDirty=recoveryRequested?g_unifiedRecoveryGraphDirty:loaded?g_unifiedLoadedGraphDirty:g_unifiedGraphDirty;
+     xpbd_section_mark("pre: predictor, recovery query");

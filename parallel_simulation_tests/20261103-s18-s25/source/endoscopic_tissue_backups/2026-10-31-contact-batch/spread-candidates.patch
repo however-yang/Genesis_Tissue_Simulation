@@ -1,0 +1,149 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+index efceb1f..53dd62a 100644
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -323,12 +323,21 @@ __global__ void k_UpdateSurfacePoints(int count,const SurfaceVertex* vertices,co
+     float3 q=surfacePoint(v,pos);current[i]=make_float4(q.x,q.y,q.z,1);
+     previous[i]=surfacePoint(v,prev);
+ }
++// Keep the original query body; only the optional input index is compacted.
++template<bool Candidates=false>
+ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactShape to,float skin,
+     const SurfaceVertex* vertices,const unsigned* masks,const float3* prev,const float3* pos,
+     SurfaceContact* contacts,int* degree,int* active,int* activeCount,const float4* current,const float3* previous,
+     const CoupledTool* body=nullptr,float thickness=0,float minGap=0,bool stationary=false,
+-    const int* cacheSlots=nullptr,const SurfaceContact* cache=nullptr,const int* bladePhase=nullptr,int stride=3,bool cacheComponents=false){
+-    int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=triangles)return;
++    const int* cacheSlots=nullptr,const SurfaceContact* cache=nullptr,const int* bladePhase=nullptr,int stride=3,bool cacheComponents=false,
++    const int* candidates=nullptr,const int* candidateCount=nullptr){
++    int t=blockIdx.x*blockDim.x+threadIdx.x;
++    if constexpr(Candidates){
++        // Distribute sparse witnesses over blocks; the full grid still covers every face.
++        int index=blockIdx.x+threadIdx.x*gridDim.x;
++        if(index>=*candidateCount)return;t=candidates[index];
++    }
++    if(t>=triangles)return;
+     int slot=stride*t+kind;
+     if(body){from=bodyContactShape(body,stationary?body->pose:body->previous,kind,thickness,minGap);to=bodyContactShape(body,body->pose,kind,thickness,minGap);}
+     // Reject distant triangles before reading/probing the material-contact
+diff --git a/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh b/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
+index 0141f4b..7079af3 100644
+--- a/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
+@@ -1,3 +1,7 @@
++// One pose snapshot per call; no bounds survive a tool or surface update.
++struct BladeQueryBounds {float3 lo,hi;int valid,preload;};
++static BladeQueryBounds* d_bladeQueryBounds=nullptr;
++static int* d_bladeCandidates=nullptr; // six counts followed by six capacity-sized lists
+ // A second instrument shares the material objective with the grasper. Its
+ // normal reaction triggers fracture; after initiation the normal energy has
+ // a lower, finite yield force. No force exists at a separating contact.
+@@ -87,6 +91,8 @@ static void invalidateBladeGraphs(){
+     if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;
+ }
+ static void freeBlade(){
++    cudaFree(d_bladeQueryBounds);d_bladeQueryBounds=nullptr;
++    cudaFree(d_bladeCandidates);d_bladeCandidates=nullptr;
+     cudaFree(d_bladeSweep);d_bladeSweep=nullptr;
+     cudaFree(d_bladeState);d_bladeState=nullptr;cudaFree(d_bladeBody);d_bladeBody=nullptr;
+     cudaFree(d_bladeContacts);d_bladeContacts=nullptr;cudaFree(d_bladeIds);d_bladeIds=nullptr;
+@@ -152,6 +158,7 @@ static cudaError_t allocateBlade(){
+     if(!d_bladeSweep)e=cudaMalloc(&d_bladeSweep,18*sizeof(float3));
+     if(e==cudaSuccess&&!d_bladeState)e=cudaMalloc(&d_bladeState,sizeof(UnifiedState));
+     if(e==cudaSuccess&&!d_bladeBody){e=cudaMalloc(&d_bladeBody,sizeof(CoupledTool));if(e==cudaSuccess)e=cudaMemset(d_bladeBody,0,sizeof(CoupledTool));}
++    if(e==cudaSuccess&&!d_bladeQueryBounds)e=cudaMalloc(&d_bladeQueryBounds,BLADE_KIND_SLOTS*sizeof(BladeQueryBounds));
+     if(e==cudaSuccess&&!d_bladeCount)e=cudaMalloc(&d_bladeCount,sizeof(int));
+     if(e==cudaSuccess&&!d_bladePhase){e=cudaMalloc(&d_bladePhase,sizeof(int));if(e==cudaSuccess)e=cudaMemset(d_bladePhase,0,sizeof(int));}
+     if(e==cudaSuccess&&!d_bladeResult)e=cudaMalloc(&d_bladeResult,6*sizeof(float));
+@@ -167,9 +174,11 @@ static cudaError_t allocateBlade(){
+     if(e==cudaSuccess&&!d_bladeEdgeCount)e=cudaMalloc(&d_bladeEdgeCount,sizeof(int));
+     if(e==cudaSuccess&&g_bladeCapacity<g_surfaceCapacity){
+         invalidateBladeGraphs();cudaFree(d_bladeContacts);d_bladeContacts=nullptr;cudaFree(d_bladeIds);d_bladeIds=nullptr;g_bladeCapacity=0;
++        cudaFree(d_bladeCandidates);d_bladeCandidates=nullptr;
+         e=cudaMalloc(&d_bladeContacts,BLADE_KIND_SLOTS*g_surfaceCapacity*sizeof(SurfaceContact));
+         if(e==cudaSuccess)e=cudaMemset(d_bladeContacts,0,BLADE_KIND_SLOTS*g_surfaceCapacity*sizeof(SurfaceContact));
+         if(e==cudaSuccess)e=cudaMalloc(&d_bladeIds,BLADE_KIND_SLOTS*g_surfaceCapacity*sizeof(int));
++        if(e==cudaSuccess)e=cudaMalloc(&d_bladeCandidates,BLADE_KIND_SLOTS*((size_t)g_surfaceCapacity+1)*sizeof(int));
+         cudaFree(d_bladeManifold);cudaFree(d_bladeManifoldIds);cudaFree(d_bladeOwners);cudaFree(d_bladeQuadrature);
+         d_bladeManifold=nullptr;d_bladeManifoldIds=d_bladeOwners=nullptr;d_bladeQuadrature=nullptr;
+         // One witness per capsule (edges, wrist) and up to 12 face witnesses per back box.
+@@ -412,14 +421,73 @@ __global__ void k_CountCutContacts(const SurfaceContact* contacts,const int* ids
+     for(int k=blockIdx.x*blockDim.x+threadIdx.x;k<*count;k+=blockDim.x*gridDim.x)
+         if(contacts[ids[k]].kind<3)atomicAdd(edges,1);
+ }
+-static void findBlade(cudaStream_t stream=0,bool stationary=false){
+-    cudaMemsetAsync(d_bladeCount,0,sizeof(int),stream);cudaMemsetAsync(d_bladeDegree,0,g_N*sizeof(int),stream);
++__global__ void k_PrepareBladeQueries(unsigned kinds,const CoupledTool* body,float skin,bool stationary,const int* phase,BladeQueryBounds* queries){
++    int kind=threadIdx.x;if(kind>=BLADE_KIND_SLOTS || !(kinds&(1u<<kind)))return;
++    ContactShape from=bodyContactShape(body,stationary?body->pose:body->previous,kind,0,0);
++    ContactShape to=bodyContactShape(body,body->pose,kind,0,0);
++    BladeQueryBounds query={};
++    query.valid=!(to.capsule?to.radius<=0:to.half.x<=0||to.half.z<=0);
++    query.preload=to.capsule && kind<3 && phase && (*phase==0 || *phase==4);
++    float margin=kind>=3?skin:0;float3 lo,hi,l0,h0;
++    shapeBounds(to,margin,lo,hi);shapeBounds(from,margin,l0,h0);
++    if(!to.capsule && (len3(to.u-from.u)+len3(to.n-from.n)>1e-5f)){
++        float r=len3(to.half)+margin;float3 extent=mkf3(r,r,r);
++        lo=to.center-extent;hi=to.center+extent;l0=from.center-extent;h0=from.center+extent;
++    }
++    query.lo=mkf3(fminf(lo.x,l0.x),fminf(lo.y,l0.y),fminf(lo.z,l0.z));
++    query.hi=mkf3(fmaxf(hi.x,h0.x),fmaxf(hi.y,h0.y),fmaxf(hi.z,h0.z));
++    queries[kind]=query;
++}
++// Read a triangle's current/previous points once for all enabled cutter parts.
++// A live blade preload enters the queue even outside the AABB. The unchanged
++// narrow phase rechecks its material identity, finite footprint and incident side.
++__global__ void k_BladeSurfaceCandidates(int triangles,unsigned kinds,int capacity,const float4* current,const float3* previous,
++    SurfaceContact* contacts,const BladeQueryBounds* queries,int* candidates){
++    int t=blockIdx.x*blockDim.x+threadIdx.x;bool valid=t<triangles;
++    float3 lo=mkf3(1e30f,1e30f,1e30f),hi=mkf3(-1e30f,-1e30f,-1e30f);
++    if(valid)for(int k=0;k<3;k++){
++        float4 q=current[3*t+k];if(q.w==0){valid=false;break;}float3 p=previous[3*t+k];
++        lo=mkf3(fminf(lo.x,fminf(q.x,p.x)),fminf(lo.y,fminf(q.y,p.y)),fminf(lo.z,fminf(q.z,p.z)));
++        hi=mkf3(fmaxf(hi.x,fmaxf(q.x,p.x)),fmaxf(hi.y,fmaxf(q.y,p.y)),fmaxf(hi.z,fmaxf(q.z,p.z)));
++    }
++    for(int kind=0;kind<BLADE_KIND_SLOTS;kind++){
++        if(!(kinds&(1u<<kind)))continue;
++        const BladeQueryBounds& query=queries[kind];int slot=BLADE_KIND_SLOTS*t+kind;
++        bool selected=valid && query.valid;
++        if(selected && !(query.preload && contacts[slot].count>0))
++            selected=!(hi.x<query.lo.x || lo.x>query.hi.x || hi.y<query.lo.y || lo.y>query.hi.y || hi.z<query.lo.z || lo.z>query.hi.z);
++        if(t<triangles && !selected){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;}
++        unsigned votes=__ballot_sync(0xffffffff,selected);int lane=threadIdx.x&31,base=0;
++        if(lane==0 && votes)base=atomicAdd(candidates+kind,__popc(votes));
++        base=__shfl_sync(0xffffffff,base,0);
++        if(selected)candidates[BLADE_KIND_SLOTS+kind*capacity+base+__popc(votes&((1u<<lane)-1))]=t;
++    }
++}
++static void findBladeContacts(cudaStream_t stream,bool stationary,SurfaceContact* contacts,int* degree,int* ids,int* count,
++    const float4* current,const float3* previous){
++    if(g_surfaceCount<=0)return;
++    unsigned kinds=0;for(int index=0;index<bladeShapeCount();index++)kinds|=1u<<bladeShapeKind(index);
++    if(d_bladeBody){
++        cudaMemsetAsync(d_bladeCandidates,0,BLADE_KIND_SLOTS*sizeof(int),stream);
++        k_PrepareBladeQueries<<<1,32,0,stream>>>(kinds,d_bladeBody,g_contactRadius,stationary,d_bladePhase,d_bladeQueryBounds);
++        k_BladeSurfaceCandidates<<<(g_surfaceCount+127)/128,128,0,stream>>>(g_surfaceCount,kinds,g_bladeCapacity,current,previous,contacts,d_bladeQueryBounds,d_bladeCandidates);
++    }
+     for(int index=0;index<bladeShapeCount();index++){
+-    int kind=bladeShapeKind(index);
+-    if(g_surfaceCount>0)k_FindSurface<<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
+-        contactShape(g_bladeInitial,0,0,0),contactShape(g_bladeCommand,0,0,0),kind>=3?g_contactRadius:0,
+-        d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious,d_bladeBody,0,0,stationary,kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3);
++        int kind=bladeShapeKind(index);
++        if(d_bladeBody)k_FindSurface<true><<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
++            contactShape(g_bladeInitial,0,0,0),contactShape(g_bladeCommand,0,0,0),kind>=3?g_contactRadius:0,
++            d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,contacts,degree,ids,count,current,previous,d_bladeBody,0,0,stationary,
++            kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3,
++            d_bladeCandidates+BLADE_KIND_SLOTS+kind*g_bladeCapacity,d_bladeCandidates+kind);
++        else k_FindSurface<<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
++            contactShape(g_bladeInitial,0,0,0),contactShape(g_bladeCommand,0,0,0),kind>=3?g_contactRadius:0,
++            d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,contacts,degree,ids,count,current,previous,d_bladeBody,0,0,stationary,
++            kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3);
+     }
++}
++static void findBlade(cudaStream_t stream=0,bool stationary=false){
++    cudaMemsetAsync(d_bladeCount,0,sizeof(int),stream);cudaMemsetAsync(d_bladeDegree,0,g_N*sizeof(int),stream);
++    findBladeContacts(stream,stationary,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious);
+     cudaMemsetAsync(d_bladeBackCacheSlots,0xff,CONTACT_CACHE_SIZE*sizeof(int),stream);
+     if(g_surfaceCount>0)k_CacheBladeBackContacts<<<Gr(BLADE_KIND_SLOTS*g_surfaceCount),64,0,stream>>>(d_bladeContacts,d_bladeIds,d_bladeCount,d_bladeBackCacheSlots,d_bladeBackCache);
+     cudaMemsetAsync(d_bladeManifoldCount,0,sizeof(int),stream);cudaMemsetAsync(d_bladeDegree,0,g_N*sizeof(int),stream);

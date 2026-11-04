@@ -1,0 +1,4 @@
+# Evidence and archived source retain the exact bytes used by their SHA-256 records.
+* -text whitespace=cr-at-eol
+# Archived snapshots retain their original EOF bytes to keep recorded hashes valid.
+adapter-run-source/*.py whitespace=cr-at-eol,-blank-at-eof

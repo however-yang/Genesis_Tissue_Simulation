@@ -1,0 +1,137 @@
+{
+  "schema": "tissue_experiment_result_v1",
+  "spec_sha256": "f2ac7aa90253fde9712a77113229fea789d90273edce7ab9c34ca4f1f8803b3e",
+  "episodes": [
+    {
+      "id": "friction-hold-success",
+      "seed": 5100,
+      "group": "74e05b3da60d2d1542a565e074d8dd6fc5da61a43f390f00b7352dd3e6c08434",
+      "status": "recorded",
+      "training_domain_approved": false,
+      "config": {
+        "dll_path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+        "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+        "bounds": {
+          "lower": [
+            0.0124,
+            0.029599999999999998,
+            0.0175,
+            1.0,
+            0.033600000000000005,
+            0.009968,
+            0.0378,
+            -0.03490658503988659,
+            1.53588974175501,
+            -0.9948376736367679,
+            0.0
+          ],
+          "upper": [
+            0.0134,
+            0.0306,
+            0.018500000000000003,
+            1.0,
+            0.034600000000000006,
+            0.010968,
+            0.0388,
+            0.03490658503988659,
+            1.6057029118347832,
+            -0.9250245035569946,
+            1.0
+          ],
+          "max_rate": [
+            0.002,
+            0.002,
+            0.002,
+            0.0,
+            0.002,
+            0.002,
+            0.002,
+            0.08726646259971647,
+            0.08726646259971647,
+            0.08726646259971647,
+            1.0
+          ]
+        },
+        "scene": {
+          "scene": "wall-traction",
+          "preparation": "held",
+          "contact_model": 1,
+          "dt_s": null,
+          "substeps": null,
+          "spacing_scale": 1.0
+        },
+        "cutting_enabled": false,
+        "max_steps": 30,
+        "full_surface_checks": true,
+        "diagnostic_continue": false,
+        "limits": {
+          "max_displacement_m": 0.06,
+          "max_body_overlap_m": 0.0002,
+          "max_estimated_speed_m_s": 2.0
+        }
+      },
+      "split": "train",
+      "collect_wall_s": 1.8297432999825105,
+      "transitions": 15,
+      "states": 16,
+      "reason": "task_success",
+      "reset_wall_ms": 27938.533499953337,
+      "policy": {
+        "implementation": "tissue_policy_v1",
+        "configuration": {
+          "kind": "hold"
+        },
+        "seed": 5100,
+        "privileged_observation": false,
+        "policy_sha256": "10bfb8198e85813f65a217e15268f835da7933675cda968e0ea19d3292472ddb"
+      },
+      "task_evaluated": true,
+      "task_success": true,
+      "task_failure": null,
+      "valid_reward_sum": 0.9999999999999999,
+      "valid_reward_transitions": 15,
+      "offline_reward_match": true,
+      "transitions_per_wall_second": 8.197871253384765,
+      "timing_ms": {
+        "native_step": {
+          "mean": 41.91872666512305,
+          "p95": 46.359169989591464,
+          "max": 48.70970000047237
+        },
+        "quality_and_export": {
+          "mean": 46.743779990356416,
+          "p95": 65.59019998530856,
+          "max": 70.81290002679452
+        },
+        "snapshot": {
+          "mean": 3.1283666767800846,
+          "p95": 4.975430027116089,
+          "max": 5.394100036937743
+        },
+        "surface_export": {
+          "mean": 1.194440006899337,
+          "p95": 1.5855800127610564,
+          "max": 1.6048999968916178
+        },
+        "total": {
+          "mean": 92.11094000299151,
+          "p95": 114.02268997626379,
+          "max": 118.51550004212186
+        }
+      },
+      "wall_s": 30.351218200055882,
+      "worker_peak_rss_bytes": 356487168,
+      "supervised_wall_s": 36.69802090001758
+    }
+  ],
+  "summary": {
+    "attempted_episodes": 1,
+    "recorded_episodes": 1,
+    "task_evaluated_episodes": 1,
+    "task_successes": 1,
+    "success_fraction_of_all_attempts": 1.0,
+    "failures_and_timeouts": [],
+    "recorded_transitions": 15,
+    "training_domain_approved": false
+  }
+}

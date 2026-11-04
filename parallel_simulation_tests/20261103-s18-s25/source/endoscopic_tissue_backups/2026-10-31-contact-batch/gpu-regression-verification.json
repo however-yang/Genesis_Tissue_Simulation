@@ -1,0 +1,121 @@
+{
+  "snapshot_replays": [
+    {
+      "name": "failing",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "details": {
+        "status": 0,
+        "dll_sha256": "0b9cf57e9212e3f6590267166b2eac9384849c3733f9b1e9ade8df1d77e38cda",
+        "snapshot_sha256": "78f001e5c7889b161c6f2722bb75e64200d7e5f962d50a485553d72e10661258",
+        "paths": [
+          {
+            "path": "ordinary_wrapper",
+            "different_counts": 0,
+            "different_records": 1,
+            "valid_records": 1,
+            "first_word": 27,
+            "first_slot": 6
+          },
+          {
+            "path": "candidate_narrow",
+            "different_counts": 0,
+            "different_records": 1,
+            "valid_records": 1,
+            "first_word": 27,
+            "first_slot": 6
+          },
+          {
+            "path": "batched_front_and_narrow",
+            "different_counts": 0,
+            "different_records": 1,
+            "valid_records": 1,
+            "first_word": 27,
+            "first_slot": 6
+          }
+        ]
+      }
+    },
+    {
+      "name": "indexed",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "details": {
+        "status": 0,
+        "dll_sha256": "f8f6f44f314a3bea4c63645cf2e47da72bbd8afa9ad21e3207b3ad886acd9858",
+        "snapshot_sha256": "78f001e5c7889b161c6f2722bb75e64200d7e5f962d50a485553d72e10661258",
+        "paths": [
+          {
+            "path": "ordinary_wrapper",
+            "different_counts": 0,
+            "different_records": 0,
+            "valid_records": 1,
+            "first_word": 0,
+            "first_slot": 0
+          },
+          {
+            "path": "candidate_narrow",
+            "different_counts": 0,
+            "different_records": 0,
+            "valid_records": 1,
+            "first_word": 0,
+            "first_slot": 0
+          },
+          {
+            "path": "batched_front_and_narrow",
+            "different_counts": 0,
+            "different_records": 0,
+            "valid_records": 1,
+            "first_word": 0,
+            "first_slot": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "spread",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "details": {
+        "status": 0,
+        "dll_sha256": "63e733b34515be1e31f401b337813029f9c421a82452e6eb93a48613d7e92ba4",
+        "snapshot_sha256": "78f001e5c7889b161c6f2722bb75e64200d7e5f962d50a485553d72e10661258",
+        "paths": [
+          {
+            "path": "ordinary_wrapper",
+            "different_counts": 0,
+            "different_records": 0,
+            "valid_records": 1,
+            "first_word": 0,
+            "first_slot": 0
+          },
+          {
+            "path": "candidate_narrow",
+            "different_counts": 0,
+            "different_records": 0,
+            "valid_records": 1,
+            "first_word": 0,
+            "first_slot": 0
+          },
+          {
+            "path": "batched_front_and_narrow",
+            "different_counts": 0,
+            "different_records": 0,
+            "valid_records": 1,
+            "first_word": 0,
+            "first_slot": 0
+          }
+        ]
+      }
+    }
+  ],
+  "geometry": {
+    "cases": 1698,
+    "changed_cases": 866,
+    "baseline_identical_cases": 832,
+    "required_fallback_cases": 42,
+    "max_analytic_oracle_error_cm": 3.496855378593011e-07,
+    "max_distance_worse_than_baseline_cm": 3.5762786865234375e-07,
+    "max_barycentric_sum_error": 2.384185791015625e-07
+  }
+}

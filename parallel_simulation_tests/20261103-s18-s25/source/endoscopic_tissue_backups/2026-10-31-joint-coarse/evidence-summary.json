@@ -1,0 +1,2967 @@
+{
+  "base_commit": "0403d319097ca77099edc5c33d51b2d22d4312a0",
+  "production_adopted": false,
+  "settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      0.6,
+      -0.8,
+      0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 2
+  },
+  "numeric": {
+    "algebra-results.json": {
+      "tet_cases": 180,
+      "normalized_max_errors": {
+        "gradient": 1.1695819512880234e-06,
+        "curvature": 3.0346224406912586e-07,
+        "baseline_diagonal": 3.512065466773402e-07,
+        "baseline_gradient": 2.384185791015625e-07,
+        "negative_eigenvalue": 5.4076128939693986e-08
+      },
+      "cubic_cases": 2004,
+      "cubic_disagreements": 0,
+      "endpoint_only_counterexample_rejected": true,
+      "note": "GN curvature includes cross modes; agreement is with an independent Jacobian oracle, not the exact indefinite Hessian."
+    },
+    "guarded-algebra-results.json": {
+      "tet_cases": 180,
+      "normalized_max_errors": {
+        "gradient": 1.1695819512880234e-06,
+        "curvature": 3.0346224406912586e-07,
+        "baseline_diagonal": 3.512065466773402e-07,
+        "baseline_gradient": 2.384185791015625e-07,
+        "negative_eigenvalue": 5.4076128939693986e-08
+      },
+      "cubic_cases": 2004,
+      "cubic_disagreements": 0,
+      "endpoint_only_counterexample_rejected": true,
+      "note": "GN curvature includes cross modes; agreement is with an independent Jacobian oracle, not the exact indefinite Hessian."
+    },
+    "gated-algebra-results.json": {
+      "tet_cases": 180,
+      "normalized_max_errors": {
+        "gradient": 1.1695819512880234e-06,
+        "curvature": 3.0346224406912586e-07,
+        "baseline_diagonal": 3.512065466773402e-07,
+        "baseline_gradient": 2.384185791015625e-07,
+        "negative_eigenvalue": 5.4076128939693986e-08
+      },
+      "cubic_cases": 2004,
+      "cubic_disagreements": 0,
+      "endpoint_only_counterexample_rejected": true,
+      "note": "GN curvature includes cross modes; agreement is with an independent Jacobian oracle, not the exact indefinite Hessian."
+    },
+    "rounding-results.json": {
+      "cases": 12000,
+      "old_path_accepts_below_stored_floor": 704,
+      "stored_guard_accepts_below_floor": 0,
+      "first_counterexample": {
+        "input": [
+          -3.3986494541168213,
+          0.38588058948516846,
+          -3.7398934364318848,
+          -3.7116875648498535,
+          1.4248579740524292,
+          -3.469653606414795,
+          -3.2956771850585938,
+          0.23344124853610992,
+          -3.0345377922058105,
+          -2.3233892917633057,
+          0.7312645316123962,
+          -3.822223424911499,
+          0.0,
+          0.0,
+          0.0,
+          0.26216793060302734,
+          -0.8701388239860535,
+          -0.22632455825805664,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          0.15000000596046448
+        ],
+        "path_endpoint": 0.15000003576278687,
+        "stored_endpoint": 0.14999999105930328,
+        "floor": 0.15000000596046448
+      },
+      "note": "Frozen synthetic input at the same CUDA rounded-position/cubic-check seam; does not establish which compiler transformation caused each earlier live event."
+    },
+    "gated-rounding-results.json": {
+      "cases": 12000,
+      "old_path_accepts_below_stored_floor": 704,
+      "stored_guard_accepts_below_floor": 0,
+      "first_counterexample": {
+        "input": [
+          -3.3986494541168213,
+          0.38588058948516846,
+          -3.7398934364318848,
+          -3.7116875648498535,
+          1.4248579740524292,
+          -3.469653606414795,
+          -3.2956771850585938,
+          0.23344124853610992,
+          -3.0345377922058105,
+          -2.3233892917633057,
+          0.7312645316123962,
+          -3.822223424911499,
+          0.0,
+          0.0,
+          0.0,
+          0.26216793060302734,
+          -0.8701388239860535,
+          -0.22632455825805664,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          0.15000000596046448
+        ],
+        "path_endpoint": 0.15000003576278687,
+        "stored_endpoint": 0.14999999105930328,
+        "floor": 0.15000000596046448
+      },
+      "note": "Frozen synthetic input at the same CUDA rounded-position/cubic-check seam; does not establish which compiler transformation caused each earlier live event."
+    }
+  },
+  "diagnostics": {
+    "initial": {
+      "summary": {
+        "roots": 4422,
+        "accepted": 2803,
+        "zero": 1619,
+        "fallback": 0,
+        "disabled": 0,
+        "negative_margin": 70,
+        "volume_violation": 0,
+        "closing_violation": 0,
+        "energy_violation": 0,
+        "steps": 1110,
+        "minimum_negative_margin": -1.1525116860866547e-07,
+        "note": "Diagnostic DLL only; duration not a performance benchmark. The 2e-5 determinant and 1e-6 cm closing tolerances apply to diagnostics only, never loosen the candidate acceptance guard."
+      },
+      "path": "endoscopic_tissue/outputs/joint-coarse-20261031/diagnostic-a1",
+      "rows_sha256": "502a097506b50d49403aa1c441fe3a0a1d38399e9ffd1a7741e2663785a77738"
+    },
+    "strict_red": {
+      "summary": {
+        "roots": 786,
+        "accepted": 258,
+        "zero": 528,
+        "fallback": 0,
+        "disabled": 0,
+        "negative_margin": 1,
+        "volume_violation": 0,
+        "closing_violation": 0,
+        "energy_violation": 0,
+        "steps": 262,
+        "minimum_negative_margin": -2.7939677238464355e-08,
+        "note": "Diagnostic DLL only; duration not a performance benchmark. This regression requires zero negative determinant margins. Legacy diagnostic violation counters are retained separately."
+      },
+      "path": "endoscopic_tissue/outputs/joint-coarse-20261031/strict-red",
+      "rows_sha256": "59f7bd51ddf5945a0a9abfc3e1a60525fbdc8bc1a5b02add239738f75da89057"
+    },
+    "guarded_green": {
+      "summary": {
+        "roots": 4424,
+        "accepted": 2686,
+        "zero": 1619,
+        "fallback": 119,
+        "disabled": 0,
+        "negative_margin": 0,
+        "volume_violation": 0,
+        "closing_violation": 0,
+        "energy_violation": 0,
+        "steps": 1110,
+        "minimum_negative_margin": 0.0,
+        "note": "Diagnostic DLL only; duration not a performance benchmark. This regression requires zero negative determinant margins. Legacy diagnostic violation counters are retained separately."
+      },
+      "path": "endoscopic_tissue/outputs/joint-coarse-20261031/strict-green",
+      "rows_sha256": "9c0a7c2db2444f91a5fe5c3c5cfd154928dfff09a426b552356410965eacf7bf"
+    },
+    "gated_green": {
+      "summary": {
+        "roots": 4420,
+        "accepted": 2712,
+        "zero": 1617,
+        "fallback": 91,
+        "disabled": 0,
+        "negative_margin": 0,
+        "volume_violation": 0,
+        "closing_violation": 0,
+        "energy_violation": 0,
+        "steps": 1110,
+        "minimum_negative_margin": 0.0,
+        "note": "Diagnostic DLL only; duration not a performance benchmark. This regression requires zero negative determinant margins. Legacy diagnostic violation counters are retained separately."
+      },
+      "path": "endoscopic_tissue/outputs/joint-gated-20261031/strict-green",
+      "rows_sha256": "58cb0ccca27f52ebd060b1ad209d212334d3d9d391066b4fae5cf983722b4aaa"
+    }
+  },
+  "gate_bodies_verified": 16,
+  "timing_scope": "Normal CUDA Graphs, no live display. Pipeline includes control/readback/recorder submission and possible backpressure; excludes stage boundaries and final draining. Capture/render runs are separate.",
+  "series": [
+    {
+      "name": "joint",
+      "runs": [
+        {
+          "name": "baseline-a1",
+          "path": "endoscopic_tissue/outputs/joint-coarse-20261031/baseline-a1",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "19674c0bd44fbdecac78363b3dca6e1f6ba179392940d373cf0a13fca39cad17",
+          "report_sha256": "9b7b4cdd759c4b6f1497befc7c9209435831e5ccccf686756e9208e4147d4479",
+          "core_ms": {
+            "mean": 44.674656215975446,
+            "p95": 53.64383002743125,
+            "maximum": 65.8891000202857
+          },
+          "pipeline_ms": {
+            "mean": 53.2383053153984,
+            "p95": 65.08054499572606,
+            "maximum": 90.95959999831393
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 35.12528333812952,
+                "p95": 35.72218999906909,
+                "maximum": 35.80910002347082
+              },
+              "pipeline_ms": {
+                "mean": 41.761720000067726,
+                "p95": 42.67238499596715,
+                "maximum": 45.98120000446215
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 35.56531444127258,
+                "p95": 38.053385011153296,
+                "maximum": 42.01119998469949
+              },
+              "pipeline_ms": {
+                "mean": 43.235557777936464,
+                "p95": 50.36781502130907,
+                "maximum": 55.763999989721924
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 37.19627555045817,
+                "p95": 43.37729999097064,
+                "maximum": 43.41339995153248
+              },
+              "pipeline_ms": {
+                "mean": 44.247302221548225,
+                "p95": 50.858879974111915,
+                "maximum": 51.72980000497773
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 43.3418311101074,
+                "p95": 44.4906999822706,
+                "maximum": 45.700800023041666
+              },
+              "pipeline_ms": {
+                "mean": 50.870984443463385,
+                "p95": 52.99823998939246,
+                "maximum": 53.308699978515506
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 43.2332124968525,
+                "p95": 46.77470498427283,
+                "maximum": 48.10039995936677
+              },
+              "pipeline_ms": {
+                "mean": 51.55798666673945,
+                "p95": 59.276074994704686,
+                "maximum": 62.39039998035878
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 44.282883333410915,
+                "p95": 48.1321500177728,
+                "maximum": 49.593099975027144
+              },
+              "pipeline_ms": {
+                "mean": 52.4855716668147,
+                "p95": 58.33718494977802,
+                "maximum": 61.361500003840774
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 52.740998671312504,
+                "p95": 57.99587499641348,
+                "maximum": 62.33420001808554
+              },
+              "pipeline_ms": {
+                "mean": 63.479598666696496,
+                "p95": 73.93104498914909,
+                "maximum": 90.95959999831393
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 49.81872666394338,
+                "p95": 53.72872498410288,
+                "maximum": 54.05510001583025
+              },
+              "pipeline_ms": {
+                "mean": 57.5444066664204,
+                "p95": 60.501905021374114,
+                "maximum": 61.475499998778105
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 45.94332000318294,
+                "p95": 49.302175009506755,
+                "maximum": 50.54020002717152
+              },
+              "pipeline_ms": {
+                "mean": 54.888970000320114,
+                "p95": 58.643174995086156,
+                "maximum": 63.45410004723817
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 48.19262666705375,
+                "p95": 56.502190019818926,
+                "maximum": 65.8891000202857
+              },
+              "pipeline_ms": {
+                "mean": 56.79405200023515,
+                "p95": 67.63736499124207,
+                "maximum": 85.89919999940321
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 44.205303332516145,
+                "p95": 45.468899997649714,
+                "maximum": 48.96250000456348
+              },
+              "pipeline_ms": {
+                "mean": 53.360639166688394,
+                "p95": 61.42037496902048,
+                "maximum": 81.68820000719279
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 43.51831110737597,
+                "p95": 44.38052001642063,
+                "maximum": 45.11729994555935
+              },
+              "pipeline_ms": {
+                "mean": 51.7714066676692,
+                "p95": 53.08346000965685,
+                "maximum": 61.349400028120726
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 43.403506667818874,
+                "p95": 44.41692000837065,
+                "maximum": 46.10710003180429
+              },
+              "pipeline_ms": {
+                "mean": 51.46168133321529,
+                "p95": 53.216159995645285,
+                "maximum": 61.168900050688535
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 43.28856999442602,
+                "p95": 45.41003495105542,
+                "maximum": 45.73730000993237
+              },
+              "pipeline_ms": {
+                "mean": 51.05277000111528,
+                "p95": 53.194599982816726,
+                "maximum": 54.071799968369305
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.013993008062243462,
+            "edges_before_incision": 0,
+            "cut_edges": 201,
+            "observed_cut_edges": 201,
+            "retained_cut_edges": 201,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 252,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 5.9328484927444884e-05,
+            "max_blade_body_overlap_m": 5.9328484927444884e-05,
+            "peak_blade_force_n": 18.99136734008789,
+            "max_node_displacement_m": 0.025382842868566513,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.2456417828798294,
+            "fracture_right_n": 0.11648889631032944,
+            "two_blade_squeeze_m": 0.0012808092856849923,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.2456417828798294,
+                "fracture_right_n": 0.24254290759563446,
+                "two_blade_squeeze_m": 0.0012808092856849923
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.31885603070259094,
+                "fracture_right_n": 0.11648889631032944,
+                "two_blade_squeeze_m": 0.004106464471624053
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 28,
+            "slit_length_m": 0.009539140087457975,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "joint-b1",
+          "path": "endoscopic_tissue/outputs/joint-coarse-20261031/joint-b1",
+          "dll_sha256": "9f76fe460786e10c65b9f5bce8e7af5c064e17dbfeb67f370d4ec301ac6d1dba",
+          "rows_sha256": "f48221764fa53d83e5fe143670aaafbdb8448d87a70eb46e9e9589e79c3d8842",
+          "report_sha256": "1f014b7488120c6b6df26cadb015570b7a1e1d9018d465540f5362cb18e65c36",
+          "core_ms": {
+            "mean": 50.38180829005878,
+            "p95": 62.97727001947351,
+            "maximum": 74.73520003259182
+          },
+          "pipeline_ms": {
+            "mean": 63.62326621614933,
+            "p95": 79.05675999645607,
+            "maximum": 125.87569997413084
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 37.35383332823403,
+                "p95": 38.515314989490435,
+                "maximum": 43.02330000791699
+              },
+              "pipeline_ms": {
+                "mean": 45.17747333156876,
+                "p95": 47.08987498888746,
+                "maximum": 50.82659999607131
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 37.449491110035325,
+                "p95": 40.04578998137731,
+                "maximum": 41.801099956501275
+              },
+              "pipeline_ms": {
+                "mean": 45.303145555468895,
+                "p95": 51.600129998405464,
+                "maximum": 56.1022000038065
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 39.43229778152373,
+                "p95": 45.89216000167653,
+                "maximum": 46.539300004951656
+              },
+              "pipeline_ms": {
+                "mean": 47.39558888961457,
+                "p95": 55.037619976792485,
+                "maximum": 56.766900001093745
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 48.387391112434365,
+                "p95": 51.527120009996,
+                "maximum": 52.41870001191273
+              },
+              "pipeline_ms": {
+                "mean": 56.052655555928744,
+                "p95": 60.23957999423146,
+                "maximum": 61.22999999206513
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 50.573134999043155,
+                "p95": 52.12042999337427,
+                "maximum": 54.80780004290864
+              },
+              "pipeline_ms": {
+                "mean": 59.22411249969931,
+                "p95": 62.39458002673928,
+                "maximum": 67.72489997092634
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 51.64891666499898,
+                "p95": 55.78518501133658,
+                "maximum": 56.28799996338785
+              },
+              "pipeline_ms": {
+                "mean": 60.3727024999292,
+                "p95": 65.97365504712798,
+                "maximum": 68.93439998384565
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 61.41539267070281,
+                "p95": 67.81861998024395,
+                "maximum": 70.68270002491772
+              },
+              "pipeline_ms": {
+                "mean": 74.18463800024863,
+                "p95": 95.80181499768513,
+                "maximum": 120.78930001007393
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 58.3754566750334,
+                "p95": 62.19359999813605,
+                "maximum": 65.40760002098978
+              },
+              "pipeline_ms": {
+                "mean": 66.9561233332691,
+                "p95": 71.9906350102974,
+                "maximum": 78.380000020843
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 55.909946664663345,
+                "p95": 59.73346499959007,
+                "maximum": 61.176400049589574
+              },
+              "pipeline_ms": {
+                "mean": 64.53800666689251,
+                "p95": 71.16041002736893,
+                "maximum": 72.42750003933907
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 54.424696003552526,
+                "p95": 65.63210001622792,
+                "maximum": 74.73520003259182
+              },
+              "pipeline_ms": {
+                "mean": 71.13145466661081,
+                "p95": 88.38854499044827,
+                "maximum": 125.87569997413084
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 47.38402083845964,
+                "p95": 48.869714987813495,
+                "maximum": 54.314900015015155
+              },
+              "pipeline_ms": {
+                "mean": 67.8887308332681,
+                "p95": 76.8601050163852,
+                "maximum": 88.52300001308322
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 46.86569333231697,
+                "p95": 48.16137998132035,
+                "maximum": 49.10150001524016
+              },
+              "pipeline_ms": {
+                "mean": 71.58051777708654,
+                "p95": 91.36580000631508,
+                "maximum": 96.51189995929599
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 47.05784533560897,
+                "p95": 48.22532000252977,
+                "maximum": 49.22879999503493
+              },
+              "pipeline_ms": {
+                "mean": 67.61717466637492,
+                "p95": 75.34286998561583,
+                "maximum": 88.70259998366237
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 46.93183000975599,
+                "p95": 48.01533501886297,
+                "maximum": 48.50620002252981
+              },
+              "pipeline_ms": {
+                "mean": 68.83307666673015,
+                "p95": 79.5159449975472,
+                "maximum": 80.99410001887009
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014004266820847988,
+            "edges_before_incision": 0,
+            "cut_edges": 216,
+            "observed_cut_edges": 216,
+            "retained_cut_edges": 216,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 262,
+            "final_grip_points": 62,
+            "current_grip_points": 62,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 0.00011947496615562187,
+            "max_blade_body_overlap_m": 0.00011947496615562187,
+            "peak_blade_force_n": 16.34486198425293,
+            "max_node_displacement_m": 0.02563740685582161,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.23637807369232178,
+            "fracture_right_n": 0.13498884439468384,
+            "two_blade_squeeze_m": 0.00115430966068295,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.23637807369232178,
+                "fracture_right_n": 0.3550838828086853,
+                "two_blade_squeeze_m": 0.0012537766661864114
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.4178287088871002,
+                "fracture_right_n": 0.13498884439468384,
+                "two_blade_squeeze_m": 0.00115430966068295
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 44,
+            "slit_length_m": 0.009469789621769434,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "joint-b2",
+          "path": "endoscopic_tissue/outputs/joint-coarse-20261031/joint-b2",
+          "dll_sha256": "9f76fe460786e10c65b9f5bce8e7af5c064e17dbfeb67f370d4ec301ac6d1dba",
+          "rows_sha256": "e09a574135fa7ff6c5e659a71c4b4e48a1d3cc82438b8596bc6626104563d482",
+          "report_sha256": "5bf8c86642bceb9d4570b9f8bce560975839032e2c1f72fdc66ad8db0c7b5d78",
+          "core_ms": {
+            "mean": 50.04240216095806,
+            "p95": 62.09610497171525,
+            "maximum": 73.87889997335151
+          },
+          "pipeline_ms": {
+            "mean": 63.77171927932986,
+            "p95": 94.7951400099555,
+            "maximum": 126.00279995240271
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 37.078293337253854,
+                "p95": 38.288489982369356,
+                "maximum": 38.74220000579953
+              },
+              "pipeline_ms": {
+                "mean": 44.599566666875035,
+                "p95": 46.95354998402763,
+                "maximum": 47.21240000799298
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 37.20145444644408,
+                "p95": 38.175335014238954,
+                "maximum": 38.628999958746135
+              },
+              "pipeline_ms": {
+                "mean": 44.86249333325153,
+                "p95": 46.847144985804334,
+                "maximum": 48.03260002518073
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 39.48421777717562,
+                "p95": 45.55845999857411,
+                "maximum": 46.277299989014864
+              },
+              "pipeline_ms": {
+                "mean": 47.01341111083619,
+                "p95": 53.67403997806832,
+                "maximum": 54.57340000430122
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 48.77752222819254,
+                "p95": 52.0380400121212,
+                "maximum": 53.02049999590963
+              },
+              "pipeline_ms": {
+                "mean": 56.72409777762368,
+                "p95": 61.48800001246855,
+                "maximum": 62.711100035812706
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 50.606438330820914,
+                "p95": 52.50110999040771,
+                "maximum": 53.44119999790564
+              },
+              "pipeline_ms": {
+                "mean": 59.11140583339147,
+                "p95": 62.16865001479164,
+                "maximum": 65.26130001293495
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 51.8656899992493,
+                "p95": 55.307695001829416,
+                "maximum": 56.45460000960156
+              },
+              "pipeline_ms": {
+                "mean": 60.2532416669419,
+                "p95": 64.96478000190109,
+                "maximum": 74.50789998983964
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 60.90646999771707,
+                "p95": 65.26215499034151,
+                "maximum": 72.7197999949567
+              },
+              "pipeline_ms": {
+                "mean": 87.41979866676654,
+                "p95": 118.79716999246737,
+                "maximum": 126.00279995240271
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 58.48665666999295,
+                "p95": 62.46661500481423,
+                "maximum": 62.67079996177927
+              },
+              "pipeline_ms": {
+                "mean": 68.05999666685238,
+                "p95": 76.32114499865565,
+                "maximum": 76.79299998562783
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 54.555609993985854,
+                "p95": 58.442095018108375,
+                "maximum": 59.03740000212565
+              },
+              "pipeline_ms": {
+                "mean": 63.602461666838884,
+                "p95": 67.93987000710331,
+                "maximum": 68.7797000282444
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 52.383622663328424,
+                "p95": 62.83825498248916,
+                "maximum": 73.87889997335151
+              },
+              "pipeline_ms": {
+                "mean": 61.69802466679054,
+                "p95": 73.94908498681616,
+                "maximum": 87.20579999499023
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 47.680360832600854,
+                "p95": 49.005920012132265,
+                "maximum": 52.61300003621727
+              },
+              "pipeline_ms": {
+                "mean": 67.87562583291826,
+                "p95": 76.11456501763314,
+                "maximum": 92.95150003163144
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 47.942246666126366,
+                "p95": 49.71866001142189,
+                "maximum": 50.83960003685206
+              },
+              "pipeline_ms": {
+                "mean": 69.92732888967213,
+                "p95": 76.21872000163421,
+                "maximum": 95.74730001622811
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 46.78196933120489,
+                "p95": 47.52327997703105,
+                "maximum": 48.51769999368116
+              },
+              "pipeline_ms": {
+                "mean": 65.79739466619988,
+                "p95": 68.05781998555176,
+                "maximum": 69.08280000789091
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 46.967023329731695,
+                "p95": 47.65842999331653,
+                "maximum": 47.86429996602237
+              },
+              "pipeline_ms": {
+                "mean": 65.56069333455525,
+                "p95": 67.99475998559501,
+                "maximum": 69.92410001112148
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014003818854689598,
+            "edges_before_incision": 0,
+            "cut_edges": 204,
+            "observed_cut_edges": 204,
+            "retained_cut_edges": 204,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 254,
+            "final_grip_points": 62,
+            "current_grip_points": 62,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 2.8339893996269934e-05,
+            "max_blade_body_overlap_m": 2.8339893996269934e-05,
+            "peak_blade_force_n": 3.8059303760528564,
+            "max_node_displacement_m": 0.026216669008135796,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.26260286569595337,
+            "fracture_right_n": 0.1761309653520584,
+            "two_blade_squeeze_m": 0.0014105131860092318,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.26260286569595337,
+                "fracture_right_n": 0.2446301430463791,
+                "two_blade_squeeze_m": 0.00151653949576824
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.31715238094329834,
+                "fracture_right_n": 0.1761309653520584,
+                "two_blade_squeeze_m": 0.0014105131860092318
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 35,
+            "slit_length_m": 0.009539140087457975,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "baseline-a2",
+          "path": "endoscopic_tissue/outputs/joint-coarse-20261031/baseline-a2",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "42a62fd938c0a144f3457496341c2f63068b213361da0fb8f9af8d6e76dacba6",
+          "report_sha256": "2b0f10f343439b38528b821ba0e203b140c28177ab1ce778fc299c404d982dac",
+          "core_ms": {
+            "mean": 45.0386809914054,
+            "p95": 54.55927500152029,
+            "maximum": 112.82959999516606
+          },
+          "pipeline_ms": {
+            "mean": 56.92769531506693,
+            "p95": 89.38151498150545,
+            "maximum": 119.85259997891262
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 35.2431666610452,
+                "p95": 35.98647000617348,
+                "maximum": 36.28739999840036
+              },
+              "pipeline_ms": {
+                "mean": 42.401876665341355,
+                "p95": 43.915924991597414,
+                "maximum": 44.52480003237724
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 35.3157533326238,
+                "p95": 36.18396001402289,
+                "maximum": 37.32709999894723
+              },
+              "pipeline_ms": {
+                "mean": 42.606628888622964,
+                "p95": 44.57100497093052,
+                "maximum": 45.9499999997206
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 37.90091778177561,
+                "p95": 45.750380016397685,
+                "maximum": 46.32919997675344
+              },
+              "pipeline_ms": {
+                "mean": 45.88380222234668,
+                "p95": 56.085060024634004,
+                "maximum": 57.5665999785997
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 44.0104666696344,
+                "p95": 45.54629997583106,
+                "maximum": 61.26119999680668
+              },
+              "pipeline_ms": {
+                "mean": 51.634944445039665,
+                "p95": 53.44166002469137,
+                "maximum": 68.38549999520183
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 43.392377497608926,
+                "p95": 44.82035494875163,
+                "maximum": 46.735099982470274
+              },
+              "pipeline_ms": {
+                "mean": 51.67815833313701,
+                "p95": 54.16822001570836,
+                "maximum": 59.67739998595789
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 45.040001670713536,
+                "p95": 48.53180002246518,
+                "maximum": 49.18020003242418
+              },
+              "pipeline_ms": {
+                "mean": 52.99935333314352,
+                "p95": 56.47512498544529,
+                "maximum": 58.16680000862107
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 53.7716386692288,
+                "p95": 61.05283000797499,
+                "maximum": 68.86140001006424
+              },
+              "pipeline_ms": {
+                "mean": 74.340718666402,
+                "p95": 101.29059998143929,
+                "maximum": 114.09470002399758
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 50.60332666616887,
+                "p95": 54.42106501723174,
+                "maximum": 55.64500001491979
+              },
+              "pipeline_ms": {
+                "mean": 60.220933333039284,
+                "p95": 66.86044501548167,
+                "maximum": 68.00799997290596
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 46.55405999995613,
+                "p95": 49.551250008516945,
+                "maximum": 50.39059999398887
+              },
+              "pipeline_ms": {
+                "mean": 54.546711666625924,
+                "p95": 57.783379990723915,
+                "maximum": 59.12759999046102
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 47.29025600128807,
+                "p95": 55.69416499638463,
+                "maximum": 60.688599944114685
+              },
+              "pipeline_ms": {
+                "mean": 68.5079906663547,
+                "p95": 95.03516000113449,
+                "maximum": 109.42230001091957
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 44.067723332652044,
+                "p95": 45.102184993447736,
+                "maximum": 47.032799979206175
+              },
+              "pipeline_ms": {
+                "mean": 56.114729999778014,
+                "p95": 64.03329503082205,
+                "maximum": 67.32680002460256
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 43.99977333378047,
+                "p95": 45.10420000879094,
+                "maximum": 45.38950003916398
+              },
+              "pipeline_ms": {
+                "mean": 51.981428887746816,
+                "p95": 53.77636000048369,
+                "maximum": 55.17390003660694
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 44.40385066516077,
+                "p95": 45.47392997192219,
+                "maximum": 46.13019997486845
+              },
+              "pipeline_ms": {
+                "mean": 52.452046666294336,
+                "p95": 55.799959995783865,
+                "maximum": 58.52780002169311
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 46.34307665983215,
+                "p95": 45.39218997233547,
+                "maximum": 112.82959999516606
+              },
+              "pipeline_ms": {
+                "mean": 53.99571333352166,
+                "p95": 53.51011998427566,
+                "maximum": 119.85259997891262
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014027422294020653,
+            "edges_before_incision": 0,
+            "cut_edges": 189,
+            "observed_cut_edges": 189,
+            "retained_cut_edges": 189,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 242,
+            "final_grip_points": 53,
+            "current_grip_points": 53,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 8.66947878995461e-05,
+            "max_blade_body_overlap_m": 8.66947878995461e-05,
+            "peak_blade_force_n": 12.609920501708984,
+            "max_node_displacement_m": 0.02536093443632126,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.20627911388874054,
+            "fracture_right_n": 0.10569886863231659,
+            "two_blade_squeeze_m": 0.0012795299421791047,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.20627911388874054,
+                "fracture_right_n": 0.2054307907819748,
+                "two_blade_squeeze_m": 0.0012795299421791047
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.6738391518592834,
+                "fracture_right_n": 0.10569886863231659,
+                "two_blade_squeeze_m": 0.0030850467546531418
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 33,
+            "slit_length_m": 0.009280320980648184,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        }
+      ],
+      "means": {
+        "core_ms": {
+          "baseline": 44.85666860369042,
+          "candidate": 50.212105225508424,
+          "change_percent": 11.938997675314212
+        },
+        "pipeline_ms": {
+          "baseline": 55.08300031523267,
+          "candidate": 63.697492747739595,
+          "change_percent": 15.639112581390524
+        }
+      }
+    },
+    {
+      "name": "gated",
+      "runs": [
+        {
+          "name": "baseline-a1",
+          "path": "endoscopic_tissue/outputs/joint-gated-20261031/baseline-a1",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "bdb86e62b40771dc70b93370cadc002ade6fd364cc8b733d3262d46878053a62",
+          "report_sha256": "7b4aa59ce7c6892d816e19fdf7a482a8f7dc86753987352ad3d8c0e5b3290ec8",
+          "core_ms": {
+            "mean": 44.45432459553788,
+            "p95": 53.7579749856377,
+            "maximum": 63.59600002178922
+          },
+          "pipeline_ms": {
+            "mean": 60.028244594693064,
+            "p95": 89.20274501433595,
+            "maximum": 112.44930000975728
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 35.01957000698894,
+                "p95": 35.9423700167099,
+                "maximum": 36.17199999280274
+              },
+              "pipeline_ms": {
+                "mean": 42.62990000036856,
+                "p95": 45.30014001065865,
+                "maximum": 45.5342999775894
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 34.75550999864936,
+                "p95": 35.8204249991104,
+                "maximum": 36.5243999985978
+              },
+              "pipeline_ms": {
+                "mean": 42.07556111117204,
+                "p95": 44.16869500419125,
+                "maximum": 47.137899964582175
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 36.79668001132086,
+                "p95": 44.054400036111474,
+                "maximum": 44.39640004420653
+              },
+              "pipeline_ms": {
+                "mean": 43.785831111017615,
+                "p95": 51.02626000298187,
+                "maximum": 51.77020002156496
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 43.14321111240942,
+                "p95": 46.28239996964112,
+                "maximum": 47.82199999317527
+              },
+              "pipeline_ms": {
+                "mean": 51.16662222297035,
+                "p95": 57.13709999108686,
+                "maximum": 63.00050002755597
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 42.26514416659484,
+                "p95": 43.50634501315653,
+                "maximum": 44.638399966061115
+              },
+              "pipeline_ms": {
+                "mean": 50.078212499890164,
+                "p95": 52.00953496969305,
+                "maximum": 53.52419998962432
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 44.023443335512034,
+                "p95": 47.09826503822114,
+                "maximum": 48.66490000858903
+              },
+              "pipeline_ms": {
+                "mean": 52.0813366669851,
+                "p95": 55.82382002612576,
+                "maximum": 63.3135000243783
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 52.58576533291489,
+                "p95": 57.13756501208991,
+                "maximum": 63.59600002178922
+              },
+              "pipeline_ms": {
+                "mean": 80.1036786668313,
+                "p95": 110.16483996354508,
+                "maximum": 112.44930000975728
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 50.160666673521824,
+                "p95": 53.14421502116602,
+                "maximum": 55.528299999423325
+              },
+              "pipeline_ms": {
+                "mean": 70.08859999865915,
+                "p95": 106.68677501380442,
+                "maximum": 111.42570001538843
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 47.605956664968595,
+                "p95": 49.11215000611264,
+                "maximum": 49.60239998763427
+              },
+              "pipeline_ms": {
+                "mean": 55.86337500038402,
+                "p95": 58.1145649717655,
+                "maximum": 59.94880001526326
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 47.385376666594915,
+                "p95": 56.57869000278877,
+                "maximum": 60.70169998565689
+              },
+              "pipeline_ms": {
+                "mean": 59.72652999994656,
+                "p95": 66.80431500717532,
+                "maximum": 72.80580000951886
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 44.09354166370273,
+                "p95": 45.97500000963919,
+                "maximum": 46.8999000149779
+              },
+              "pipeline_ms": {
+                "mean": 72.197774167095,
+                "p95": 92.50513000588398,
+                "maximum": 102.43020002963021
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 43.506135560003,
+                "p95": 44.607759977225214,
+                "maximum": 44.63929997291416
+              },
+              "pipeline_ms": {
+                "mean": 70.70909111062065,
+                "p95": 74.38051999779418,
+                "maximum": 92.80360001139343
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 43.787368000485,
+                "p95": 45.15176002169028,
+                "maximum": 47.012199996970594
+              },
+              "pipeline_ms": {
+                "mean": 65.09268400026485,
+                "p95": 73.11507000704296,
+                "maximum": 75.48970001516864
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 44.12964334090551,
+                "p95": 45.466774998931214,
+                "maximum": 46.086300048045814
+              },
+              "pipeline_ms": {
+                "mean": 62.568753332986184,
+                "p95": 66.71734000847209,
+                "maximum": 67.351299978327
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014004018157720566,
+            "edges_before_incision": 0,
+            "cut_edges": 198,
+            "observed_cut_edges": 198,
+            "retained_cut_edges": 198,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 250,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 1.916988274375128e-05,
+            "max_blade_body_overlap_m": 1.916988274375128e-05,
+            "peak_blade_force_n": 82.19541931152344,
+            "max_node_displacement_m": 0.02577199786901474,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.12167001515626907,
+            "fracture_right_n": 0.1126711517572403,
+            "two_blade_squeeze_m": 0.0012968780712698748,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.1695152372121811,
+                "fracture_right_n": 0.1515423208475113,
+                "two_blade_squeeze_m": 0.0012968780712698748
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.12167001515626907,
+                "fracture_right_n": 0.1126711517572403,
+                "two_blade_squeeze_m": 0.002067588936061031
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 37,
+            "slit_length_m": 0.00902150195097248,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "gated-b1",
+          "path": "endoscopic_tissue/outputs/joint-gated-20261031/gated-b1",
+          "dll_sha256": "1e42962032c74e712c244c3f886c0920cece619319b06e99cbd5c46fe409f442",
+          "rows_sha256": "d61d39c1bfad764bd7e27d701f20a44fed9b70b1bca753afdfdcaf6a4d1c06e4",
+          "report_sha256": "1e8d8d563679492b9d41ef665009a8cdb0f5657acf99a078a6f1683a0a46ec32",
+          "core_ms": {
+            "mean": 48.347519188416655,
+            "p95": 61.52323498099577,
+            "maximum": 72.48979998985305
+          },
+          "pipeline_ms": {
+            "mean": 63.90205486483561,
+            "p95": 94.03841502207796,
+            "maximum": 119.89649996394292
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 35.690243336527296,
+                "p95": 37.14769998914562,
+                "maximum": 37.93469996890053
+              },
+              "pipeline_ms": {
+                "mean": 42.84984333207831,
+                "p95": 44.776564970379695,
+                "maximum": 44.982300023548305
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 35.55309333605692,
+                "p95": 37.947270026779734,
+                "maximum": 39.04509998392314
+              },
+              "pipeline_ms": {
+                "mean": 43.32557888895584,
+                "p95": 48.86302000377327,
+                "maximum": 52.26470000343397
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 37.28945555631071,
+                "p95": 43.35985998623073,
+                "maximum": 44.42709998693317
+              },
+              "pipeline_ms": {
+                "mean": 44.908466666109035,
+                "p95": 50.639679993037134,
+                "maximum": 53.09319996740669
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 46.55925332853157,
+                "p95": 50.312100001610816,
+                "maximum": 50.95989996334538
+              },
+              "pipeline_ms": {
+                "mean": 54.30688666723048,
+                "p95": 58.87083997949958,
+                "maximum": 59.987800021190196
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 48.557604996312875,
+                "p95": 50.23225000768434,
+                "maximum": 51.19959998410195
+              },
+              "pipeline_ms": {
+                "mean": 56.78518750016034,
+                "p95": 59.51498501235619,
+                "maximum": 62.623799953144044
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 49.581946667361386,
+                "p95": 53.65104996890295,
+                "maximum": 55.36609998671338
+              },
+              "pipeline_ms": {
+                "mean": 57.867390000319574,
+                "p95": 66.11176000151318,
+                "maximum": 71.7710999888368
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 59.432205333917715,
+                "p95": 65.24613999645226,
+                "maximum": 70.86380000691861
+              },
+              "pipeline_ms": {
+                "mean": 78.82217333302833,
+                "p95": 101.43664498755243,
+                "maximum": 105.42999999597669
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 57.637396668239184,
+                "p95": 61.908954990212806,
+                "maximum": 62.625099963042885
+              },
+              "pipeline_ms": {
+                "mean": 77.26946333229232,
+                "p95": 102.63582502957433,
+                "maximum": 119.89649996394292
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 54.150989998015575,
+                "p95": 57.15105001581833,
+                "maximum": 57.80439998488873
+              },
+              "pipeline_ms": {
+                "mean": 62.87521000000803,
+                "p95": 66.72703997755889,
+                "maximum": 69.56420000642538
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 51.80983532957422,
+                "p95": 64.28625999542419,
+                "maximum": 72.48979998985305
+              },
+              "pipeline_ms": {
+                "mean": 75.98945066682063,
+                "p95": 95.97812997817528,
+                "maximum": 110.26029998902231
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 45.36368416835709,
+                "p95": 46.88418502919376,
+                "maximum": 48.29930001869798
+              },
+              "pipeline_ms": {
+                "mean": 71.01748249988304,
+                "p95": 84.7002649854403,
+                "maximum": 97.56170003674924
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 45.10753777835311,
+                "p95": 46.353240008465946,
+                "maximum": 47.10920003708452
+              },
+              "pipeline_ms": {
+                "mean": 64.46863111082672,
+                "p95": 70.59637998463585,
+                "maximum": 84.08600004622713
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 44.705722661068044,
+                "p95": 45.88837998453528,
+                "maximum": 47.80949995620176
+              },
+              "pipeline_ms": {
+                "mean": 64.32628933340311,
+                "p95": 71.54184997780249,
+                "maximum": 78.78679997520521
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 45.14748666939946,
+                "p95": 46.39662499248516,
+                "maximum": 47.2470999811776
+              },
+              "pipeline_ms": {
+                "mean": 65.44950666720979,
+                "p95": 73.04310998879373,
+                "maximum": 74.79699997929856
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.01400102861225605,
+            "edges_before_incision": 0,
+            "cut_edges": 226,
+            "observed_cut_edges": 226,
+            "retained_cut_edges": 226,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 258,
+            "final_grip_points": 62,
+            "current_grip_points": 62,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 7.249487080297614e-05,
+            "max_blade_body_overlap_m": 7.249487080297614e-05,
+            "peak_blade_force_n": 39.82169723510742,
+            "max_node_displacement_m": 0.026049405336380005,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.3070332705974579,
+            "fracture_right_n": 0.20005324482917786,
+            "two_blade_squeeze_m": 0.001021164069474867,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.3070332705974579,
+                "fracture_right_n": 0.4178175926208496,
+                "two_blade_squeeze_m": 0.0012827475269738802
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.37449371814727783,
+                "fracture_right_n": 0.20005324482917786,
+                "two_blade_squeeze_m": 0.001021164069474867
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 40,
+            "slit_length_m": 0.011212172883081406,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "gated-b2",
+          "path": "endoscopic_tissue/outputs/joint-gated-20261031/gated-b2",
+          "dll_sha256": "1e42962032c74e712c244c3f886c0920cece619319b06e99cbd5c46fe409f442",
+          "rows_sha256": "220d7227e3c2144aa2709f19fd325cb767b9fbeeec6aea5d7592fda245d19289",
+          "report_sha256": "1825b95dfd8e2024643fed153f03a73fd4650799a02e6ac1331fadc20a02c304",
+          "core_ms": {
+            "mean": 47.68991441442841,
+            "p95": 58.90922500984743,
+            "maximum": 67.32339999871328
+          },
+          "pipeline_ms": {
+            "mean": 61.81212432419269,
+            "p95": 90.8538499730639,
+            "maximum": 124.89320000167936
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 35.62125333119184,
+                "p95": 36.30224501830526,
+                "maximum": 37.23270003683865
+              },
+              "pipeline_ms": {
+                "mean": 42.89386333354438,
+                "p95": 44.42733001196757,
+                "maximum": 45.53000000305474
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 35.98648111413544,
+                "p95": 38.0137999803992,
+                "maximum": 41.27190000144765
+              },
+              "pipeline_ms": {
+                "mean": 43.71763111105085,
+                "p95": 47.823035015608184,
+                "maximum": 52.84490005578846
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 38.02710889010794,
+                "p95": 44.397540006320924,
+                "maximum": 44.84370001591742
+              },
+              "pipeline_ms": {
+                "mean": 45.571671110681365,
+                "p95": 51.95801997324452,
+                "maximum": 54.612500010989606
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 47.01404000192674,
+                "p95": 50.81808000104502,
+                "maximum": 50.99440005142242
+              },
+              "pipeline_ms": {
+                "mean": 55.01859777788114,
+                "p95": 58.659319998696446,
+                "maximum": 61.996900010854006
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 49.39042833429994,
+                "p95": 51.01979998871684,
+                "maximum": 54.51990000437945
+              },
+              "pipeline_ms": {
+                "mean": 57.825061666274756,
+                "p95": 62.36073496111203,
+                "maximum": 66.20950001524761
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 50.30521416435173,
+                "p95": 54.590230010217056,
+                "maximum": 57.11930000688881
+              },
+              "pipeline_ms": {
+                "mean": 59.11650749961458,
+                "p95": 65.42662495339755,
+                "maximum": 67.22919997991994
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 57.95994466675135,
+                "p95": 64.26154998480342,
+                "maximum": 67.32339999871328
+              },
+              "pipeline_ms": {
+                "mean": 79.85382733323301,
+                "p95": 108.0746299703605,
+                "maximum": 124.89320000167936
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 54.87312333425507,
+                "p95": 58.30378000973724,
+                "maximum": 58.56520001543686
+              },
+              "pipeline_ms": {
+                "mean": 74.63237666718972,
+                "p95": 100.38815002189948,
+                "maximum": 109.03479997068644
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 51.53446666372474,
+                "p95": 54.763370013097294,
+                "maximum": 56.879699986893684
+              },
+              "pipeline_ms": {
+                "mean": 61.307953333016485,
+                "p95": 68.27662999276072,
+                "maximum": 72.40940001793206
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 49.38539999847611,
+                "p95": 59.429894987260916,
+                "maximum": 63.95250000059605
+              },
+              "pipeline_ms": {
+                "mean": 62.16128533356823,
+                "p95": 76.28672501305117,
+                "maximum": 93.13019999535754
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 44.42101000313414,
+                "p95": 45.45408001577016,
+                "maximum": 47.47829999541864
+              },
+              "pipeline_ms": {
+                "mean": 63.62318416649941,
+                "p95": 78.56971498113126,
+                "maximum": 89.81169998878613
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 45.032511110831464,
+                "p95": 47.80950003769249,
+                "maximum": 48.66750002838671
+              },
+              "pipeline_ms": {
+                "mean": 67.47536888837607,
+                "p95": 76.42007999820635,
+                "maximum": 93.5017000301741
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 44.12467333255336,
+                "p95": 45.18336997134611,
+                "maximum": 45.54170003393665
+              },
+              "pipeline_ms": {
+                "mean": 66.25856266667445,
+                "p95": 76.97591003379785,
+                "maximum": 85.55989997694269
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 44.38857332958529,
+                "p95": 47.547094989567995,
+                "maximum": 49.31660002330318
+              },
+              "pipeline_ms": {
+                "mean": 65.67411999955463,
+                "p95": 73.48968000151217,
+                "maximum": 75.04939998034388
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014021201990544796,
+            "edges_before_incision": 0,
+            "cut_edges": 205,
+            "observed_cut_edges": 205,
+            "retained_cut_edges": 205,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 262,
+            "final_grip_points": 62,
+            "current_grip_points": 62,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 4.3368243635467516e-05,
+            "max_blade_body_overlap_m": 4.3368243635467516e-05,
+            "peak_blade_force_n": 21.19094467163086,
+            "max_node_displacement_m": 0.026700280606746674,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.3221392035484314,
+            "fracture_right_n": 0.2940157353878021,
+            "two_blade_squeeze_m": 0.0013015508222861889,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.3221392035484314,
+                "fracture_right_n": 0.3197551667690277,
+                "two_blade_squeeze_m": 0.0013015508222861889
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.41000333428382874,
+                "fracture_right_n": 0.2940157353878021,
+                "two_blade_squeeze_m": 0.0016362061863624366
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 33,
+            "slit_length_m": 0.00831439506799862,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        },
+        {
+          "name": "baseline-a2",
+          "path": "endoscopic_tissue/outputs/joint-gated-20261031/baseline-a2",
+          "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+          "rows_sha256": "6828f1e6495d0338259ec4ef32d9c27c9c3e01fcef00ec23f47de738db79f4f2",
+          "report_sha256": "715172769cb2bda27b54ad1dec10a8f615aa83b27fb67e79b99151a0440c75a8",
+          "core_ms": {
+            "mean": 43.115345946448095,
+            "p95": 51.94507000851445,
+            "maximum": 63.244500022847205
+          },
+          "pipeline_ms": {
+            "mean": 55.21247693686746,
+            "p95": 83.01195498497691,
+            "maximum": 108.86809998191893
+          },
+          "stages": {
+            "settle": {
+              "core_ms": {
+                "mean": 34.173340001143515,
+                "p95": 36.50142002443317,
+                "maximum": 36.67599998880178
+              },
+              "pipeline_ms": {
+                "mean": 41.60806333335737,
+                "p95": 44.61054996645544,
+                "maximum": 44.8898000176996
+              }
+            },
+            "approach": {
+              "core_ms": {
+                "mean": 34.07398444509858,
+                "p95": 35.43970500177238,
+                "maximum": 35.75959999579936
+              },
+              "pipeline_ms": {
+                "mean": 41.19421111083486,
+                "p95": 43.253575000562705,
+                "maximum": 44.79529999662191
+              }
+            },
+            "bite": {
+              "core_ms": {
+                "mean": 36.47675555354605,
+                "p95": 42.60696000419557,
+                "maximum": 42.798199981916696
+              },
+              "pipeline_ms": {
+                "mean": 44.254759999199045,
+                "p95": 50.86802002042532,
+                "maximum": 52.41269996622577
+              }
+            },
+            "close": {
+              "core_ms": {
+                "mean": 41.99877333206435,
+                "p95": 43.19343996467069,
+                "maximum": 44.564599986188114
+              },
+              "pipeline_ms": {
+                "mean": 50.183517776895314,
+                "p95": 52.592180005740374,
+                "maximum": 53.663200000301
+              }
+            },
+            "lift": {
+              "core_ms": {
+                "mean": 41.649211668603435,
+                "p95": 42.617434985004365,
+                "maximum": 44.83799997251481
+              },
+              "pipeline_ms": {
+                "mean": 49.85892666688111,
+                "p95": 52.6688300044043,
+                "maximum": 55.59549998724833
+              }
+            },
+            "blade_approach": {
+              "core_ms": {
+                "mean": 42.96572749978319,
+                "p95": 46.364755008835346,
+                "maximum": 47.95059998286888
+              },
+              "pipeline_ms": {
+                "mean": 51.775536666779466,
+                "p95": 59.80632999853697,
+                "maximum": 69.3879000027664
+              }
+            },
+            "incise_1": {
+              "core_ms": {
+                "mean": 51.188636001897976,
+                "p95": 55.29903001443017,
+                "maximum": 61.76680000498891
+              },
+              "pipeline_ms": {
+                "mean": 74.38197999998617,
+                "p95": 94.24797997635322,
+                "maximum": 108.86809998191893
+              }
+            },
+            "open_1": {
+              "core_ms": {
+                "mean": 48.49536000013662,
+                "p95": 50.98746500152629,
+                "maximum": 51.28390004392713
+              },
+              "pipeline_ms": {
+                "mean": 63.193149998551235,
+                "p95": 86.91623998165595,
+                "maximum": 107.91070002596825
+              }
+            },
+            "reposition_2": {
+              "core_ms": {
+                "mean": 45.486488333942056,
+                "p95": 47.93309497181326,
+                "maximum": 48.49750001449138
+              },
+              "pipeline_ms": {
+                "mean": 53.72041500037691,
+                "p95": 56.67433998605702,
+                "maximum": 58.82099998416379
+              }
+            },
+            "incise_2": {
+              "core_ms": {
+                "mean": 45.97228199980842,
+                "p95": 53.902000017114915,
+                "maximum": 63.244500022847205
+              },
+              "pipeline_ms": {
+                "mean": 59.975956000077225,
+                "p95": 68.7105650140438,
+                "maximum": 104.48340000584722
+              }
+            },
+            "withdraw": {
+              "core_ms": {
+                "mean": 41.94664666477669,
+                "p95": 43.466029994306155,
+                "maximum": 46.54479998862371
+              },
+              "pipeline_ms": {
+                "mean": 56.00298666686285,
+                "p95": 61.949064981308766,
+                "maximum": 90.77830001479015
+              }
+            },
+            "release": {
+              "core_ms": {
+                "mean": 41.64381333264626,
+                "p95": 42.51215999247506,
+                "maximum": 43.20760001428425
+              },
+              "pipeline_ms": {
+                "mean": 52.01687111079486,
+                "p95": 68.29641998047008,
+                "maximum": 70.29730000067502
+              }
+            },
+            "extract": {
+              "core_ms": {
+                "mean": 42.09753066611787,
+                "p95": 43.88365000486374,
+                "maximum": 45.041500008665025
+              },
+              "pipeline_ms": {
+                "mean": 53.268658667026706,
+                "p95": 61.535819980781525,
+                "maximum": 72.16460001654923
+              }
+            },
+            "hold": {
+              "core_ms": {
+                "mean": 41.93039668025449,
+                "p95": 42.75788500672206,
+                "maximum": 43.103699979837984
+              },
+              "pipeline_ms": {
+                "mean": 51.843119998617716,
+                "p95": 63.713184971129515,
+                "maximum": 69.03620000230148
+              }
+            }
+          },
+          "quality_passed": false,
+          "metrics": {
+            "completed": true,
+            "grasp_acquired": true,
+            "lift_m": 0.014004827477037907,
+            "edges_before_incision": 0,
+            "cut_edges": 187,
+            "observed_cut_edges": 187,
+            "retained_cut_edges": 187,
+            "new_edges_during_withdrawal": 0,
+            "cut_wall_triangles": 224,
+            "final_grip_points": 55,
+            "current_grip_points": 55,
+            "grip_lost_after_capture": false,
+            "bite_nodes": 0,
+            "held_bite_nodes": 0,
+            "grip_slip_m": 0.0,
+            "max_knife_body_penetration_m": 3.2584316885482384e-05,
+            "max_blade_body_overlap_m": 3.2584316885482384e-05,
+            "peak_blade_force_n": 4.575032711029053,
+            "max_node_displacement_m": 0.025115665048360825,
+            "degenerate_cut_wall_triangles": 0,
+            "fractures": 2,
+            "fracture_left_n": 0.2051606923341751,
+            "fracture_right_n": 0.16329100728034973,
+            "two_blade_squeeze_m": 0.00145783280503148,
+            "snips": [
+              {
+                "stage": "incise_1",
+                "fracture_left_n": 0.24226978421211243,
+                "fracture_right_n": 0.2713574171066284,
+                "two_blade_squeeze_m": 0.00145783280503148
+              },
+              {
+                "stage": "incise_2",
+                "fracture_left_n": 0.2051606923341751,
+                "fracture_right_n": 0.16329100728034973,
+                "two_blade_squeeze_m": 0.0022150757902528063
+              }
+            ],
+            "edges_cut_without_fracture": 0,
+            "edges_cut_outside_tab": 0,
+            "uncut_columns": 0,
+            "multiply_cut_columns": 0,
+            "stray_skin_cuts": 37,
+            "slit_length_m": 0.009280320980648184,
+            "material_components": 2,
+            "gripped_pieces": 1,
+            "tumor_nodes_left": 0,
+            "lattice_pieces": 2,
+            "acceptance_passed": false
+          }
+        }
+      ],
+      "means": {
+        "core_ms": {
+          "baseline": 43.784835270992986,
+          "candidate": 48.01871680142253,
+          "change_percent": 9.669744111688928
+        },
+        "pipeline_ms": {
+          "baseline": 57.62036076578026,
+          "candidate": 62.85708959451415,
+          "change_percent": 9.088330512230836
+        }
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "baseline",
+      "path": "endoscopic_tissue/outputs/joint-coarse-20261031/baseline-capture",
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+      "quality_passed": false,
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013997671194374561,
+        "edges_before_incision": 0,
+        "cut_edges": 178,
+        "observed_cut_edges": 178,
+        "retained_cut_edges": 178,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 234,
+        "final_grip_points": 55,
+        "current_grip_points": 55,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 8.848769604185264e-05,
+        "max_blade_body_overlap_m": 8.848769604185264e-05,
+        "peak_blade_force_n": 26.031158447265625,
+        "max_node_displacement_m": 0.025512194260954857,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.19265566766262054,
+        "fracture_right_n": 0.10383733361959457,
+        "two_blade_squeeze_m": 0.0012827417217583048,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.19265566766262054,
+            "fracture_right_n": 0.18737326562404633,
+            "two_blade_squeeze_m": 0.0012827417217583048
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.3685665428638458,
+            "fracture_right_n": 0.10383733361959457,
+            "two_blade_squeeze_m": 0.0024230609910596158
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 39,
+        "slit_length_m": 0.007607288550027169,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "motion_sha256": "e422b14d128f034cda4a2c2c06c8d14e46cda5f857d306529dd114683f44915d",
+      "report_sha256": "ab90cd9b354ccfbf8de959323e99e6fc0194f67c787bd7822599fa73df4e4a2c",
+      "peak_loads_by_stage": {
+        "initial": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "settle": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "approach": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "bite": {
+          "jaw_load_n": [
+            5.6440074835961695e-09,
+            0.05781061202287674
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "close": {
+          "jaw_load_n": [
+            2.8970110416412354,
+            1.8957864046096802
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "lift": {
+          "jaw_load_n": [
+            3.183027982711792,
+            1.8948789834976196
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "blade_approach": {
+          "jaw_load_n": [
+            1.9603830575942993,
+            22.360206604003906
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.012495467439293861
+          ]
+        },
+        "incise_1": {
+          "jaw_load_n": [
+            0.12309256196022034,
+            14.448495864868164
+          ],
+          "scissors_load_n": [
+            2.0481719970703125,
+            1.683863639831543
+          ]
+        },
+        "open_1": {
+          "jaw_load_n": [
+            0.156928151845932,
+            4.048675537109375
+          ],
+          "scissors_load_n": [
+            0.5823755264282227,
+            0.6178572177886963
+          ]
+        },
+        "reposition_2": {
+          "jaw_load_n": [
+            0.060082320123910904,
+            3.6045501232147217
+          ],
+          "scissors_load_n": [
+            0.06721097230911255,
+            0.000928599270991981
+          ]
+        },
+        "incise_2": {
+          "jaw_load_n": [
+            0.35926154255867004,
+            4.9004669189453125
+          ],
+          "scissors_load_n": [
+            2.181077480316162,
+            0.6845998764038086
+          ]
+        },
+        "withdraw": {
+          "jaw_load_n": [
+            0.6957570314407349,
+            4.979647159576416
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "release": {
+          "jaw_load_n": [
+            0.6060951352119446,
+            4.7320051193237305
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "extract": {
+          "jaw_load_n": [
+            0.7678887248039246,
+            4.516772270202637
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "hold": {
+          "jaw_load_n": [
+            0.791063129901886,
+            4.492859840393066
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "video": {
+        "path": "endoscopic_tissue/outputs/joint-coarse-20261031/baseline-video/interactions.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 16274719,
+        "note": "Playback at simulation time; not measured runtime FPS."
+      },
+      "topology_audit": {
+        "recorded_nonmanifold_edges": 2,
+        "positional_nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0
+      }
+    },
+    {
+      "name": "joint",
+      "path": "endoscopic_tissue/outputs/joint-coarse-20261031/joint-capture",
+      "dll_sha256": "9f76fe460786e10c65b9f5bce8e7af5c064e17dbfeb67f370d4ec301ac6d1dba",
+      "quality_passed": false,
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.014007148332893848,
+        "edges_before_incision": 0,
+        "cut_edges": 227,
+        "observed_cut_edges": 227,
+        "retained_cut_edges": 227,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 262,
+        "final_grip_points": 62,
+        "current_grip_points": 62,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 8.586901035222888e-05,
+        "max_blade_body_overlap_m": 8.586901035222888e-05,
+        "peak_blade_force_n": 37.03883743286133,
+        "max_node_displacement_m": 0.026107685640454292,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.19585414230823517,
+        "fracture_right_n": 0.26530560851097107,
+        "two_blade_squeeze_m": 0.0013252781089606509,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.26747041940689087,
+            "fracture_right_n": 0.289346307516098,
+            "two_blade_squeeze_m": 0.0013252781089606509
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.19585414230823517,
+            "fracture_right_n": 0.26530560851097107,
+            "two_blade_squeeze_m": 0.0014066756503684275
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 36,
+        "slit_length_m": 0.011212172883081406,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "motion_sha256": "130c536ef13b73de3e2ba28a315e424c59ec50856fdeaba528a469feeaf8bf78",
+      "report_sha256": "0e253ee617f23ea9208db52983d5a9e5fa20b514837c5016450e6ef60c758544",
+      "peak_loads_by_stage": {
+        "initial": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "settle": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "approach": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "bite": {
+          "jaw_load_n": [
+            5.642859068899497e-09,
+            0.057788699865341187
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "close": {
+          "jaw_load_n": [
+            2.7205793857574463,
+            3.007655620574951
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "lift": {
+          "jaw_load_n": [
+            3.346454381942749,
+            3.0360283851623535
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "blade_approach": {
+          "jaw_load_n": [
+            1.4424155950546265,
+            10.766860961914062
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.015447468496859074
+          ]
+        },
+        "incise_1": {
+          "jaw_load_n": [
+            0.36605197191238403,
+            7.660823345184326
+          ],
+          "scissors_load_n": [
+            3.7036917209625244,
+            2.645312786102295
+          ]
+        },
+        "open_1": {
+          "jaw_load_n": [
+            0.4552844762802124,
+            3.37581467628479
+          ],
+          "scissors_load_n": [
+            1.5573583841323853,
+            1.5379782915115356
+          ]
+        },
+        "reposition_2": {
+          "jaw_load_n": [
+            0.13001736998558044,
+            6.549454689025879
+          ],
+          "scissors_load_n": [
+            0.1136142909526825,
+            0.2701583504676819
+          ]
+        },
+        "incise_2": {
+          "jaw_load_n": [
+            0.6077507734298706,
+            5.964114189147949
+          ],
+          "scissors_load_n": [
+            2.5533223152160645,
+            1.0861883163452148
+          ]
+        },
+        "withdraw": {
+          "jaw_load_n": [
+            0.7497290372848511,
+            4.666671276092529
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "release": {
+          "jaw_load_n": [
+            0.6641800403594971,
+            3.961045980453491
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "extract": {
+          "jaw_load_n": [
+            0.7201032638549805,
+            3.6652305126190186
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "hold": {
+          "jaw_load_n": [
+            0.6666614413261414,
+            3.3562021255493164
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "video": {
+        "path": "endoscopic_tissue/outputs/joint-coarse-20261031/joint-video/interactions.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 15954379,
+        "note": "Playback at simulation time; not measured runtime FPS."
+      },
+      "topology_audit": {
+        "recorded_nonmanifold_edges": 4,
+        "positional_nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0
+      },
+      "comparison": {
+        "path": "endoscopic_tissue/outputs/joint-coarse-20261031/joint-review/comparison.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 34125757,
+        "note": "Playback at simulation time; not measured runtime FPS."
+      },
+      "motion_comparison": {
+        "path": "endoscopic_tissue/outputs/joint-coarse-20261031/joint-review/motion-comparison.json",
+        "sha256": "496cd1080c0a73c0aba33978f5f3e100673bd1b1a047299d51a585cf220818e8"
+      }
+    },
+    {
+      "name": "gated",
+      "path": "endoscopic_tissue/outputs/joint-gated-20261031/gated-capture",
+      "dll_sha256": "1e42962032c74e712c244c3f886c0920cece619319b06e99cbd5c46fe409f442",
+      "quality_passed": false,
+      "metrics": {
+        "completed": true,
+        "grasp_acquired": true,
+        "lift_m": 0.013995393179357052,
+        "edges_before_incision": 0,
+        "cut_edges": 209,
+        "observed_cut_edges": 209,
+        "retained_cut_edges": 209,
+        "new_edges_during_withdrawal": 0,
+        "cut_wall_triangles": 270,
+        "final_grip_points": 62,
+        "current_grip_points": 62,
+        "grip_lost_after_capture": false,
+        "bite_nodes": 0,
+        "held_bite_nodes": 0,
+        "grip_slip_m": 0.0,
+        "max_knife_body_penetration_m": 3.930249429289087e-05,
+        "max_blade_body_overlap_m": 3.930249429289087e-05,
+        "peak_blade_force_n": 25.78092384338379,
+        "max_node_displacement_m": 0.025931386277079582,
+        "degenerate_cut_wall_triangles": 0,
+        "fractures": 2,
+        "fracture_left_n": 0.12002750486135483,
+        "fracture_right_n": 0.38063865900039673,
+        "two_blade_squeeze_m": 0.0012805837873849347,
+        "snips": [
+          {
+            "stage": "incise_1",
+            "fracture_left_n": 0.3133144974708557,
+            "fracture_right_n": 0.38063865900039673,
+            "two_blade_squeeze_m": 0.0012805837873849347
+          },
+          {
+            "stage": "incise_2",
+            "fracture_left_n": 0.12002750486135483,
+            "fracture_right_n": 0.443337619304657,
+            "two_blade_squeeze_m": 0.0016447397285004705
+          }
+        ],
+        "edges_cut_without_fracture": 0,
+        "edges_cut_outside_tab": 0,
+        "uncut_columns": 0,
+        "multiply_cut_columns": 0,
+        "stray_skin_cuts": 41,
+        "slit_length_m": 0.007537937940404465,
+        "material_components": 2,
+        "gripped_pieces": 1,
+        "tumor_nodes_left": 0,
+        "lattice_pieces": 2,
+        "acceptance_passed": false
+      },
+      "motion_sha256": "701dc6a69d3b93a39c5edf7cd7d529628109e9698856e0d6d64ba314c5eb4070",
+      "report_sha256": "e4a9500cf2dc67aa1abc59b375a3fd97308bc893c998b9195d9c8019de028479",
+      "peak_loads_by_stage": {
+        "initial": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "settle": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "approach": {
+          "jaw_load_n": [
+            0.0,
+            0.0
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "bite": {
+          "jaw_load_n": [
+            5.643252976028634e-09,
+            0.05782322585582733
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "close": {
+          "jaw_load_n": [
+            2.737274408340454,
+            3.090599298477173
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "lift": {
+          "jaw_load_n": [
+            3.404127359390259,
+            3.1530983448028564
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "blade_approach": {
+          "jaw_load_n": [
+            1.9940268993377686,
+            8.584050178527832
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.01214882917702198
+          ]
+        },
+        "incise_1": {
+          "jaw_load_n": [
+            0.3414456844329834,
+            9.3536376953125
+          ],
+          "scissors_load_n": [
+            3.8970983028411865,
+            2.644756317138672
+          ]
+        },
+        "open_1": {
+          "jaw_load_n": [
+            0.6328288316726685,
+            3.089836359024048
+          ],
+          "scissors_load_n": [
+            1.3512383699417114,
+            1.164658546447754
+          ]
+        },
+        "reposition_2": {
+          "jaw_load_n": [
+            0.6322852373123169,
+            5.5649261474609375
+          ],
+          "scissors_load_n": [
+            0.0,
+            2.2521893978118896
+          ]
+        },
+        "incise_2": {
+          "jaw_load_n": [
+            0.9938529133796692,
+            5.541238307952881
+          ],
+          "scissors_load_n": [
+            4.085214614868164,
+            3.54069447517395
+          ]
+        },
+        "withdraw": {
+          "jaw_load_n": [
+            0.9251450300216675,
+            3.72912335395813
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "release": {
+          "jaw_load_n": [
+            0.7103490829467773,
+            2.9996659755706787
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "extract": {
+          "jaw_load_n": [
+            0.7113353610038757,
+            2.8127644062042236
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        },
+        "hold": {
+          "jaw_load_n": [
+            0.7728062272071838,
+            2.6664390563964844
+          ],
+          "scissors_load_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "video": {
+        "path": "endoscopic_tissue/outputs/joint-gated-20261031/gated-video/interactions.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 16189359,
+        "note": "Playback at simulation time; not measured runtime FPS."
+      },
+      "topology_audit": {
+        "recorded_nonmanifold_edges": 3,
+        "positional_nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "duplicate_triangles": 0
+      },
+      "comparison": {
+        "path": "endoscopic_tissue/outputs/joint-gated-20261031/gated-review/comparison.mp4",
+        "frames": 1111,
+        "fps": 30.0,
+        "bytes": 34325968,
+        "note": "Playback at simulation time; not measured runtime FPS."
+      },
+      "motion_comparison": {
+        "path": "endoscopic_tissue/outputs/joint-gated-20261031/gated-review/motion-comparison.json",
+        "sha256": "a55abd6ba01be3c9b5d04431f837aa4455d9bc9d75c8c6a826923ff5b6372c55"
+      }
+    }
+  ],
+  "section_diagnostics": {
+    "note": "CUDA Graphs disabled. Section event timings include launch gaps; compare localization only. Different trajectories and one run per DLL do not isolate kernel causes.",
+    "runs": {
+      "baseline": {
+        "steps": 1110,
+        "sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 1.3547394594594595,
+          "cg assembly: mask": 0.10916207207207208,
+          "cg assembly: start": 0.013779009009009009,
+          "cg assembly: stencil and residual": 2.4204364864864862,
+          "cg: assembly": 2.7636177477477477,
+          "cg: feasible": 0.8536294594594594,
+          "cg: iterations": 5.357222882882883,
+          "cg: line search": 1.3737293693693693,
+          "cg: trust, projection": 0.035611531531531536,
+          "loop: coarse modes": 4.2251326126126125,
+          "loop: contact discovery": 4.815986396396396,
+          "loop: local sweeps": 5.684215315315315,
+          "loop: manifold, contact marks": 3.174553423423423,
+          "loop: regional mode": 1.809841981981982,
+          "loop: rigid modes": 1.1130766666666665,
+          "loop: tool, safe and global coarse": 3.3358513513513515,
+          "post: blade and contact reactions, velocity": 0.3521100900900901,
+          "post: fragment contact": 2.4686651351351356,
+          "post: free-component nullspace": 0.4254157657657658,
+          "pre: predictor, recovery query": 2.298927657657657,
+          "pre: tool, contact discovery, manifold": 2.5066405405405408,
+          "substep prologue: liveness, fragment contact, predict": 2.587555225225225
+        },
+        "quality_passed": false,
+        "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+        "rows_sha256": "de09086e2eea30a8b9c30cbbad3f9c23ff0f996331ccf17a66f86dbb5a995822"
+      },
+      "gated": {
+        "steps": 1110,
+        "sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 1.3746375675675675,
+          "cg assembly: mask": 0.12360873873873877,
+          "cg assembly: start": 0.02679135135135135,
+          "cg assembly: stencil and residual": 2.4166384684684687,
+          "cg: assembly": 2.818846036036036,
+          "cg: feasible": 0.8825149549549549,
+          "cg: iterations": 5.383041441441442,
+          "cg: line search": 1.3813344144144146,
+          "cg: trust, projection": 0.04730387387387388,
+          "loop: coarse modes": 8.164092432432433,
+          "loop: contact discovery": 4.8990493693693695,
+          "loop: local sweeps": 5.737234504504504,
+          "loop: manifold, contact marks": 3.2576559459459458,
+          "loop: regional mode": 1.8013303603603603,
+          "loop: rigid modes": 1.117361801801802,
+          "loop: tool, safe and global coarse": 3.488552792792793,
+          "post: blade and contact reactions, velocity": 0.3805524324324324,
+          "post: fragment contact": 2.4565148648648654,
+          "post: free-component nullspace": 0.4422041441441441,
+          "pre: predictor, recovery query": 2.2963820720720722,
+          "pre: tool, contact discovery, manifold": 3.1254258558558563,
+          "substep prologue: liveness, fragment contact, predict": 2.541691171171171
+        },
+        "quality_passed": false,
+        "dll_sha256": "1e42962032c74e712c244c3f886c0920cece619319b06e99cbd5c46fe409f442",
+        "rows_sha256": "5f7b427cde272c450ccad78f06482f629b8a77509a21eada637231efffa4e4e2"
+      }
+    }
+  },
+  "build_manifest_sha256": "826206cc302fb2ecdea9283f1ab65db425fd739449393c4e927b4d073fa486b9",
+  "patches": {
+    "initial-joint.patch": "4e4e1b1fa4bc5cad186e34c1caaba1a749a3245b12fcc43cf1f13cf56334faa5",
+    "initial-joint-probe.patch": "3570fde58059befd7010345391465a565704365e03c75c75e046754f68243552",
+    "joint-coarse.patch": "3b81766a996bcba4cdae451358a7532c3ba3d67b9c30fada565510d5fc7c355e",
+    "joint-probe.patch": "1cbd55e39dfaf6feee1e53b2f544e23bdc3f75970eb78b8b75ffb60d8e579568",
+    "joint-gated.patch": "f8d4e4b0d3eed3c999805e2b1160ab13786735fc6ebd90b9ab611597fc9e699c",
+    "joint-gated-probe.patch": "b4779750ada44f2b327b9beab20c56620245f9299d8e734619621ad87b951b96"
+  },
+  "protected_dll_sha256": {
+    "bin-scissors": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225",
+    "bin": "2632a926b385d9c9a81d5f7d7ebb75fe0501917a9cf83d0c19d3a29c62af961b"
+  }
+}

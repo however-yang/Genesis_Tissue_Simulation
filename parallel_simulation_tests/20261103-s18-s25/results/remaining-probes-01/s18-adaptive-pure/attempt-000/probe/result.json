@@ -1,0 +1,9 @@
+{
+  "completed": false,
+  "passed": false,
+  "scope": "one adaptive preparation feasibility probe, not C1-C5 or integrated reset",
+  "contact_model": 1,
+  "stages": [],
+  "error": "RuntimeError('Selected GPU not idle')",
+  "traceback": "Traceback (most recent call last):\n  File \"/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/probe_adaptive_geometry.py\", line 22, in <module>\n    guard=GPUReservation(a.gpu,a.output)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/source/endoscopic_tissue/training/acceptance_queue.py\", line 165, in __init__\n    if initial['processes'] or initial['used_mib']>512 or initial['gpu_percent']>5:raise RuntimeError('Selected GPU not idle')\n                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: Selected GPU not idle\n"
+}

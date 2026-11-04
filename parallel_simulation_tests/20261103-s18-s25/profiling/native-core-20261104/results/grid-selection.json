@@ -1,0 +1,160 @@
+{
+  "completed": true,
+  "source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/aggressive-20261104/final-source",
+  "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-scheduled/build/lib/libLiverCudaSim.so",
+  "flags": [
+    "--vision",
+    "--gpu-postprocess",
+    "--gpu-aligned-depth",
+    "--fused-mesh",
+    "--persistent-soup",
+    "--direct-rgb",
+    "--opencv-threads",
+    "1",
+    "--gpu-topology"
+  ],
+  "runs": [
+    {
+      "name": "control-same-binary",
+      "query_mode": 0,
+      "assembly_blocks": 512,
+      "manifold_blocks": 1024,
+      "completed": true,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 46.756935628368794,
+        "p50_ms": 47.8488325,
+        "p95_ms": 59.092202699999994,
+        "p99_ms": 65.65591164000008,
+        "max_ms": 79.546119,
+        "fps": 21.387201418590635,
+        "over_50ms": 497,
+        "rolling20_min_hz": 16.19708615731994
+      }
+    },
+    {
+      "name": "grid-assembly128",
+      "query_mode": 1,
+      "assembly_blocks": 128,
+      "manifold_blocks": 1024,
+      "completed": true,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 44.668118359574464,
+        "p50_ms": 46.873545500000006,
+        "p95_ms": 52.241124400000004,
+        "p99_ms": 59.564738309999996,
+        "max_ms": 88.621014,
+        "fps": 22.387332100046997,
+        "over_50ms": 259,
+        "rolling20_min_hz": 17.417707896664137
+      }
+    },
+    {
+      "name": "grid-manifold128",
+      "query_mode": 1,
+      "assembly_blocks": 512,
+      "manifold_blocks": 128,
+      "completed": true,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 44.678211676595744,
+        "p50_ms": 46.991372999999996,
+        "p95_ms": 52.302812249999995,
+        "p99_ms": 59.46810465,
+        "max_ms": 76.121585,
+        "fps": 22.382274546674402,
+        "over_50ms": 299,
+        "rolling20_min_hz": 17.920393461879208
+      }
+    },
+    {
+      "name": "grid-both128",
+      "query_mode": 1,
+      "assembly_blocks": 128,
+      "manifold_blocks": 128,
+      "completed": true,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 44.80087945815603,
+        "p50_ms": 47.0138695,
+        "p95_ms": 52.32138585,
+        "p99_ms": 58.430180790000016,
+        "max_ms": 71.806733,
+        "fps": 22.32099039336937,
+        "over_50ms": 335,
+        "rolling20_min_hz": 17.855913716625167
+      }
+    },
+    {
+      "name": "grid-both64",
+      "query_mode": 1,
+      "assembly_blocks": 64,
+      "manifold_blocks": 64,
+      "completed": true,
+      "quality_passed": true,
+      "error": null,
+      "performance": {
+        "frames": 1410,
+        "mean_ms": 45.736458595035465,
+        "p50_ms": 47.914991,
+        "p95_ms": 53.4556114,
+        "p99_ms": 61.32564311000004,
+        "max_ms": 99.23149,
+        "fps": 21.864395073836054,
+        "over_50ms": 447,
+        "rolling20_min_hz": 14.813132207586388
+      }
+    },
+    {
+      "name": "grid-both256",
+      "query_mode": 1,
+      "assembly_blocks": 256,
+      "manifold_blocks": 256,
+      "completed": false,
+      "quality_passed": false,
+      "error": null,
+      "performance": {
+        "frames": 1095,
+        "mean_ms": 43.63388306210046,
+        "p50_ms": 46.34164,
+        "p95_ms": 51.301424,
+        "p99_ms": 59.22270988,
+        "max_ms": 77.881431,
+        "fps": 22.917969472870052,
+        "over_50ms": 104,
+        "rolling20_min_hz": 18.170899090326813
+      }
+    }
+  ],
+  "selected": {
+    "name": "grid-assembly128",
+    "query_mode": 1,
+    "assembly_blocks": 128,
+    "manifold_blocks": 1024,
+    "completed": true,
+    "quality_passed": true,
+    "error": null,
+    "performance": {
+      "frames": 1410,
+      "mean_ms": 44.668118359574464,
+      "p50_ms": 46.873545500000006,
+      "p95_ms": 52.241124400000004,
+      "p99_ms": 59.564738309999996,
+      "max_ms": 88.621014,
+      "fps": 22.387332100046997,
+      "over_50ms": 259,
+      "rolling20_min_hz": 17.417707896664137
+    }
+  },
+  "formal_physics_domain_approved": false,
+  "production_replaced": false
+}

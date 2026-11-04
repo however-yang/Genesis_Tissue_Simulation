@@ -1,0 +1,171 @@
+--- a/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/solver/material/unified_vertex.cuh
+@@ -128,6 +128,7 @@
+ }
+ // Threads per CUDA block of the kernels that add their terms through blockAccumulate.
+ constexpr int ACCUMULATE_THREADS=256;
++struct CoarsePartial { CoarseBlock* target;float values[9]; };
+ // Adds the values of each thread into the sums at its target. The threads of the CUDA block that share the target of
+ // its first contributing thread add theirs in shared memory first, so that this target, typically the root of the one
+ // large component, receives one atomic per value and CUDA block. Atomics into one address serialize: the nine sums of
+@@ -135,7 +136,7 @@
+ // target keep the warp-level reduction. Every thread of the CUDA block calls it, once per kernel, a thread with nothing
+ // to add with a null target. add(target,values) issues the atomics of the N values into the sums at target. Kernels
+ // with one sum per warp keep unifiedReduce: the barriers of a large CUDA block cost them more than their atomics.
+-template<int N,class Add> __device__ void blockAccumulate(const void* target,float (&v)[N],Add add){
++template<int N,class Add> __device__ void blockAccumulate(const void* target,float (&v)[N],Add add,CoarsePartial* partial=nullptr){
+     __shared__ unsigned long long first;__shared__ float sum[N];
+     if(threadIdx.x==0)first=0;
+     for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
+@@ -148,7 +149,13 @@
+         if(group.thread_rank()==0)for(int j=0;j<N;j++)atomicAdd(sum+j,v[j]);
+     }else if(target && unifiedReduce(target,v))add(target,v);
+     __syncthreads();
+-    if(threadIdx.x==0 && first)add((const void*)first,sum);
++    if(threadIdx.x==0){
++        if(partial){
++            // Every block writes a record, including empty blocks, on every call.
++            partial->target=(CoarseBlock*)first;
++            for(int j=0;j<N;j++)partial->values[j]=sum[j];
++        }else if(first)add((const void*)first,sum);
++    }
+ }
+ __device__ inline void unifiedEnergyChangeAdd(CoarseBlock* b,float change){
+     float values[1]={change};if(unifiedReduce(b,values))atomicAdd(&b->yy,values[0]);
+@@ -826,9 +833,9 @@
+ }
+ // coarseAccumulate summed over the CUDA block first (blockAccumulate): every thread of the CUDA block calls it, a
+ // thread without terms with a null block.
+-__device__ inline void coarseAccumulateBlock(CoarseBlock* b,float3 g,const Symmetric3& H){
++__device__ inline void coarseAccumulateBlock(CoarseBlock* b,float3 g,const Symmetric3& H,CoarsePartial* partial=nullptr){
+     float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
+-    blockAccumulate(b,v,[](const void* target,const float* values){coarseAdd(target,values);});
++    blockAccumulate(b,v,[](const void* target,const float* values){coarseAdd(target,values);},partial);
+ }
+ // Connected-component coarse modes accelerate long-range force transmission.
+ // Each severed piece has its own reduction/step, so a cut cannot introduce an
+@@ -1003,13 +1010,21 @@
+ }
+ // The node, tet, contact and grip terms of a coarse mode in one launch: the first activeCount threads add the terms of
+ // an active node, the next nt those of a tet, and all of them then stride over the contacts and grips.
+-__global__ void k_CoarseAccumulate(const UnifiedState* state,CoarseBlock* block){
++__global__ void k_CoarseAccumulate(const UnifiedState* state,CoarseBlock* block,CoarsePartial* partials=nullptr){
+     const UnifiedState& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
+     float3 g=mkf3(0,0,0);Symmetric3 H={};float scale=1;
+     CoarseBlock* target=t<s.activeCount?coarseNodeTerms(s,s.activeNodes[t],block,g,H):
+         coarseTetTerms(s,t-s.activeCount,block,false,g,H,scale);
+-    coarseAccumulateBlock(target,g,H);
++    coarseAccumulateBlock(target,g,H,partials?partials+blockIdx.x:nullptr);
+     coarseContactGripTerms(s,block,t,gridDim.x*blockDim.x);
++}
++// Merge block partials by component before their global atomics. Other component
++// destinations and contact/grip terms retain their original accumulation paths.
++__global__ void k_CoarseFinish(int count,const CoarsePartial* partials){
++    int i=blockIdx.x*blockDim.x+threadIdx.x;if(i>=count)return;
++    const CoarsePartial& p=partials[i];if(!p.target)return;
++    float values[9];for(int j=0;j<9;j++)values[j]=p.values[j];
++    if(unifiedReduce(p.target,values))coarseAdd(p.target,values);
+ }
+ __global__ void k_CoarseSolve(const UnifiedState* state,CoarseBlock* block){
+     int k=blockIdx.x*blockDim.x+threadIdx.x;
+--- a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -126,6 +126,8 @@
+ static int *d_sweepSites=nullptr,*d_sweepCount=nullptr;
+ static CoarseBlock* d_coarseBlock=nullptr;
+ static CoarseBlock* d_globalCoarse=nullptr;
++static CoarsePartial* d_coarsePartial=nullptr;
++static int g_coarsePartialCapacity=0;
+ static SurfaceContact* d_manifold=nullptr;
+ static int *d_manifoldIds=nullptr,*d_manifoldCount=nullptr,*d_manifoldOwners=nullptr;
+ static float* d_manifoldQuadrature=nullptr;
+@@ -377,6 +379,11 @@
+ static int g_sweepBlocks=0,g_predictorBlocks=0;
+ // Grid of the kernels that sum per-component terms through blockAccumulate (unified_vertex.cuh).
+ static inline int GrAccumulate(int n) { int g = (n + ACCUMULATE_THREADS - 1) / ACCUMULATE_THREADS; return g < 1 ? 1 : g; }
++static void accumulateCoarse(CoarseBlock* block,cudaStream_t stream=0){
++    int count=GrAccumulate(g_activeNodes+g_T);
++    k_CoarseAccumulate<<<count,ACCUMULATE_THREADS,0,stream>>>(d_unified,block,d_coarsePartial);
++    k_CoarseFinish<<<Gr(count),64,0,stream>>>(count,d_coarsePartial);
++}
+
+ // ── kernels ───────────────────────────────────────────────────────────────────────────────────
+ // Predict: save prev, integrate the external body forces into velocity, advance position. Pinned
+@@ -2936,7 +2943,7 @@
+             if(it==0){
+                 k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,5);
+                 k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                accumulateCoarse(d_globalCoarse,g_captureStream);
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
+                 k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
+@@ -2976,7 +2983,7 @@
+
+             if(it==0){
+                 k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
++                accumulateCoarse(d_coarseBlock,g_captureStream);
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
+                 k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+                 k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
+@@ -3071,6 +3078,14 @@
+         if(e==cudaSuccess)e=cudaMemset(d_coarseWeight,0,(size_t)g_N*sizeof(float));
+     }
+     if(e==cudaSuccess && !d_coarseBlock)e=cudaMalloc(&d_coarseBlock,sizeof(CoarseBlock));
++    int partialCapacity=GrAccumulate(g_N+g_T);
++    if(e==cudaSuccess && g_coarsePartialCapacity<partialCapacity){
++        cudaFree(d_coarsePartial);d_coarsePartial=nullptr;g_coarsePartialCapacity=0;
++        e=cudaMalloc(&d_coarsePartial,(size_t)partialCapacity*sizeof(CoarsePartial));
++        if(e==cudaSuccess)g_coarsePartialCapacity=partialCapacity;
++        g_unifiedGraphDirty=true;g_unifiedRecoveryGraphDirty=true;g_unifiedLoadedGraphDirty=true;
++        g_unifiedContactGraphDirty=true;
++    }
+     if(e==cudaSuccess && !d_unifiedInteraction)e=cudaMalloc(&d_unifiedInteraction,(size_t)9*g_N*sizeof(float));
+     // A color holds at most one vertex per site of its parity, the count the sweeps pass as the list capacity.
+     if(e==cudaSuccess && !d_sweepSites)e=cudaMalloc(&d_sweepSites,(size_t)8*((g_dimsX+2)/2)*((g_dimsY+2)/2)*((g_dimsZ+2)/2)*sizeof(int));
+@@ -3239,7 +3254,7 @@
+                 k_AccumulateSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                 k_FinishSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                 k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                accumulateCoarse(d_globalCoarse,g_captureStream);
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
+                 k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
+@@ -3351,7 +3366,7 @@
+             if(it==0 || it==2){
+                 k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,5);
+                 k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                accumulateCoarse(d_globalCoarse,g_captureStream);
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
+                 k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
+@@ -3380,7 +3395,7 @@
+             k_AccumulateSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+             k_FinishSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+             k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+-            k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
++            accumulateCoarse(d_coarseBlock,g_captureStream);
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
+             k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+             k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
+@@ -3422,7 +3437,7 @@
+     // correction there would undo the tool/tissue contact balance.
+     k_CoarseWeights<<<Gr(g_activeNodes),64>>>(d_unified,6);
+     k_CoarseBegin<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
+-    k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
++    accumulateCoarse(d_globalCoarse);
+             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,false);
+     k_CoarseSolve<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
+     k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
+@@ -3780,7 +3795,7 @@
+     cudaFree(d_cgMatrix);d_cgMatrix=nullptr;cudaFree(d_cgScale);d_cgScale=nullptr;freeMultigrid();
+     cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgQ);d_cgQ=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
+     cudaFree(d_cgH);d_cgH=nullptr;cudaFree(d_cgS);d_cgS=nullptr;cudaFree(d_cgSearch);d_cgSearch=nullptr;
+-    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_floorRecovery);d_floorRecovery=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_sweepSites);d_sweepSites=nullptr;cudaFree(d_sweepCount);d_sweepCount=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
++    if(g_unifiedGraph)cudaGraphExecDestroy(g_unifiedGraph);g_unifiedGraph=nullptr;if(g_unifiedRecoveryGraph)cudaGraphExecDestroy(g_unifiedRecoveryGraph);g_unifiedRecoveryGraph=nullptr;if(g_unifiedLoadedGraph)cudaGraphExecDestroy(g_unifiedLoadedGraph);g_unifiedLoadedGraph=nullptr;cudaFree(d_substepQuery);d_substepQuery=nullptr;if(g_unifiedContactGraph)cudaGraphExecDestroy(g_unifiedContactGraph);g_unifiedContactGraph=nullptr;cudaFree(d_unified);d_unified=nullptr;cudaFree(d_unifiedTarget);d_unifiedTarget=nullptr;cudaFree(d_unifiedPreviousInverse);d_unifiedPreviousInverse=nullptr;cudaFree(d_unifiedRestMetric);d_unifiedRestMetric=nullptr;g_unifiedTetCapacity=0;cudaFree(d_unifiedComponents);d_unifiedComponents=nullptr;cudaFree(d_graspComponents);d_graspComponents=nullptr;cudaFree(d_floorRecovery);d_floorRecovery=nullptr;cudaFree(d_safeCluster);d_safeCluster=nullptr;cudaFree(d_safeAggregate);d_safeAggregate=nullptr;cudaFree(d_safeJoined);d_safeJoined=nullptr;cudaFree(d_globalCoarse);d_globalCoarse=nullptr;cudaFree(d_coarsePartial);d_coarsePartial=nullptr;g_coarsePartialCapacity=0;cudaFree(d_coarseWeight);d_coarseWeight=nullptr;cudaFree(d_unifiedInteraction);d_unifiedInteraction=nullptr;cudaFree(d_sweepSites);d_sweepSites=nullptr;cudaFree(d_sweepCount);d_sweepCount=nullptr;cudaFree(d_coarseBlock);d_coarseBlock=nullptr;cudaFree(d_manifold);d_manifold=nullptr;cudaFree(d_manifoldIds);d_manifoldIds=nullptr;cudaFree(d_manifoldCount);d_manifoldCount=nullptr;cudaFree(d_manifoldOwners);d_manifoldOwners=nullptr;cudaFree(d_manifoldQuadrature);d_manifoldQuadrature=nullptr;g_manifoldCapacity=0;
+     cudaFree(d_feasibleStart);d_feasibleStart=nullptr;cudaFree(d_feasibleTarget);d_feasibleTarget=nullptr;cudaFree(d_incidentOffsets);d_incidentOffsets=nullptr;cudaFree(d_incidentTets);d_incidentTets=nullptr;cudaFree(d_needFeasible);d_needFeasible=nullptr;
+     cudaFree(d_captureInside);d_captureInside=nullptr;g_volumePasses=0;g_minTetVolume=0;g_captureWedge=false;
+     destroyGripGraph();cudaFree(d_contactResidual);d_contactResidual=nullptr;cudaFree(d_coupledTool);d_coupledTool=nullptr;cudaFree(d_gripError);d_gripError=nullptr;

@@ -1,0 +1,41 @@
+{
+  "base_commit": "0643e10991cf61987250746da4171801c81e742b",
+  "copied_source_files": 555,
+  "copied_source_sha256_mismatches": [],
+  "python_syntax_files": 160,
+  "credential_pattern_scan_findings": [],
+  "cpu_regression_command": [
+    "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_acceptance_queue",
+    "test_prepared_snapshot",
+    "test_topology_capture"
+  ],
+  "cpu_regression_exit_code": 0,
+  "cpu_regression_wall_s": 6.813029050827026,
+  "gpu_tests_rerun": false,
+  "running_release_modified": false,
+  "raw_results_uploaded": false,
+  "cpu_regression_tests_passed": 11,
+  "archive_whitespace_check": {
+    "exit_code": 2,
+    "warning_count": 1842,
+    "files": [
+      "parallel_simulation_tests/20261103-a100/performance.svg",
+      "parallel_simulation_tests/20261103-scaleup/continuation/ccd-endpoint-witness/signed-distance.svg",
+      "parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/source/vendor/cuda/contact/fragment_contact.cuh",
+      "parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/source/vendor/cuda/solver/material/vertex_cone_algebra.cuh",
+      "runs/a100-boundary-fans-20261102-r1/source/vendor/cuda/contact/fragment_contact.cuh",
+      "runs/a100-cone-repair-20261102-r1/source/vendor/cuda/contact/fragment_contact.cuh",
+      "runs/a100-contact-local-20261102-r1/source/vendor/cuda/contact/fragment_contact.cuh",
+      "runs/a100-functional-fixes-20261102-r1/release-training-r3/source/vendor/cuda/contact/fragment_contact.cuh",
+      "runs/a100-safe-repair-20261102-r1/source/vendor/cuda/contact/fragment_contact.cuh",
+      "runs/a100-wall-pinch-20261102-r1/source/vendor/cuda/contact/fragment_contact.cuh"
+    ],
+    "decision": "Retain archived source and generated SVG bytes exactly; no unrelated formatting edits."
+  },
+  "staged_source_sha256_mismatches": []
+}

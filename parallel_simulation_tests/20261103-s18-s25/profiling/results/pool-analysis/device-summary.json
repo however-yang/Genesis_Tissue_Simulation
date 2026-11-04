@@ -1,0 +1,28 @@
+{
+  "window_s": 11.959776235,
+  "pids": [
+    3662339,
+    3662340
+  ],
+  "combined_gpu_union_pct": 43.087143803907466,
+  "two_process_gpu_overlap_pct": 10.044956363684006,
+  "per_process_gpu_union_pct": {
+    "3662339": 26.50787348949092,
+    "3662340": 26.624226678100555
+  },
+  "lane_union_ms": {
+    "3662339 CPU NVTX": 10754.64583,
+    "3662340 CPU NVTX": 11066.039501,
+    "3662340 CPU CUDA API": 4169.982718,
+    "3662339 CPU CUDA API": 4293.140433,
+    "3662340 GPU CUDA kernels": 2823.185932,
+    "3662339 GPU CUDA kernels": 2807.795729,
+    "3662340 GPU CUDA copies": 30.422676,
+    "3662339 GPU CUDA copies": 30.020971,
+    "3662340 GPU memset": 48.547209,
+    "3662339 GPU memset": 48.238536,
+    "3662339 GPU OpenGL workloads": 284.22779,
+    "3662340 GPU OpenGL workloads": 282.042214
+  },
+  "caveat": "Captured NVTX window excludes Nsight start/stop overhead; each lane is an interval union, not a CPU/GPU additive partition. CPU GPU-wait ranges may overlap actual device activity. GPU overlap does not prove concurrent SM execution."
+}

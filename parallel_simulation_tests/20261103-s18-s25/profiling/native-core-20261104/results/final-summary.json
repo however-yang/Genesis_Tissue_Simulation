@@ -1,0 +1,128 @@
+{
+  "before": {
+    "runs": [
+      "all-queries-v2-original-a",
+      "all-queries-v2-original-b"
+    ],
+    "frames": 2820,
+    "completed": true,
+    "local_checks_passed": true,
+    "mean_ms": 46.51888401773049,
+    "fps": 21.496646385989266,
+    "p50_ms": 47.7493245,
+    "p95_ms": 57.11124514999999,
+    "p99_ms": 64.84779941999999,
+    "max_ms": 74.65734,
+    "over_50ms": 1002,
+    "rolling20_min_hz": 16.19470144592165,
+    "components_ms": {
+      "native_step": 31.32431246426967,
+      "quality_and_export": 4.287818901724651,
+      "snapshot": 1.3371956857096352,
+      "vision": 8.25322839184397,
+      "other": 1.3163285741825632
+    },
+    "component_percent": {
+      "native_step": 67.33676683286411,
+      "quality_and_export": 9.21737266975357,
+      "snapshot": 2.874522280457047,
+      "vision": 17.74167322822767,
+      "other": 2.8296649886976
+    },
+    "gpu_percent": 70.09677419354838,
+    "sampled_peak_memory_mib": 2120.0,
+    "host_cpu_percent": 1.1612903225806452
+  },
+  "after": {
+    "runs": [
+      "all-queries-v2-candidate-a",
+      "all-queries-v2-candidate-b"
+    ],
+    "frames": 2820,
+    "completed": true,
+    "local_checks_passed": true,
+    "mean_ms": 43.41663284787234,
+    "fps": 23.032647499494093,
+    "p50_ms": 45.501087999999996,
+    "p95_ms": 50.42330694999999,
+    "p99_ms": 57.63276008,
+    "max_ms": 71.496314,
+    "over_50ms": 172,
+    "rolling20_min_hz": 18.45497796104686,
+    "components_ms": {
+      "native_step": 28.21866326031592,
+      "quality_and_export": 4.281442858078947,
+      "snapshot": 1.327824625079289,
+      "vision": 8.285306225886524,
+      "other": 1.3033958785116653
+    },
+    "component_percent": {
+      "native_step": 64.99505237817813,
+      "quality_and_export": 9.86129641393589,
+      "snapshot": 3.0583316530599167,
+      "vision": 19.083253772620807,
+      "other": 3.0020657822052614
+    },
+    "gpu_percent": 68.58620689655173,
+    "sampled_peak_memory_mib": 2136.0,
+    "host_cpu_percent": 1.103448275862069
+  },
+  "physics_before": {
+    "frames": 1410,
+    "mean_ms": 37.14168562340426,
+    "p50_ms": 38.396802,
+    "p95_ms": 49.5708448,
+    "p99_ms": 54.558150520000005,
+    "max_ms": 58.72115,
+    "fps": 26.92392612816327,
+    "over_50ms": 57,
+    "rolling20_min_hz": 19.341554081801345
+  },
+  "physics_after": {
+    "frames": 1410,
+    "mean_ms": 34.01420068297872,
+    "p50_ms": 36.009460000000004,
+    "p95_ms": 42.83813075,
+    "p99_ms": 47.73603247000002,
+    "max_ms": 52.86894,
+    "fps": 29.39948550666419,
+    "over_50ms": 4,
+    "rolling20_min_hz": 22.038593939425674
+  },
+  "speedup": 1.071453057650236,
+  "local_validation_passed": true,
+  "average20_passed": true,
+  "p95_50ms_passed": false,
+  "rolling20_passed": false,
+  "all_frames_50ms_passed": false,
+  "stable20_passed": false,
+  "formal_physics_domain_approved": false,
+  "training_domain_approved": false,
+  "production_replaced": false,
+  "choice": {
+    "native_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-all-queries-v2/source",
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-20261104/native-all-queries-v2/build/lib/libLiverCudaSim.so",
+    "dll_sha256": "9300d14dd550d6be4240f1d5af68d121d9bbc7accb79488d2557ce85f6ba94f6",
+    "execution": {
+      "query_mode": 3,
+      "query_threads": 64,
+      "assembly_blocks": 512,
+      "manifold_blocks": 1024,
+      "compact_blocks": 0,
+      "bound_cache": true
+    },
+    "selected_for_final_verification": true,
+    "formal_physics_domain_approved": false,
+    "production_replaced": false,
+    "rejected": [
+      "grid-both256",
+      "coarse-exact-zero",
+      "existing-group-compaction",
+      "triangle-aabb-prefilter"
+    ],
+    "reason": "Dispatch batching plus exact adjacent-stage coarse-bound coefficient reuse",
+    "qualification_pending": false,
+    "harness": "profile_all_queries.py",
+    "local_validation_passed": true
+  }
+}

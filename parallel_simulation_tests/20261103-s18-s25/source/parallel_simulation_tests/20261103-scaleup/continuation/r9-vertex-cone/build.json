@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/cmake",
+      "-S",
+      "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/source",
+      "-B",
+      "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/build",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_CUDA_COMPILER=/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/nvcc",
+      "-DCMAKE_CUDA_HOST_COMPILER=/usr/bin/g++-12",
+      "-DCMAKE_CXX_COMPILER=/usr/bin/g++-12",
+      "-DCUDAToolkit_ROOT=/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1"
+    ],
+    "exit_code": 0,
+    "wall_s": 9.970276355743408
+  },
+  {
+    "command": [
+      "/srv/disk2/hryang/genesis-exec/envs/genesis-py311-cu125-v1/bin/cmake",
+      "--build",
+      "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-scaleup/continuation/r9-vertex-cone/build",
+      "--parallel",
+      "2"
+    ],
+    "exit_code": 0,
+    "wall_s": 105.53845620155334
+  }
+]

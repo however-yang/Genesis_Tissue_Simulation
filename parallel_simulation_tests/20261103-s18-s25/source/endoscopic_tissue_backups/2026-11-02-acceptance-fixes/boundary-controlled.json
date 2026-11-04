@@ -1,0 +1,41 @@
+{
+  "note": "Investigate unexplained 87.3 vs 52.2 ms baseline drift; system CPU and GPU telemetry every 10 s; same protocol for all four trials.",
+  "jobs": [
+    {
+      "name": "boundary-controlled-a1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-controlled-b1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-controlled-b2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2"
+      ],
+      "performance": true
+    },
+    {
+      "name": "boundary-controlled-a2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1"
+      ],
+      "performance": true
+    }
+  ]
+}
