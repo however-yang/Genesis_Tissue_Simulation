@@ -1,0 +1,1466 @@
+[
+  {
+    "case": "baseline-r1",
+    "material_nodes": 102710,
+    "status": "failed",
+    "native_ms": {
+      "mean": 41.835811009697686,
+      "p95": 47.07700401195325,
+      "max": 60.803938074968755
+    },
+    "native_hz": 23.902966761375716,
+    "headless_demo_hz": 8.169130864166958,
+    "frame_ms": {
+      "mean": 122.41204316929183,
+      "p95": 152.85083334310912,
+      "max": 483.9351879199967
+    },
+    "step_readback_ms": {
+      "mean": 46.923440960571504,
+      "p95": 57.301872328389436,
+      "max": 92.20846404787153
+    },
+    "render_write_ms": {
+      "mean": 73.54379413578123,
+      "p95": 99.73690520273522,
+      "max": 443.93782201223075
+    },
+    "elapsed_s": 172.31608805293217,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.01400657370686531,
+      "edges_before_incision": 0,
+      "cut_edges": 176,
+      "observed_cut_edges": 176,
+      "retained_cut_edges": 176,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 230,
+      "final_grip_points": 55,
+      "current_grip_points": 55,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 7.134117363250453e-05,
+      "max_blade_body_overlap_m": 7.134117363250453e-05,
+      "peak_blade_force_n": 6.588820457458496,
+      "max_node_displacement_m": 0.025565706193447113,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.2422802895307541,
+      "fracture_right_n": 0.2803916037082672,
+      "two_blade_squeeze_m": 0.0012628052242672412,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.2422802895307541,
+          "fracture_right_n": 0.2803916037082672,
+          "two_blade_squeeze_m": 0.001530446541497404
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.7150135636329651,
+          "fracture_right_n": 0.28453466296195984,
+          "two_blade_squeeze_m": 0.0012628052242672412
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 49,
+      "slit_length_m": 0.007607288550027169,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "failed_checks": [
+      "no_stray_skin_cuts"
+    ],
+    "checks": {
+      "grasp_acquired": true,
+      "lift_at_least_1mm": true,
+      "cut_exists": true,
+      "cut_wall_exists": true,
+      "cuts_retained": true,
+      "held": true,
+      "no_new_withdrawal_cuts": true,
+      "no_grip_loss": true,
+      "no_degenerate_wall": true,
+      "overlap_under_0_2mm": true,
+      "displacement_under_60mm": true,
+      "fracture_exists": true,
+      "no_cuts_without_fracture": true,
+      "two_sided_fracture_load": true,
+      "two_blade_squeeze": true,
+      "cuts_in_tab": true,
+      "both_component_counts_two": true,
+      "no_uncut_columns": true,
+      "no_multiply_cut_columns": true,
+      "no_stray_skin_cuts": false,
+      "single_gripped_piece_no_tumor_left": true
+    },
+    "per_stage_mean_ms": {
+      "settle": {
+        "native_ms": 33.09107789536938,
+        "step_readback_ms": 37.76783160865307,
+        "render_write_ms": 93.07941780037557,
+        "frame_ms": 133.19096838822588
+      },
+      "approach": {
+        "native_ms": 32.68037330902492,
+        "step_readback_ms": 36.89152712338708,
+        "render_write_ms": 74.95477470284742,
+        "frame_ms": 114.12952658073563
+      },
+      "bite": {
+        "native_ms": 35.27480533553494,
+        "step_readback_ms": 39.88693967823767,
+        "render_write_ms": 78.22726012673229,
+        "frame_ms": 120.66669079164664
+      },
+      "close": {
+        "native_ms": 42.54884932500621,
+        "step_readback_ms": 47.036327194008564,
+        "render_write_ms": 78.36395852112521,
+        "frame_ms": 127.75018110146954
+      },
+      "lift": {
+        "native_ms": 40.88622895166433,
+        "step_readback_ms": 45.64742907823529,
+        "render_write_ms": 79.44430102652404,
+        "frame_ms": 127.4381390355605
+      },
+      "blade_approach": {
+        "native_ms": 41.66800386544006,
+        "step_readback_ms": 46.28755901067052,
+        "render_write_ms": 71.05817122501321,
+        "frame_ms": 119.50625224174776
+      },
+      "incise_1": {
+        "native_ms": 46.51240709470585,
+        "step_readback_ms": 55.96588710322976,
+        "render_write_ms": 81.81690248893574,
+        "frame_ms": 139.99399087081352
+      },
+      "open_1": {
+        "native_ms": 44.983765533349164,
+        "step_readback_ms": 48.84697551994274,
+        "render_write_ms": 73.09634385552879,
+        "frame_ms": 123.43488052332152
+      },
+      "reposition_2": {
+        "native_ms": 43.50437638737882,
+        "step_readback_ms": 47.29598753619939,
+        "render_write_ms": 71.02730318438262,
+        "frame_ms": 119.74771567426312
+      },
+      "incise_2": {
+        "native_ms": 43.94440716442963,
+        "step_readback_ms": 47.78050260075057,
+        "render_write_ms": 69.6442247601226,
+        "frame_ms": 118.91967855937158
+      },
+      "withdraw": {
+        "native_ms": 42.10962991152579,
+        "step_readback_ms": 45.92077631483941,
+        "render_write_ms": 66.63082046822335,
+        "frame_ms": 114.07381236494984
+      },
+      "release": {
+        "native_ms": 43.11938177949438,
+        "step_readback_ms": 47.41779532956166,
+        "render_write_ms": 64.20886112739228,
+        "frame_ms": 113.22375890643646
+      },
+      "extract": {
+        "native_ms": 44.01371053730448,
+        "step_readback_ms": 50.47254260008534,
+        "render_write_ms": 66.07813601537298,
+        "frame_ms": 118.34018588221322
+      },
+      "hold": {
+        "native_ms": 42.41193801475068,
+        "step_readback_ms": 46.43799603218213,
+        "render_write_ms": 65.79142406505223,
+        "frame_ms": 113.78316463669762
+      }
+    },
+    "surface_audit_stages": [
+      "settle",
+      "approach",
+      "bite",
+      "close",
+      "lift",
+      "blade_approach",
+      "incise_1",
+      "open_1",
+      "reposition_2",
+      "incise_2",
+      "withdraw",
+      "release",
+      "extract"
+    ],
+    "surface_geometry_checks_passed": true,
+    "config_sha256": "3a200d939918fd56bccf38e7e3bb23b99bed856134700476a7638e9a4a24c717",
+    "video_sha256": "c3ccd53fcd61d27fb2f44c92f64904e042dd008ffdce8feb09f3434a4bc7f51a"
+  },
+  {
+    "case": "baseline-r2",
+    "material_nodes": 102710,
+    "status": "failed",
+    "native_ms": {
+      "mean": 41.78650551999978,
+      "p95": 48.31481830915436,
+      "max": 57.484514079988
+    },
+    "native_hz": 23.931170782428357,
+    "headless_demo_hz": 8.101517256323138,
+    "frame_ms": {
+      "mean": 123.43366907223606,
+      "p95": 163.86232956429006,
+      "max": 308.5980110336095
+    },
+    "step_readback_ms": {
+      "mean": 47.82257430572147,
+      "p95": 57.36030369298532,
+      "max": 85.32253897283226
+    },
+    "render_write_ms": {
+      "mean": 73.50590072744232,
+      "p95": 108.45558617147614,
+      "max": 238.66779496893287
+    },
+    "elapsed_s": 174.16751228400972,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.013998471200466156,
+      "edges_before_incision": 0,
+      "cut_edges": 197,
+      "observed_cut_edges": 197,
+      "retained_cut_edges": 197,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 272,
+      "final_grip_points": 55,
+      "current_grip_points": 55,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 2.6242351642561946e-05,
+      "max_blade_body_overlap_m": 2.6242351642561946e-05,
+      "peak_blade_force_n": 6.421681880950928,
+      "max_node_displacement_m": 0.02553403005003929,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.22553616762161255,
+      "fracture_right_n": 0.20368364453315735,
+      "two_blade_squeeze_m": 0.0015309413509330704,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.22553616762161255,
+          "fracture_right_n": 0.20368364453315735,
+          "two_blade_squeeze_m": 0.0015309413509330704
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.4509298503398895,
+          "fracture_right_n": 0.32206785678863525,
+          "two_blade_squeeze_m": 0.0017120933839655673
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 43,
+      "slit_length_m": 0.009280320980648184,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "failed_checks": [
+      "no_stray_skin_cuts"
+    ],
+    "checks": {
+      "grasp_acquired": true,
+      "lift_at_least_1mm": true,
+      "cut_exists": true,
+      "cut_wall_exists": true,
+      "cuts_retained": true,
+      "held": true,
+      "no_new_withdrawal_cuts": true,
+      "no_grip_loss": true,
+      "no_degenerate_wall": true,
+      "overlap_under_0_2mm": true,
+      "displacement_under_60mm": true,
+      "fracture_exists": true,
+      "no_cuts_without_fracture": true,
+      "two_sided_fracture_load": true,
+      "two_blade_squeeze": true,
+      "cuts_in_tab": true,
+      "both_component_counts_two": true,
+      "no_uncut_columns": true,
+      "no_multiply_cut_columns": true,
+      "no_stray_skin_cuts": false,
+      "single_gripped_piece_no_tumor_left": true
+    },
+    "per_stage_mean_ms": {
+      "settle": {
+        "native_ms": 32.768052214911826,
+        "step_readback_ms": 37.82001905686533,
+        "render_write_ms": 84.77174079356094,
+        "frame_ms": 125.31175508241479
+      },
+      "approach": {
+        "native_ms": 32.71913057477731,
+        "step_readback_ms": 37.08862932398915,
+        "render_write_ms": 69.89055722693189,
+        "frame_ms": 109.2370598201847
+      },
+      "bite": {
+        "native_ms": 35.21229419598563,
+        "step_readback_ms": 39.61656991030193,
+        "render_write_ms": 68.99269312723644,
+        "frame_ms": 110.88429146394547
+      },
+      "close": {
+        "native_ms": 42.39945158155428,
+        "step_readback_ms": 47.062778553097615,
+        "render_write_ms": 70.62302948389616,
+        "frame_ms": 120.0161281067671
+      },
+      "lift": {
+        "native_ms": 40.789550579696275,
+        "step_readback_ms": 45.727778175690524,
+        "render_write_ms": 72.61809382665281,
+        "frame_ms": 120.74868704366963
+      },
+      "blade_approach": {
+        "native_ms": 43.668403754903316,
+        "step_readback_ms": 51.739462884142995,
+        "render_write_ms": 107.38323984551243,
+        "frame_ms": 163.18722015421372
+      },
+      "incise_1": {
+        "native_ms": 48.10668788617477,
+        "step_readback_ms": 54.02701262229433,
+        "render_write_ms": 73.92463825255011,
+        "frame_ms": 129.89788755386448
+      },
+      "open_1": {
+        "native_ms": 45.44669431634247,
+        "step_readback_ms": 49.3500858040837,
+        "render_write_ms": 65.11339453281835,
+        "frame_ms": 115.91289960391198
+      },
+      "reposition_2": {
+        "native_ms": 43.7144855367175,
+        "step_readback_ms": 47.67654239161251,
+        "render_write_ms": 65.3533233446069,
+        "frame_ms": 114.50891459050278
+      },
+      "incise_2": {
+        "native_ms": 43.192063166449465,
+        "step_readback_ms": 52.378031098439045,
+        "render_write_ms": 68.63762268563733,
+        "frame_ms": 122.51674900529906
+      },
+      "withdraw": {
+        "native_ms": 41.28899400432905,
+        "step_readback_ms": 48.50132012700973,
+        "render_write_ms": 65.18894652350961,
+        "frame_ms": 115.36694049524765
+      },
+      "release": {
+        "native_ms": 41.20371639728546,
+        "step_readback_ms": 46.586740242006876,
+        "render_write_ms": 66.39826293103397,
+        "frame_ms": 114.46310021500621
+      },
+      "extract": {
+        "native_ms": 41.212756518895425,
+        "step_readback_ms": 45.60725137591362,
+        "render_write_ms": 64.49612413377811,
+        "frame_ms": 111.51392435499777
+      },
+      "hold": {
+        "native_ms": 41.562961732658245,
+        "step_readback_ms": 45.82944684661925,
+        "render_write_ms": 65.62115909764543,
+        "frame_ms": 112.97742821043357
+      }
+    },
+    "surface_audit_stages": [
+      "settle",
+      "approach",
+      "bite",
+      "close",
+      "lift",
+      "blade_approach",
+      "incise_1",
+      "open_1",
+      "reposition_2",
+      "incise_2",
+      "withdraw",
+      "release",
+      "extract"
+    ],
+    "surface_geometry_checks_passed": true,
+    "config_sha256": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+    "video_sha256": "1ecfa0ae98666339aeb2ce5db9afe4d088ca010556917c10a0b97ad6cb67af4d"
+  },
+  {
+    "case": "mesh65-r1",
+    "material_nodes": 65688,
+    "status": "failed",
+    "native_ms": {
+      "mean": 33.42914272252856,
+      "p95": 38.997301674680784,
+      "max": 45.47941999044269
+    },
+    "native_hz": 29.91401868424464,
+    "headless_demo_hz": 9.891093342726453,
+    "frame_ms": {
+      "mean": 101.10105782545902,
+      "p95": 119.69803610700181,
+      "max": 618.5453380458057
+    },
+    "step_readback_ms": {
+      "mean": 37.597339862940814,
+      "p95": 46.03826372185721,
+      "max": 74.2109379498288
+    },
+    "render_write_ms": {
+      "mean": 61.86836260771547,
+      "p95": 82.06569685717113,
+      "max": 575.4257540684193
+    },
+    "elapsed_s": 143.25864357606042,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014009486883878708,
+      "edges_before_incision": 0,
+      "cut_edges": 146,
+      "observed_cut_edges": 146,
+      "retained_cut_edges": 146,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 196,
+      "final_grip_points": 58,
+      "current_grip_points": 58,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 3.03845691917104e-06,
+      "max_blade_body_overlap_m": 3.03845691917104e-06,
+      "peak_blade_force_n": 41.100730895996094,
+      "max_node_displacement_m": 0.026552842929959297,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.13749893009662628,
+      "fracture_right_n": 0.11831532418727875,
+      "two_blade_squeeze_m": 0.0014897068407798597,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.13749893009662628,
+          "fracture_right_n": 0.11831532418727875,
+          "two_blade_squeeze_m": 0.0018564095269315583
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.41629087924957275,
+          "fracture_right_n": 0.23722656071186066,
+          "two_blade_squeeze_m": 0.0014897068407798597
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 23,
+      "slit_length_m": 0.008451850980029348,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "failed_checks": [
+      "no_stray_skin_cuts"
+    ],
+    "checks": {
+      "grasp_acquired": true,
+      "lift_at_least_1mm": true,
+      "cut_exists": true,
+      "cut_wall_exists": true,
+      "cuts_retained": true,
+      "held": true,
+      "no_new_withdrawal_cuts": true,
+      "no_grip_loss": true,
+      "no_degenerate_wall": true,
+      "overlap_under_0_2mm": true,
+      "displacement_under_60mm": true,
+      "fracture_exists": true,
+      "no_cuts_without_fracture": true,
+      "two_sided_fracture_load": true,
+      "two_blade_squeeze": true,
+      "cuts_in_tab": true,
+      "both_component_counts_two": true,
+      "no_uncut_columns": true,
+      "no_multiply_cut_columns": true,
+      "no_stray_skin_cuts": false,
+      "single_gripped_piece_no_tumor_left": true
+    },
+    "per_stage_mean_ms": {
+      "settle": {
+        "native_ms": 25.69308332167566,
+        "step_readback_ms": 31.11091828905046,
+        "render_write_ms": 98.9192128685924,
+        "frame_ms": 132.79236325373253
+      },
+      "approach": {
+        "native_ms": 25.0422008568421,
+        "step_readback_ms": 28.43860370727877,
+        "render_write_ms": 69.74088472003739,
+        "frame_ms": 99.93000772083178
+      },
+      "bite": {
+        "native_ms": 27.023184897067647,
+        "step_readback_ms": 30.578148595264388,
+        "render_write_ms": 65.04738820302818,
+        "frame_ms": 97.38270849403408
+      },
+      "close": {
+        "native_ms": 32.825762405991554,
+        "step_readback_ms": 37.05559361260384,
+        "render_write_ms": 64.14394287340757,
+        "frame_ms": 102.89434060299148
+      },
+      "lift": {
+        "native_ms": 32.53877107539059,
+        "step_readback_ms": 36.34242739256782,
+        "render_write_ms": 62.27612221167268,
+        "frame_ms": 100.24924238678068
+      },
+      "blade_approach": {
+        "native_ms": 33.59244741344204,
+        "step_readback_ms": 37.98352280476441,
+        "render_write_ms": 56.32641663445005,
+        "frame_ms": 95.75816031525999
+      },
+      "incise_1": {
+        "native_ms": 38.31007949231813,
+        "step_readback_ms": 43.737156012405954,
+        "render_write_ms": 55.36152092662329,
+        "frame_ms": 100.46497964455436
+      },
+      "open_1": {
+        "native_ms": 36.76064220877985,
+        "step_readback_ms": 40.18240775524949,
+        "render_write_ms": 53.437453838220485,
+        "frame_ms": 95.12499906122684
+      },
+      "reposition_2": {
+        "native_ms": 34.8573468082274,
+        "step_readback_ms": 39.9316486378666,
+        "render_write_ms": 55.68106446880847,
+        "frame_ms": 97.10284287963684
+      },
+      "incise_2": {
+        "native_ms": 35.51733474479988,
+        "step_readback_ms": 39.28846720140427,
+        "render_write_ms": 61.63393404567614,
+        "frame_ms": 102.50595812763397
+      },
+      "withdraw": {
+        "native_ms": 34.026034510073565,
+        "step_readback_ms": 38.059434790435866,
+        "render_write_ms": 64.88323993010756,
+        "frame_ms": 104.78469217196107
+      },
+      "release": {
+        "native_ms": 34.23128811021646,
+        "step_readback_ms": 37.949965663978624,
+        "render_write_ms": 60.84836524807744,
+        "frame_ms": 100.4891160590988
+      },
+      "extract": {
+        "native_ms": 34.08754906772325,
+        "step_readback_ms": 37.82724852208048,
+        "render_write_ms": 60.74575623652587,
+        "frame_ms": 100.28182948473841
+      },
+      "hold": {
+        "native_ms": 33.477950045683734,
+        "step_readback_ms": 37.015801353845745,
+        "render_write_ms": 60.34364163642749,
+        "frame_ms": 98.94917850227405
+      }
+    },
+    "surface_audit_stages": [
+      "settle",
+      "approach",
+      "bite",
+      "close",
+      "lift",
+      "blade_approach",
+      "incise_1",
+      "open_1",
+      "reposition_2",
+      "incise_2",
+      "withdraw",
+      "release",
+      "extract"
+    ],
+    "surface_geometry_checks_passed": true,
+    "config_sha256": "3a200d939918fd56bccf38e7e3bb23b99bed856134700476a7638e9a4a24c717",
+    "video_sha256": "42d783b53683c99987725819328da7a6014540cfd862ee0630fecde0c1c54457"
+  },
+  {
+    "case": "frontal65-r2",
+    "material_nodes": 65688,
+    "status": "failed",
+    "native_ms": {
+      "mean": 33.0698938712033,
+      "p95": 38.3887957315892,
+      "max": 49.117889953777194
+    },
+    "native_hz": 30.23898425240436,
+    "headless_demo_hz": 9.993438922628261,
+    "frame_ms": {
+      "mean": 100.06565384971616,
+      "p95": 121.60721410764381,
+      "max": 581.7951679928228
+    },
+    "step_readback_ms": {
+      "mean": 36.50618230217128,
+      "p95": 42.15144325862639,
+      "max": 113.71716298162937
+    },
+    "render_write_ms": {
+      "mean": 62.00087997099586,
+      "p95": 82.62181443278678,
+      "max": 549.3255789624527
+    },
+    "elapsed_s": 141.2134216290433,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014116322621703148,
+      "edges_before_incision": 0,
+      "cut_edges": 129,
+      "observed_cut_edges": 129,
+      "retained_cut_edges": 129,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 180,
+      "final_grip_points": 52,
+      "current_grip_points": 52,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 1.1181091852148912e-05,
+      "max_blade_body_overlap_m": 1.1181091852148912e-05,
+      "peak_blade_force_n": 14.633085250854492,
+      "max_node_displacement_m": 0.026122597977519035,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.19916965067386627,
+      "fracture_right_n": 0.3007752299308777,
+      "two_blade_squeeze_m": 0.001204585862070343,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.4182816743850708,
+          "fracture_right_n": 0.3007752299308777,
+          "two_blade_squeeze_m": 0.001204585862070343
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.19916965067386627,
+          "fracture_right_n": 0.42329734563827515,
+          "two_blade_squeeze_m": 0.0020369807363508474
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 21,
+      "slit_length_m": 0.008838834764831844,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "failed_checks": [
+      "no_stray_skin_cuts"
+    ],
+    "checks": {
+      "grasp_acquired": true,
+      "lift_at_least_1mm": true,
+      "cut_exists": true,
+      "cut_wall_exists": true,
+      "cuts_retained": true,
+      "held": true,
+      "no_new_withdrawal_cuts": true,
+      "no_grip_loss": true,
+      "no_degenerate_wall": true,
+      "overlap_under_0_2mm": true,
+      "displacement_under_60mm": true,
+      "fracture_exists": true,
+      "no_cuts_without_fracture": true,
+      "two_sided_fracture_load": true,
+      "two_blade_squeeze": true,
+      "cuts_in_tab": true,
+      "both_component_counts_two": true,
+      "no_uncut_columns": true,
+      "no_multiply_cut_columns": true,
+      "no_stray_skin_cuts": false,
+      "single_gripped_piece_no_tumor_left": true
+    },
+    "per_stage_mean_ms": {
+      "settle": {
+        "native_ms": 25.121617476300646,
+        "step_readback_ms": 31.50509876043846,
+        "render_write_ms": 85.40071159756432,
+        "frame_ms": 119.91367426235229
+      },
+      "approach": {
+        "native_ms": 24.98848086041916,
+        "step_readback_ms": 28.152434674039895,
+        "render_write_ms": 62.53559573734593,
+        "frame_ms": 92.36440098740988
+      },
+      "bite": {
+        "native_ms": 27.88615096360445,
+        "step_readback_ms": 31.373255958573687,
+        "render_write_ms": 72.27560336856793,
+        "frame_ms": 105.4150660108361
+      },
+      "close": {
+        "native_ms": 32.685776316146885,
+        "step_readback_ms": 36.014209933475485,
+        "render_write_ms": 67.17337060254067,
+        "frame_ms": 104.78506374379828
+      },
+      "lift": {
+        "native_ms": 31.7360973431884,
+        "step_readback_ms": 35.077668311229594,
+        "render_write_ms": 62.89442726313913,
+        "frame_ms": 99.63293486022546
+      },
+      "blade_approach": {
+        "native_ms": 33.05253206538813,
+        "step_readback_ms": 36.415366474345014,
+        "render_write_ms": 64.12483828413922,
+        "frame_ms": 102.19474728413236
+      },
+      "incise_1": {
+        "native_ms": 38.214467223733664,
+        "step_readback_ms": 41.815470571940146,
+        "render_write_ms": 61.77673270693049,
+        "frame_ms": 105.09699483634904
+      },
+      "open_1": {
+        "native_ms": 35.91882722297063,
+        "step_readback_ms": 39.080791167604424,
+        "render_write_ms": 58.07871133632337,
+        "frame_ms": 98.69412563663597
+      },
+      "reposition_2": {
+        "native_ms": 34.753652105185516,
+        "step_readback_ms": 37.865573462719716,
+        "render_write_ms": 55.999475851422176,
+        "frame_ms": 95.22803145227954
+      },
+      "incise_2": {
+        "native_ms": 34.791628185193986,
+        "step_readback_ms": 38.30543801343689,
+        "render_write_ms": 58.92536325224986,
+        "frame_ms": 98.70978161459789
+      },
+      "withdraw": {
+        "native_ms": 33.67540657345671,
+        "step_readback_ms": 36.78562819162229,
+        "render_write_ms": 58.30434121501943,
+        "frame_ms": 96.42479943480187
+      },
+      "release": {
+        "native_ms": 33.476537629030645,
+        "step_readback_ms": 36.637452751812006,
+        "render_write_ms": 58.01815399382677,
+        "frame_ms": 96.04623327031732
+      },
+      "extract": {
+        "native_ms": 33.72977090533823,
+        "step_readback_ms": 37.13174557002882,
+        "render_write_ms": 58.47492380378147,
+        "frame_ms": 96.9671317267542
+      },
+      "hold": {
+        "native_ms": 33.78913614433259,
+        "step_readback_ms": 37.36846757819876,
+        "render_write_ms": 63.754488776127495,
+        "frame_ms": 102.44094424803431
+      }
+    },
+    "surface_audit_stages": [
+      "settle",
+      "approach",
+      "bite",
+      "close",
+      "lift",
+      "blade_approach",
+      "incise_1",
+      "open_1",
+      "reposition_2",
+      "incise_2",
+      "withdraw",
+      "release",
+      "extract"
+    ],
+    "surface_geometry_checks_passed": true,
+    "config_sha256": "06a6388bb604778389cb3443c27a8a1d40536a26aa87b2c6db6fcade45934f4c",
+    "video_sha256": "263a0afc8d26dc3a103b58d3f47793dc12b8fd6294a29ff381f36268aa745f81"
+  },
+  {
+    "case": "frontal65-r3",
+    "material_nodes": 65688,
+    "status": "failed",
+    "native_ms": {
+      "mean": 33.27304769070349,
+      "p95": 37.86654685391113,
+      "max": 47.24630108103156
+    },
+    "native_hz": 30.05435538384422,
+    "headless_demo_hz": 10.3721107847424,
+    "frame_ms": {
+      "mean": 96.41239095431006,
+      "p95": 116.19312725961207,
+      "max": 281.0797829879448
+    },
+    "step_readback_ms": {
+      "mean": 36.894117244561244,
+      "p95": 41.93578978884034,
+      "max": 66.99994206428528
+    },
+    "render_write_ms": {
+      "mean": 57.89463333617728,
+      "p95": 77.52151584718375,
+      "max": 252.36669997684658
+    },
+    "elapsed_s": 135.7489335150458,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014322984032332897,
+      "edges_before_incision": 0,
+      "cut_edges": 151,
+      "observed_cut_edges": 151,
+      "retained_cut_edges": 151,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 232,
+      "final_grip_points": 77,
+      "current_grip_points": 77,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 4.9713093303376117e-05,
+      "max_blade_body_overlap_m": 4.9713093303376117e-05,
+      "peak_blade_force_n": 42.144901275634766,
+      "max_node_displacement_m": 0.025458047166466713,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.2385256588459015,
+      "fracture_right_n": 0.12411946803331375,
+      "two_blade_squeeze_m": 0.0011357383395413,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.2385256588459015,
+          "fracture_right_n": 0.3332081437110901,
+          "two_blade_squeeze_m": 0.0011357383395413
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.4133743941783905,
+          "fracture_right_n": 0.12411946803331375,
+          "two_blade_squeeze_m": 0.0017365001368166966
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 18,
+      "slit_length_m": 0.009722718241315029,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "failed_checks": [
+      "no_stray_skin_cuts"
+    ],
+    "checks": {
+      "grasp_acquired": true,
+      "lift_at_least_1mm": true,
+      "cut_exists": true,
+      "cut_wall_exists": true,
+      "cuts_retained": true,
+      "held": true,
+      "no_new_withdrawal_cuts": true,
+      "no_grip_loss": true,
+      "no_degenerate_wall": true,
+      "overlap_under_0_2mm": true,
+      "displacement_under_60mm": true,
+      "fracture_exists": true,
+      "no_cuts_without_fracture": true,
+      "two_sided_fracture_load": true,
+      "two_blade_squeeze": true,
+      "cuts_in_tab": true,
+      "both_component_counts_two": true,
+      "no_uncut_columns": true,
+      "no_multiply_cut_columns": true,
+      "no_stray_skin_cuts": false,
+      "single_gripped_piece_no_tumor_left": true
+    },
+    "per_stage_mean_ms": {
+      "settle": {
+        "native_ms": 24.91469195811078,
+        "step_readback_ms": 28.546045270437997,
+        "render_write_ms": 63.78887686490392,
+        "frame_ms": 93.9401288322794
+      },
+      "approach": {
+        "native_ms": 25.034762600747246,
+        "step_readback_ms": 28.30015908176493,
+        "render_write_ms": 61.94812885821901,
+        "frame_ms": 91.99514634157013
+      },
+      "bite": {
+        "native_ms": 28.920709872100915,
+        "step_readback_ms": 32.1212533240517,
+        "render_write_ms": 60.92708924164375,
+        "frame_ms": 94.65833455324173
+      },
+      "close": {
+        "native_ms": 33.106582272901306,
+        "step_readback_ms": 36.427255787162316,
+        "render_write_ms": 55.12875358108431,
+        "frame_ms": 93.1207596634825
+      },
+      "lift": {
+        "native_ms": 32.24673402340462,
+        "step_readback_ms": 35.437364126361594,
+        "render_write_ms": 53.82920919607083,
+        "frame_ms": 90.76490836935893
+      },
+      "blade_approach": {
+        "native_ms": 32.73353944920624,
+        "step_readback_ms": 36.0331471223617,
+        "render_write_ms": 54.0323466877453,
+        "frame_ms": 91.55831254999309
+      },
+      "incise_1": {
+        "native_ms": 37.308672566432506,
+        "step_readback_ms": 41.159337013959885,
+        "render_write_ms": 55.245020762085915,
+        "frame_ms": 97.85819304175675
+      },
+      "open_1": {
+        "native_ms": 35.88830070802942,
+        "step_readback_ms": 40.31118364461387,
+        "render_write_ms": 62.1169625238205,
+        "frame_ms": 104.50705530820414
+      },
+      "reposition_2": {
+        "native_ms": 34.25331052664357,
+        "step_readback_ms": 38.026434633259974,
+        "render_write_ms": 57.4989975313656,
+        "frame_ms": 97.21054487163201
+      },
+      "incise_2": {
+        "native_ms": 35.70150944637135,
+        "step_readback_ms": 39.62264743167907,
+        "render_write_ms": 59.17695297161117,
+        "frame_ms": 100.58407736476511
+      },
+      "withdraw": {
+        "native_ms": 33.928377650833376,
+        "step_readback_ms": 37.73497413591637,
+        "render_write_ms": 56.81572318620359,
+        "frame_ms": 96.208574581154
+      },
+      "release": {
+        "native_ms": 34.29917968913085,
+        "step_readback_ms": 37.981245814201735,
+        "render_write_ms": 58.335781547551356,
+        "frame_ms": 97.88706675947954
+      },
+      "extract": {
+        "native_ms": 35.16179084467391,
+        "step_readback_ms": 38.90542982611805,
+        "render_write_ms": 63.55514455586672,
+        "frame_ms": 104.12964085116982
+      },
+      "hold": {
+        "native_ms": 33.609163613679506,
+        "step_readback_ms": 37.48169190172727,
+        "render_write_ms": 64.0589295187965,
+        "frame_ms": 103.24287477415055
+      }
+    },
+    "surface_audit_stages": [
+      "settle",
+      "approach",
+      "bite",
+      "close",
+      "lift",
+      "blade_approach",
+      "incise_1",
+      "open_1",
+      "reposition_2",
+      "incise_2",
+      "withdraw",
+      "release",
+      "extract"
+    ],
+    "surface_geometry_checks_passed": true,
+    "config_sha256": "87c21b6a0aaff59b5b2ed567ecb7ff3db3a6d930babf779306c2a4bd83c53f93",
+    "video_sha256": "30ef248286f594e1a8258b17ee1cc03c765ba90ba579bc0639d5fb669eb9b4bf"
+  },
+  {
+    "case": "frontal68-r4",
+    "material_nodes": 68516,
+    "status": "failed",
+    "native_ms": {
+      "mean": 33.864538375653225,
+      "p95": 38.1515797926113,
+      "max": 48.53194602765143
+    },
+    "native_hz": 29.529414779176378,
+    "headless_demo_hz": 9.528469727154992,
+    "frame_ms": {
+      "mean": 104.94864638653576,
+      "p95": 129.70917166676372,
+      "max": 281.47777903359383
+    },
+    "step_readback_ms": {
+      "mean": 38.002642657322525,
+      "p95": 42.678421759046614,
+      "max": 77.58840289898217
+    },
+    "render_write_ms": {
+      "mean": 65.17830633617065,
+      "p95": 89.98688989668153,
+      "max": 204.61510599125177
+    },
+    "elapsed_s": 148.22464887204114,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014362932182848454,
+      "edges_before_incision": 0,
+      "cut_edges": 138,
+      "observed_cut_edges": 138,
+      "retained_cut_edges": 138,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 204,
+      "final_grip_points": 67,
+      "current_grip_points": 67,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 5.6784152984619144e-05,
+      "max_blade_body_overlap_m": 0.0,
+      "peak_blade_force_n": 97.1875,
+      "max_node_displacement_m": 0.025688298046588898,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.1380663514137268,
+      "fracture_right_n": 0.12855157256126404,
+      "two_blade_squeeze_m": 0.0011830383424912638,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.1380663514137268,
+          "fracture_right_n": 0.28542208671569824,
+          "two_blade_squeeze_m": 0.0011830383424912638
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.29146796464920044,
+          "fracture_right_n": 0.12855157256126404,
+          "two_blade_squeeze_m": 0.001878509220305864
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 13,
+      "slit_length_m": 0.010394469885747121,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "failed_checks": [
+      "no_stray_skin_cuts"
+    ],
+    "checks": {
+      "grasp_acquired": true,
+      "lift_at_least_1mm": true,
+      "cut_exists": true,
+      "cut_wall_exists": true,
+      "cuts_retained": true,
+      "held": true,
+      "no_new_withdrawal_cuts": true,
+      "no_grip_loss": true,
+      "no_degenerate_wall": true,
+      "overlap_under_0_2mm": true,
+      "displacement_under_60mm": true,
+      "fracture_exists": true,
+      "no_cuts_without_fracture": true,
+      "two_sided_fracture_load": true,
+      "two_blade_squeeze": true,
+      "cuts_in_tab": true,
+      "both_component_counts_two": true,
+      "no_uncut_columns": true,
+      "no_multiply_cut_columns": true,
+      "no_stray_skin_cuts": false,
+      "single_gripped_piece_no_tumor_left": true
+    },
+    "per_stage_mean_ms": {
+      "settle": {
+        "native_ms": 26.210377116998036,
+        "step_readback_ms": 32.37111860265335,
+        "render_write_ms": 88.41999939953287,
+        "frame_ms": 123.50698377316196
+      },
+      "approach": {
+        "native_ms": 25.88817600497148,
+        "step_readback_ms": 29.984980433558423,
+        "render_write_ms": 75.7137579494156,
+        "frame_ms": 107.9020711632135
+      },
+      "bite": {
+        "native_ms": 30.26222523767501,
+        "step_readback_ms": 34.505906827851305,
+        "render_write_ms": 67.59034725320008,
+        "frame_ms": 104.21666507350488
+      },
+      "close": {
+        "native_ms": 34.64463416021317,
+        "step_readback_ms": 39.03690144005749,
+        "render_write_ms": 73.04716520011425,
+        "frame_ms": 114.557045010022
+      },
+      "lift": {
+        "native_ms": 33.580301930002555,
+        "step_readback_ms": 38.213299901690334,
+        "render_write_ms": 73.99594397187077,
+        "frame_ms": 114.49156673334073
+      },
+      "blade_approach": {
+        "native_ms": 33.53426337125711,
+        "step_readback_ms": 37.20312571385875,
+        "render_write_ms": 61.63648786605336,
+        "frame_ms": 100.44181769771967
+      },
+      "incise_1": {
+        "native_ms": 38.06809806032106,
+        "step_readback_ms": 42.165184447852276,
+        "render_write_ms": 63.51132699055597,
+        "frame_ms": 107.2119054167221
+      },
+      "open_1": {
+        "native_ms": 36.42990630275259,
+        "step_readback_ms": 40.344098365555205,
+        "render_write_ms": 59.97942373311768,
+        "frame_ms": 101.74047592639302
+      },
+      "reposition_2": {
+        "native_ms": 35.11555078051364,
+        "step_readback_ms": 39.18419518158771,
+        "render_write_ms": 57.961748633533716,
+        "frame_ms": 98.6723458666044
+      },
+      "incise_2": {
+        "native_ms": 35.676276195639126,
+        "step_readback_ms": 39.6996081690304,
+        "render_write_ms": 61.89688983218124,
+        "frame_ms": 103.14335047422598
+      },
+      "withdraw": {
+        "native_ms": 34.2588120237148,
+        "step_readback_ms": 38.11566594037382,
+        "render_write_ms": 59.13754681047673,
+        "frame_ms": 98.74272644713831
+      },
+      "release": {
+        "native_ms": 34.20507719792012,
+        "step_readback_ms": 38.44870521635231,
+        "render_write_ms": 58.4259151481092,
+        "frame_ms": 98.37104277426585
+      },
+      "extract": {
+        "native_ms": 34.23076327114055,
+        "step_readback_ms": 38.26770587513844,
+        "render_write_ms": 61.448299807185926,
+        "frame_ms": 101.33913313814749
+      },
+      "hold": {
+        "native_ms": 33.99181325221434,
+        "step_readback_ms": 37.950365466531366,
+        "render_write_ms": 61.79625056295966,
+        "frame_ms": 101.25586627982557
+      }
+    },
+    "surface_audit_stages": [
+      "settle",
+      "approach",
+      "bite",
+      "close",
+      "lift",
+      "blade_approach",
+      "incise_1",
+      "open_1",
+      "reposition_2",
+      "incise_2",
+      "withdraw",
+      "release",
+      "extract"
+    ],
+    "surface_geometry_checks_passed": true,
+    "config_sha256": "87c21b6a0aaff59b5b2ed567ecb7ff3db3a6d930babf779306c2a4bd83c53f93",
+    "video_sha256": "edeec365a558edeb40c140e190d5cf8b8d5a3ba157422a9bb345652d76d096bf"
+  },
+  {
+    "case": "frontal65-r5",
+    "material_nodes": 65688,
+    "status": "failed",
+    "native_ms": {
+      "mean": 33.372260917708076,
+      "p95": 40.46045545837842,
+      "max": 54.366679047234356
+    },
+    "native_hz": 29.965006040971513,
+    "headless_demo_hz": 9.248346314738285,
+    "frame_ms": {
+      "mean": 108.12743878398963,
+      "p95": 156.60981690161861,
+      "max": 807.8237100271508
+    },
+    "step_readback_ms": {
+      "mean": 38.169123866041566,
+      "p95": 48.41998383635655,
+      "max": 78.6958570824936
+    },
+    "render_write_ms": {
+      "mean": 67.69730647530842,
+      "p95": 106.30460508982645,
+      "max": 769.2616359563544
+    },
+    "elapsed_s": 154.93148289690726,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014323743991553783,
+      "edges_before_incision": 0,
+      "cut_edges": 166,
+      "observed_cut_edges": 166,
+      "retained_cut_edges": 166,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 238,
+      "final_grip_points": 77,
+      "current_grip_points": 77,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 6.846444560537457e-05,
+      "max_blade_body_overlap_m": 6.846444560537457e-05,
+      "peak_blade_force_n": 6.222881317138672,
+      "max_node_displacement_m": 0.026550062000751495,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.17966414988040924,
+      "fracture_right_n": 0.11181667447090149,
+      "two_blade_squeeze_m": 0.001162468590132258,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.17966414988040924,
+          "fracture_right_n": 0.31073474884033203,
+          "two_blade_squeeze_m": 0.001162468590132258
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.2881086766719818,
+          "fracture_right_n": 0.11181667447090149,
+          "two_blade_squeeze_m": 0.0015511742281844266
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 12,
+      "slit_length_m": 0.010606601717798215,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 1,
+      "acceptance_passed": false
+    },
+    "failed_checks": [
+      "both_component_counts_two",
+      "no_stray_skin_cuts"
+    ],
+    "checks": {
+      "grasp_acquired": true,
+      "lift_at_least_1mm": true,
+      "cut_exists": true,
+      "cut_wall_exists": true,
+      "cuts_retained": true,
+      "held": true,
+      "no_new_withdrawal_cuts": true,
+      "no_grip_loss": true,
+      "no_degenerate_wall": true,
+      "overlap_under_0_2mm": true,
+      "displacement_under_60mm": true,
+      "fracture_exists": true,
+      "no_cuts_without_fracture": true,
+      "two_sided_fracture_load": true,
+      "two_blade_squeeze": true,
+      "cuts_in_tab": true,
+      "both_component_counts_two": false,
+      "no_uncut_columns": true,
+      "no_multiply_cut_columns": true,
+      "no_stray_skin_cuts": false,
+      "single_gripped_piece_no_tumor_left": true
+    },
+    "per_stage_mean_ms": {
+      "settle": {
+        "native_ms": 25.555675228436787,
+        "step_readback_ms": 31.259006417045992,
+        "render_write_ms": 103.22197300071518,
+        "frame_ms": 137.52954757461944
+      },
+      "approach": {
+        "native_ms": 25.354596762917936,
+        "step_readback_ms": 30.270115702619982,
+        "render_write_ms": 71.42674872108425,
+        "frame_ms": 104.32953033078876
+      },
+      "bite": {
+        "native_ms": 29.449453049649794,
+        "step_readback_ms": 34.42363085018264,
+        "render_write_ms": 72.4862404892014,
+        "frame_ms": 109.65918044352696
+      },
+      "close": {
+        "native_ms": 33.40890256739739,
+        "step_readback_ms": 38.07049366231594,
+        "render_write_ms": 63.91091240414729,
+        "frame_ms": 104.31978966678597
+      },
+      "lift": {
+        "native_ms": 32.339880555324875,
+        "step_readback_ms": 36.42575539997779,
+        "render_write_ms": 59.74876668284802,
+        "frame_ms": 98.23053640235837
+      },
+      "blade_approach": {
+        "native_ms": 32.79825457721017,
+        "step_readback_ms": 36.88743116411691,
+        "render_write_ms": 58.94793616510773,
+        "frame_ms": 97.95507832410901
+      },
+      "incise_1": {
+        "native_ms": 39.59366324435299,
+        "step_readback_ms": 46.79934960401928,
+        "render_write_ms": 87.467096215114,
+        "frame_ms": 137.1219008912643
+      },
+      "open_1": {
+        "native_ms": 36.27370420532922,
+        "step_readback_ms": 40.997217603338264,
+        "render_write_ms": 66.9196262373589,
+        "frame_ms": 110.23942450604711
+      },
+      "reposition_2": {
+        "native_ms": 35.495712041544415,
+        "step_readback_ms": 41.810278850607574,
+        "render_write_ms": 83.6108338747484,
+        "frame_ms": 128.48955647010976
+      },
+      "incise_2": {
+        "native_ms": 35.55012859947359,
+        "step_readback_ms": 40.099821876113616,
+        "render_write_ms": 64.02138067642227,
+        "frame_ms": 106.2123504995058
+      },
+      "withdraw": {
+        "native_ms": 33.00898377395546,
+        "step_readback_ms": 36.57131506964409,
+        "render_write_ms": 54.48878610623069,
+        "frame_ms": 92.66097489647412
+      },
+      "release": {
+        "native_ms": 33.39887024938233,
+        "step_readback_ms": 37.54440512663374,
+        "render_write_ms": 63.832945573247144,
+        "frame_ms": 103.28416653857049
+      },
+      "extract": {
+        "native_ms": 32.51352156512439,
+        "step_readback_ms": 36.42892019978414,
+        "render_write_ms": 59.082188146809735,
+        "frame_ms": 97.24572700603555
+      },
+      "hold": {
+        "native_ms": 31.91198259204005,
+        "step_readback_ms": 35.40649532030026,
+        "render_write_ms": 54.92186809424311,
+        "frame_ms": 91.91192106033365
+      }
+    },
+    "surface_audit_stages": [
+      "settle",
+      "approach",
+      "bite",
+      "close",
+      "lift",
+      "blade_approach",
+      "incise_1",
+      "open_1",
+      "reposition_2",
+      "incise_2",
+      "withdraw",
+      "release",
+      "extract"
+    ],
+    "surface_geometry_checks_passed": true,
+    "config_sha256": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+    "video_sha256": "485a2d770af88075c4fa06c2ac0b3fc1ff89e82341b282e63713f2222f5b925e"
+  }
+]
