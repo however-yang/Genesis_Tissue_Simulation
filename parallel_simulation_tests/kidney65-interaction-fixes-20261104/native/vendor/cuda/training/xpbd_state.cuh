@@ -42,6 +42,8 @@ void collect_xpbd(Fields& f){
     allocation_layout(d_bladeBody,snapshotToolLayout());
     f.pod("xpbd.g_trainingFlags",g_trainingFlags);
     f.pod("xpbd.d_fragmentVertices",d_fragmentVertices);
+    f.pod("xpbd.d_fragmentHits",d_fragmentHits);
+    f.pod("xpbd.d_fragmentClosedCanonical",d_fragmentClosedCanonical);
     f.pod("xpbd.d_fragmentSupported",d_fragmentSupported);
     f.pod("xpbd.d_fragmentDegree",d_fragmentDegree);
     f.pod("xpbd.d_fragmentLambda",d_fragmentLambda);

@@ -3,6 +3,7 @@
 #ifdef ENDO_FRAGMENT_PROBE
 __device__ float* g_fragmentProbeRecords=nullptr;
 #endif
+struct FragmentHit { int sourceRoot,triangle;float depth;float3 normal,bary; };
 struct FragmentConstraint { int count,id[32],sourceRoot,targetRoot;float weight[32];float3 normal;float offset,stiffness,inverseMass; };
 struct FragmentManifold { FragmentConstraint* constraints=nullptr;int* count=nullptr;int* degree=nullptr;const float3* rest=nullptr;int* slots=nullptr;const int* duplicateNext=nullptr; };
 struct FragmentVertex { int root; float3 current,previous,recovery; };
@@ -160,6 +161,12 @@ __device__ inline bool fragmentRay(float3 point,float3 direction,const float3* q
     bary=mkf3(1-v-w,v,w);return time>lower && v>=0 && w>=0 && v+w<=1;
 }
 #include "fragment_tree.cuh"
+#if defined(ENDO_KIDNEY_CLOSED_RAY_PROBE) || defined(ENDO_KIDNEY_CLOSED_RAY)
+#include "fragment_closed_ray.cuh"
+#ifdef ENDO_KIDNEY_CLOSED_RAY
+#include "fragment_closed_certificate.cuh"
+#endif
+#endif
 // Follow oriented crossings to a genuine outside interval. Folded cut lips can
 // have an outward nearest normal while the point remains inside another layer.
 __device__ inline bool fragmentExit(int triangles,const FragmentVertex* points,FragmentVertex p,int winding,float skin,
@@ -218,9 +225,61 @@ __device__ inline bool fragmentExit(int triangles,const FragmentVertex* points,F
     return false;
 }
 // One query from k_FragmentQueries, solved by the whole warp.
+__device__ void fragmentAssembleContact(int i,int triangles,int sourceRoot,int selected,float best,float3 normal,float3 bary,
+    const float3* pos,const SurfaceVertex* vertices,const FragmentVertex* points,const float* inverseMass,
+    float3* delta,int* degree,int* contacted,FragmentManifold manifold){
+    if(contacted){atomicExch(contacted+sourceRoot,1);atomicExch(contacted+points[3*selected].root,1);}
+    if(!delta && !manifold.constraints)return;
+    int count=0;
+#if defined(ENDO_KIDNEY_WARP_SCRATCH) && !defined(ENDO_KIDNEY_SPLIT_FRAGMENT)
+    // Only lane zero reaches constraint assembly. Its two 32-entry arrays
+    // need one copy per warp, not a spilled allocation for every thread.
+    __shared__ int constraintIds[2][32];__shared__ float constraintWeights[2][32];
+    int* ids=constraintIds[threadIdx.x/32];float* weights=constraintWeights[threadIdx.x/32];
+#else
+    int ids[32];float weights[32];
+#endif
+    if(i<3*triangles){const SurfaceVertex& v=vertices[i];
+        for(int k=0;k<v.count;k++)fragmentWeight(v.id[k],v.weight[k],ids,weights,count);
+    }else fragmentWeight(i-3*triangles,1.f,ids,weights,count);
+    for(int j=0;j<3;j++){
+        const SurfaceVertex& other=vertices[3*selected+j];float w=compF3(bary,j);
+        for(int k=0;k<other.count;k++)fragmentWeight(other.id[k],-w*other.weight[k],ids,weights,count);
+    }
+    float denominator=0;for(int k=0;k<count;k++)denominator+=inverseMass[ids[k]]*weights[k]*weights[k];
+    if(denominator<1e-20f)return;
+    if(manifold.constraints){
+        for(int source=i;source>=0;source=(manifold.duplicateNext && source<3*triangles)?manifold.duplicateNext[source]:-1){
+        float area=0;
+        if(source<3*triangles){int face=source/3;area=len3(cross3(points[3*face+1].current-points[3*face].current,points[3*face+2].current-points[3*face].current))/6.f;}
+        else if(manifold.rest){
+            int id=source-3*triangles;float cell[3];for(int axis=0;axis<3;axis++)cell[axis]=fmaxf(len3(manifold.rest[6*id+2*axis]),len3(manifold.rest[6*id+2*axis+1]));
+            area=(cell[0]*cell[1]+cell[1]*cell[2]+cell[2]*cell[0])/3.f;
+        }
+        if(area>1e-12f){
+            FragmentConstraint c={};c.count=count;c.sourceRoot=sourceRoot;c.targetRoot=points[3*selected].root;c.normal=normal;c.inverseMass=denominator;c.stiffness=200000.f*area;
+            float3 relative=mkf3(0,0,0);
+            for(int k=0;k<count;k++){c.id[k]=ids[k];c.weight[k]=weights[k];relative=relative+pos[ids[k]]*weights[k];if(!manifold.slots && fabsf(weights[k])>1e-10f)atomicAdd(manifold.degree+ids[k],1);}
+            c.offset=dot3(relative,normal)+best;
+            // One constraint per query per substep. Refreshing a witness must
+            // not multiply its quadrature area or normal stiffness.
+            int slot=manifold.slots?manifold.slots[source]:-1;
+            if(slot<0){slot=atomicAdd(manifold.count,1);if(manifold.slots)manifold.slots[source]=slot;}
+            manifold.constraints[slot]=c;
+        }
+        }
+    }
+    if(!delta)return;
+    for(int k=0;k<count;k++)if(inverseMass[ids[k]]>0 && fabsf(weights[k])>1e-10f){
+        add3(delta+ids[k],normal*(best*inverseMass[ids[k]]*weights[k]/denominator));atomicAdd(degree+ids[k],1);
+    }
+}
 __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,const float3* pos,const float3* previous,const float3* start,
     const SurfaceVertex* vertices,const FragmentVertex* points,const float* inverseMass,float3* delta,int* degree,
-    const FragmentBounds* bounds,const int* roots,const int* rootCount,const FragmentTreeNode* tree,int base,const int* order,int* contacted=nullptr,FragmentManifold manifold={}){
+    const FragmentBounds* bounds,const int* roots,const int* rootCount,const FragmentTreeNode* tree,int base,const int* order,int* contacted=nullptr,FragmentManifold manifold={},FragmentHit* hits=nullptr){
+#ifdef ENDO_KIDNEY_SPLIT_FRAGMENT
+    if(lane==0)hits[i].triangle=-1;
+#endif
     FragmentVertex p;
     if(i<3*triangles){p=points[i];}
     else{
@@ -246,6 +305,22 @@ __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,
 #endif
     float nearest=1e30f,nearestSign=1;int nearestTri=-1;float3 nearestBary=normal,nearestDirection=normal;
     float angleError=0;
+    bool closedDegree=false;
+#if defined(ENDO_KIDNEY_CLOSED_RAY_PROBE) || defined(ENDO_KIDNEY_CLOSED_RAY)
+#ifdef ENDO_KIDNEY_CLOSED_STATS
+    if(!lane){atomicAdd(g_fragmentRuntimeStats+2,1ull);if(!g_fragmentClosedCertificate)atomicAdd(g_fragmentRuntimeStats+5,1ull);}
+#endif
+    if(g_fragmentClosedCertificate){
+        int degree=0;closedDegree=fragmentClosedRay(triangles,points,p,tree,base,order,degree);
+        if(closedDegree && !lane)solidAngle=degree*(4.f*3.14159265358979323846f);
+#ifdef ENDO_KIDNEY_CLOSED_STATS
+        if(!lane)atomicAdd(g_fragmentRuntimeStats+(closedDegree?3:4),1ull);
+#endif
+#ifdef ENDO_FRAGMENT_PROBE
+        if(!lane){atomicAdd(g_fragmentClosedStats+1,1ull);atomicAdd(g_fragmentClosedStats+(closedDegree?2:3),1ull);}
+#endif
+    }
+#endif
     int top=1;
 #ifdef ENDO_KIDNEY_WARP_STACK
     // Every lane of this query traverses the same hierarchy. Store its stack
@@ -253,9 +328,9 @@ __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,
     // All callers use 64-thread blocks; triangle computations stay per lane.
     __shared__ int traversal[2][64];
     int* stack=traversal[threadIdx.x/32];int* flags=stack+32;
-    if(lane==0){stack[0]=1;flags[0]=3;}
+    if(lane==0){stack[0]=1;flags[0]=closedDegree?2:3;}
 #else
-    int stack[32],flags[32];stack[0]=1;flags[0]=3;
+    int stack[32],flags[32];stack[0]=1;flags[0]=closedDegree?2:3;
 #endif
     while(top){
 #ifdef ENDO_KIDNEY_WARP_STACK
@@ -320,7 +395,7 @@ __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,
     solidAngle=__shfl_sync(0xffffffff,solidAngle,0);
     angleError=__shfl_sync(0xffffffff,angleError,0)+.001f;
     const float sphereAngle=4.f*3.14159265358979323846f;
-    if(roundf((solidAngle-angleError)/sphereAngle)!=roundf((solidAngle+angleError)/sphereAngle)){
+    if(!closedDegree && roundf((solidAngle-angleError)/sphereAngle)!=roundf((solidAngle+angleError)/sphereAngle)){
         solidAngle=0;
         for(int t=lane;t<triangles;t+=32){
             const FragmentVertex& a=points[3*t];const FragmentVertex& b=points[3*t+1];const FragmentVertex& c=points[3*t+2];
@@ -406,61 +481,42 @@ __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,
         }
     }
     if(selected<0 || lane!=0)return;
-    if(contacted){atomicExch(contacted+p.root,1);atomicExch(contacted+points[3*selected].root,1);}
-    if(!delta && !manifold.constraints)return;
-    int count=0;
-#ifdef ENDO_KIDNEY_WARP_SCRATCH
-    // Only lane zero reaches constraint assembly. Its two 32-entry arrays
-    // need one copy per warp, not a spilled allocation for every thread.
-    __shared__ int constraintIds[2][32];__shared__ float constraintWeights[2][32];
-    int* ids=constraintIds[threadIdx.x/32];float* weights=constraintWeights[threadIdx.x/32];
+#ifdef ENDO_KIDNEY_SPLIT_FRAGMENT
+    hits[i]={p.root,selected,best,normal,bary};
 #else
-    int ids[32];float weights[32];
+    fragmentAssembleContact(i,triangles,p.root,selected,best,normal,bary,pos,vertices,points,inverseMass,delta,degree,contacted,manifold);
 #endif
-    if(i<3*triangles){const SurfaceVertex& v=vertices[i];
-        for(int k=0;k<v.count;k++)fragmentWeight(v.id[k],v.weight[k],ids,weights,count);
-    }else fragmentWeight(i-3*triangles,1.f,ids,weights,count);
-    for(int j=0;j<3;j++){
-        const SurfaceVertex& other=vertices[3*selected+j];float w=compF3(bary,j);
-        for(int k=0;k<other.count;k++)fragmentWeight(other.id[k],-w*other.weight[k],ids,weights,count);
-    }
-    float denominator=0;for(int k=0;k<count;k++)denominator+=inverseMass[ids[k]]*weights[k]*weights[k];
-    if(denominator<1e-20f)return;
-    if(manifold.constraints){
-        for(int source=i;source>=0;source=(manifold.duplicateNext && source<3*triangles)?manifold.duplicateNext[source]:-1){
-        float area=0;
-        if(source<3*triangles){int face=source/3;area=len3(cross3(points[3*face+1].current-points[3*face].current,points[3*face+2].current-points[3*face].current))/6.f;}
-        else if(manifold.rest){
-            int id=source-3*triangles;float cell[3];for(int axis=0;axis<3;axis++)cell[axis]=fmaxf(len3(manifold.rest[6*id+2*axis]),len3(manifold.rest[6*id+2*axis+1]));
-            area=(cell[0]*cell[1]+cell[1]*cell[2]+cell[2]*cell[0])/3.f;
-        }
-        if(area>1e-12f){
-            FragmentConstraint c={};c.count=count;c.sourceRoot=p.root;c.targetRoot=points[3*selected].root;c.normal=normal;c.inverseMass=denominator;c.stiffness=200000.f*area;
-            float3 relative=mkf3(0,0,0);
-            for(int k=0;k<count;k++){c.id[k]=ids[k];c.weight[k]=weights[k];relative=relative+pos[ids[k]]*weights[k];if(!manifold.slots && fabsf(weights[k])>1e-10f)atomicAdd(manifold.degree+ids[k],1);}
-            c.offset=dot3(relative,normal)+best;
-            // One constraint per query per substep. Refreshing a witness must
-            // not multiply its quadrature area or normal stiffness.
-            int slot=manifold.slots?manifold.slots[source]:-1;
-            if(slot<0){slot=atomicAdd(manifold.count,1);if(manifold.slots)manifold.slots[source]=slot;}
-            manifold.constraints[slot]=c;
-        }
-        }
-    }
-    if(!delta)return;
-    for(int k=0;k<count;k++)if(inverseMass[ids[k]]>0 && fabsf(weights[k])>1e-10f){
-        add3(delta+ids[k],normal*(best*inverseMass[ids[k]]*weights[k]/denominator));atomicAdd(degree+ids[k],1);
-    }
 }
 __global__ void k_FragmentContact(int triangles,const int* queries,const int* queryCount,const int* component,const float3* pos,
     const float3* previous,const float3* start,const SurfaceVertex* vertices,const FragmentVertex* points,const float* inverseMass,
-    float3* delta,int* degree,const FragmentBounds* bounds,const int* roots,const int* rootCount,const FragmentTreeNode* tree,int base,const int* order,int* contacted=nullptr,FragmentManifold manifold={}){
+    float3* delta,int* degree,const FragmentBounds* bounds,const int* roots,const int* rootCount,const FragmentTreeNode* tree,int base,const int* order,int* contacted=nullptr,FragmentManifold manifold={},FragmentHit* hits=nullptr){
     // A warp owns one query. Cooperate over ALL target triangles; reducing
     // the same winding, nearest witness and CCD candidates avoids a serial
     // whole-organ scan on one GPU lane for every fragment and solver pass.
     int warps=gridDim.x*blockDim.x/32;
     for(int q=(blockIdx.x*blockDim.x+threadIdx.x)/32;q<*queryCount;q+=warps)
-        fragmentQuery(queries[q],threadIdx.x%32,triangles,component,pos,previous,start,vertices,points,inverseMass,delta,degree,bounds,roots,rootCount,tree,base,order,contacted,manifold);
+        fragmentQuery(queries[q],threadIdx.x%32,triangles,component,pos,previous,start,vertices,points,inverseMass,delta,degree,bounds,roots,rootCount,tree,base,order,contacted,manifold,hits);
+}
+#ifdef ENDO_KIDNEY_SPLIT_FRAGMENT
+__global__ void k_FragmentAssemble(int triangles,const int* queries,const int* queryCount,const FragmentHit* hits,
+    const float3* pos,const SurfaceVertex* vertices,const FragmentVertex* points,const float* inverseMass,
+    float3* delta,int* degree,int* contacted,FragmentManifold manifold){
+    for(int q=blockIdx.x*blockDim.x+threadIdx.x;q<*queryCount;q+=blockDim.x*gridDim.x){
+        int i=queries[q];const auto& hit=hits[i];if(hit.triangle<0)continue;
+        fragmentAssembleContact(i,triangles,hit.sourceRoot,hit.triangle,hit.depth,hit.normal,hit.bary,pos,vertices,points,inverseMass,delta,degree,contacted,manifold);
+    }
+}
+#endif
+// Geometry and assembly read identical positions; every original contact term
+// is retained. No positional correction occurs between these launches.
+static void launchFragmentContact(cudaStream_t stream,int triangles,const int* queries,const int* queryCount,const int* component,const float3* pos,
+    const float3* previous,const float3* start,const SurfaceVertex* vertices,const FragmentVertex* points,const float* inverseMass,
+    float3* delta,int* degree,const FragmentBounds* bounds,const int* roots,const int* rootCount,const FragmentTreeNode* tree,int base,const int* order,
+    int* contacted=nullptr,FragmentManifold manifold={},FragmentHit* hits=nullptr){
+    k_FragmentContact<<<2048,64,0,stream>>>(triangles,queries,queryCount,component,pos,previous,start,vertices,points,inverseMass,delta,degree,bounds,roots,rootCount,tree,base,order,contacted,manifold,hits);
+#ifdef ENDO_KIDNEY_SPLIT_FRAGMENT
+    k_FragmentAssemble<<<128,64,0,stream>>>(triangles,queries,queryCount,hits,pos,vertices,points,inverseMass,delta,degree,contacted,manifold);
+#endif
 }
 // Applies and clears the corrections of one pass, leaving delta and degree zero for the next one. Every node the
 // passes move belongs to a detached component with a query (k_FragmentQueries): without one they are all zero.

@@ -40,7 +40,11 @@ def main():
     parser.add_argument("--replay-repeats",type=int,default=2,help="Independent continuations from the exact same snapshot (2-20)")
     parser.add_argument('--assembly-blocks',type=int,choices=(64,128,256,512),default=512)
     parser.add_argument('--manifold-blocks',type=int,choices=(64,128,256,512,1024),default=1024)
+    parser.add_argument('--nsys-stage',choices=('drop_settle','regrasp_close'),help='Server-only, bounded actual CUDA-graph tracing')
+    parser.add_argument('--nsys-frames',type=int,default=3)
     args = parser.parse_args()
+    if args.nsys_stage and (os.name=='nt' or not args.stress_tests or not 1<=args.nsys_frames<=10):
+        parser.error('Nsight capture requires server stress tests and 1-10 frames')
     if not 2<=args.replay_repeats<=20:
         parser.error('--replay-repeats must be 2-20')
     if args.name and (not args.name.replace("-", "").replace("_", "").isalnum() or len(args.name) > 80):
@@ -189,7 +193,7 @@ def main():
         run.Recording.after_step = record
         if args.stress_tests:
             from training_stress import install
-            install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress,replay_repeats=args.replay_repeats)
+            install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress,replay_repeats=args.replay_repeats,nsys_stage=args.nsys_stage,nsys_frames=args.nsys_frames)
         options = ["--scene", "kidney", "--dll", str(dll), "--output", str(output),
                    "--width", "1280", "--height", "960", "--render-every", "1"]
         if args.headless:

@@ -22,9 +22,12 @@ extern "C" LCS_COMBINED_EXPORT int LCS_ProbePairedFile(const char* input,const c
     int *queries=nullptr,*queryCount=nullptr,*unique=nullptr,*uniqueCount=nullptr,*heads=nullptr,*ambiguous=nullptr,*next=nullptr,*slots=nullptr,*count=nullptr,*degree=nullptr;
     int *roots=nullptr,*rootCount=nullptr,*order=nullptr,*sortedOrder=nullptr;
     unsigned long long *keys=nullptr,*sortedKeys=nullptr;unsigned char* sortTemp=nullptr;size_t bytes=0;
-    FragmentVertex* points=nullptr;FragmentBounds* bounds=nullptr;FragmentTreeNode* tree=nullptr;FragmentConstraint* constraints=nullptr;
+    FragmentHit* hits=nullptr;FragmentVertex* points=nullptr;FragmentBounds* bounds=nullptr;FragmentTreeNode* tree=nullptr;FragmentConstraint* constraints=nullptr;
     ok=pool.alloc(queries,capacity)&&pool.alloc(queryCount,1)&&pool.alloc(unique,capacity)&&pool.alloc(uniqueCount,1)&&pool.alloc(heads,h.n)&&pool.alloc(ambiguous,h.n)&&pool.alloc(next,capacity)&&pool.alloc(slots,capacity)&&pool.alloc(count,2)&&pool.alloc(degree,h.n)&&pool.alloc(constraints,capacity);
     ok=ok&&pool.alloc(points,3*h.triangles)&&pool.alloc(bounds,h.n)&&pool.alloc(roots,h.n)&&pool.alloc(rootCount,1)&&pool.alloc(tree,2*base)&&pool.alloc(keys,h.triangles)&&pool.alloc(sortedKeys,h.triangles)&&pool.alloc(order,h.triangles)&&pool.alloc(sortedOrder,h.triangles)&&pool.alloc(rest,6*h.n);
+#ifdef ENDO_KIDNEY_SPLIT_FRAGMENT
+    ok=ok && pool.alloc(hits,capacity);
+#endif
     if(!ok)return -4;
     // The frozen kidney fixtures use 1mm cells. Node queries are never deduplicated.
     std::vector<float3> cell(6*h.n);for(int i=0;i<h.n;i++)for(int a=0;a<3;a++){float3 v={};if(a==0)v.x=.1f;if(a==1)v.y=.1f;if(a==2)v.z=.1f;cell[6*i+2*a]=v*(-1.f);cell[6*i+2*a+1]=v;}
@@ -54,7 +57,7 @@ extern "C" LCS_COMBINED_EXPORT int LCS_ProbePairedFile(const char* input,const c
             k_FragmentUniqueQueries<<<128,64>>>(h.n,h.triangles,queries,queryCount,vertices,heads,ambiguous,next,unique,uniqueCount);
         }
         FragmentManifold manifold{constraints,count,degree,rest,slots,deduplicate?next:nullptr};
-        k_FragmentContact<<<2048,64>>>(h.triangles,deduplicate?unique:queries,deduplicate?uniqueCount:queryCount,component,pos,previous,pos,vertices,points,inv,nullptr,nullptr,bounds,roots,rootCount,tree,base,sortedOrder,nullptr,manifold);
+        launchFragmentContact(0,h.triangles,deduplicate?unique:queries,deduplicate?uniqueCount:queryCount,component,pos,previous,pos,vertices,points,inv,nullptr,nullptr,bounds,roots,rootCount,tree,base,sortedOrder,nullptr,manifold,hits);
         cudaEventRecord(last);error=cudaEventSynchronize(last);cudaEventElapsedTime(&ms,first,last);cudaEventDestroy(first);cudaEventDestroy(last);
         if(error!=cudaSuccess)return -(100+(int)error);
         cudaMemcpy(&kept,deduplicate?uniqueCount:queryCount,sizeof(int),cudaMemcpyDeviceToHost);

@@ -10,7 +10,7 @@ import time
 import numpy as np
 
 
-def install(run, output, profile=False, route='legacy', diagnostic=False, replay_repeats=2):
+def install(run, output, profile=False, route='legacy', diagnostic=False, replay_repeats=2,nsys_stage=None,nsys_frames=3):
     original = run.Flow.run
     original_open = run.Flow.open
     def open_with_checkpoint(flow,tissue):
@@ -134,12 +134,25 @@ def install(run, output, profile=False, route='legacy', diagnostic=False, replay
                 nonlocal previous
                 flow.stage=name
                 print(f'[{flow.step:03d}] {name}',flush=True)
+                counters=None
+                if hasattr(tissue.dll,'LCS_ClosedContactCounters'):
+                    import ctypes
+                    read_counters=tissue.dll.LCS_ClosedContactCounters;read_counters.argtypes=[ctypes.c_void_p,ctypes.c_int];read_counters.restype=ctypes.c_int
+                    counters=(ctypes.c_ulonglong*6)();assert read_counters(counters,1)==0
                 timing=[]
                 max_body_depth=0.;min_volume=1.;invalid_tets=0
                 if profile:
                     import ctypes
                     enable=tissue.dll.LCS_ProfileSections;enable.argtypes=[ctypes.c_int];enable.restype=None
                     enable(1)
+                profiler=None
+                if name==nsys_stage:
+                    import ctypes
+                    from pathlib import Path
+                    runtime=Path(__file__).resolve().parents[2]/'envs/genesis-py311-cu125-v1/targets/x86_64-linux/lib/libcudart.so'
+                    profiler=ctypes.CDLL(str(runtime))
+                    profiler.cudaProfilerStart.restype=ctypes.c_int;profiler.cudaProfilerStop.restype=ctypes.c_int
+                    assert profiler.cudaProfilerStart()==0
                 for i in range(steps):
                     if track:
                         center=flow.obs.nodes[piece].mean(axis=0)
@@ -151,6 +164,9 @@ def install(run, output, profile=False, route='legacy', diagnostic=False, replay
                     request=interpolate(previous,target,min(1.,(i+1)/(steps*.8)))
                     start=time.perf_counter();flow.obs=tissue.step(request);elapsed=(time.perf_counter()-start)*1000
                     timing.append(elapsed);flow.step+=1
+                    if profiler is not None and i+1==min(nsys_frames,steps):
+                        assert profiler.cudaProfilerStop()==0
+                        profiler=None
                     obs=flow.obs
                     assert np.isfinite(obs.nodes).all(), 'Nonfinite material state'
                     assert np.array_equal(obs.neighbors,initial_neighbors), 'Unexpected cut/healing after excision'
@@ -207,6 +223,9 @@ def install(run, output, profile=False, route='legacy', diagnostic=False, replay
                           max_piece_node_depth_mm=maximum,surface_audit=audit)
                 item.update(max_body_overlap_mm=max_body_depth,min_volume_ratio=min_volume,invalid_tets=invalid_tets)
                 if profile:item['profile_gpu_sections_ms_per_step']=section_ms
+                if counters is not None:
+                    assert read_counters(counters,1)==0
+                    item['closed_contact_counters']=dict(zip(['certificate_builds','certificate_passes','eligible_queries','ray_accepted','ray_ambiguous','uncertified_queries'],map(int,counters)))
                 result['stages'].append(item);save_report()
                 assert organ.is_watertight and maximum<=.2, 'Released piece penetrated main organ by over 0.2 mm'
                 return item

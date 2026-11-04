@@ -96,6 +96,8 @@ __host__ __device__ __forceinline__ float  compF3(float3 v, int k) { return (k==
 #include "../contact/contact_groups.cuh"
 #include "../contact/fragment_contact.cuh"
 static FragmentVertex* d_fragmentVertices=nullptr;
+static FragmentHit* d_fragmentHits=nullptr;
+static int* d_fragmentClosedCanonical=nullptr;
 static unsigned long long *d_fragmentKeys=nullptr,*d_fragmentSortedKeys=nullptr;
 static int *d_fragmentOrder=nullptr,*d_fragmentSortedOrder=nullptr;
 static void* d_fragmentSortTemp=nullptr;
@@ -2879,6 +2881,13 @@ static cudaError_t launchFragmentPasses(cudaStream_t stream,bool prepare,const f
         // at each nonlinear refresh repeats work without changing coverage.
         // New substeps/topology still take the full discovery/sort path.
         if(pass==0 && !refresh){
+#ifdef ENDO_KIDNEY_CLOSED_RAY
+            xpbd_section_mark("fragment: start certificate");
+            cudaError_t certified=prepareFragmentClosedCertificate(stream,g_N,g_surfaceCount,d_surfaceVertices,d_unifiedComponents,d_fragmentQueryCount,d_fragmentClosedCanonical,
+                d_fragmentKeys,d_fragmentSortedKeys,d_fragmentOrder,d_fragmentSortedOrder,d_fragmentSortTemp,g_fragmentSortBytes);
+            if(certified!=cudaSuccess)return certified;
+            xpbd_section_mark("fragment: closure certificate");
+#endif
             k_FragmentTreeKeys<<<(g_surfaceCount+63)/64,64,0,stream>>>(g_surfaceCount,d_fragmentVertices,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentKeys,d_fragmentOrder,d_fragmentQueryCount);
             size_t availableSortBytes=g_fragmentSortBytes;
             cudaError_t sorted=cub::DeviceRadixSort::SortPairs(d_fragmentSortTemp,availableSortBytes,d_fragmentKeys,d_fragmentSortedKeys,d_fragmentOrder,d_fragmentSortedOrder,g_surfaceCount,0,64,stream);
@@ -2889,16 +2898,18 @@ static cudaError_t launchFragmentPasses(cudaStream_t stream,bool prepare,const f
 #ifdef ENDO_KIDNEY_CACHE_TREE_BOUNDS
         k_FragmentTreePrepareQueries<<<Gr(2*g_fragmentTreeBase),64,0,stream>>>(2*g_fragmentTreeBase,d_fragmentTree,d_fragmentQueryCount);
 #endif
+        xpbd_section_mark("fragment: tree refit and bounds");
         if(discovery){
             FragmentManifold manifold{d_fragmentConstraints,d_fragmentConstraintCount,d_fragmentConstraintDegree,g_liveRestNbr,d_fragmentQuerySlots,d_fragmentDuplicateNext};
-            k_FragmentContact<<<2048,64,0,stream>>>(g_surfaceCount,d_fragmentUniqueQueries,d_fragmentUniqueCount,d_unifiedComponents,positions,previous,start,
-                d_surfaceVertices,d_fragmentVertices,d_invMass,nullptr,nullptr,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentTree,g_fragmentTreeBase,d_fragmentSortedOrder,d_fragmentContacted,manifold);
+            launchFragmentContact(stream,g_surfaceCount,d_fragmentUniqueQueries,d_fragmentUniqueCount,d_unifiedComponents,positions,previous,start,
+                d_surfaceVertices,d_fragmentVertices,d_invMass,nullptr,nullptr,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentTree,g_fragmentTreeBase,d_fragmentSortedOrder,d_fragmentContacted,manifold,d_fragmentHits);
+            xpbd_section_mark("fragment: paired query");
             return cudaGetLastError();
         }
         if(!prepare)k_FragmentEdges<<<Gr(g_N),64,0,stream>>>(g_N,g_liveNbrIdx,g_liveRestNbr,d_unifiedComponents,d_fragmentSupported,d_graspComponents,d_invMass,d_pos,g_p.youngE,g_hFrame,d_fragmentLambda,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
         // A fixed grid of warps strides over the device query list: no host readback of its length.
-        k_FragmentContact<<<2048,64,0,stream>>>(g_surfaceCount,d_fragmentQueries,d_fragmentQueryCount,d_unifiedComponents,d_pos,previous,d_fragmentStart,
-            d_surfaceVertices,d_fragmentVertices,d_invMass,d_surfaceDelta,d_fragmentDegree,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentTree,g_fragmentTreeBase,d_fragmentSortedOrder);
+        launchFragmentContact(stream,g_surfaceCount,d_fragmentQueries,d_fragmentQueryCount,d_unifiedComponents,d_pos,previous,d_fragmentStart,
+            d_surfaceVertices,d_fragmentVertices,d_invMass,d_surfaceDelta,d_fragmentDegree,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentTree,g_fragmentTreeBase,d_fragmentSortedOrder,nullptr,{},d_fragmentHits);
         k_ApplyFragmentContact<<<Gr(g_N),64,0,stream>>>(g_N,d_pos,d_surfaceDelta,d_fragmentDegree,d_fragmentQueryCount);
         k_UnsupportedTools<<<Gr(g_N),64,0,stream>>>(g_N,d_fragmentSupported,d_unifiedComponents,d_graspComponents,d_invMass,previous,d_pos,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr,g_jawThickness,g_gp.jawGapClosed,d_fragmentQueryCount);
     }
@@ -2908,7 +2919,7 @@ __global__ void k_FragmentPassCondition(cudaGraphConditionalHandle handle,const 
     cudaGraphSetConditional(handle,*queryCount>0?1u:0u);
 }
 // The launch arguments the fragment pass graph bakes in: a change of any of them builds it again.
-struct FragmentPassKey{const void* pointers[39];int surfaceCount,n;float young,h,thickness,gap;};
+struct FragmentPassKey{const void* pointers[41];int surfaceCount,n;float young,h,thickness,gap;};
 // The fragment passes of solveFragmentContact (prepare or not) as a graph whose body runs only once a query exists.
 // Tissue without detached fragments, the usual case, then pays one graph launch instead of 40 kernel launches that
 // return at once.
@@ -2927,9 +2938,9 @@ static void destroyFragmentPassGraphs(){
 }
 static FragmentPassKey makeFragmentPassKey(const float3* previous){
     FragmentPassKey key;memset(&key,0,sizeof(key));
-    const void* pointers[39]={d_surfaceVertices,d_unifiedComponents,d_pos,previous,d_fragmentStart,d_fragmentVertices,d_fragmentQueryCount,
+    const void* pointers[41]={d_surfaceVertices,d_unifiedComponents,d_pos,previous,d_fragmentStart,d_fragmentVertices,d_fragmentQueryCount,
         g_liveNbrIdx,g_liveRestNbr,d_fragmentSupported,d_graspComponents,d_invMass,d_fragmentLambda,d_surfaceDelta,d_fragmentDegree,
-        d_fragmentQueries,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentTree,d_fragmentKeys,d_fragmentSortedKeys,d_fragmentOrder,d_fragmentSortedOrder,d_fragmentSortTemp,d_fragmentContacted,d_unifiedTarget,d_fragmentConstraints,d_fragmentConstraintCount,d_fragmentConstraintDegree,d_fragmentQuerySlots,d_fragmentUniqueQueries,d_fragmentUniqueCount,d_fragmentDuplicateHeads,d_fragmentDuplicateAmbiguous,d_fragmentDuplicateNext,d_fragmentUnpinnedVolume};
+        d_fragmentQueries,d_coupledTool,g_blade.enabled?d_bladeBody:nullptr,d_fragmentBounds,d_fragmentRoots,d_fragmentRootCount,d_fragmentTree,d_fragmentKeys,d_fragmentSortedKeys,d_fragmentOrder,d_fragmentSortedOrder,d_fragmentSortTemp,d_fragmentContacted,d_unifiedTarget,d_fragmentConstraints,d_fragmentConstraintCount,d_fragmentConstraintDegree,d_fragmentQuerySlots,d_fragmentUniqueQueries,d_fragmentUniqueCount,d_fragmentDuplicateHeads,d_fragmentDuplicateAmbiguous,d_fragmentDuplicateNext,d_fragmentUnpinnedVolume,d_fragmentHits,d_fragmentClosedCanonical};
     memcpy(key.pointers,pointers,sizeof(pointers));
     key.surfaceCount=g_surfaceCount;key.n=g_N;key.young=g_p.youngE;key.h=g_hFrame;key.thickness=g_jawThickness;key.gap=g_gp.jawGapClosed;
     return key;
@@ -2982,8 +2993,15 @@ static cudaError_t allocateFragmentContact(){
     if(e==cudaSuccess && g_fragmentConstraintCapacity<g_N+3*g_surfaceCount){
         cudaFree(d_fragmentConstraints);d_fragmentConstraints=nullptr;cudaFree(d_fragmentQuerySlots);d_fragmentQuerySlots=nullptr;g_fragmentConstraintCapacity=0;
         cudaFree(d_fragmentUniqueQueries);d_fragmentUniqueQueries=nullptr;cudaFree(d_fragmentDuplicateNext);d_fragmentDuplicateNext=nullptr;
+        cudaFree(d_fragmentHits);d_fragmentHits=nullptr;cudaFree(d_fragmentClosedCanonical);d_fragmentClosedCanonical=nullptr;
         int capacity=1;while(capacity<g_N+3*g_surfaceCount)capacity*=2;
-        e=cudaMalloc(&d_fragmentConstraints,capacity*sizeof(FragmentConstraint));
+#ifdef ENDO_KIDNEY_CLOSED_RAY
+        if(e==cudaSuccess)e=cudaMalloc(&d_fragmentClosedCanonical,capacity*sizeof(int));
+#endif
+#ifdef ENDO_KIDNEY_SPLIT_FRAGMENT
+        if(e==cudaSuccess)e=cudaMalloc(&d_fragmentHits,capacity*sizeof(FragmentHit));
+#endif
+        if(e==cudaSuccess)e=cudaMalloc(&d_fragmentConstraints,capacity*sizeof(FragmentConstraint));
         if(e==cudaSuccess)e=cudaMalloc(&d_fragmentQuerySlots,capacity*sizeof(int));
         if(e==cudaSuccess)e=cudaMalloc(&d_fragmentUniqueQueries,capacity*sizeof(int));
         if(e==cudaSuccess)e=cudaMalloc(&d_fragmentDuplicateNext,capacity*sizeof(int));
@@ -2996,8 +3014,12 @@ static cudaError_t allocateFragmentContact(){
         cudaFree(d_fragmentTree);d_fragmentTree=nullptr;g_fragmentTreeCapacity=0;
         e=cudaMalloc(&d_fragmentTree,2*g_fragmentTreeBase*sizeof(FragmentTreeNode));if(e==cudaSuccess)g_fragmentTreeCapacity=2*g_fragmentTreeBase;
     }
-    if(e==cudaSuccess && g_fragmentSortCapacity<g_surfaceCount){
-        int sortCapacity=1;while(sortCapacity<g_surfaceCount)sortCapacity*=2;
+    int sortItems=g_surfaceCount;
+#ifdef ENDO_KIDNEY_CLOSED_RAY
+    sortItems*=3;
+#endif
+    if(e==cudaSuccess && g_fragmentSortCapacity<sortItems){
+        int sortCapacity=1;while(sortCapacity<sortItems)sortCapacity*=2;
         cudaFree(d_fragmentKeys);cudaFree(d_fragmentSortedKeys);cudaFree(d_fragmentOrder);cudaFree(d_fragmentSortedOrder);cudaFree(d_fragmentSortTemp);
         d_fragmentKeys=d_fragmentSortedKeys=nullptr;d_fragmentOrder=d_fragmentSortedOrder=nullptr;d_fragmentSortTemp=nullptr;g_fragmentSortCapacity=0;
         e=cudaMalloc(&d_fragmentKeys,sortCapacity*sizeof(unsigned long long));
@@ -4154,6 +4176,7 @@ extern "C" void xpbd_shutdown()
     freeRuntimeModeGates();
     freeCoarseBoundCache();freeManifoldValidation();
     freeQueryGroups();
+    cudaFree(d_fragmentHits);d_fragmentHits=nullptr;cudaFree(d_fragmentClosedCanonical);d_fragmentClosedCanonical=nullptr;
     cudaFree(d_fragmentVertices);d_fragmentVertices=nullptr;g_fragmentCapacity=0;
     cudaFree(d_fragmentSupported);d_fragmentSupported=nullptr;
     cudaFree(d_fragmentUnpinnedVolume);d_fragmentUnpinnedVolume=nullptr;
@@ -4424,3 +4447,11 @@ extern "C" int xpbd_query_order_probe(int stride,unsigned packed,int kinds,const
     k_CompareQueryFrequencies<<<1,128>>>(entries,w.freq,w.bad,w.stats);
     e=cudaMemcpy(out,w.stats,32*sizeof(int),cudaMemcpyDeviceToHost);return -(int)e;
 }
+
+#ifdef ENDO_KIDNEY_CLOSED_STATS
+extern "C" LCS_COMBINED_EXPORT int LCS_ClosedContactCounters(unsigned long long* out,int reset){
+    if(!out)return -1;cudaError_t e=cudaMemcpyFromSymbol(out,g_fragmentRuntimeStats,6*sizeof(unsigned long long));
+    if(e==cudaSuccess && reset){unsigned long long zero[6]={};e=cudaMemcpyToSymbol(g_fragmentRuntimeStats,zero,sizeof(zero));}
+    return (int)e;
+}
+#endif

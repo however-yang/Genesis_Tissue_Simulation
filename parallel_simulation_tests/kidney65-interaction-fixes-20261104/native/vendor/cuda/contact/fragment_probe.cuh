@@ -31,6 +31,40 @@ struct FragmentProbeStorage{
         items.push_back(p);return true;
     }
 };
+#if defined(ENDO_KIDNEY_CLOSED_RAY_PROBE) || defined(ENDO_KIDNEY_CLOSED_RAY)
+#include <map>
+#include <array>
+static int fragmentProbeClosed(int n,int triangles,const SurfaceVertex* vertices,const int* components){
+    std::vector<SurfaceVertex> v(3*triangles);std::vector<int> component(n);
+    if(cudaMemcpy(v.data(),vertices,v.size()*sizeof(SurfaceVertex),cudaMemcpyDeviceToHost)!=cudaSuccess || cudaMemcpy(component.data(),components,n*sizeof(int),cudaMemcpyDeviceToHost)!=cudaSuccess)return 0;
+    std::map<std::array<unsigned,20>,int> unique;std::vector<int> id(v.size());
+    for(size_t i=0;i<v.size();i++){
+        if(v[i].count<0 || v[i].count>8)return 0;
+        for(int k=0;k<v[i].count;k++)if(v[i].id[k]<0 || v[i].id[k]>=n)return 0;
+        std::array<unsigned,20> key{};memcpy(key.data(),v[i].id,9*sizeof(unsigned));memcpy(key.data()+9,v[i].weight,11*sizeof(unsigned));
+        auto item=unique.emplace(key,(int)unique.size());id[i]=item.first->second;
+    }
+    struct Edge{int count=0,balance=0,root=-1;};std::map<std::pair<int,int>,Edge> edges;
+    for(int t=0;t<triangles;t++){
+        int root=-1;bool valid=true;
+        for(int j=0;j<3;j++){
+            const auto& a=v[3*t+j];int r=a.count?component[a.id[0]]:-1;
+            for(int k=1;k<a.count;k++)if(component[a.id[k]]!=r)r=-1;
+            if(j==0)root=r;else if(r!=root)valid=false;
+        }
+        if(root<0 || !valid)continue;
+        for(int j=0;j<3;j++){
+            int a=id[3*t+j],b=id[3*t+(j+1)%3];if(a==b)return 0;
+            auto& edge=edges[{std::min(a,b),std::max(a,b)}];
+            if(edge.count && edge.root!=root)return 0;
+            edge.root=root;edge.count++;edge.balance+=a<b?1:-1;
+        }
+    }
+    for(const auto& pair:edges)if(pair.second.count!=2 || pair.second.balance!=0)return 0;
+    return 1;
+}
+extern "C" LCS_COMBINED_EXPORT int LCS_ReadClosedRayStats(unsigned long long* out){return out?(int)cudaMemcpyFromSymbol(out,g_fragmentClosedStats,4*sizeof(unsigned long long)):-1;}
+#endif
 extern "C" LCS_COMBINED_EXPORT int LCS_ProbeFragmentFile(const char* input,const char* output,int release){
     FILE* file=fopen(input,"rb");if(!file)return -1;
     FragmentProbeHeader h={};
@@ -39,7 +73,7 @@ extern "C" LCS_COMBINED_EXPORT int LCS_ProbeFragmentFile(const char* input,const
     float3 *pos=nullptr,*prev=nullptr,*vel=nullptr,*delta=nullptr;
     int *comp=nullptr,*support=nullptr,*grasp=nullptr,*active=nullptr,*queries=nullptr,*count=nullptr,*degree=nullptr;
     unsigned long long *keys=nullptr,*sortedKeys=nullptr;int *order=nullptr,*sortedOrder=nullptr;unsigned char* sortTemp=nullptr;size_t sortBytes=0;
-    FragmentTreeNode* tree=nullptr;int base=1;while(32*base<h.triangles)base*=2;
+    FragmentHit* hits=nullptr;FragmentTreeNode* tree=nullptr;int base=1;while(32*base<h.triangles)base*=2;
     FragmentBounds* bounds=nullptr;int *roots=nullptr,*rootCount=nullptr;
     float *inv=nullptr,*records=nullptr;SurfaceVertex* vertices=nullptr;FragmentVertex* points=nullptr;
     auto load=[&](auto*& dst,size_t n){
@@ -50,8 +84,15 @@ extern "C" LCS_COMBINED_EXPORT int LCS_ProbeFragmentFile(const char* input,const
     bool ok=load(pos,h.n)&&load(prev,h.n)&&load(vel,h.n)&&load(comp,h.n)&&load(inv,h.n)&&load(support,h.n)&&load(grasp,h.n)&&load(active,h.n)&&load(vertices,3*h.triangles);
     fclose(file);if(!ok)return -3;
     const int capacity=h.n+3*h.triangles;
+    int sortItems=h.triangles;int* canonical=nullptr;
+#ifdef ENDO_KIDNEY_CLOSED_RAY
+    sortItems*=3;if(!pool.allocate(canonical,3*h.triangles))return -24;
+#endif
     ok=pool.allocate(delta,h.n)&&pool.allocate(degree,h.n)&&pool.allocate(queries,capacity)&&pool.allocate(count,1)&&pool.allocate(records,size_t(20)*capacity)&&pool.allocate(points,3*h.triangles);
-    ok=ok && pool.allocate(keys,h.triangles) && pool.allocate(sortedKeys,h.triangles) && pool.allocate(order,h.triangles) && pool.allocate(sortedOrder,h.triangles) && pool.allocate(tree,2*base) && pool.allocate(bounds,h.n) && pool.allocate(roots,h.n) && pool.allocate(rootCount,1);
+    ok=ok && pool.allocate(keys,sortItems) && pool.allocate(sortedKeys,sortItems) && pool.allocate(order,sortItems) && pool.allocate(sortedOrder,sortItems) && pool.allocate(tree,2*base) && pool.allocate(bounds,h.n) && pool.allocate(roots,h.n) && pool.allocate(rootCount,1);
+#ifdef ENDO_KIDNEY_SPLIT_FRAGMENT
+    ok=ok && pool.allocate(hits,capacity);
+#endif
     if(!ok)return -4;
     if(release)cudaMemset(grasp,0,h.n*sizeof(int));
     cudaMemset(count,0,sizeof(int));cudaMemset(delta,0,h.n*sizeof(float3));cudaMemset(degree,0,h.n*sizeof(int));cudaMemset(records,0,size_t(20)*capacity*sizeof(float));
@@ -61,8 +102,11 @@ extern "C" LCS_COMBINED_EXPORT int LCS_ProbeFragmentFile(const char* input,const
     k_InitFragmentBounds<<<Gr(h.n),64>>>(h.n,bounds,count);
     k_FragmentSurfaceBounds<<<Gr(3*h.triangles),64>>>(3*h.triangles,points,bounds,count);
     cudaMemset(rootCount,0,sizeof(int));k_ListFragmentRoots<<<Gr(h.n),64>>>(h.n,bounds,roots,rootCount,count);
+    if(cub::DeviceRadixSort::SortPairs(nullptr,sortBytes,keys,sortedKeys,order,sortedOrder,sortItems)!=cudaSuccess || !pool.allocate(sortTemp,sortBytes))return -8;
+#ifdef ENDO_KIDNEY_CLOSED_RAY
+    if(prepareFragmentClosedCertificate(0,h.n,h.triangles,vertices,comp,count,canonical,keys,sortedKeys,order,sortedOrder,sortTemp,sortBytes)!=cudaSuccess)return -25;
+#endif
     k_FragmentTreeKeys<<<(h.triangles+63)/64,64>>>(h.triangles,points,bounds,roots,rootCount,keys,order,count);
-    if(cub::DeviceRadixSort::SortPairs(nullptr,sortBytes,keys,sortedKeys,order,sortedOrder,h.triangles)!=cudaSuccess || !pool.allocate(sortTemp,sortBytes))return -8;
     if(cub::DeviceRadixSort::SortPairs(sortTemp,sortBytes,keys,sortedKeys,order,sortedOrder,h.triangles)!=cudaSuccess)return -9;
     k_FragmentTreeLeaves<<<(32*base+63)/64,64>>>(h.triangles,base,points,sortedOrder,tree,count);
     for(int level=base/2;level;level/=2)k_FragmentTreeParents<<<(level+63)/64,64>>>(level,level,tree,count);
@@ -71,10 +115,21 @@ extern "C" LCS_COMBINED_EXPORT int LCS_ProbeFragmentFile(const char* input,const
 #endif
     cudaMemcpyToSymbol(g_fragmentProbeRecords,&records,sizeof(records));
     cudaEvent_t first,last;cudaEventCreate(&first);cudaEventCreate(&last);
+#if defined(ENDO_KIDNEY_CLOSED_RAY_PROBE) || defined(ENDO_KIDNEY_CLOSED_RAY)
+    int certificate=fragmentProbeClosed(h.n,h.triangles,vertices,comp);
+#ifdef ENDO_KIDNEY_CLOSED_RAY
+    int deviceCertificate=0;cudaMemcpyFromSymbol(&deviceCertificate,g_fragmentClosedCertificate,sizeof(int));if(certificate!=deviceCertificate)return -26;
+#endif
+    unsigned long long stats[4]={(unsigned long long)certificate,0,0,0};
+    cudaMemcpyToSymbol(g_fragmentClosedCertificate,&certificate,sizeof(certificate));cudaMemcpyToSymbol(g_fragmentClosedStats,stats,sizeof(stats));
+#endif
     cudaEventRecord(first);
-    k_FragmentContact<<<2048,64>>>(h.triangles,queries,count,comp,pos,prev,pos,vertices,points,inv,delta,degree,bounds,roots,rootCount,tree,base,sortedOrder);
+    launchFragmentContact(0,h.triangles,queries,count,comp,pos,prev,pos,vertices,points,inv,delta,degree,bounds,roots,rootCount,tree,base,sortedOrder,nullptr,{},hits);
     cudaEventRecord(last);cudaError_t error=cudaEventSynchronize(last);float ms=0;cudaEventElapsedTime(&ms,first,last);
     cudaEventDestroy(first);cudaEventDestroy(last);
+#if defined(ENDO_KIDNEY_CLOSED_RAY_PROBE) || defined(ENDO_KIDNEY_CLOSED_RAY)
+    certificate=0;cudaMemcpyToSymbol(g_fragmentClosedCertificate,&certificate,sizeof(certificate));
+#endif
     float* empty=nullptr;cudaMemcpyToSymbol(g_fragmentProbeRecords,&empty,sizeof(empty));
     if(error!=cudaSuccess)return -(100+(int)error);
     std::vector<int> ids(number);std::vector<float> data(size_t(20)*capacity);std::vector<float3> changes(h.n);std::vector<int> degrees(h.n);

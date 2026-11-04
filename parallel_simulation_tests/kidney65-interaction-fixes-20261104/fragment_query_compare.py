@@ -58,6 +58,10 @@ def main():
                     target=output/f'{stage}-{release}-{index}.probe'
                     assert fn(os.fsencode(case),os.fsencode(target),release)==0
                     data.append(read(target))
+                    if index==1 and hasattr(dll,'LCS_ReadClosedRayStats'):
+                        values=(ctypes.c_ulonglong*4)();stats=dll.LCS_ReadClosedRayStats;stats.argtypes=[ctypes.c_void_p];stats.restype=ctypes.c_int
+                        assert stats(values)==0
+                        ray_stats=list(values)
                 a,b=data;identical=np.array_equal(a[0].view(np.uint32),b[0].view(np.uint32))
                 columns=[i for i in range(20) if i not in (2,16)]
                 decisions=np.array_equal(a[0][:,columns].view(np.uint32),b[0][:,columns].view(np.uint32))
@@ -68,6 +72,7 @@ def main():
                     reference_mean_triangles=float(a[0][:,2].mean()),candidate_mean_triangles=float(b[0][:,2].mean()),
                     atomic_delta_max_native_error=delta_error,
                     reference_kernel_ms=a[3],candidate_kernel_ms=b[3]))
+                if 'ray_stats' in locals():result['cases'][-1]['closed_ray_certificate_queries_accepted_fallback']=ray_stats
                 assert decisions and degrees, 'A geometric decision changed'
                 if args.angle_budget==.02 and not args.integral_variant:assert identical,'Unchanged angle algorithm must also preserve work and angle records'
                 # Atomics can reorder positional sums. Record them separately;
