@@ -23,7 +23,7 @@ import cv2
 from .grid import METERS_PER_UNIT, build_grid, to_genesis
 from .instrument_geometry import scissors_body_depths
 from .native_backend import Command, NativeTissue, Observation, Settings, Surface
-from .rendering import EndoscopicView
+from .rendering import BLOCK_CAMERA, EndoscopicView
 from .scenario import (SCISSORS_SCENES, SCISSORS_SPACING, STAGES, Sequence, drive_command, interpolate, scissors_settings,
                        severed_edges, stage_start)
 from .surface_diagnostics import topology_statistics
@@ -394,9 +394,10 @@ def main():
         grid = scene.build_grid(settings.density_kg_m3)
     else:
         grid = build_grid(args.spacing, density=settings.density_kg_m3, vertical_spacing=args.vertical_spacing)
-    # A scene with its own tissue shape frames it with its demo shot from the start.
+    # A scene with its own tissue shape frames it with its demo shot from the start. Every other scene uses the
+    # block camera.
     kidney = scene.shape if scene else None
-    camera = scene.shot if kidney is not None else None
+    camera = scene.shot if kidney is not None else BLOCK_CAMERA
     flow = Flow(settings, scene, stages, grid, args.steps, output)
     view, video = None, None
     status, error = "partial", None
