@@ -42,7 +42,9 @@ def main():
     parser.add_argument('--manifold-blocks',type=int,choices=(64,128,256,512,1024),default=1024)
     parser.add_argument('--nsys-stage',choices=('drop_settle','regrasp_close'),help='Server-only, bounded actual CUDA-graph tracing')
     parser.add_argument('--nsys-frames',type=int,default=3)
+    parser.add_argument('--stencil-probe',action='store_true',help='Read-only original/cached assembly comparisons after stages; not a production FPS run')
     args = parser.parse_args()
+    if args.stencil_probe and (os.name=='nt' or args.native_only):parser.error('Stencil comparisons require server stage recording')
     if args.nsys_stage and (os.name=='nt' or not args.stress_tests or not 1<=args.nsys_frames<=10):
         parser.error('Nsight capture requires server stress tests and 1-10 frames')
     if not 2<=args.replay_repeats<=20:
@@ -174,6 +176,7 @@ def main():
                 guard({os.getpid()})
             frame["start"] = time.perf_counter()
             result = original_step(self, command)
+            frame['tissue']=self
             frame["step_readback_ms"] = (time.perf_counter() - frame["start"]) * 1000
             return result
 
@@ -191,6 +194,28 @@ def main():
             return result
 
         run.Recording.after_step = record
+        if args.stencil_probe:
+            import numpy as np
+            fn=native.LCS_MaterialStencilProbe;fn.argtypes=[ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p];fn.restype=ctypes.c_int
+            original_stage=run.Recording.after_stage
+            probes=[]
+            def stage_probe(self,flow,stage,surface):
+                tissue=frame['tissue']
+                original_stage(self,flow,stage,surface)
+                stats=(ctypes.c_ulonglong*9)();errors=(ctypes.c_double*8)()
+                before=tissue.observe()
+                for damage in ([0,1] if not probes else [0]):
+                    assert fn(damage,stats,errors)==0
+                    differences=sum(stats[k] for k in (1,3,5,7))
+                    probes.append(dict(stage=stage,damaged_cache=bool(damage),stats=list(stats),max_error_reference_scale=list(errors),bitwise_equal=differences==0))
+                    (output/'stencil-probes.json').write_text(json.dumps(probes,indent=2)+'\n')
+                    assert stats[8]==0, 'Nonfinite assembly probe output'
+                    if damage:assert differences>0, 'Damaged-cache negative control was not detected'
+                    else:assert differences==0, 'Cached assembly differs from original'
+                after=tissue.observe()
+                assert np.array_equal(before.nodes,after.nodes) and np.array_equal(before.neighbors,after.neighbors), 'Read-only probe changed live state'
+            run.Recording.after_stage=stage_probe
+            metadata['stencil_probes_in_run']=True
         if args.stress_tests:
             from training_stress import install
             install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress,replay_repeats=args.replay_repeats,nsys_stage=args.nsys_stage,nsys_frames=args.nsys_frames)

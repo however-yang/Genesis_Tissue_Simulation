@@ -1,4 +1,5 @@
 #include <cuda_fp16.h>
+#include "material_tet_cache.cuh"
 // A Kuhn-grid row has 15 blocks. Store only its diagonal and seven upper
 // neighbors; lower blocks are their transposes. The symmetric positive strain
 // curvature couples all four tet nodes and retains rigid motion null modes.
@@ -33,7 +34,7 @@ __device__ __forceinline__ void materialRowAdd(float (&row)[72],int slot,const f
 // (tension hardening) is computed here.
 // The same pass writes the PCG right-hand side, the residual: minus the gradient of the node's energy, with the terms
 // and the summation order of k_UnifiedVertex. A fixed node gets a zero residual and an identity diagonal.
-template<bool AllowFragments=true> __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matrix,float* blockScale,float3* residual,Symmetric3* diagonal){
+template<bool AllowFragments=true,bool UseTetCache=false> __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matrix,float* blockScale,float3* residual,Symmetric3* diagonal,const MaterialTetCache* cache=nullptr){
     const auto& s=*state;int node=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(node<0)return;
     if(materialCgFixed<AllowFragments>(s,node)){residual[node]=mkf3(0,0,0);diagonal[node]={1,1,1,0,0,0};return;}
     float3 p=s.pos[node];float inertia=1.f/(s.invMass[node]*s.h*s.h),row[72]={};
@@ -73,11 +74,19 @@ template<bool AllowFragments=true> __global__ void k_MaterialStencilAssemble(con
             float3 Fq=e[0]*dot3(b[0],qi)+e[1]*dot3(b[1],qi)+e[2]*dot3(b[2],qi);
             float lambda=unifiedKuhn(s,t).bulkV+mu/3.f,pressure=lambda*(J-1.f)-mu;
             gradient=gradient+Fq*mu+g*(pressure+unifiedCompressionBarrier(J,s.minimum,lambda).gradient);
-            Symmetric3 unused={};unifiedStrainDamping(s,t,e[0],e[1],e[2],qi,gradient,unused);
+            if constexpr(UseTetCache)materialCachedDampingGradient(s,t,qi,cache[t],gradient);
+            else{Symmetric3 unused={};unifiedStrainDamping(s,t,e[0],e[1],e[2],qi,gradient,unused);}
         }
         #pragma unroll
-        for(int a=0;a<3;a++)F[a]=e[0]*compF3(b[0],a)+e[1]*compF3(b[1],a)+e[2]*compF3(b[2],a);
+        for(int a=0;a<3;a++){
+            if constexpr(UseTetCache)F[a]=cache[t].F[a];
+            else F[a]=e[0]*compF3(b[0],a)+e[1]*compF3(b[1],a)+e[2]*compF3(b[2],a);
+        }
         float3 cof[3]={cross3(F[1],F[2]),cross3(F[2],F[0]),cross3(F[0],F[1])},fq[4],gJ[4],G[3]={},pq[4]={},gq[4]={};
+        if constexpr(UseTetCache){
+            #pragma unroll
+            for(int a=0;a<3;a++)cof[a]=cache[t].cof[a];
+        }
         #pragma unroll
         for(int j=0;j<4;j++){
             fq[j]=F[0]*q[j].x+F[1]*q[j].y+F[2]*q[j].z;
@@ -86,7 +95,10 @@ template<bool AllowFragments=true> __global__ void k_MaterialStencilAssemble(con
         if(s.damping>0){
             float3 r[3]={s.previousInverse[3*t],s.previousInverse[3*t+1],s.previousInverse[3*t+2]};
             #pragma unroll
-            for(int a=0;a<3;a++)G[a]=F[0]*compF3(r[0],a)+F[1]*compF3(r[1],a)+F[2]*compF3(r[2],a);
+            for(int a=0;a<3;a++){
+                if constexpr(UseTetCache)G[a]=cache[t].G[a];
+                else G[a]=F[0]*compF3(r[0],a)+F[1]*compF3(r[1],a)+F[2]*compF3(r[2],a);
+            }
             #pragma unroll
             for(int j=0;j<4;j++){
                 pq[j]=r[0]*q[j].x+r[1]*q[j].y+r[2]*q[j].z;gq[j]=G[0]*pq[j].x+G[1]*pq[j].y+G[2]*pq[j].z;
@@ -96,15 +108,20 @@ template<bool AllowFragments=true> __global__ void k_MaterialStencilAssemble(con
         float barrierCurvature=unifiedCompressionBarrier(tetJ,s.minimum,tetLambda).curvature;
         if(materialFloorRecovery(s,s.component[node]))barrierCurvature+=materialFloorCurvature(tetJ,s.minimum,tetLambda);
         float scale=.5f*mu*s.damping/s.h,fft[9]={},ggt[9]={};
-        #pragma unroll
-        for(int u=0;u<3;u++)
+        if constexpr(UseTetCache){
             #pragma unroll
-            for(int v=0;v<3;v++)
+            for(int k=0;k<9;k++){fft[k]=cache[t].fft[k];ggt[k]=cache[t].ggt[k];}
+        }else{
+            #pragma unroll
+            for(int u=0;u<3;u++)
                 #pragma unroll
-                for(int a=0;a<3;a++){
-                    fft[3*u+v]+=compF3(F[a],u)*compF3(F[a],v);
-                    if(s.damping>0)ggt[3*u+v]+=compF3(G[a],u)*compF3(G[a],v);
-                }
+                for(int v=0;v<3;v++)
+                    #pragma unroll
+                    for(int a=0;a<3;a++){
+                        fft[3*u+v]+=compF3(F[a],u)*compF3(F[a],v);
+                        if(s.damping>0)ggt[3*u+v]+=compF3(G[a],u)*compF3(G[a],v);
+                    }
+        }
         // The row node's own curvature terms, selected without indexing at run time.
         float3 fqi=fq[0],gJi=gJ[0],pqi=pq[0],gqi=gq[0];
         #pragma unroll

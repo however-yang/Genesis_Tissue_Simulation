@@ -139,6 +139,52 @@ __global__ void k_PressureLine(const UnifiedState* state,CoarseBlock* blocks,int
     pressureLineContacts(s,blocks,pass,t,gridDim.x*blockDim.x);
     fragmentPressureLineContacts(s,blocks,pass,t,gridDim.x*blockDim.x);
 }
+// Isolated scheduling experiment: identical material/contact functions, energy
+// candidates and double accumulation, with no contact temporaries in the
+// material kernel's register allocation. Retain the old material thread mapping
+// (including the node/tet boundary) and keep this disabled in default builds.
+#ifdef ENDO_KIDNEY_SPLIT_PRESSURE
+#ifdef ENDO_KIDNEY_SPECIALIZE_PRESSURE
+template<int Pass> __global__ void k_PressureLineMaterialFixed(const UnifiedState* state,CoarseBlock* blocks){
+    const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
+    if(t<s.activeCount)pressureLineNode(s,blocks,s.activeNodes[t],Pass);else pressureLineTet(s,blocks,t-s.activeCount,Pass);
+}
+template<int Pass> __global__ void k_PressureLineContactFixed(const UnifiedState* state,CoarseBlock* blocks){
+    const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
+    pressureLineContacts(s,blocks,Pass,t,gridDim.x*blockDim.x);
+    fragmentPressureLineContacts(s,blocks,Pass,t,gridDim.x*blockDim.x);
+}
+#endif
+__global__ void k_PressureLineMaterial(const UnifiedState* state,CoarseBlock* blocks,int pass){
+    const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
+    if(t<s.activeCount)pressureLineNode(s,blocks,s.activeNodes[t],pass);else pressureLineTet(s,blocks,t-s.activeCount,pass);
+}
+__global__ void k_PressureLineContact(const UnifiedState* state,CoarseBlock* blocks,int pass){
+    const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
+    pressureLineContacts(s,blocks,pass,t,gridDim.x*blockDim.x);
+    fragmentPressureLineContacts(s,blocks,pass,t,gridDim.x*blockDim.x);
+}
+#endif
+static void launchPressureLine(cudaStream_t stream,int blocks,const UnifiedState* state,CoarseBlock* coarse,int pass){
+#ifdef ENDO_KIDNEY_SPECIALIZE_PRESSURE
+    if(pass==0){
+        k_PressureLineMaterialFixed<0><<<blocks,64,0,stream>>>(state,coarse);
+        k_PressureLineContactFixed<0><<<128,64,0,stream>>>(state,coarse);
+    }else if(pass==1){
+        k_PressureLineMaterialFixed<1><<<blocks,64,0,stream>>>(state,coarse);
+        k_PressureLineContactFixed<1><<<128,64,0,stream>>>(state,coarse);
+    }else{
+        // Preserve the reference all-candidate path for diagnostic callers.
+        k_PressureLineMaterial<<<blocks,64,0,stream>>>(state,coarse,pass);
+        k_PressureLineContact<<<128,64,0,stream>>>(state,coarse,pass);
+    }
+#elif defined(ENDO_KIDNEY_SPLIT_PRESSURE)
+    k_PressureLineMaterial<<<blocks,64,0,stream>>>(state,coarse,pass);
+    k_PressureLineContact<<<128,64,0,stream>>>(state,coarse,pass);
+#else
+    k_PressureLine<<<blocks,64,0,stream>>>(state,coarse,pass);
+#endif
+}
 __global__ void k_PressureLineSelect(const UnifiedState* state,CoarseBlock* blocks){
     const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(!coarseRoot(s,i) || !pressureLineActive(s))return;
     auto& b=blocks[i];float scale=b.gradient.x<=0?1.f:b.gradient.y<=0?.5f:b.gradient.z<=0?.25f:0.f;b.scale*=scale;

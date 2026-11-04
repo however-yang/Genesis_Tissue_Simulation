@@ -3250,7 +3250,7 @@ extern "C" int xpbd_relax_reconstructed_contact(){
                 k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 for(int pass=0;pass<2;pass++){
                     k_FragmentLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
-                    k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
+                    launchPressureLine(g_captureStream,Gr(g_activeNodes+g_T),d_unified,d_globalCoarse,pass);
                     k_FragmentLineSum<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
                     k_FragmentLineSet<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 }
@@ -3402,6 +3402,9 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
     if(e==cudaSuccess && !d_cgStencil)e=cudaMalloc(&d_cgStencil,g_N*sizeof(unsigned short));
     if(e==cudaSuccess && !d_cgZ)e=cudaMalloc(&d_cgZ,g_N*sizeof(float3));
     if(e==cudaSuccess && !d_cgMatrix)e=cudaMalloc(&d_cgMatrix,(size_t)72*g_N*sizeof(__half));
+#ifdef ENDO_KIDNEY_STENCIL_CACHE
+    if(e==cudaSuccess)e=ensureMaterialTetCache(g_T);
+#endif
     if(e==cudaSuccess)e=allocateMultigrid();
     if(e==cudaSuccess && !d_cgScale)e=cudaMalloc(&d_cgScale,(size_t)8*g_N*sizeof(float));
     if(e==cudaSuccess && !d_cgR)e=cudaMalloc(&d_cgR,g_N*sizeof(float3));
@@ -3620,7 +3623,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                     k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                     for(int pass=0;pass<2;pass++){
                         if(anyFragmentQueries)k_FragmentLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
-                    k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
+                    launchPressureLine(g_captureStream,Gr(g_activeNodes+g_T),d_unified,d_globalCoarse,pass);
                     if(anyFragmentQueries)k_FragmentLineSum<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
                     if(anyFragmentQueries)k_FragmentLineSet<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                     }
@@ -3648,7 +3651,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 }
                 k_MaterialRecoveryOnly<<<1,1,0,g_captureStream>>>(d_unified,nonlinear>0);
                 xpbd_section_mark("cg assembly: start");
+#ifdef ENDO_KIDNEY_STENCIL_CACHE
+                k_MaterialTetCache<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_materialTetCache);
+                if(anyFragmentQueries)k_MaterialStencilAssemble<true,true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH,d_materialTetCache);else k_MaterialStencilAssemble<false,true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH,d_materialTetCache);
+#else
                 if(anyFragmentQueries)k_MaterialStencilAssemble<true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);else k_MaterialStencilAssemble<false><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);
+#endif
                 xpbd_section_mark("cg assembly: stencil and residual");
                 if(anyFragmentQueries)k_MaterialStencilActiveMask<true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgStencil);else k_MaterialStencilActiveMask<false><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgStencil);
                 xpbd_section_mark("cg assembly: mask");
@@ -3743,7 +3751,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                 k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 for(int pass=0;pass<2;pass++){
                     if(anyFragmentQueries)k_FragmentLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
-                    k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
+                    launchPressureLine(g_captureStream,Gr(g_activeNodes+g_T),d_unified,d_globalCoarse,pass);
                     if(anyFragmentQueries)k_FragmentLineSum<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
                     if(anyFragmentQueries)k_FragmentLineSet<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
                 }
@@ -4189,6 +4197,9 @@ extern "C" void xpbd_shutdown()
     freeBlade();
     cudaFree(d_toolClearance);d_toolClearance=nullptr;
     cudaFree(d_cgStencil);d_cgStencil=nullptr;cudaFree(d_cgZ);d_cgZ=nullptr;
+#ifdef ENDO_KIDNEY_STENCIL_CACHE
+    freeMaterialTetCache();
+#endif
     cudaFree(d_cgMatrix);d_cgMatrix=nullptr;cudaFree(d_cgScale);d_cgScale=nullptr;freeMultigrid();
     cudaFree(d_cgR);d_cgR=nullptr;cudaFree(d_cgP);d_cgP=nullptr;cudaFree(d_cgQ);d_cgQ=nullptr;cudaFree(d_cgD);d_cgD=nullptr;cudaFree(d_cgA);d_cgA=nullptr;
     cudaFree(d_cgH);d_cgH=nullptr;cudaFree(d_cgS);d_cgS=nullptr;cudaFree(d_cgSearch);d_cgSearch=nullptr;
@@ -4426,6 +4437,12 @@ extern "C" int xpbd_query_threads(int threads){
 
 extern "C" int xpbd_set_coarse_bound_cache(int enabled){if(g_ready || (enabled!=0 && enabled!=1))return -10011;g_coarseBoundCacheEnabled=enabled;return 0;}
 #include "../training/kidney_contact_probe.cuh"
+#ifdef ENDO_KIDNEY_STENCIL_CACHE
+#include "../training/material_stencil_probe.cuh"
+#endif
+#ifdef ENDO_KIDNEY_SPECIALIZE_PRESSURE
+#include "../training/pressure_line_probe.cuh"
+#endif
 #ifdef ENDO_KIDNEY_STAGE_TRACE
 #include "../training/kidney_stage_trace.cuh"
 #endif
