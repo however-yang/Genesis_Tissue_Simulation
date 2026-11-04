@@ -6,7 +6,17 @@
 // This is not IPC: the determinant line bound protects tetrahedra, not CCD.
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
+#ifdef ENDO_KIDNEY_PRECISE_LINE
+struct SafeCoarseCluster {double weight,gripWeight;int count,grips,pinned;};
+struct CoarseGradient {
+    double x,y,z;
+    __host__ __device__ operator float3() const {return mkf3((float)x,(float)y,(float)z);}
+    __host__ __device__ CoarseGradient& operator=(float3 v){x=v.x;y=v.y;z=v.z;return *this;}
+};
+#else
 struct SafeCoarseCluster {float weight,gripWeight;int count,grips,pinned;};
+using CoarseGradient=float3;
+#endif
 // The rest data every tet of one Kuhn type shares on the regular rest lattice (xpbd_build_tets): its inverse rest
 // matrix rows, its six rest edge lengths then the determinant of the inverse (the layout of the per-tet rest metric of
 // k_CacheUnifiedTetData), its moduli times rest volume, and the node offsets of its corners from corner 0 of the cell.
@@ -91,7 +101,7 @@ __device__ inline float unifiedEdgeStiffness(const UnifiedState& s,int i,int axi
     // artificially stiffer than the surrounding three-dimensional tissue.
     return s.edgeK*volume/fmaxf(length*length,1e-12f);
 }
-struct CoarseBlock { float3 gradient,step;float xx,yy,zz,xy,xz,yz,scale;int external;float3 center,pivot;float mass;int pins;
+struct CoarseBlock { CoarseGradient gradient;float3 step;float xx,yy,zz,xy,xz,yz,scale;int external;float3 center,pivot;float mass;int pins;
 #ifdef ENDO_KIDNEY_PRECISE_COARSE
     double accumulated[9];
 #endif
@@ -878,7 +888,7 @@ template<bool AllowFragments=true> __global__ void k_CoarseWeights(UnifiedState*
     s.coarseWeight[i]=s.invMass[i]>0?1-t*t*(3-2*t):0;
 }
 // Adds a gradient and Hessian, packed as {g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz}, into a coarse block.
-__device__ inline void coarseAdd(const void* target,const float* v){
+template<class T> __device__ inline void coarseAdd(const void* target,const T* v){
     CoarseBlock* b=(CoarseBlock*)target;
 #ifdef ENDO_KIDNEY_PRECISE_COARSE
     // Keep each original force/Hessian contribution. Only its summation uses
@@ -891,7 +901,12 @@ __device__ inline void coarseAdd(const void* target,const float* v){
 #endif
 }
 __device__ inline void coarseAccumulate(CoarseBlock* b,float3 g,const Symmetric3& H){
-    float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
+    #ifdef ENDO_KIDNEY_PRECISE_COARSE_WARP
+    using CoarseValue=double;
+#else
+    using CoarseValue=float;
+#endif
+    CoarseValue v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
     // Most interior warps belong to one component. Reduce their terms before
     // atomics, avoiding hundreds of thousands of updates to one root address.
     unsigned mask=__activemask();
@@ -906,7 +921,7 @@ __device__ inline void coarseAccumulate(CoarseBlock* b,float3 g,const Symmetric3
             // lanes before reducing, instead of serializing nine atomics per
             // surviving lane at the same component root.
             auto group=cooperative_groups::coalesced_threads();
-            for(int j=0;j<9;j++)v[j]=cooperative_groups::reduce(group,v[j],cooperative_groups::plus<float>());
+            for(int j=0;j<9;j++)v[j]=cooperative_groups::reduce(group,v[j],cooperative_groups::plus<CoarseValue>());
             if(group.thread_rank()!=0)return;
         }
     }

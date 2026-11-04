@@ -1,0 +1,630 @@
+{
+  "run": "r11-native-01",
+  "platform": "Ubuntu A100 GPU1",
+  "native_original_mean_ms": 34.24770898942894,
+  "native_original_p95_ms": 38.93037873203866,
+  "report": {
+    "status": "partial",
+    "error": null,
+    "last_stage": "regrasp_hold",
+    "steps": 1536,
+    "elapsed_s": 110.83237996790558,
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 15000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "grid_spacing_cm": 0.125,
+    "cell_size_cm": [
+      0.125,
+      0.10000000149011612,
+      0.125
+    ],
+    "nodes": 236313,
+    "scene": "kidney",
+    "tab_cm": {
+      "low": [
+        -1.0,
+        2.8,
+        -1.0
+      ],
+      "high": [
+        1.0,
+        4.2,
+        1.0
+      ],
+      "attached": 1
+    },
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r11-precise-coarse.so",
+    "dll_sha256": "323c95dfe0dc0d81a5d5ae74ad809956ecaf119a42337edf2e639730e591f559",
+    "genesis_view_created": false,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014295334927737713,
+      "edges_before_incision": 0,
+      "cut_edges": 122,
+      "observed_cut_edges": 122,
+      "retained_cut_edges": 122,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 168,
+      "final_grip_points": 77,
+      "current_grip_points": 77,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 5.460202693939209e-05,
+      "max_blade_body_overlap_m": 1.9259690220252423e-05,
+      "peak_blade_force_n": 0.41538283228874207,
+      "max_node_displacement_m": 0.02494695596396923,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.13644561171531677,
+      "fracture_right_n": 0.10140198469161987,
+      "two_blade_squeeze_m": 0.0012317248768467742,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.13644561171531677,
+          "fracture_right_n": 0.2923233211040497,
+          "two_blade_squeeze_m": 0.0012317248768467742
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.38575273752212524,
+          "fracture_right_n": 0.10140198469161987,
+          "two_blade_squeeze_m": 0.0017571036882665942
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 0,
+      "slit_length_m": 0.009722718241315029,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "limitations": [
+      "Single native session",
+      "End-effector control; no robot arm dynamics",
+      "Anchor-assisted grasp",
+      "Finite capsule cutting edge",
+      "Uncalibrated tissue"
+    ]
+  },
+  "scene": {
+    "preset": "frontal65",
+    "spacing_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "shape_dimensions_and_material_unchanged": true,
+    "cut_normal_resolution_mm": 1.0,
+    "physics_equivalence_claimed": false,
+    "mesh_dependent_native_tolerances_follow_new_grid_spacing": true,
+    "grasper_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "scissors_yaw_deg": -45.0,
+    "prescribed_grasper_tip_locations_preserved": true,
+    "camera": [
+      [
+        0.0,
+        -0.128,
+        0.093
+      ],
+      [
+        0.0,
+        0.0,
+        0.02
+      ]
+    ],
+    "visual_only_background": true,
+    "view_options": {
+      "camera_fov": 43,
+      "lamp_gain": 0.9,
+      "roughness_scale": 1.18
+    },
+    "background": "less glossy perirenal fat and subdued reddish rear tissue; visual approximation",
+    "note": "New physical tool poses require their own interaction validation",
+    "material_nodes": 65688,
+    "active_nodes": 79548,
+    "lattice_nodes": 236313,
+    "grid_edges": 646696,
+    "cell_size_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "mass_kg": 0.11887311935424805,
+    "python_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "source_script_sha256": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+    "server_gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "envelope_certification_version": 1,
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r11-precise-coarse.so",
+    "dll_sha256": "323c95dfe0dc0d81a5d5ae74ad809956ecaf119a42337edf2e639730e591f559",
+    "core_mode": 43264,
+    "native_physics_source_modified": true,
+    "library_label": "r11-precise-coarse",
+    "timing_definition": "Synchronous headless demo RGB frame, including step/readback, surface and recording submit, renderer and video write; excludes stage saves and final async drain. Not Windows displayed FPS or full training RGB-D."
+  },
+  "stress": {
+    "passed": false,
+    "stages": [
+      {
+        "stage": "park_scissors",
+        "steps": 45,
+        "step_readback_mean_ms": 46.56350432584683,
+        "step_readback_p95_ms": 40.18555176444352,
+        "grip_points": 77,
+        "piece_mean_y_mm": 58.38314437866211,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.810174942016602,
+              28.822364807128906,
+              -4.109612464904785
+            ],
+            [
+              6.000387668609619,
+              54.13376235961914,
+              3.111156940460205
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.810562133789062,
+            25.311397552490234,
+            7.220768928527832
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999957382678986,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "place_for_release",
+        "steps": 111,
+        "step_readback_mean_ms": 46.32086432874539,
+        "step_readback_p95_ms": 49.51520502800122,
+        "grip_points": 77,
+        "piece_mean_y_mm": 36.15755844116211,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.810189723968506,
+              28.82238006591797,
+              -3.165289878845215
+            ],
+            [
+              6.055070877075195,
+              31.856361389160156,
+              3.911301612854004
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.86526107788086,
+            3.0339813232421875,
+            7.076591491699219
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999951422214508,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "grasp_release",
+        "steps": 30,
+        "step_readback_mean_ms": 54.668689507525414,
+        "step_readback_p95_ms": 51.93917366559616,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.215736389160156,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.904946327209473,
+              28.52604866027832,
+              -3.43145751953125
+            ],
+            [
+              5.554327011108398,
+              30.094070434570312,
+              3.075026273727417
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.459273338317871,
+            1.5680217742919922,
+            6.506483554840088
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999988675117493,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "drop_settle",
+        "steps": 10,
+        "step_readback_mean_ms": 65.96984488423914,
+        "step_readback_p95_ms": 142.12109548388963,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.1408805847168,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.9307708740234375,
+              28.359474182128906,
+              -3.4735310077667236
+            ],
+            [
+              5.529279708862305,
+              30.054399490356445,
+              3.0543723106384277
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.460050582885742,
+            1.6949248313903809,
+            6.527903079986572
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.734817624092102,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "grasp_withdraw",
+        "steps": 15,
+        "step_readback_mean_ms": 60.879090575811766,
+        "step_readback_p95_ms": 102.39697743672859,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.06642532348633,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.8467535972595215,
+              28.151369094848633,
+              -3.1058926582336426
+            ],
+            [
+              7.693124294281006,
+              29.85030746459961,
+              3.567805528640747
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            13.539877891540527,
+            1.6989374160766602,
+            6.673698425292969
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.2451050579547882,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_above",
+        "steps": 20,
+        "step_readback_mean_ms": 57.91302760480903,
+        "step_readback_p95_ms": 58.943055430427314,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.37683868408203,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.78408145904541,
+              28.471717834472656,
+              -3.191478729248047
+            ],
+            [
+              7.271118640899658,
+              30.139047622680664,
+              3.5244088172912598
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            13.055200576782227,
+            1.667330265045166,
+            6.715888023376465
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.4048830270767212,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_approach",
+        "steps": 45,
+        "step_readback_mean_ms": 54.67685495710207,
+        "step_readback_p95_ms": 52.690916997380555,
+        "grip_points": 0,
+        "piece_mean_y_mm": 30.81172752380371,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.767712593078613,
+              25.74233627319336,
+              -3.000279664993286
+            ],
+            [
+              6.945002555847168,
+              27.753616333007812,
+              3.187992572784424
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            12.712715148925781,
+            2.011280059814453,
+            6.188272476196289
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1621706634759903,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_close",
+        "steps": 45,
+        "step_readback_mean_ms": 62.10279413757639,
+        "step_readback_p95_ms": 58.752202754840255,
+        "grip_points": 127,
+        "piece_mean_y_mm": 30.834142684936523,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.004379107794461093,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -4.934652328491211,
+              25.266809463500977,
+              -3.1360981464385986
+            ],
+            [
+              7.817320346832275,
+              27.411291122436523,
+              4.124202251434326
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            12.751972198486328,
+            2.144482135772705,
+            7.260300636291504
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999991655349731,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_lift",
+        "steps": 75,
+        "step_readback_mean_ms": 58.137600982251264,
+        "step_readback_p95_ms": 58.44270618399605,
+        "grip_points": 127,
+        "piece_mean_y_mm": 38.37028121948242,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.810194492340088,
+              28.82239532470703,
+              -3.1154754161834717
+            ],
+            [
+              8.647089958190918,
+              34.599491119384766,
+              4.327824592590332
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            14.457284927368164,
+            5.77709436416626,
+            7.443300247192383
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1499996930360794,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_hold",
+        "steps": 30,
+        "step_readback_mean_ms": 49.602275260258466,
+        "step_readback_p95_ms": 44.287359283771366,
+        "grip_points": 127,
+        "piece_mean_y_mm": 38.371402740478516,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.81019401550293,
+              28.822404861450195,
+              -3.1154754161834717
+            ],
+            [
+              8.673733711242676,
+              34.60373306274414,
+              4.299878120422363
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            14.483928680419922,
+            5.7813286781311035,
+            7.415352821350098
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999984204769135,
+        "invalid_tets": 0
+      }
+    ],
+    "replay": {
+      "snapshot_bytes": 2716712947,
+      "snapshot_sha256": "828b3f96c6f03b015259194b2ab60a5bf75fba5489eacbcdde7a7eb331d62981",
+      "exact_restore": true,
+      "precut_restore_clears_release_flags": true,
+      "continuation_max_error_mm": 0.08054104633629322,
+      "continuation_errors_mm": [
+        0.014900098321959376,
+        0.04818188026547432,
+        0.041799573227763176,
+        0.08054104633629322,
+        0.05646841134876013,
+        0.042994734831154346,
+        0.03275311551988125,
+        0.033446650486439466
+      ],
+      "passed": false,
+      "steps": 8
+    },
+    "contact_model": 2,
+    "route": "tracked",
+    "original_sequence_passed": true,
+    "original_error": null,
+    "diagnostic_continuation": true,
+    "regrasp_material_nodes": 86,
+    "regrasp_other_material_nodes": 0,
+    "regrasp_lift_mm": 7.537260055541992,
+    "physical_checks_passed": true,
+    "error": "Restored continuation diverged over 0.05 mm"
+  },
+  "native_extra_mean_ms": 44.212209803823974
+}

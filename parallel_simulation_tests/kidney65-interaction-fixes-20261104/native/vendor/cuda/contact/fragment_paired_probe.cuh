@@ -44,6 +44,9 @@ extern "C" LCS_COMBINED_EXPORT int LCS_ProbePairedFile(const char* input,const c
         if(cub::DeviceRadixSort::SortPairs(sortTemp,bytes,keys,sortedKeys,order,sortedOrder,h.triangles)!=cudaSuccess)return -6;
         k_FragmentTreeLeaves<<<Gr(32*base),64>>>(h.triangles,base,points,sortedOrder,tree,queryCount);
         for(int level=base/2;level;level/=2)k_FragmentTreeParents<<<Gr(level),64>>>(level,level,tree,queryCount);
+#ifdef ENDO_KIDNEY_CACHE_TREE_BOUNDS
+        k_FragmentTreePrepareQueries<<<Gr(2*base),64>>>(2*base,tree,queryCount);
+#endif
         cudaEvent_t first,last;cudaEventCreate(&first);cudaEventCreate(&last);cudaEventRecord(first);
         if(deduplicate){
             cudaMemset(heads,0xff,h.n*sizeof(int));cudaMemset(ambiguous,0,h.n*sizeof(int));cudaMemset(uniqueCount,0,sizeof(int));

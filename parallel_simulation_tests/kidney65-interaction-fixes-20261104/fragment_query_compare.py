@@ -27,13 +27,15 @@ def read(path):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--reference',required=True);p.add_argument('--candidate',required=True)
-    p.add_argument('--case',required=True);p.add_argument('--name',required=True);args=p.parse_args()
-    for value in vars(args).values():
+    p.add_argument('--case',required=True);p.add_argument('--name',required=True)
+    p.add_argument('--angle-budget',type=float,default=.02);p.add_argument('--integral-variant',action='store_true');args=p.parse_args()
+    if not 0<args.angle_budget<=1:raise ValueError('Invalid angle budget')
+    for value in [args.reference,args.candidate,args.case,args.name]:
         if not value.replace('-','').replace('_','').isalnum():raise ValueError('Invalid label')
     output=ROOT/'outputs'/args.name;output.mkdir(exist_ok=False)
     control=ROOT/'controls'/args.name;control.mkdir(exist_ok=False)
     guard=GPUReservation(GPU,control)
-    result=dict(passed=False,reference=args.reference,candidate=args.candidate,case=args.case,cases=[])
+    result=dict(passed=False,reference=args.reference,candidate=args.candidate,case=args.case,cases=[],angle_budget=args.angle_budget,integral_variant=args.integral_variant)
     try:
         libraries=[]
         for label in [args.reference,args.candidate]:
@@ -51,16 +53,23 @@ def main():
             for release in ([0,1] if stage=='drop_settle' else [1]):
                 data=[]
                 for index,(dll,fn) in enumerate(libraries):
+                    budget=dll.LCS_SetFragmentAngleBudget;budget.argtypes=[ctypes.c_float];budget.restype=ctypes.c_int
+                    assert budget(.02 if index==0 else args.angle_budget)==0
                     target=output/f'{stage}-{release}-{index}.probe'
                     assert fn(os.fsencode(case),os.fsencode(target),release)==0
                     data.append(read(target))
                 a,b=data;identical=np.array_equal(a[0].view(np.uint32),b[0].view(np.uint32))
+                columns=[i for i in range(20) if i not in (2,16)]
+                decisions=np.array_equal(a[0][:,columns].view(np.uint32),b[0][:,columns].view(np.uint32))
                 delta_error=float(np.max(np.abs(a[1]-b[1])));degrees=np.array_equal(a[2],b[2])
                 result['cases'].append(dict(stage=stage,release=release,queries=len(a[0]),triangles=a[4],
                     query_records_bitwise_equal=identical,degrees_equal=degrees,
+                    decision_columns_bitwise_equal=decisions,
+                    reference_mean_triangles=float(a[0][:,2].mean()),candidate_mean_triangles=float(b[0][:,2].mean()),
                     atomic_delta_max_native_error=delta_error,
                     reference_kernel_ms=a[3],candidate_kernel_ms=b[3]))
-                assert identical and degrees, 'A geometric decision changed'
+                assert decisions and degrees, 'A geometric decision changed'
+                if args.angle_budget==.02 and not args.integral_variant:assert identical,'Unchanged angle algorithm must also preserve work and angle records'
                 # Atomics can reorder positional sums. Record them separately;
                 # this is not a bitwise whole-solver equivalence claim.
                 np.testing.assert_allclose(a[1],b[1],rtol=2e-6,atol=1e-7)

@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "reference": "r10-query-probe",
+  "candidate": "r14-query-probe",
+  "case": "r10-frozen-cases-02",
+  "cases": [
+    {
+      "stage": "drop_settle",
+      "release": 0,
+      "queries": 5334,
+      "triangles": 26428,
+      "query_records_bitwise_equal": true,
+      "degrees_equal": true,
+      "atomic_delta_max_native_error": 2.9103830456733704e-11,
+      "reference_kernel_ms": 3.5993599891662598,
+      "candidate_kernel_ms": 2.5835518836975098
+    },
+    {
+      "stage": "drop_settle",
+      "release": 1,
+      "queries": 5334,
+      "triangles": 26428,
+      "query_records_bitwise_equal": true,
+      "degrees_equal": true,
+      "atomic_delta_max_native_error": 2.9103830456733704e-11,
+      "reference_kernel_ms": 3.3525760173797607,
+      "candidate_kernel_ms": 2.4104959964752197
+    },
+    {
+      "stage": "regrasp_close",
+      "release": 1,
+      "queries": 5334,
+      "triangles": 26428,
+      "query_records_bitwise_equal": true,
+      "degrees_equal": true,
+      "atomic_delta_max_native_error": 4.656612873077393e-10,
+      "reference_kernel_ms": 3.8246400356292725,
+      "candidate_kernel_ms": 2.8098559379577637
+    }
+  ]
+}

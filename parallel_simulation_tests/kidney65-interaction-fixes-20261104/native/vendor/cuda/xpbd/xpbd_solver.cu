@@ -49,8 +49,14 @@ static bool g_sectionProfile=false;
 static std::vector<std::pair<const char*,cudaEvent_t>> g_sectionMarks;
 static std::vector<cudaEvent_t> g_sectionPool;
 static std::vector<std::pair<std::string,double>> g_sectionTotals;
+#ifdef ENDO_KIDNEY_STAGE_TRACE
+static void kidneyTraceMark(const char* name);
+#endif
 extern "C" void xpbd_section_mark(const char* name){
     if(!g_sectionProfile)return;
+#ifdef ENDO_KIDNEY_STAGE_TRACE
+    kidneyTraceMark(name);
+#endif
     if(g_sectionPool.size()<=g_sectionMarks.size()){cudaEvent_t e;cudaEventCreate(&e);g_sectionPool.push_back(e);}
     cudaEvent_t e=g_sectionPool[g_sectionMarks.size()];cudaEventRecord(e,0);g_sectionMarks.push_back({name,e});
 }
@@ -2759,7 +2765,7 @@ static cudaError_t allocateMultigrid(){
         if(e==cudaSuccess)e=cudaMalloc(&L.neighbor,(size_t)27*capacity*sizeof(int));
         if(e==cudaSuccess)e=cudaMalloc(&L.A,(size_t)27*9*capacity*sizeof(float));
         if(e==cudaSuccess)e=cudaMalloc(&L.inverse,(size_t)9*capacity*sizeof(float));
-        if(e==cudaSuccess)e=cudaMalloc(&L.r,(size_t)capacity*sizeof(float3));
+        if(e==cudaSuccess)e=cudaMalloc(&L.r,(size_t)capacity*sizeof(MgResidual));
         if(e==cudaSuccess)e=cudaMalloc(&L.z,(size_t)capacity*sizeof(float3));
         if(e==cudaSuccess)e=cudaMalloc(&L.post,(size_t)capacity*sizeof(float3));
         children=capacity;
@@ -2806,11 +2812,11 @@ static void assembleMultigrid(cudaStream_t stream){
 // z = M^-1 r by one V(1,1) cycle, adding r'z into the slot `slot` of each component's PCG sums.
 static void applyMultigrid(cudaStream_t stream,const float3* r,float3* z,MaterialCGSum* sums,int slot){
     MultigridLevel* L=g_multigrid;const int top=g_multigridLevels;
-    cudaMemsetAsync(L[1].r,0,(size_t)L[1].capacity*sizeof(float3),stream);
+    cudaMemsetAsync(L[1].r,0,(size_t)L[1].capacity*sizeof(MgResidual),stream);
     k_MgFinePre<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,d_cgH,r,d_multigridFine);
     k_MgFineRestrict<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,r,d_multigridFine,L[1]);
     for(int l=1;l<top;l++){
-        cudaMemsetAsync(L[l+1].r,0,(size_t)L[l+1].capacity*sizeof(float3),stream);
+        cudaMemsetAsync(L[l+1].r,0,(size_t)L[l+1].capacity*sizeof(MgResidual),stream);
         k_MgPre<<<Gr(L[l].capacity),64,0,stream>>>(L[l]);
         k_MgRestrict<<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1]);
     }
@@ -2880,6 +2886,9 @@ static cudaError_t launchFragmentPasses(cudaStream_t stream,bool prepare,const f
         }
         k_FragmentTreeLeaves<<<(32*g_fragmentTreeBase+63)/64,64,0,stream>>>(g_surfaceCount,g_fragmentTreeBase,d_fragmentVertices,d_fragmentSortedOrder,d_fragmentTree,d_fragmentQueryCount);
         for(int level=g_fragmentTreeBase/2;level;level/=2)k_FragmentTreeParents<<<(level+63)/64,64,0,stream>>>(level,level,d_fragmentTree,d_fragmentQueryCount);
+#ifdef ENDO_KIDNEY_CACHE_TREE_BOUNDS
+        k_FragmentTreePrepareQueries<<<Gr(2*g_fragmentTreeBase),64,0,stream>>>(2*g_fragmentTreeBase,d_fragmentTree,d_fragmentQueryCount);
+#endif
         if(discovery){
             FragmentManifold manifold{d_fragmentConstraints,d_fragmentConstraintCount,d_fragmentConstraintDegree,g_liveRestNbr,d_fragmentQuerySlots,d_fragmentDuplicateNext};
             k_FragmentContact<<<2048,64,0,stream>>>(g_surfaceCount,d_fragmentUniqueQueries,d_fragmentUniqueCount,d_unifiedComponents,positions,previous,start,
@@ -4394,6 +4403,9 @@ extern "C" int xpbd_query_threads(int threads){
 
 extern "C" int xpbd_set_coarse_bound_cache(int enabled){if(g_ready || (enabled!=0 && enabled!=1))return -10011;g_coarseBoundCacheEnabled=enabled;return 0;}
 #include "../training/kidney_contact_probe.cuh"
+#ifdef ENDO_KIDNEY_STAGE_TRACE
+#include "../training/kidney_stage_trace.cuh"
+#endif
 extern "C" int xpbd_coarse_bound_stats(unsigned long long* values){if(!values || !d_coarseBoundStats)return -10012;cudaError_t e=cudaDeviceSynchronize();if(e!=cudaSuccess)return -(int)e;return -(int)cudaMemcpy(values,d_coarseBoundStats,8*sizeof(unsigned long long),cudaMemcpyDeviceToHost);}
 
 // Diagnostic-only positive/negative ordering probe, no live physical buffers.

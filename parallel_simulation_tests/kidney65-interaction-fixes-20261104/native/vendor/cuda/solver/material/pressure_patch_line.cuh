@@ -10,7 +10,17 @@ __device__ bool pressureLineActive(const UnifiedState& s){
         (!s.secondary || *s.secondary->contactCount==0);
 }
 __device__ void pressureLineAdd(CoarseBlock* b,float (&e)[3]){
+#ifdef ENDO_KIDNEY_PRECISE_LINE
+    double v[3]={e[0],e[1],e[2]};unsigned mask=__activemask();auto key=(unsigned long long)b;
+    if(__all_sync(mask,key==__shfl_sync(mask,key,__ffs(mask)-1))){
+        auto group=cooperative_groups::coalesced_threads();
+        for(int k=0;k<3;k++)v[k]=cooperative_groups::reduce(group,v[k],cooperative_groups::plus<double>());
+        if(group.thread_rank())return;
+    }
+    atomicAdd(&b->gradient.x,v[0]);atomicAdd(&b->gradient.y,v[1]);atomicAdd(&b->gradient.z,v[2]);
+#else
     if(unifiedReduce(b,e)){atomicAdd(&b->gradient.x,e[0]);atomicAdd(&b->gradient.y,e[1]);atomicAdd(&b->gradient.z,e[2]);}
+#endif
 }
 __device__ bool pressureLineZeroStep(const CoarseBlock& b){
     return b.scale==0 || (b.step.x==0 && b.step.y==0 && b.step.z==0);

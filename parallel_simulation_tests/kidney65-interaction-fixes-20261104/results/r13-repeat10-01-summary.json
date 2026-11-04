@@ -1,0 +1,1324 @@
+{
+  "run": "r13-repeat10-01",
+  "platform": "Ubuntu A100 GPU1",
+  "native_original_mean_ms": 34.48496023224465,
+  "native_original_p95_ms": 39.190261060139164,
+  "report": {
+    "status": "partial",
+    "error": null,
+    "last_stage": "regrasp_approach",
+    "steps": 1371,
+    "elapsed_s": 128.22934900096152,
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 15000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "grid_spacing_cm": 0.125,
+    "cell_size_cm": [
+      0.125,
+      0.10000000149011612,
+      0.125
+    ],
+    "nodes": 236313,
+    "scene": "kidney",
+    "tab_cm": {
+      "low": [
+        -1.0,
+        2.8,
+        -1.0
+      ],
+      "high": [
+        1.0,
+        4.2,
+        1.0
+      ],
+      "attached": 1
+    },
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r13-interaction-sums.so",
+    "dll_sha256": "7cbc9643ae4292f139535a008b1c0b3bc1ba40999d410439282e20bc6855670d",
+    "genesis_view_created": false,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014297520741820335,
+      "edges_before_incision": 0,
+      "cut_edges": 120,
+      "observed_cut_edges": 120,
+      "retained_cut_edges": 120,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 162,
+      "final_grip_points": 77,
+      "current_grip_points": 77,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 6.19053840637207e-05,
+      "max_blade_body_overlap_m": 4.555256752784425e-06,
+      "peak_blade_force_n": 0.4621444344520569,
+      "max_node_displacement_m": 0.025617677718400955,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.13204120099544525,
+      "fracture_right_n": 0.12391369789838791,
+      "two_blade_squeeze_m": 0.0012408498327859774,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.13204120099544525,
+          "fracture_right_n": 0.3039141595363617,
+          "two_blade_squeeze_m": 0.0012408498327859774
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.370877742767334,
+          "fracture_right_n": 0.12391369789838791,
+          "two_blade_squeeze_m": 0.0017449578624316737
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 0,
+      "slit_length_m": 0.009722718241315029,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "limitations": [
+      "Single native session",
+      "End-effector control; no robot arm dynamics",
+      "Anchor-assisted grasp",
+      "Finite capsule cutting edge",
+      "Uncalibrated tissue"
+    ]
+  },
+  "scene": {
+    "preset": "frontal65",
+    "spacing_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "shape_dimensions_and_material_unchanged": true,
+    "cut_normal_resolution_mm": 1.0,
+    "physics_equivalence_claimed": false,
+    "mesh_dependent_native_tolerances_follow_new_grid_spacing": true,
+    "grasper_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "scissors_yaw_deg": -45.0,
+    "prescribed_grasper_tip_locations_preserved": true,
+    "camera": [
+      [
+        0.0,
+        -0.128,
+        0.093
+      ],
+      [
+        0.0,
+        0.0,
+        0.02
+      ]
+    ],
+    "visual_only_background": true,
+    "view_options": {
+      "camera_fov": 43,
+      "lamp_gain": 0.9,
+      "roughness_scale": 1.18
+    },
+    "background": "less glossy perirenal fat and subdued reddish rear tissue; visual approximation",
+    "note": "New physical tool poses require their own interaction validation",
+    "material_nodes": 65688,
+    "active_nodes": 79548,
+    "lattice_nodes": 236313,
+    "grid_edges": 646696,
+    "cell_size_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "mass_kg": 0.11887311935424805,
+    "python_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "source_script_sha256": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+    "server_gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "envelope_certification_version": 1,
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r13-interaction-sums.so",
+    "dll_sha256": "7cbc9643ae4292f139535a008b1c0b3bc1ba40999d410439282e20bc6855670d",
+    "core_mode": 43264,
+    "native_physics_source_modified": true,
+    "library_label": "r13-interaction-sums",
+    "timing_definition": "Synchronous headless demo RGB frame, including step/readback, surface and recording submit, renderer and video write; excludes stage saves and final async drain. Not Windows displayed FPS or full training RGB-D."
+  },
+  "stress": {
+    "passed": false,
+    "stages": [
+      {
+        "stage": "park_scissors",
+        "steps": 45,
+        "step_readback_mean_ms": 49.415660507252646,
+        "step_readback_p95_ms": 43.0154251633212,
+        "grip_points": 77,
+        "piece_mean_y_mm": 58.314918518066406,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26428,
+          "wall_triangles": 162,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.811663627624512,
+              28.803129196166992,
+              -3.1203222274780273
+            ],
+            [
+              5.9226789474487305,
+              54.130191802978516,
+              4.3982086181640625
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.734342575073242,
+            25.327062606811523,
+            7.51853084564209
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1499997228384018,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "place_for_release",
+        "steps": 110,
+        "step_readback_mean_ms": 47.69727987004444,
+        "step_readback_p95_ms": 44.37995470943861,
+        "grip_points": 77,
+        "piece_mean_y_mm": 36.38167953491211,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26428,
+          "wall_triangles": 162,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.811678886413574,
+              28.803136825561523,
+              -3.1203670501708984
+            ],
+            [
+              5.937640190124512,
+              32.191627502441406,
+              4.388355255126953
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.749319076538086,
+            3.388490676879883,
+            7.508721828460693
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999894797801971,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "grasp_release",
+        "steps": 30,
+        "step_readback_mean_ms": 53.40091571367035,
+        "step_readback_p95_ms": 55.31824911013244,
+        "grip_points": 0,
+        "piece_mean_y_mm": 33.86417770385742,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26428,
+          "wall_triangles": 162,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.902841091156006,
+              28.133813858032227,
+              -3.998319149017334
+            ],
+            [
+              4.793307781219482,
+              29.802532196044922,
+              3.01478910446167
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.696148872375488,
+            1.668717861175537,
+            7.013108730316162
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999987185001373,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "drop_settle",
+        "steps": 10,
+        "step_readback_mean_ms": 69.62148861493915,
+        "step_readback_p95_ms": 157.16179740848,
+        "grip_points": 0,
+        "piece_mean_y_mm": 33.939693450927734,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26428,
+          "wall_triangles": 162,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.805383682250977,
+              28.278453826904297,
+              -4.326969146728516
+            ],
+            [
+              4.73703670501709,
+              29.944194793701172,
+              3.057490348815918
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.542421340942383,
+            1.6657423973083496,
+            7.384459495544434
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.5852671265602112,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "grasp_withdraw",
+        "steps": 15,
+        "step_readback_mean_ms": 63.50676013777653,
+        "step_readback_p95_ms": 110.1769614382645,
+        "grip_points": 0,
+        "piece_mean_y_mm": 33.92411804199219,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26428,
+          "wall_triangles": 162,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.775550842285156,
+              28.19222640991211,
+              -5.127004623413086
+            ],
+            [
+              4.366430282592773,
+              30.225894927978516,
+              3.048320770263672
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.14198112487793,
+            2.03366756439209,
+            8.175325393676758
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.4767642915248871,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_above",
+        "steps": 20,
+        "step_readback_mean_ms": 60.672640008851886,
+        "step_readback_p95_ms": 62.24562040297329,
+        "grip_points": 0,
+        "piece_mean_y_mm": 33.7480583190918,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.06594199956547657,
+        "surface_audit": {
+          "triangles": 26428,
+          "wall_triangles": 162,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.799338340759277,
+              28.177978515625,
+              -6.314692497253418
+            ],
+            [
+              4.113920211791992,
+              30.352493286132812,
+              3.1906793117523193
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            9.91325855255127,
+            2.174513339996338,
+            9.505372047424316
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.5487871170043945,
+        "invalid_tets": 0
+      }
+    ],
+    "replay": {
+      "snapshot_bytes": 2708205031,
+      "snapshot_sha256": "43122bfe440a92db7c4e62ddbc31ff41a4be11e1c9d728294a98efa8e40eb541",
+      "exact_restore": true,
+      "precut_restore_clears_release_flags": true,
+      "continuation_max_error_mm": 0.05682453513145447,
+      "continuation_errors_mm": [
+        0.011508677853271365,
+        0.03073363797739148,
+        0.03257477888837457,
+        0.033182764891535044,
+        0.030269718263298273,
+        0.03167690709233284,
+        0.03633346641436219,
+        0.05682453513145447
+      ],
+      "trials": [
+        {
+          "repeat": 1,
+          "errors_mm": [
+            0.010223762365058064,
+            0.015122247859835625,
+            0.02456317190080881,
+            0.0309764314442873,
+            0.01727101276628673,
+            0.01698097912594676,
+            0.027222649659961462,
+            0.05133102182298899
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.01022376213222742,
+              "material_rms_mm": 0.00034942972706630826,
+              "piece_max_mm": 0.01022376213222742,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.015122247859835625,
+              "material_rms_mm": 0.0005152325611561537,
+              "piece_max_mm": 0.015122247859835625,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.021699335426092148,
+              "material_rms_mm": 0.00046072262921370566,
+              "piece_max_mm": 0.021699335426092148,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 127636,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.012327986769378185,
+              "material_rms_mm": 0.000599429477006197,
+              "piece_max_mm": 0.012327986769378185,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 127636,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.008642793633043766,
+              "material_rms_mm": 0.0004686875909101218,
+              "piece_max_mm": 0.008642793633043766,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77699,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.015210532583296299,
+              "material_rms_mm": 0.0007489622803404927,
+              "piece_max_mm": 0.015210532583296299,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163730,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.022783253341913223,
+              "material_rms_mm": 0.0013020699843764305,
+              "piece_max_mm": 0.022783253341913223,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163730,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.04258141294121742,
+              "material_rms_mm": 0.0024242312647402287,
+              "piece_max_mm": 0.04258141294121742,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 2,
+          "errors_mm": [
+            0.011489351745694876,
+            0.010286523029208183,
+            0.028010434471070766,
+            0.0105824857018888,
+            0.01599646406248212,
+            0.0267118401825428,
+            0.02641031751409173,
+            0.03180536674335599
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 157215,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.010229993611574173,
+              "material_rms_mm": 0.00039141345769166946,
+              "piece_max_mm": 0.010229993611574173,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77798,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.009258376434445381,
+              "material_rms_mm": 0.0004522024537436664,
+              "piece_max_mm": 0.009258376434445381,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.010196543298661709,
+              "material_rms_mm": 0.0005601830780506134,
+              "piece_max_mm": 0.010196543298661709,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.00869746133685112,
+              "material_rms_mm": 0.0004713551315944642,
+              "piece_max_mm": 0.00869746133685112,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.007130892015993595,
+              "material_rms_mm": 0.00039174253470264375,
+              "piece_max_mm": 0.007130892015993595,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 127636,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01723908632993698,
+              "material_rms_mm": 0.0008644990157335997,
+              "piece_max_mm": 0.01723908632993698,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163730,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.02202204428613186,
+              "material_rms_mm": 0.0012751162284985185,
+              "piece_max_mm": 0.02202204428613186,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.02309311553835869,
+              "material_rms_mm": 0.001027385937049985,
+              "piece_max_mm": 0.02309311553835869,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 3,
+          "errors_mm": [
+            0.010237126844003797,
+            0.015126608777791262,
+            0.03131608245894313,
+            0.017267861403524876,
+            0.021952581591904163,
+            0.02409012522548437,
+            0.02012220211327076,
+            0.01953726401552558
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.010237126611173153,
+              "material_rms_mm": 0.00035000964999198914,
+              "piece_max_mm": 0.010237126611173153,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.015126608312129974,
+              "material_rms_mm": 0.0005159340216778219,
+              "piece_max_mm": 0.015126608312129974,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.0216730497777462,
+              "material_rms_mm": 0.0007251088973134756,
+              "piece_max_mm": 0.0216730497777462,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.010843946598470211,
+              "material_rms_mm": 0.0005790365976281464,
+              "piece_max_mm": 0.010843946598470211,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 113314,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.016878748312592506,
+              "material_rms_mm": 0.0008260345202870667,
+              "piece_max_mm": 0.016878748312592506,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 113314,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.019496867433190346,
+              "material_rms_mm": 0.0011569150956347585,
+              "piece_max_mm": 0.019496867433190346,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77790,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.018010685220360756,
+              "material_rms_mm": 0.000965392217040062,
+              "piece_max_mm": 0.018010685220360756,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77790,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.016791466623544693,
+              "material_rms_mm": 0.0009272299357689917,
+              "piece_max_mm": 0.016791466623544693,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 4,
+          "errors_mm": [
+            0.010230535408481956,
+            0.019594584591686726,
+            0.03257477888837457,
+            0.029741383623331785,
+            0.0255640153773129,
+            0.026463582180440426,
+            0.03341252217069268,
+            0.05682453513145447
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.0102305356413126,
+              "material_rms_mm": 0.00034800227149389684,
+              "piece_max_mm": 0.0102305356413126,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 106994,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.01959458366036415,
+              "material_rms_mm": 0.0002641691826283932,
+              "piece_max_mm": 0.01959458366036415,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01333128847181797,
+              "material_rms_mm": 0.00021256835316307843,
+              "piece_max_mm": 0.01333128847181797,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01722051575779915,
+              "material_rms_mm": 0.00028645992279052734,
+              "piece_max_mm": 0.01722051575779915,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.019642040133476257,
+              "material_rms_mm": 0.00052715401398018,
+              "piece_max_mm": 0.019642040133476257,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.026463583111763,
+              "material_rms_mm": 0.00063154730014503,
+              "piece_max_mm": 0.026463583111763,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163635,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.028794538229703903,
+              "material_rms_mm": 0.0016632552724331617,
+              "piece_max_mm": 0.028794538229703903,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163730,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.04872294142842293,
+              "material_rms_mm": 0.0027266095858067274,
+              "piece_max_mm": 0.04872294142842293,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 5,
+          "errors_mm": [
+            0.010174084454774857,
+            0.015438125701621175,
+            0.02817753003910184,
+            0.020918578375130892,
+            0.030269718263298273,
+            0.019797137938439846,
+            0.023214949760586023,
+            0.022975013125687838
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.010174084454774857,
+              "material_rms_mm": 0.0003291855682618916,
+              "piece_max_mm": 0.010174084454774857,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.015438125468790531,
+              "material_rms_mm": 0.0006294235354289412,
+              "piece_max_mm": 0.015438125468790531,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.018220271915197372,
+              "material_rms_mm": 0.0004385298234410584,
+              "piece_max_mm": 0.018220271915197372,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 106994,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.020918577909469604,
+              "material_rms_mm": 0.00041767762741073966,
+              "piece_max_mm": 0.020918577909469604,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 127636,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.015698272734880447,
+              "material_rms_mm": 0.0007747954805381596,
+              "piece_max_mm": 0.015698272734880447,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.01979713886976242,
+              "material_rms_mm": 0.00048567820340394974,
+              "piece_max_mm": 0.01979713886976242,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 149960,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.011901898309588432,
+              "material_rms_mm": 0.0005778091144748032,
+              "piece_max_mm": 0.011901898309588432,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.014177609235048294,
+              "material_rms_mm": 0.0005990577046759427,
+              "piece_max_mm": 0.014177609235048294,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 6,
+          "errors_mm": [
+            0.011508677853271365,
+            0.014963962603360415,
+            0.02421504119411111,
+            0.019445113139227033,
+            0.019436837173998356,
+            0.01906339544802904,
+            0.03230154747143388,
+            0.02781794173642993
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 157215,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.010226374492049217,
+              "material_rms_mm": 0.00039115085382945836,
+              "piece_max_mm": 0.010226374492049217,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.014963962137699127,
+              "material_rms_mm": 0.0005577714182436466,
+              "piece_max_mm": 0.014963962137699127,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01224450208246708,
+              "material_rms_mm": 0.0002358693745918572,
+              "piece_max_mm": 0.01224450208246708,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.009191466495394707,
+              "material_rms_mm": 0.0002901275875046849,
+              "piece_max_mm": 0.009191466495394707,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.011500842869281769,
+              "material_rms_mm": 0.0005851789610460401,
+              "piece_max_mm": 0.011500842869281769,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163728,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.017744597047567368,
+              "material_rms_mm": 0.0011276022996753454,
+              "piece_max_mm": 0.017744597047567368,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 127636,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.02129131555557251,
+              "material_rms_mm": 0.0011475763749331236,
+              "piece_max_mm": 0.02129131555557251,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77790,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.02390829473733902,
+              "material_rms_mm": 0.0013102864613756537,
+              "piece_max_mm": 0.02390829473733902,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 7,
+          "errors_mm": [
+            0.010183556005358696,
+            0.02897593192756176,
+            0.01805047388188541,
+            0.029192515648901463,
+            0.019620666280388832,
+            0.01811688649468124,
+            0.030945551116019487,
+            0.04949845373630524
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.010183556005358696,
+              "material_rms_mm": 0.000333665608195588,
+              "piece_max_mm": 0.010183556005358696,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163730,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.02481355518102646,
+              "material_rms_mm": 0.0013592451578006148,
+              "piece_max_mm": 0.02481355518102646,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01091975811868906,
+              "material_rms_mm": 0.00031738763209432364,
+              "piece_max_mm": 0.01091975811868906,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.008279474452137947,
+              "material_rms_mm": 0.000332218362018466,
+              "piece_max_mm": 0.008279474452137947,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 84771,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.0173084307461977,
+              "material_rms_mm": 0.0009391739149577916,
+              "piece_max_mm": 0.0173084307461977,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77703,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.015864621847867966,
+              "material_rms_mm": 0.0008856749045662582,
+              "piece_max_mm": 0.015864621847867966,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163636,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.026355791836977005,
+              "material_rms_mm": 0.0014534305082634091,
+              "piece_max_mm": 0.026355791836977005,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 163730,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.04050233215093613,
+              "material_rms_mm": 0.002234521321952343,
+              "piece_max_mm": 0.04050233215093613,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 8,
+          "errors_mm": [
+            0.010178348748013377,
+            0.03073363797739148,
+            0.014489487512037158,
+            0.03149212338030338,
+            0.021132186520844698,
+            0.014395947800949216,
+            0.017282163025811315,
+            0.025048437528312206
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.01017834898084402,
+              "material_rms_mm": 0.0003331102489028126,
+              "piece_max_mm": 0.01017834898084402,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01904730685055256,
+              "material_rms_mm": 0.0010534453904256225,
+              "piece_max_mm": 0.01904730685055256,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.00573139451444149,
+              "material_rms_mm": 0.0002925696026068181,
+              "piece_max_mm": 0.00573139451444149,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.017848152667284012,
+              "material_rms_mm": 0.00037098483880981803,
+              "piece_max_mm": 0.017848152667284012,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.02113218605518341,
+              "material_rms_mm": 0.0007103346288204193,
+              "piece_max_mm": 0.02113218605518341,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01082913763821125,
+              "material_rms_mm": 0.0005341689684428275,
+              "piece_max_mm": 0.01082913763821125,
+              "main_max_mm": 2.475566816428909e-06
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.015185251832008362,
+              "material_rms_mm": 0.0004407498927321285,
+              "piece_max_mm": 0.015185251832008362,
+              "main_max_mm": 2.6656007321435027e-06
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.010204940102994442,
+              "material_rms_mm": 0.000536512874532491,
+              "piece_max_mm": 0.010204940102994442,
+              "main_max_mm": 2.811545527947601e-06
+            }
+          ]
+        },
+        {
+          "repeat": 9,
+          "errors_mm": [
+            0.010238087270408869,
+            0.024404088035225868,
+            0.01678961794823408,
+            0.033182764891535044,
+            0.020784796215593815,
+            0.03167690709233284,
+            0.03633346641436219,
+            0.031631921883672476
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 142802,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.010238086804747581,
+              "material_rms_mm": 0.0003473461256362498,
+              "piece_max_mm": 0.010238086804747581,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01290216576308012,
+              "material_rms_mm": 0.0006803160649724305,
+              "piece_max_mm": 0.01290216576308012,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150054,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.006005189381539822,
+              "material_rms_mm": 0.0002750834100879729,
+              "piece_max_mm": 0.006005189381539822,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.01095968671143055,
+              "material_rms_mm": 0.0005084575968794525,
+              "piece_max_mm": 0.01095968671143055,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 127636,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.018815964460372925,
+              "material_rms_mm": 0.00044597400119528174,
+              "piece_max_mm": 0.018815964460372925,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.016705982387065887,
+              "material_rms_mm": 0.0009740664390847087,
+              "piece_max_mm": 0.016705982387065887,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 157123,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.024310201406478882,
+              "material_rms_mm": 0.0013267091708257794,
+              "piece_max_mm": 0.024310201406478882,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 150055,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.027422161772847176,
+              "material_rms_mm": 0.0013912093127146363,
+              "piece_max_mm": 0.027422161772847176,
+              "main_max_mm": 0.0
+            }
+          ]
+        }
+      ],
+      "repeats": 10,
+      "passed": false,
+      "steps": 8
+    },
+    "contact_model": 2,
+    "route": "tracked",
+    "original_sequence_passed": true,
+    "original_error": null,
+    "diagnostic_continuation": false,
+    "error": "Material left the 60 mm operating envelope"
+  },
+  "native_extra_mean_ms": 40.89828274235971
+}

@@ -1,0 +1,144 @@
+{
+  "run": "r19-repeat10-01",
+  "platform": "A100-GPU1",
+  "source_sha256": {
+    "report.json": "07baad3d53b3038289039bcd606b13239a1b52103877da32ea999704cb709a41",
+    "native-timing.json": "07a9a0a94a0214bffddc0a84d51eaa323aecf7ff6285ff2e4de274958c007f7f"
+  },
+  "report": {
+    "status": "failed",
+    "error": "Interaction quality failed; inspect report metrics for grip loss or slip, cut geometry, new cuts on withdrawal, knife-body overlap (>0.2 mm), material leaving the 60 mm workspace, a scissor cut without two-blade compression, a wound left uncut, cut twice or running along the skin, or an excision that leaves tumor behind, stays tied to the rest or that the grasper does not hold it",
+    "last_stage": "hold",
+    "steps": 1110,
+    "elapsed_s": 71.42415058298502,
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 15000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "grid_spacing_cm": 0.125,
+    "cell_size_cm": [
+      0.125,
+      0.10000000149011612,
+      0.125
+    ],
+    "nodes": 236313,
+    "scene": "kidney",
+    "tab_cm": {
+      "low": [
+        -1.0,
+        2.8,
+        -1.0
+      ],
+      "high": [
+        1.0,
+        4.2,
+        1.0
+      ],
+      "attached": 1
+    },
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r19-line-sums.so",
+    "dll_sha256": "fb05957a93804b1eb3eead064208a608660f020c1d04883be9f922453589410e",
+    "genesis_view_created": false,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.01420450210571289,
+      "edges_before_incision": 0,
+      "cut_edges": 121,
+      "observed_cut_edges": 121,
+      "retained_cut_edges": 121,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 158,
+      "final_grip_points": 73,
+      "current_grip_points": 73,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 6.580799818038941e-05,
+      "max_blade_body_overlap_m": 2.1116095150262028e-05,
+      "peak_blade_force_n": 0.5945157408714294,
+      "max_node_displacement_m": 0.02620452269911766,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.1038532629609108,
+      "fracture_right_n": 0.2421959489583969,
+      "two_blade_squeeze_m": 0.0010613551670464205,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.1038532629609108,
+          "fracture_right_n": 0.29458507895469666,
+          "two_blade_squeeze_m": 0.0010613551670464205
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.21662113070487976,
+          "fracture_right_n": 0.2421959489583969,
+          "two_blade_squeeze_m": 0.00170406269525246
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 0,
+      "slit_length_m": 0.008838834764831844,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 1,
+      "lattice_pieces": 2,
+      "acceptance_passed": false
+    },
+    "limitations": [
+      "Single native session",
+      "End-effector control; no robot arm dynamics",
+      "Anchor-assisted grasp",
+      "Finite capsule cutting edge",
+      "Uncalibrated tissue"
+    ]
+  },
+  "native_original_calls": 1110,
+  "native_original_mean_ms": 35.06621874350769,
+  "native_original_p95_ms": 40.17486061202362,
+  "native_original_max_ms": 323.1456360081211,
+  "timing_scope": "Native LCS_Step wall time; excludes init/replay, render, encoding, readback and Python checks. Not minimum FPS.",
+  "performance_usable": true
+}

@@ -65,16 +65,45 @@ def install(run, output, profile=False, route='legacy', diagnostic=False, replay
             del flow.stress_initial_state,flow.stress_initial_nodes
             # Short continuation, exact state restore, then the same commands.
             tissue.timing_phase='replay'
-            first = [tissue.step(command).nodes.copy() for _ in range(8)]
+            def continuation(repeat):
+                trace=hasattr(tissue.dll,'LCS_KidneyTraceBegin')
+                if trace:
+                    import ctypes
+                    begin=tissue.dll.LCS_KidneyTraceBegin;begin.argtypes=[ctypes.c_int];begin.restype=ctypes.c_int
+                    end=tissue.dll.LCS_KidneyTraceEnd;end.argtypes=[ctypes.c_void_p,ctypes.c_int];end.restype=ctypes.c_int
+                    assert begin(int(repeat==0))==0
+                try:
+                    nodes=[tissue.step(command).nodes.copy()]
+                finally:
+                    if trace:
+                        buffer=ctypes.create_string_buffer(max(1,end(None,0)))
+                        assert end(buffer,len(buffer))==0
+                        (output/f'replay-stage-{repeat:02d}.tsv').write_text(buffer.value.decode())
+                return nodes+[tissue.step(command).nodes.copy() for _ in range(7)]
+            first = continuation(0)
             trials=[]
+            archive_restore_exact=None
             for repeat in range(1,replay_repeats):
                 archive.load(checkpoint)
+                if repeat==1:
+                    restored_archive=archive.save()
+                    archive_restore_exact=restored_archive==checkpoint
+                    result['archive_restore_exact']=archive_restore_exact
+                    if not archive_restore_exact:
+                        result['archive_restore_sizes']=[len(checkpoint),len(restored_archive)]
+                        block=1024*1024
+                        for offset in range(0,min(len(checkpoint),len(restored_archive)),block):
+                            a=checkpoint[offset:offset+block];b=restored_archive[offset:offset+block]
+                            if a!=b:
+                                unequal=np.flatnonzero(np.frombuffer(a,np.uint8)!=np.frombuffer(b,np.uint8))
+                                result['archive_first_differing_byte']=offset+int(unequal[0]);break
+                    del restored_archive
                 tissue.tick, tissue.topology_revision, tissue.neighbors = tick, None, None
                 restored = tissue.observe()
                 assert np.array_equal(restored.nodes, before.nodes), 'Position restore mismatch'
                 assert np.array_equal(restored.neighbors, before.neighbors), 'Topology restore mismatch'
                 assert np.array_equal(capture(tissue.dll,len(flow.grid.edges))['flags'],flags), 'Provenance restore mismatch'
-                second = [tissue.step(command).nodes.copy() for _ in range(8)]
+                second = continuation(repeat)
                 errors = [float(np.linalg.norm(a-b,axis=1).max())*10 for a,b in zip(first,second)]
                 replay_detail=[]
                 for a,b in zip(first,second):
@@ -89,7 +118,7 @@ def install(run, output, profile=False, route='legacy', diagnostic=False, replay
                 trials.append(dict(repeat=repeat,errors_mm=errors,per_step_detail=replay_detail))
             errors=np.max([trial['errors_mm'] for trial in trials],axis=0).tolist()
             result['replay'] = dict(snapshot_bytes=len(checkpoint), snapshot_sha256=hashlib.sha256(checkpoint).hexdigest(),
-                                    exact_restore=True, precut_restore_clears_release_flags=True,
+                                    exact_restore=True, complete_archive_exact=archive_restore_exact,precut_restore_clears_release_flags=True,
                                     continuation_max_error_mm=max(errors), continuation_errors_mm=errors,
                                     trials=trials,repeats=replay_repeats,
                                     passed=max(errors)<.05, steps=8)
@@ -233,6 +262,7 @@ def install(run, output, profile=False, route='legacy', diagnostic=False, replay
             assert flow.obs.grip_points>0 and result['regrasp_lift_mm']>=5,'Regrasp did not lift by 5 mm'
             result['physical_checks_passed']=True
             assert base_passed, 'Original sequence failed; diagnostic stress cannot certify it'
+            assert archive_restore_exact,'Full native archive failed exact roundtrip'
             assert result['replay']['passed'], 'Restored continuation diverged over 0.05 mm'
             result['passed']=True
         except Exception as error:

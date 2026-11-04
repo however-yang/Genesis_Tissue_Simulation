@@ -1,5 +1,6 @@
 """CPU regressions using a saved real failure, including deliberately bad evidence."""
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -15,16 +16,20 @@ from envelope_audit import certify
 def main():
     configure(run, 'frontal65', 1.25)
     grid = run.SCISSORS_SCENES['kidney'].build_grid(run.scissors_settings().density_kg_m3)
-    path = ROOT / 'outputs/r1a-full-01'
-    neighbors = np.load(path/'hold.npz')['neighbors']
-    evidence = dict(np.load(path/'release-provenance.npz'))
+    path = ROOT / 'fixtures/air-release-r1a.npz'
+    provenance=json.loads(path.with_suffix('.json').read_text())
+    assert hashlib.sha256(path.read_bytes()).hexdigest()==provenance['fixture_sha256']
+    fixture=dict(np.load(path))
+    neighbors=fixture['neighbors']
+    evidence={k.removeprefix('evidence_'):v for k,v in fixture.items() if k.startswith('evidence_')}
+    original=neighbors.copy()
     sequence = object.__new__(scenario.Sequence)
     sequence.initial_neighbors, sequence.rest_positions, sequence.inside = grid.neighbors, grid.positions, grid.inside != 0
     count = sequence.stray_skin_cuts
     raw = count(neighbors)
     cert, diagnostic = certify(grid, neighbors, evidence)
     assert raw == 14 and count(diagnostic) == 0 and not cert['invalid_release_edges']
-    assert np.array_equal(neighbors, np.load(path/'hold.npz')['neighbors'])
+    assert np.array_equal(neighbors, original)
     tests = ['real_air_releases_verified_without_mutation']
     missing = deepcopy(evidence); missing['flags'][:] = 0
     _, diagnostic = certify(grid, neighbors, missing)

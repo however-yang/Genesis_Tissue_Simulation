@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "reference": "r12-query-probe",
+  "candidate": "r12-query-probe",
+  "case": "r13-native-01",
+  "cases": [
+    {
+      "stage": "drop_settle",
+      "release": 0,
+      "queries": 5334,
+      "triangles": 26432,
+      "query_records_bitwise_equal": false,
+      "degrees_equal": true,
+      "decision_columns_bitwise_equal": true,
+      "reference_mean_triangles": 787.9842529296875,
+      "candidate_mean_triangles": 586.283447265625,
+      "atomic_delta_max_native_error": 1.4551915228366852e-11,
+      "reference_kernel_ms": 2.702336072921753,
+      "candidate_kernel_ms": 1.9404799938201904
+    },
+    {
+      "stage": "drop_settle",
+      "release": 1,
+      "queries": 5334,
+      "triangles": 26432,
+      "query_records_bitwise_equal": false,
+      "degrees_equal": true,
+      "decision_columns_bitwise_equal": true,
+      "reference_mean_triangles": 787.9842529296875,
+      "candidate_mean_triangles": 586.283447265625,
+      "atomic_delta_max_native_error": 7.275957614183426e-12,
+      "reference_kernel_ms": 2.4104959964752197,
+      "candidate_kernel_ms": 1.9896320104599
+    },
+    {
+      "stage": "regrasp_close",
+      "release": 1,
+      "queries": 5334,
+      "triangles": 26432,
+      "query_records_bitwise_equal": false,
+      "degrees_equal": true,
+      "decision_columns_bitwise_equal": true,
+      "reference_mean_triangles": 1353.874755859375,
+      "candidate_mean_triangles": 989.4443359375,
+      "atomic_delta_max_native_error": 4.656612873077393e-10,
+      "reference_kernel_ms": 2.8078079223632812,
+      "candidate_kernel_ms": 2.2650880813598633
+    }
+  ],
+  "angle_budget": 0.04
+}

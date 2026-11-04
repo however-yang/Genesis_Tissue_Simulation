@@ -15,6 +15,16 @@ constexpr float MG_OMEGA=.7f;
 // Aggregates the dense coarsest solve takes. A coarsest level beyond it smooths once instead.
 constexpr int MG_COARSEST=128;
 constexpr int MG_MAX_LEVELS=8;
+#ifdef ENDO_KIDNEY_PRECISE_MG
+using MgReduction=double;
+struct MgResidual {
+    double x,y,z;
+    __host__ __device__ operator float3() const{return mkf3((float)x,(float)y,(float)z);}
+};
+#else
+using MgReduction=float;
+using MgResidual=float3;
+#endif
 
 struct MultigridLevel {
     int sx,sy,sz,capacity;
@@ -30,7 +40,7 @@ struct MultigridLevel {
     float *A,*inverse;
     // Per aggregate: the restricted residual, the correction after pre-smoothing and prolongation, and after the post
     // smoothing, which the level above prolongs.
-    float3 *r,*z,*post;
+    MgResidual *r;float3 *z,*post;
 };
 __device__ inline int mgSites(const MultigridLevel& L){return L.sx*L.sy*L.sz;}
 // The offset slot 0..26 of a site offset in {-1,0,1}^3.
@@ -127,12 +137,12 @@ __device__ inline void mgFinish(MultigridLevel& L,int c,int o,const float (&sum)
     if(o==13)mgInverse3(sum,L.inverse+9*c);
 }
 // Clears the rows of the MG_GALERKIN_ROWS aggregates a Galerkin block sums in shared memory, before any thread adds.
-__device__ inline void mgClearRows(float (*rows)[27*9]){
+__device__ inline void mgClearRows(MgReduction (*rows)[27*9]){
     for(int k=threadIdx.x;k<MG_GALERKIN_ROWS*27*9;k+=blockDim.x)rows[k/(27*9)][k%(27*9)]=0;
     __syncthreads();
 }
 // Writes the coupled blocks of the rows a block summed, and the inverse of each diagonal block (mgFinish).
-__device__ inline void mgFinishRows(MultigridLevel& L,int count,const float (*rows)[27*9]){
+__device__ inline void mgFinishRows(MultigridLevel& L,int count,const MgReduction (*rows)[27*9]){
     __syncthreads();
     for(int e=threadIdx.x;e<MG_GALERKIN_ROWS*27;e+=blockDim.x){
         int row=e/27,o=e%27,c=blockIdx.x*MG_GALERKIN_ROWS+row;
@@ -143,9 +153,23 @@ __device__ inline void mgFinishRows(MultigridLevel& L,int count,const float (*ro
 }
 // The level-1 operator. Each of the 8 threads of an aggregate adds the stencil row of the node at one corner of its
 // block into the aggregate's row, at the site offset of each neighbor, so every stencil block is read once.
+__device__ inline void mgAddRow(MgReduction* row,const float* values){
+#ifdef ENDO_KIDNEY_MG_WARP_REDUCE
+    // Group identical destinations before the shared atomics. Every original
+    // term is retained, accumulated in double; no matrix entry is approximated.
+    auto active=cooperative_groups::coalesced_threads();
+    auto group=cooperative_groups::labeled_partition(active,row);
+    for(int k=0;k<9;k++){
+        double value=cooperative_groups::reduce(group,(double)values[k],cooperative_groups::plus<double>());
+        if(group.thread_rank()==0)atomicAdd(row+k,value);
+    }
+#else
+    for(int k=0;k<9;k++)atomicAdd(row+k,values[k]);
+#endif
+}
 __global__ void k_MgGalerkinFine(const UnifiedState* state,const __half* matrix,const float* blockScale,
     const unsigned short* stencil,MultigridLevel L){
-    __shared__ float sh_rows[MG_GALERKIN_ROWS][27*9];
+    __shared__ MgReduction sh_rows[MG_GALERKIN_ROWS][27*9];
     const auto& s=*state;const int count=min(*L.count,L.capacity);
     if(blockIdx.x*MG_GALERKIN_ROWS>=count)return;
     mgClearRows(sh_rows);
@@ -159,7 +183,7 @@ __global__ void k_MgGalerkinFine(const UnifiedState* state,const __half* matrix,
             int sign=slot<7?-1:1,bits=abs(slot-7);
             int o=mgOffset(mgCoarseStep(px,sign*(bits&1)),mgCoarseStep(py,sign*((bits>>1)&1)),mgCoarseStep(pz,sign*((bits>>2)&1)));
             float a[9];mgStencilBlock(s,matrix,blockScale,i,slot,a);
-            for(int k=0;k<9;k++)atomicAdd(&sh_rows[row][9*o+k],a[k]);
+            mgAddRow(&sh_rows[row][9*o],a);
         }
     }
     mgFinishRows(L,count,sh_rows);
@@ -167,7 +191,7 @@ __global__ void k_MgGalerkinFine(const UnifiedState* state,const __half* matrix,
 // A coarser operator. Each of the 8*MG_SLOTS threads of an aggregate adds the row of one child, an aggregate of the
 // level below at a corner site of its block, into the aggregate's row, at the site offset of each child neighbor.
 __global__ void k_MgGalerkin(MultigridLevel child,MultigridLevel L){
-    __shared__ float sh_rows[MG_GALERKIN_ROWS][27*9];
+    __shared__ MgReduction sh_rows[MG_GALERKIN_ROWS][27*9];
     const int count=min(*L.count,L.capacity);
     if(blockIdx.x*MG_GALERKIN_ROWS>=count)return;
     mgClearRows(sh_rows);
@@ -179,7 +203,7 @@ __global__ void k_MgGalerkin(MultigridLevel child,MultigridLevel L){
         if(c>=0 && L.parent[c]==C)for(int o=0;o<27;o++){
             if(!mgCoupled(o) || child.neighbor[27*c+o]<0)continue;
             int O=mgOffset(mgCoarseStep(px,o%3-1),mgCoarseStep(py,(o/3)%3-1),mgCoarseStep(pz,o/9-1));
-            for(int e=0;e<9;e++)atomicAdd(&sh_rows[row][9*O+e],child.A[(27*c+o)*9+e]);
+            mgAddRow(&sh_rows[row][9*O],child.A+(27*c+o)*9);
         }
     }
     mgFinishRows(L,count,sh_rows);

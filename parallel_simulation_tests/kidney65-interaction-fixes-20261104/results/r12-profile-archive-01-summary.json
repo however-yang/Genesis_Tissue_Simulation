@@ -1,0 +1,923 @@
+{
+  "run": "r12-profile-archive-01",
+  "platform": "A100-GPU1",
+  "source_sha256": {
+    "report.json": "c359442a0127f9be5a8aa4ea834af464f13f35dce7206dd7f4a67a473431fcb2",
+    "training-stress.json": "6987f73bae73dcb1201b42e4689c05a9c8fa251d0793998809b3f772032ba321",
+    "native-timing.json": "dd6911e7081859457b64f077f2fb60154b5de39df21f6a13671b71b80e83d911"
+  },
+  "report": {
+    "status": "passed",
+    "error": null,
+    "last_stage": "regrasp_hold",
+    "steps": 1536,
+    "elapsed_s": 183.64175854006317,
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 15000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "grid_spacing_cm": 0.125,
+    "cell_size_cm": [
+      0.125,
+      0.10000000149011612,
+      0.125
+    ],
+    "nodes": 236313,
+    "scene": "kidney",
+    "tab_cm": {
+      "low": [
+        -1.0,
+        2.8,
+        -1.0
+      ],
+      "high": [
+        1.0,
+        4.2,
+        1.0
+      ],
+      "attached": 1
+    },
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r12-warp-stack.so",
+    "dll_sha256": "acb18b6f4ae5234b77f5a6f8dca6a83c993ee6d9ca0f7707ce971473a35d850e",
+    "genesis_view_created": false,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014327079989016056,
+      "edges_before_incision": 0,
+      "cut_edges": 121,
+      "observed_cut_edges": 121,
+      "retained_cut_edges": 121,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 164,
+      "final_grip_points": 77,
+      "current_grip_points": 77,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 7.20137357711792e-05,
+      "max_blade_body_overlap_m": 1.1744989268521328e-05,
+      "peak_blade_force_n": 0.5637264847755432,
+      "max_node_displacement_m": 0.02517847530543804,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.11194131523370743,
+      "fracture_right_n": 0.19748003780841827,
+      "two_blade_squeeze_m": 0.0012484444381890892,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.11194131523370743,
+          "fracture_right_n": 0.2965541481971741,
+          "two_blade_squeeze_m": 0.0012484444381890892
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.2834586799144745,
+          "fracture_right_n": 0.19748003780841827,
+          "two_blade_squeeze_m": 0.002166551428416307
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 0,
+      "slit_length_m": 0.009722718241315029,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": true
+    },
+    "limitations": [
+      "Single native session",
+      "End-effector control; no robot arm dynamics",
+      "Anchor-assisted grasp",
+      "Finite capsule cutting edge",
+      "Uncalibrated tissue"
+    ]
+  },
+  "stress": {
+    "passed": true,
+    "stages": [
+      {
+        "stage": "park_scissors",
+        "steps": 45,
+        "step_readback_mean_ms": 59.754569318869876,
+        "step_readback_p95_ms": 53.10704680159688,
+        "grip_points": 77,
+        "piece_mean_y_mm": 58.335655212402344,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.795744895935059,
+              28.806652069091797,
+              -3.4622321128845215
+            ],
+            [
+              5.849858283996582,
+              53.81434631347656,
+              3.6268601417541504
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.64560317993164,
+            25.0076904296875,
+            7.089092254638672
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14834558963775635,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.7188133333333334,
+          "substep prologue: liveness, fragment contact, predict": 3.8910355555555554,
+          "pre: tool, contact discovery, manifold": 1.277768888888889,
+          "pre: predictor, recovery query": 3.06628,
+          "loop: manifold, contact marks": 1.7706866666666665,
+          "loop: coarse modes": 3.3476844444444445,
+          "cg assembly: start": 0.020844444444444443,
+          "cg assembly: stencil and residual": 2.0435844444444444,
+          "cg assembly: mask": 0.10326444444444444,
+          "cg: assembly": 2.3368355555555556,
+          "cg: iterations": 4.951266666666666,
+          "cg: trust, projection": 0.03636444444444445,
+          "cg: feasible": 0.5967422222222223,
+          "cg: line search": 0.9889333333333334,
+          "loop: contact discovery": 3.8330599999999997,
+          "loop: regional mode": 1.523371111111111,
+          "loop: local sweeps": 5.112877777777777,
+          "loop: tool, safe and global coarse": 3.116851111111111,
+          "loop: rigid modes": 0.8805488888888888,
+          "post: free-component nullspace": 0.04938000000000001,
+          "post: fragment contact": 3.5312755555555553,
+          "post: blade and contact reactions, velocity": 0.26981333333333335
+        }
+      },
+      {
+        "stage": "place_for_release",
+        "steps": 111,
+        "step_readback_mean_ms": 63.67008016562207,
+        "step_readback_p95_ms": 62.41985748056322,
+        "grip_points": 77,
+        "piece_mean_y_mm": 36.21464920043945,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.795760631561279,
+              28.806676864624023,
+              -3.116476535797119
+            ],
+            [
+              5.83651065826416,
+              31.840229034423828,
+              3.994961977005005
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.632270812988281,
+            3.0335521697998047,
+            7.111438751220703
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14862163364887238,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.7577837837837839,
+          "substep prologue: liveness, fragment contact, predict": 3.9121918918918923,
+          "pre: tool, contact discovery, manifold": 1.2886810810810811,
+          "pre: predictor, recovery query": 4.105018918918919,
+          "loop: manifold, contact marks": 1.7528513513513513,
+          "loop: coarse modes": 3.3462108108108106,
+          "cg assembly: start": 0.02117207207207207,
+          "cg assembly: stencil and residual": 2.0433693693693695,
+          "cg assembly: mask": 0.10387567567567568,
+          "cg: assembly": 2.3361963963963963,
+          "cg: iterations": 4.951233333333334,
+          "cg: trust, projection": 0.03722342342342343,
+          "cg: feasible": 0.5905801801801802,
+          "cg: line search": 0.9904567567567568,
+          "loop: contact discovery": 5.980731531531532,
+          "loop: regional mode": 1.5226234234234235,
+          "loop: local sweeps": 5.116799099099099,
+          "loop: tool, safe and global coarse": 3.2648162162162166,
+          "loop: rigid modes": 0.8814423423423424,
+          "post: free-component nullspace": 0.04991801801801801,
+          "post: fragment contact": 3.535844144144144,
+          "post: blade and contact reactions, velocity": 0.27134144144144146
+        }
+      },
+      {
+        "stage": "grasp_release",
+        "steps": 30,
+        "step_readback_mean_ms": 72.04721183128034,
+        "step_readback_p95_ms": 170.82605613977591,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.16593933105469,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0006000951852008359,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.773462295532227,
+              28.517375946044922,
+              -3.308051109313965
+            ],
+            [
+              5.2916998863220215,
+              30.00476837158203,
+              3.1142477989196777
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.065160751342773,
+            1.4873933792114258,
+            6.422299385070801
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999979734420776,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.8102433333333334,
+          "substep prologue: liveness, fragment contact, predict": 3.23205,
+          "pre: tool, contact discovery, manifold": 0.9234766666666666,
+          "pre: predictor, recovery query": 6.5794966666666665,
+          "loop: manifold, contact marks": 1.5463533333333332,
+          "loop: coarse modes": 5.0623499999999995,
+          "cg assembly: start": 0.021536666666666666,
+          "cg assembly: stencil and residual": 2.035746666666667,
+          "cg assembly: mask": 0.10526666666666666,
+          "cg: assembly": 2.3376900000000003,
+          "cg: iterations": 3.3856166666666665,
+          "cg: trust, projection": 0.03826333333333333,
+          "cg: feasible": 0.5424466666666666,
+          "cg: line search": 1.0018133333333334,
+          "loop: contact discovery": 9.415576666666668,
+          "loop: regional mode": 2.6006533333333333,
+          "loop: local sweeps": 4.686846666666667,
+          "loop: tool, safe and global coarse": 3.1730333333333336,
+          "loop: rigid modes": 1.0077866666666666,
+          "post: free-component nullspace": 0.14988,
+          "post: fragment contact": 2.8282533333333335,
+          "post: blade and contact reactions, velocity": 0.23535
+        }
+      },
+      {
+        "stage": "drop_settle",
+        "steps": 10,
+        "step_readback_mean_ms": 81.5671670017764,
+        "step_readback_p95_ms": 177.17787215951807,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.056976318359375,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.020495638594642752,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.796730041503906,
+              28.377777099609375,
+              -3.5921075344085693
+            ],
+            [
+              5.258752822875977,
+              29.979402542114258,
+              3.1048550605773926
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.055482864379883,
+            1.6016268730163574,
+            6.696962833404541
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.6889269948005676,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.8279,
+          "substep prologue: liveness, fragment contact, predict": 3.18642,
+          "pre: tool, contact discovery, manifold": 0.6058,
+          "pre: predictor, recovery query": 6.6012,
+          "loop: manifold, contact marks": 1.30521,
+          "loop: coarse modes": 6.97928,
+          "cg assembly: start": 0.021609999999999997,
+          "cg assembly: stencil and residual": 2.0253699999999997,
+          "cg assembly: mask": 0.10629,
+          "cg: assembly": 2.34271,
+          "cg: iterations": 1.762,
+          "cg: trust, projection": 0.03881,
+          "cg: feasible": 0.512,
+          "cg: line search": 1.00833,
+          "loop: contact discovery": 10.143229999999999,
+          "loop: regional mode": 3.7207,
+          "loop: local sweeps": 4.23578,
+          "loop: tool, safe and global coarse": 3.4531300000000003,
+          "loop: rigid modes": 1.1320299999999999,
+          "post: free-component nullspace": 0.24176999999999998,
+          "post: fragment contact": 2.654,
+          "post: blade and contact reactions, velocity": 0.19927
+        }
+      },
+      {
+        "stage": "grasp_withdraw",
+        "steps": 15,
+        "step_readback_mean_ms": 71.88820959224056,
+        "step_readback_p95_ms": 116.43001409247498,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.1110725402832,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.846879959106445,
+              28.489669799804688,
+              -3.9070069789886475
+            ],
+            [
+              5.222748756408691,
+              30.079944610595703,
+              3.0569841861724854
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.069629669189453,
+            1.590273380279541,
+            6.963991165161133
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.6713095903396606,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.7575933333333332,
+          "substep prologue: liveness, fragment contact, predict": 3.0264866666666665,
+          "pre: tool, contact discovery, manifold": 0.5838866666666667,
+          "pre: predictor, recovery query": 6.602853333333333,
+          "loop: manifold, contact marks": 1.2874733333333335,
+          "loop: coarse modes": 7.008326666666666,
+          "cg assembly: start": 0.022866666666666667,
+          "cg assembly: stencil and residual": 2.0287466666666667,
+          "cg assembly: mask": 0.1067,
+          "cg: assembly": 2.3347866666666666,
+          "cg: iterations": 1.7403933333333332,
+          "cg: trust, projection": 0.0413,
+          "cg: feasible": 0.5162333333333333,
+          "cg: line search": 1.0077533333333333,
+          "loop: contact discovery": 10.106126666666666,
+          "loop: regional mode": 3.6889266666666667,
+          "loop: local sweeps": 4.241133333333333,
+          "loop: tool, safe and global coarse": 3.7181466666666667,
+          "loop: rigid modes": 1.12162,
+          "post: free-component nullspace": 0.24146,
+          "post: fragment contact": 2.6507266666666665,
+          "post: blade and contact reactions, velocity": 0.19763333333333336
+        }
+      },
+      {
+        "stage": "regrasp_above",
+        "steps": 20,
+        "step_readback_mean_ms": 69.09807235351764,
+        "step_readback_p95_ms": 73.09854747145451,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.10588836669922,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.788524150848389,
+              28.53744125366211,
+              -3.9927947521209717
+            ],
+            [
+              5.095737457275391,
+              30.10002899169922,
+              2.9981508255004883
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.884261131286621,
+            1.5625882148742676,
+            6.990945339202881
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.4079630672931671,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.7531399999999999,
+          "substep prologue: liveness, fragment contact, predict": 3.06404,
+          "pre: tool, contact discovery, manifold": 0.59315,
+          "pre: predictor, recovery query": 6.61003,
+          "loop: manifold, contact marks": 1.26182,
+          "loop: coarse modes": 7.065345000000001,
+          "cg assembly: start": 0.01925,
+          "cg assembly: stencil and residual": 2.02455,
+          "cg assembly: mask": 0.10332,
+          "cg: assembly": 2.32965,
+          "cg: iterations": 1.72621,
+          "cg: trust, projection": 0.03277,
+          "cg: feasible": 0.50396,
+          "cg: line search": 1.001525,
+          "loop: contact discovery": 10.129765,
+          "loop: regional mode": 3.671345,
+          "loop: local sweeps": 4.22989,
+          "loop: tool, safe and global coarse": 3.678005,
+          "loop: rigid modes": 1.118925,
+          "post: free-component nullspace": 0.240895,
+          "post: fragment contact": 2.6475,
+          "post: blade and contact reactions, velocity": 0.198195
+        }
+      },
+      {
+        "stage": "regrasp_approach",
+        "steps": 45,
+        "step_readback_mean_ms": 75.99350994763275,
+        "step_readback_p95_ms": 228.46881642471942,
+        "grip_points": 0,
+        "piece_mean_y_mm": 30.97751235961914,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.964071750640869,
+              25.7851505279541,
+              -3.940124750137329
+            ],
+            [
+              4.890876293182373,
+              28.123008728027344,
+              2.6534149646759033
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.854948043823242,
+            2.3378586769104004,
+            6.593539714813232
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.20078223943710327,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.7935199999999999,
+          "substep prologue: liveness, fragment contact, predict": 3.347988888888889,
+          "pre: tool, contact discovery, manifold": 0.8277555555555556,
+          "pre: predictor, recovery query": 6.948557777777777,
+          "loop: manifold, contact marks": 1.589122222222222,
+          "loop: coarse modes": 6.744702222222222,
+          "cg assembly: start": 0.021004444444444444,
+          "cg assembly: stencil and residual": 2.036188888888889,
+          "cg assembly: mask": 0.10667777777777779,
+          "cg: assembly": 2.3292577777777774,
+          "cg: iterations": 1.7316977777777778,
+          "cg: trust, projection": 0.035293333333333336,
+          "cg: feasible": 0.5097688888888888,
+          "cg: line search": 1.01822,
+          "loop: contact discovery": 10.90708,
+          "loop: regional mode": 3.3079533333333333,
+          "loop: local sweeps": 4.737911111111111,
+          "loop: tool, safe and global coarse": 3.826893333333333,
+          "loop: rigid modes": 1.1414866666666668,
+          "post: free-component nullspace": 0.27579777777777775,
+          "post: fragment contact": 2.657097777777778,
+          "post: blade and contact reactions, velocity": 0.2289888888888889
+        }
+      },
+      {
+        "stage": "regrasp_close",
+        "steps": 45,
+        "step_readback_mean_ms": 74.6259583781163,
+        "step_readback_p95_ms": 69.37466873787344,
+        "grip_points": 113,
+        "piece_mean_y_mm": 30.78325653076172,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.05319993048624494,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.959491729736328,
+              25.52412223815918,
+              -4.3306732177734375
+            ],
+            [
+              4.751945495605469,
+              27.77275848388672,
+              3.0878658294677734
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.711437225341797,
+            2.2486352920532227,
+            7.418539047241211
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1499999612569809,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.6873533333333334,
+          "substep prologue: liveness, fragment contact, predict": 3.179813333333333,
+          "pre: tool, contact discovery, manifold": 1.2134399999999999,
+          "pre: predictor, recovery query": 7.3208955555555555,
+          "loop: manifold, contact marks": 1.7412311111111112,
+          "loop: coarse modes": 6.395584444444445,
+          "cg assembly: start": 0.02059333333333333,
+          "cg assembly: stencil and residual": 2.0471355555555557,
+          "cg assembly: mask": 0.11161555555555557,
+          "cg: assembly": 2.3290533333333334,
+          "cg: iterations": 1.726851111111111,
+          "cg: trust, projection": 0.03386,
+          "cg: feasible": 0.52274,
+          "cg: line search": 1.0288933333333332,
+          "loop: contact discovery": 13.30276222222222,
+          "loop: regional mode": 2.929208888888889,
+          "loop: local sweeps": 5.393135555555555,
+          "loop: tool, safe and global coarse": 4.638355555555555,
+          "loop: rigid modes": 1.151748888888889,
+          "post: free-component nullspace": 0.1492088888888889,
+          "post: fragment contact": 2.821302222222222,
+          "post: blade and contact reactions, velocity": 0.2611422222222222
+        }
+      },
+      {
+        "stage": "regrasp_lift",
+        "steps": 75,
+        "step_readback_mean_ms": 71.39447443808119,
+        "step_readback_p95_ms": 125.02758507616767,
+        "grip_points": 113,
+        "piece_mean_y_mm": 38.282230377197266,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.795755386352539,
+              28.806678771972656,
+              -4.313377857208252
+            ],
+            [
+              5.13582706451416,
+              34.6627082824707,
+              3.1105499267578125
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.9315824508667,
+            5.856029987335205,
+            7.4239277839660645
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999960362911224,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.7465426666666666,
+          "substep prologue: liveness, fragment contact, predict": 3.2680666666666665,
+          "pre: tool, contact discovery, manifold": 1.459828,
+          "pre: predictor, recovery query": 6.813089333333333,
+          "loop: manifold, contact marks": 1.735248,
+          "loop: coarse modes": 5.038626666666667,
+          "cg assembly: start": 0.019851999999999998,
+          "cg assembly: stencil and residual": 2.0459786666666666,
+          "cg assembly: mask": 0.10829866666666668,
+          "cg: assembly": 2.326924,
+          "cg: iterations": 3.4266720000000004,
+          "cg: trust, projection": 0.03478933333333333,
+          "cg: feasible": 0.5455466666666666,
+          "cg: line search": 1.0075066666666668,
+          "loop: contact discovery": 9.034028,
+          "loop: regional mode": 2.268610666666667,
+          "loop: local sweeps": 5.382362666666667,
+          "loop: tool, safe and global coarse": 4.542273333333333,
+          "loop: rigid modes": 1.0072613333333333,
+          "post: free-component nullspace": 0.049055999999999995,
+          "post: fragment contact": 3.2684306666666667,
+          "post: blade and contact reactions, velocity": 0.2716053333333333
+        }
+      },
+      {
+        "stage": "regrasp_hold",
+        "steps": 30,
+        "step_readback_mean_ms": 66.58334099144365,
+        "step_readback_p95_ms": 160.6779500492843,
+        "grip_points": 113,
+        "piece_mean_y_mm": 38.28733825683594,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 164,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.795755386352539,
+              28.806671142578125,
+              -4.3163981437683105
+            ],
+            [
+              5.134392738342285,
+              34.6745491027832,
+              3.1105518341064453
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.930148124694824,
+            5.867877006530762,
+            7.426949501037598
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999952912330627,
+        "invalid_tets": 0,
+        "profile_gpu_sections_ms_per_step": {
+          "begin frame, cut tick and rebuild between substeps": 0.69356,
+          "substep prologue: liveness, fragment contact, predict": 3.385536666666667,
+          "pre: tool, contact discovery, manifold": 1.4883833333333334,
+          "pre: predictor, recovery query": 6.634063333333333,
+          "loop: manifold, contact marks": 1.7275099999999999,
+          "loop: coarse modes": 3.3415166666666667,
+          "cg assembly: start": 0.020239999999999998,
+          "cg assembly: stencil and residual": 2.03998,
+          "cg assembly: mask": 0.10315,
+          "cg: assembly": 2.3335933333333334,
+          "cg: iterations": 4.9246533333333335,
+          "cg: trust, projection": 0.03437333333333333,
+          "cg: feasible": 0.5420366666666666,
+          "cg: line search": 0.9874766666666667,
+          "loop: contact discovery": 4.029406666666667,
+          "loop: regional mode": 1.5234400000000001,
+          "loop: local sweeps": 5.185126666666666,
+          "loop: tool, safe and global coarse": 3.7000533333333334,
+          "loop: rigid modes": 0.8747333333333334,
+          "post: free-component nullspace": 0.04836666666666667,
+          "post: fragment contact": 3.4948433333333333,
+          "post: blade and contact reactions, velocity": 0.27044
+        }
+      }
+    ],
+    "replay": {
+      "snapshot_bytes": 2699698339,
+      "snapshot_sha256": "f191a9ee9d39f020a8c3ffa8e3786b4059538ca300c83f7afd32b2c0f5d80a8a",
+      "exact_restore": true,
+      "complete_archive_exact": true,
+      "precut_restore_clears_release_flags": true,
+      "continuation_max_error_mm": 0.03964295610785484,
+      "continuation_errors_mm": [
+        0.001602217525942251,
+        0.03210253547877073,
+        0.03441478358581662,
+        0.020003863610327244,
+        0.02099498873576522,
+        0.03357331268489361,
+        0.03964295610785484,
+        0.027143240440636873
+      ],
+      "trials": [
+        {
+          "repeat": 1,
+          "errors_mm": [
+            0.001602217525942251,
+            0.03210253547877073,
+            0.03441478358581662,
+            0.020003863610327244,
+            0.02099498873576522,
+            0.03357331268489361,
+            0.03964295610785484,
+            0.027143240440636873
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 121324,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.0013888857793062925,
+              "material_rms_mm": 7.083866512402892e-05,
+              "piece_max_mm": 0.0013888857793062925,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142800,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.03210253641009331,
+              "material_rms_mm": 0.0004998274962417781,
+              "piece_max_mm": 0.03210253641009331,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 142800,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.034414783120155334,
+              "material_rms_mm": 0.00029306733631528914,
+              "piece_max_mm": 0.034414783120155334,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 99928,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.02000386267900467,
+              "material_rms_mm": 0.00044210394844412804,
+              "piece_max_mm": 0.02000386267900467,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 149961,
+              "material": true,
+              "active": true,
+              "piece": true,
+              "material_max_mm": 0.020994989201426506,
+              "material_rms_mm": 0.0008234302513301373,
+              "piece_max_mm": 0.020994989201426506,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77699,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.029759705066680908,
+              "material_rms_mm": 0.0015089701628312469,
+              "piece_max_mm": 0.029759705066680908,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77701,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.03599122166633606,
+              "material_rms_mm": 0.0018457855330780149,
+              "piece_max_mm": 0.03599122166633606,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 77703,
+              "material": false,
+              "active": true,
+              "piece": false,
+              "material_max_mm": 0.025172298774123192,
+              "material_rms_mm": 0.0012653139419853687,
+              "piece_max_mm": 0.025172298774123192,
+              "main_max_mm": 0.0
+            }
+          ]
+        }
+      ],
+      "repeats": 2,
+      "passed": true,
+      "steps": 8
+    },
+    "contact_model": 2,
+    "route": "tracked",
+    "original_sequence_passed": true,
+    "original_error": null,
+    "diagnostic_continuation": false,
+    "archive_restore_exact": true,
+    "regrasp_material_nodes": 80,
+    "regrasp_other_material_nodes": 0,
+    "regrasp_lift_mm": 7.504081726074219,
+    "physical_checks_passed": true
+  },
+  "native_original_calls": 1110,
+  "native_original_mean_ms": 35.45352717869923,
+  "native_original_p95_ms": 41.883165971376,
+  "native_original_max_ms": 71.57250109594315,
+  "native_extra_calls": 426,
+  "native_extra_mean_ms": 51.47650346685717,
+  "native_extra_p95_ms": 61.50458674528636,
+  "native_extra_max_ms": 66.25780090689659,
+  "timing_scope": "Native LCS_Step wall time; excludes init/replay, render, encoding, readback and Python checks. Not minimum FPS. Extra stages use diagnostic direct-kernel profiling; those values are not production performance.",
+  "performance_usable": false,
+  "direct_profile_in_extra_steps": true
+}
