@@ -37,7 +37,12 @@ def main():
     parser.add_argument("--profile-stress", action="store_true", help="Diagnostic direct-kernel section profile; not normal FPS")
     parser.add_argument("--stress-route", choices=("legacy","tracked"), default="legacy")
     parser.add_argument("--diagnostic-stress", action="store_true", help="Continue a completed but failed base sequence for diagnosis; never certify it")
+    parser.add_argument("--replay-repeats",type=int,default=2,help="Independent continuations from the exact same snapshot (2-20)")
+    parser.add_argument('--assembly-blocks',type=int,choices=(64,128,256,512),default=512)
+    parser.add_argument('--manifold-blocks',type=int,choices=(64,128,256,512,1024),default=1024)
     args = parser.parse_args()
+    if not 2<=args.replay_repeats<=20:
+        parser.error('--replay-repeats must be 2-20')
     if args.name and (not args.name.replace("-", "").replace("_", "").isalnum() or len(args.name) > 80):
         parser.error("Use letters, digits, hyphens or underscores in --name")
     if args.guard and os.name == "nt":
@@ -127,13 +132,14 @@ def main():
                 return original_exit(self, *exc)
             run.NativeTissue.__exit__ = exit_with_provenance
         for name, values in {"LCS_SetCoreOptimizations": (43264,), "LCS_SetBatchQueryMode": (3,),
-                             "LCS_SetQueryThreads": (64,), "LCS_SetNativeSchedule": (512, 1024),
+                             "LCS_SetQueryThreads": (64,), "LCS_SetNativeSchedule": (args.assembly_blocks, args.manifold_blocks),
                              "LCS_SetCoarseBoundCache": (1,)}.items():
             fn = getattr(native, name)
             fn.argtypes, fn.restype = [ctypes.c_int] * len(values), ctypes.c_int
             if fn(*values) != 0:
                 raise RuntimeError("Candidate configuration rejected: " + name)
         metadata.update(dll=str(dll), dll_sha256=expected, core_mode=43264,
+                        native_schedule=dict(assembly_blocks=args.assembly_blocks,manifold_blocks=args.manifold_blocks),
                         native_physics_source_modified=args.library != "baseline", library_label=args.library,
                         timing_definition="Synchronous headless demo RGB frame, including step/readback, surface and recording submit, renderer and video write; excludes stage saves and final async drain. Not Windows displayed FPS or full training RGB-D.")
         base_view = run.EndoscopicView
@@ -156,7 +162,7 @@ def main():
             begin = time.perf_counter()
             result = original_check(self, name, *values)
             frame["native_ms"] = (time.perf_counter() - begin) * 1000
-            native_calls.append(dict(tick=int(getattr(self,'tick',-1)),native_ms=frame["native_ms"]))
+            native_calls.append(dict(tick=int(getattr(self,'tick',-1)),phase=getattr(self,'timing_phase','trajectory'),native_ms=frame["native_ms"]))
             return result
 
         def step(self, command):
@@ -183,7 +189,7 @@ def main():
         run.Recording.after_step = record
         if args.stress_tests:
             from training_stress import install
-            install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress)
+            install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress,replay_repeats=args.replay_repeats)
         options = ["--scene", "kidney", "--dll", str(dll), "--output", str(output),
                    "--width", "1280", "--height", "960", "--render-every", "1"]
         if args.headless:

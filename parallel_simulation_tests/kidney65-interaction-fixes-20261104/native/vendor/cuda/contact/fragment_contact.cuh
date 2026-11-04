@@ -171,11 +171,31 @@ __device__ inline bool fragmentExit(int triangles,const FragmentVertex* points,F
     float lower=1e-6f,candidate=-1;int candidateTri=-1;float3 candidateBary={};
     for(int event=0;event<=triangles;event++){
         float next=1e30f;int hit=-1;float3 hitBary={},hitNormal={};
-        int stack[32],top=1;stack[0]=1;
+        int top=1;
+#ifdef ENDO_KIDNEY_WARP_SCRATCH
+        __shared__ int exitTraversal[2][32];int* stack=exitTraversal[threadIdx.x/32];
+        if(threadIdx.x%32==0)stack[0]=1;
+#else
+        int stack[32];stack[0]=1;
+#endif
         while(top){
-            int node=stack[--top];const FragmentTreeNode& bnd=tree[node];
+#ifdef ENDO_KIDNEY_WARP_SCRATCH
+            __syncwarp();
+#endif
+            int node=stack[--top];
+#ifdef ENDO_KIDNEY_WARP_SCRATCH
+            __syncwarp();
+#endif
+            const FragmentTreeNode& bnd=tree[node];
             if(bnd.root==-1 || bnd.root==p.root || !fragmentTreeRay(bnd,p.current,direction,lower))continue;
-            if(node<base){stack[top++]=2*node+1;stack[top++]=2*node;continue;}
+            if(node<base){
+#ifdef ENDO_KIDNEY_WARP_SCRATCH
+                if(threadIdx.x%32==0){stack[top]=2*node+1;stack[top+1]=2*node;}top+=2;
+#else
+                stack[top++]=2*node+1;stack[top++]=2*node;
+#endif
+                continue;
+            }
             int index=(node-base)*32+threadIdx.x%32;if(index>=triangles)continue;int t=order[index];
             const FragmentVertex& a=points[3*t];const FragmentVertex& b=points[3*t+1];const FragmentVertex& c=points[3*t+2];
             if(a.root<0 || a.root==p.root || a.root!=b.root || a.root!=c.root)continue;
@@ -201,11 +221,10 @@ __device__ inline bool fragmentExit(int triangles,const FragmentVertex* points,F
 __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,const float3* pos,const float3* previous,const float3* start,
     const SurfaceVertex* vertices,const FragmentVertex* points,const float* inverseMass,float3* delta,int* degree,
     const FragmentBounds* bounds,const int* roots,const int* rootCount,const FragmentTreeNode* tree,int base,const int* order,int* contacted=nullptr,FragmentManifold manifold={}){
-    SurfaceVertex query={};FragmentVertex p;
-    if(i<3*triangles){query=vertices[i];p=points[i];}
+    FragmentVertex p;
+    if(i<3*triangles){p=points[i];}
     else{
         int id=i-3*triangles;
-        query.count=1;query.id[0]=id;query.weight[0]=1;query.offset=mkf3(0,0,0);
         p.root=component[id];p.current=pos[id];p.previous=previous[id];
         p.recovery=contactUnit(previous[id]-start[id],mkf3(.169481f,.97966f,.114622f));
     }
@@ -227,16 +246,42 @@ __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,
 #endif
     float nearest=1e30f,nearestSign=1;int nearestTri=-1;float3 nearestBary=normal,nearestDirection=normal;
     float angleError=0;
-    int stack[32],flags[32],top=1;stack[0]=1;flags[0]=3;
+    int top=1;
+#ifdef ENDO_KIDNEY_WARP_STACK
+    // Every lane of this query traverses the same hierarchy. Store its stack
+    // once per warp rather than spilling 64 identical integers per lane.
+    // All callers use 64-thread blocks; triangle computations stay per lane.
+    __shared__ int traversal[2][64];
+    int* stack=traversal[threadIdx.x/32];int* flags=stack+32;
+    if(lane==0){stack[0]=1;flags[0]=3;}
+#else
+    int stack[32],flags[32];stack[0]=1;flags[0]=3;
+#endif
     while(top){
-        --top;int node=stack[top],pending=flags[top];const FragmentTreeNode& bnd=tree[node];
+#ifdef ENDO_KIDNEY_WARP_STACK
+        __syncwarp();
+#endif
+        --top;int node=stack[top],pending=flags[top];
+#ifdef ENDO_KIDNEY_WARP_STACK
+        // No lane may overwrite the popped entry before its peers read it.
+        __syncwarp();
+#endif
+        const FragmentTreeNode& bnd=tree[node];
         if(bnd.root==-1 || bnd.root==p.root)continue;
         if((pending&2) && !fragmentTreeSegment(bnd,p,skin))pending&=~2;
         if(pending&1){float approximation,error;if(fragmentBoundedAngle(bnd,p.current,approximation,error)){
             if(!lane){solidAngle+=approximation;angleError+=error;}pending&=~1;
         }}
         if(!pending)continue;
-        if(node<base){stack[top]=2*node+1;flags[top++]=pending;stack[top]=2*node;flags[top++]=pending;continue;}
+        if(node<base){
+#ifdef ENDO_KIDNEY_WARP_STACK
+            if(lane==0){stack[top]=2*node+1;flags[top]=pending;stack[top+1]=2*node;flags[top+1]=pending;}
+            top+=2;
+#else
+            stack[top]=2*node+1;flags[top++]=pending;stack[top]=2*node;flags[top++]=pending;
+#endif
+            continue;
+        }
         int index=(node-base)*32+lane;if(index>=triangles)continue;int t=order[index];
         const FragmentVertex& a=points[3*t];const FragmentVertex& b=points[3*t+1];const FragmentVertex& c=points[3*t+2];
         if(a.root<0 || a.root==p.root || b.root!=a.root || c.root!=a.root)continue;
@@ -363,8 +408,18 @@ __device__ void fragmentQuery(int i,int lane,int triangles,const int* component,
     if(selected<0 || lane!=0)return;
     if(contacted){atomicExch(contacted+p.root,1);atomicExch(contacted+points[3*selected].root,1);}
     if(!delta && !manifold.constraints)return;
-    int ids[32],count=0;float weights[32];const SurfaceVertex& v=query;
-    for(int k=0;k<v.count;k++)fragmentWeight(v.id[k],v.weight[k],ids,weights,count);
+    int count=0;
+#ifdef ENDO_KIDNEY_WARP_SCRATCH
+    // Only lane zero reaches constraint assembly. Its two 32-entry arrays
+    // need one copy per warp, not a spilled allocation for every thread.
+    __shared__ int constraintIds[2][32];__shared__ float constraintWeights[2][32];
+    int* ids=constraintIds[threadIdx.x/32];float* weights=constraintWeights[threadIdx.x/32];
+#else
+    int ids[32];float weights[32];
+#endif
+    if(i<3*triangles){const SurfaceVertex& v=vertices[i];
+        for(int k=0;k<v.count;k++)fragmentWeight(v.id[k],v.weight[k],ids,weights,count);
+    }else fragmentWeight(i-3*triangles,1.f,ids,weights,count);
     for(int j=0;j<3;j++){
         const SurfaceVertex& other=vertices[3*selected+j];float w=compF3(bary,j);
         for(int k=0;k<other.count;k++)fragmentWeight(other.id[k],-w*other.weight[k],ids,weights,count);

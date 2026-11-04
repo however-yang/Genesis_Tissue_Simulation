@@ -1,5 +1,8 @@
 // Original fused material/contact kernel and reduction; different compiler register budget only.
 template<int N,class Add> __device__ void blockAccumulateOccupancy(const void* target,float (&v)[N],Add add){
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+    blockAccumulateCache(target,v,add);
+#else
     __shared__ unsigned long long first;__shared__ float sum[N];
     if(threadIdx.x==0)first=0;
     for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
@@ -13,6 +16,7 @@ template<int N,class Add> __device__ void blockAccumulateOccupancy(const void* t
     }else if(target && unifiedReduce(target,v))add(target,v);
     __syncthreads();
     if(threadIdx.x==0 && first)add((const void*)first,sum);
+#endif
 }
 __device__ inline void coarseAccumulateBlockOccupancy(CoarseBlock* b,float3 g,const Symmetric3& H){
     float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};

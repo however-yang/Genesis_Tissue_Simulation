@@ -11,6 +11,11 @@ struct SafeCoarseCluster {float weight,gripWeight;int count,grips,pinned;};
 // matrix rows, its six rest edge lengths then the determinant of the inverse (the layout of the per-tet rest metric of
 // k_CacheUnifiedTetData), its moduli times rest volume, and the node offsets of its corners from corner 0 of the cell.
 struct KuhnTet { float3 b0,b1,b2;float metric[7];float muV,bulkV;int offset[4]; };
+#ifdef ENDO_KIDNEY_PRECISE_INTERACTION
+using InteractionSum=double;
+#else
+using InteractionSum=float;
+#endif
 struct UnifiedState {
     int n,nx,ny,nt,grips,coarseMode; bool coupledReady, recoveryOnly, fragmentPossible;
     // Tets are stored type after type, each type in the order of the cells: tet t is the tet of Kuhn type t/cells in
@@ -30,7 +35,7 @@ struct UnifiedState {
     const float3 *b0,*b1,*b2,*previous,*target,*attachRest,*restNeighbors;
     const float3* previousInverse;const float* restMetric;
     const float *mu,*bulk,*invMass,*attach,*contactQuadrature;
-    float3* pos;float* coarseWeight;float* interaction;
+    float3* pos;float* coarseWeight;InteractionSum* interaction;
     SurfaceContact* contacts; GripPoint* points; CoupledTool* tool;
     float h,minimum,damping,hardening,contactK,gripK,minGap,muS,muD,edgeK,skin,thickness;
     float3 toolTarget;float gapTarget;
@@ -86,7 +91,11 @@ __device__ inline float unifiedEdgeStiffness(const UnifiedState& s,int i,int axi
     // artificially stiffer than the surrounding three-dimensional tissue.
     return s.edgeK*volume/fmaxf(length*length,1e-12f);
 }
-struct CoarseBlock { float3 gradient,step;float xx,yy,zz,xy,xz,yz,scale;int external;float3 center,pivot;float mass;int pins; };
+struct CoarseBlock { float3 gradient,step;float xx,yy,zz,xy,xz,yz,scale;int external;float3 center,pivot;float mass;int pins;
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+    double accumulated[9];
+#endif
+};
 // Ligaments are Kelvin-Voigt supports, using the existing tissue relaxation
 // time. Internal strain damping cannot dissipate an almost-rigid organ swing;
 // a purely elastic world support otherwise keeps re-impacting a stationary jaw.
@@ -155,11 +164,22 @@ constexpr int ACCUMULATE_THREADS=256;
 // to add with a null target. add(target,values) issues the atomics of the N values into the sums at target. Kernels
 // with one sum per warp keep unifiedReduce: the barriers of a large CUDA block cost them more than their atomics.
 template<int N,class Add> __device__ void blockAccumulate(const void* target,float (&v)[N],Add add){
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+    __shared__ unsigned long long first;__shared__ double sum[N];
+    if(threadIdx.x==0)first=~0ull;
+#else
     __shared__ unsigned long long first;__shared__ float sum[N];
     if(threadIdx.x==0)first=0;
+#endif
     for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
     __syncthreads();
-    if(target)atomicCAS(&first,0ull,(unsigned long long)target);
+    if(target){
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+        atomicMin(&first,(unsigned long long)target);
+#else
+        atomicCAS(&first,0ull,(unsigned long long)target);
+#endif
+    }
     __syncthreads();
     if(target && (unsigned long long)target==first){
         auto group=cooperative_groups::coalesced_threads();
@@ -167,7 +187,11 @@ template<int N,class Add> __device__ void blockAccumulate(const void* target,flo
         if(group.thread_rank()==0)for(int j=0;j<N;j++)atomicAdd(sum+j,v[j]);
     }else if(target && unifiedReduce(target,v))add(target,v);
     __syncthreads();
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+    if(threadIdx.x==0 && first!=~0ull){float values[N];for(int j=0;j<N;j++)values[j]=(float)sum[j];add((const void*)first,values);}
+#else
     if(threadIdx.x==0 && first)add((const void*)first,sum);
+#endif
 }
 __device__ inline void unifiedEnergyChangeAdd(CoarseBlock* b,float change){
     float values[1]={change};if(unifiedReduce(b,values))atomicAdd(&b->yy,values[0]);
@@ -529,7 +553,7 @@ template<bool AllowFragments=true> __global__ void k_SweepSites(const UnifiedSta
         sites[color*capacity+base+__popc(group&((1u<<lane)-1))]=i;
     }
 }
-__device__ inline void scatterInteraction(float* out,float3 f,const Symmetric3& H,float w){
+__device__ inline void scatterInteraction(InteractionSum* out,float3 f,const Symmetric3& H,float w){
     atomicAdd(out,f.x*w);atomicAdd(out+1,f.y*w);atomicAdd(out+2,f.z*w);
     atomicAdd(out+3,H.xx*w);atomicAdd(out+4,H.yy*w);atomicAdd(out+5,H.zz*w);
     atomicAdd(out+6,H.xy*w);atomicAdd(out+7,H.xz*w);atomicAdd(out+8,H.yz*w);
@@ -579,7 +603,7 @@ __global__ void k_AssembleFragmentInteractions(const UnifiedState* state,int col
         float damping=c.inverseMass>0?2.f*sqrtf(c.stiffness/c.inverseMass)/s.h:0;
         float stiffness=c.stiffness+damping,pressure=fmaxf(0.f,-stiffness*gap-damping*previousDepth);
         if(!(pressure>0) || !node || unifiedColor(s,id)!=color)continue;
-        float* out=s.interaction+9*id;float3 gradient=c.normal*(-pressure*w);
+        InteractionSum* out=s.interaction+9*id;float3 gradient=c.normal*(-pressure*w);
         atomicAdd(out,gradient.x);atomicAdd(out+1,gradient.y);atomicAdd(out+2,gradient.z);
         // Positive block-Jacobi majorizer for signed embeddings sharing a color.
         // It changes the descent metric, not the force or normal objective.
@@ -669,7 +693,7 @@ template<bool AllowFragments=true> __device__ inline void unifiedVertexSolve(con
     if(lane==0 && ((s.degree[i]>0 || (s.secondary && s.secondary->degree[i]>0) || ((AllowFragments && fragmentContactActive(s)) && s.fragmentDegree[i]>0)) || (s.grips>0 && s.gripDegree[i]>0))){
         // Assemble each embedded contact/anchor once per color, rather than
         // recomputing its 24-node stencil separately at every supporting node.
-        const float* f=s.interaction+9*i;gradient=gradient+mkf3(f[0],f[1],f[2]);
+        const InteractionSum* f=s.interaction+9*i;gradient=gradient+mkf3(f[0],f[1],f[2]);
         H.xx+=f[3];H.yy+=f[4];H.zz+=f[5];H.xy+=f[6];H.xz+=f[7];H.yz+=f[8];
     }
     unifiedWarpSum(gradient,H);
@@ -699,7 +723,13 @@ template<bool AllowFragments=true> __global__ void k_UnifiedVertex(const Unified
 }
 __global__ void k_UnifiedTool(UnifiedState* state){
     UnifiedState& s=*state;CoupledTool& b=*s.tool;
-    float A[4][4]={},r[4]={};float inertia=1.f/(b.inverseMass*s.h*s.h),gapInertia=b.gapInverseMass>0?1.f/(b.gapInverseMass*s.h*s.h):1e20f;
+#ifdef ENDO_KIDNEY_PRECISE_TOOL
+    double accumulatedA[4][4]={},accumulatedR[4]={};
+    auto& A=accumulatedA;auto& r=accumulatedR;
+#else
+    float A[4][4]={},r[4]={};
+#endif
+    float inertia=1.f/(b.inverseMass*s.h*s.h),gapInertia=b.gapInverseMass>0?1.f/(b.gapInverseMass*s.h*s.h):1e20f;
     if(threadIdx.x==0){
         for(int j=0;j<3;j++){A[j][j]=inertia;r[j]=(compF3(b.pose.jawHinge,j)-compF3(s.toolTarget,j))*inertia;}
         A[3][3]=gapInertia;r[3]=(b.pose.jawGap-s.gapTarget)*gapInertia;
@@ -850,9 +880,15 @@ template<bool AllowFragments=true> __global__ void k_CoarseWeights(UnifiedState*
 // Adds a gradient and Hessian, packed as {g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz}, into a coarse block.
 __device__ inline void coarseAdd(const void* target,const float* v){
     CoarseBlock* b=(CoarseBlock*)target;
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+    // Keep each original force/Hessian contribution. Only its summation uses
+    // a wider accumulator; the solve and stored material coordinates stay float.
+    for(int j=0;j<9;j++)atomicAdd(b->accumulated+j,(double)v[j]);
+#else
     atomicAdd(&b->gradient.x,v[0]);atomicAdd(&b->gradient.y,v[1]);atomicAdd(&b->gradient.z,v[2]);
     atomicAdd(&b->xx,v[3]);atomicAdd(&b->yy,v[4]);atomicAdd(&b->zz,v[5]);
     atomicAdd(&b->xy,v[6]);atomicAdd(&b->xz,v[7]);atomicAdd(&b->yz,v[8]);
+#endif
 }
 __device__ inline void coarseAccumulate(CoarseBlock* b,float3 g,const Symmetric3& H){
     float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};
@@ -1066,6 +1102,11 @@ __global__ void k_CoarseAccumulate(const UnifiedState* state,CoarseBlock* block)
 __global__ void k_CoarseSolve(const UnifiedState* state,CoarseBlock* block){
     int k=blockIdx.x*blockDim.x+threadIdx.x;
     if(state->coarseMode){int i=unifiedActiveNode(*state,k);if(!coarseRoot(*state,i))return;block+=i;}else if(k)return;
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+    block->gradient=block->gradient+mkf3((float)block->accumulated[0],(float)block->accumulated[1],(float)block->accumulated[2]);
+    block->xx+=(float)block->accumulated[3];block->yy+=(float)block->accumulated[4];block->zz+=(float)block->accumulated[5];
+    block->xy+=(float)block->accumulated[6];block->xz+=(float)block->accumulated[7];block->yz+=(float)block->accumulated[8];
+#endif
     Symmetric3 H={block->xx,block->yy,block->zz,block->xy,block->xz,block->yz};
     const CoupledTool& b=*state->tool;
     if(state->coarseMode==7 && block->pins==-1){

@@ -28,6 +28,21 @@ static void freeCoarseBoundCache(){
     queryPrivateFree(d_coarseBoundStats);d_coarseBoundStats=nullptr;g_coarseBoundCacheCapacity=0;g_coarseBoundCacheStream=nullptr;
 }
 template<int N,class Add> __device__ void blockAccumulateCache(const void* target,float (&v)[N],Add add){
+#ifdef ENDO_KIDNEY_PRECISE_COARSE
+    __shared__ unsigned long long first;__shared__ double sum[N];
+    if(threadIdx.x==0)first=~0ull;
+    for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
+    __syncthreads();
+    if(target)atomicMin(&first,(unsigned long long)target);
+    __syncthreads();
+    if(target && (unsigned long long)target==first){
+        auto group=cooperative_groups::coalesced_threads();
+        for(int j=0;j<N;j++)v[j]=cooperative_groups::reduce(group,v[j],cooperative_groups::plus<float>());
+        if(group.thread_rank()==0)for(int j=0;j<N;j++)atomicAdd(sum+j,(double)v[j]);
+    }else if(target && unifiedReduce(target,v))add(target,v);
+    __syncthreads();
+    if(threadIdx.x==0 && first!=~0ull){float values[N];for(int j=0;j<N;j++)values[j]=(float)sum[j];add((const void*)first,values);}
+#else
     __shared__ unsigned long long first;__shared__ float sum[N];
     if(threadIdx.x==0)first=0;
     for(int j=threadIdx.x;j<N;j+=blockDim.x)sum[j]=0;
@@ -41,6 +56,7 @@ template<int N,class Add> __device__ void blockAccumulateCache(const void* targe
     }else if(target && unifiedReduce(target,v))add(target,v);
     __syncthreads();
     if(threadIdx.x==0 && first)add((const void*)first,sum);
+#endif
 }
 __device__ inline void coarseAccumulateBlockCache(CoarseBlock* b,float3 g,const Symmetric3& H){
     float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};

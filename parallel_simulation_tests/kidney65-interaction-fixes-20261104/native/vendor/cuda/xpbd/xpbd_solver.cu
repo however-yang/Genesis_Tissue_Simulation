@@ -202,7 +202,7 @@ static SafeCoarseCluster* d_safeAggregate=nullptr;
 static int* d_safeJoined=nullptr;
 
 static float* d_coarseWeight=nullptr;
-static float* d_unifiedInteraction=nullptr;
+static InteractionSum* d_unifiedInteraction=nullptr;
 // The vertices each local sweep solves, listed per lattice color by k_SweepSites, and their counts.
 static int *d_sweepSites=nullptr,*d_sweepCount=nullptr;
 static CoarseBlock* d_coarseBlock=nullptr;
@@ -3352,7 +3352,7 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
         if(e==cudaSuccess)e=cudaMemset(d_coarseWeight,0,(size_t)g_N*sizeof(float));
     }
     if(e==cudaSuccess && !d_coarseBlock)e=cudaMalloc(&d_coarseBlock,sizeof(CoarseBlock));
-    if(e==cudaSuccess && !d_unifiedInteraction)e=cudaMalloc(&d_unifiedInteraction,(size_t)9*g_N*sizeof(float));
+    if(e==cudaSuccess && !d_unifiedInteraction)e=cudaMalloc(&d_unifiedInteraction,(size_t)9*g_N*sizeof(InteractionSum));
     // A color holds at most one vertex per site of its parity, the count the sweeps pass as the list capacity.
     if(e==cudaSuccess && !d_sweepSites)e=cudaMalloc(&d_sweepSites,(size_t)8*((g_dimsX+2)/2)*((g_dimsY+2)/2)*((g_dimsZ+2)/2)*sizeof(int));
     if(e==cudaSuccess && !d_sweepCount)e=cudaMalloc(&d_sweepCount,8*sizeof(int));

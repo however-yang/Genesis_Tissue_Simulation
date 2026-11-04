@@ -10,7 +10,7 @@ import time
 import numpy as np
 
 
-def install(run, output, profile=False, route='legacy', diagnostic=False):
+def install(run, output, profile=False, route='legacy', diagnostic=False, replay_repeats=2):
     original = run.Flow.run
     original_open = run.Flow.open
     def open_with_checkpoint(flow,tissue):
@@ -64,22 +64,39 @@ def install(run, output, profile=False, route='legacy', diagnostic=False):
             tissue.tick,tissue.topology_revision,tissue.neighbors=tick,None,None
             del flow.stress_initial_state,flow.stress_initial_nodes
             # Short continuation, exact state restore, then the same commands.
+            tissue.timing_phase='replay'
             first = [tissue.step(command).nodes.copy() for _ in range(8)]
-            archive.load(checkpoint)
-            tissue.tick, tissue.topology_revision, tissue.neighbors = tick, None, None
-            restored = tissue.observe()
-            assert np.array_equal(restored.nodes, before.nodes), 'Position restore mismatch'
-            assert np.array_equal(restored.neighbors, before.neighbors), 'Topology restore mismatch'
-            assert np.array_equal(capture(tissue.dll,len(flow.grid.edges))['flags'],flags), 'Provenance restore mismatch'
-            second = [tissue.step(command).nodes.copy() for _ in range(8)]
-            errors = [float(np.linalg.norm(a-b,axis=1).max())*10 for a,b in zip(first,second)]
+            trials=[]
+            for repeat in range(1,replay_repeats):
+                archive.load(checkpoint)
+                tissue.tick, tissue.topology_revision, tissue.neighbors = tick, None, None
+                restored = tissue.observe()
+                assert np.array_equal(restored.nodes, before.nodes), 'Position restore mismatch'
+                assert np.array_equal(restored.neighbors, before.neighbors), 'Topology restore mismatch'
+                assert np.array_equal(capture(tissue.dll,len(flow.grid.edges))['flags'],flags), 'Provenance restore mismatch'
+                second = [tissue.step(command).nodes.copy() for _ in range(8)]
+                errors = [float(np.linalg.norm(a-b,axis=1).max())*10 for a,b in zip(first,second)]
+                replay_detail=[]
+                for a,b in zip(first,second):
+                    distance=np.linalg.norm(a-b,axis=1)*10
+                    worst=int(distance.argmax())
+                    replay_detail.append(dict(worst_node=worst,material=bool(inside[worst]),
+                        active=bool(flow.grid.active[worst]),piece=bool(piece[worst]),
+                        material_max_mm=float(distance[inside].max()),
+                        material_rms_mm=float(np.sqrt(np.mean(distance[inside]**2))),
+                        piece_max_mm=float(distance[piece].max()),
+                        main_max_mm=float(distance[inside & ~piece].max())))
+                trials.append(dict(repeat=repeat,errors_mm=errors,per_step_detail=replay_detail))
+            errors=np.max([trial['errors_mm'] for trial in trials],axis=0).tolist()
             result['replay'] = dict(snapshot_bytes=len(checkpoint), snapshot_sha256=hashlib.sha256(checkpoint).hexdigest(),
                                     exact_restore=True, precut_restore_clears_release_flags=True,
                                     continuation_max_error_mm=max(errors), continuation_errors_mm=errors,
+                                    trials=trials,repeats=replay_repeats,
                                     passed=max(errors)<.05, steps=8)
             archive.load(checkpoint)
             tissue.tick, tissue.topology_revision, tissue.neighbors = tick, None, None
             flow.obs = tissue.observe()
+            tissue.timing_phase='trajectory'
             del checkpoint,first,second
 
             previous = command
@@ -139,6 +156,10 @@ def install(run, output, profile=False, route='legacy', diagnostic=False):
                 if sink is not None:sink.after_stage(flow,name,surface)
                 np.savez_compressed(output/(name+'.npz'),nodes_cm=flow.obs.nodes,neighbors=flow.obs.neighbors,
                     vertices_cm=surface.vertices,faces=surface.triangles,grip_flags=flow.obs.grip_flags,piece=piece)
+                if name in ('drop_settle','regrasp_close') and hasattr(tissue.dll,'LCS_SaveFragmentCase'):
+                    import ctypes
+                    export=tissue.dll.LCS_SaveFragmentCase;export.argtypes=[ctypes.c_char_p];export.restype=ctypes.c_int
+                    assert export(str(output/(name+'.fragment')).encode())==0,'Fragment case export failed'
                 audit=topology_statistics(surface)
                 assert not (audit['degenerate_triangles'] or audit['positional_boundary_edges'] or audit['positional_nonmanifold_edges'] or audit['duplicate_triangles']) and audit['winding_consistent'], 'Invalid stress surface'
                 # Independent final-stage interior test against the main organ.
