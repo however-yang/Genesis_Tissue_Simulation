@@ -1,0 +1,251 @@
+{
+  "scope": "Four single-pair preflights; not the 20-pair T4 acceptance",
+  "timing_scope": "LCS_Step wall time only; complete QA/rendering/readback excluded",
+  "video_fps_is_simulation_dt_not_throughput": true,
+  "pairs": [
+    {
+      "name": "s15-before-contact-pair00",
+      "fork": "before_contact",
+      "preflight_passed": true,
+      "restore_ms": 1206.3761940225959,
+      "complete_video_decode_passed": true,
+      "arms": {
+        "original": {
+          "full": {
+            "frames": 615,
+            "mean_ms": 21.865497955984278,
+            "p95_ms": 31.279041757807136,
+            "max_ms": 34.51639600098133
+          },
+          "continuation": {
+            "frames": 270,
+            "mean_ms": 26.769710695629733,
+            "p95_ms": 32.41666148533113,
+            "max_ms": 34.51639600098133
+          },
+          "outcome": {
+            "delta_length_mm": 8.0,
+            "first_new_material_cut_step": 157,
+            "new_material_edges": 28,
+            "max_deviation_rest_mm": 1.0,
+            "new_columns": 8,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        },
+        "restored": {
+          "full": {
+            "frames": 615,
+            "mean_ms": 21.876752491078786,
+            "p95_ms": 30.953862937167287,
+            "max_ms": 34.740598988719285
+          },
+          "continuation": {
+            "frames": 270,
+            "mean_ms": 26.795346025567227,
+            "p95_ms": 31.971004116348922,
+            "max_ms": 34.740598988719285
+          },
+          "outcome": {
+            "delta_length_mm": 8.0,
+            "first_new_material_cut_step": 157,
+            "new_material_edges": 28,
+            "max_deviation_rest_mm": 1.0,
+            "new_columns": 8,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        }
+      },
+      "input_sha256": {
+        "results\\s15-before-contact-pair00.json": "653b595b52f950609fdb16c75be9c7ad46649a2671a5726c74c9b56b7dcf23ad",
+        "review\\s15-before-contact-comparison\\decode-report.json": "410fcfb0ca9c0558c7aa4f68f218ef17ecd2ed5b731c5e83073646500d20fccc",
+        "review\\s15-before-contact-original\\trajectory.jsonl": "c31eb0e97ffa989daa6379eb865c612b0862ea0cc6e7b2349f0759bda6bb5c66",
+        "review\\s15-before-contact-original\\report.json": "732f75e5aa211df6fccf99e89e70e921eaf256e11dd62e898e0864ed8b307ead",
+        "review\\s15-before-contact-restored\\trajectory.jsonl": "ba5ebb455da57648f289e75995cb816c32c8940cfbcc952f1508b0c2803aa136",
+        "review\\s15-before-contact-restored\\report.json": "732f75e5aa211df6fccf99e89e70e921eaf256e11dd62e898e0864ed8b307ead"
+      }
+    },
+    {
+      "name": "s15-v1-preflight-02-first-cut-00",
+      "fork": "first_cut",
+      "preflight_passed": true,
+      "restore_ms": 1184.2503400985152,
+      "complete_video_decode_passed": true,
+      "arms": {
+        "original": {
+          "full": {
+            "frames": 915,
+            "mean_ms": 24.01444578550939,
+            "p95_ms": 31.862937624100596,
+            "max_ms": 35.8064390020445
+          },
+          "continuation": {
+            "frames": 413,
+            "mean_ms": 29.041267897917937,
+            "p95_ms": 33.100077183917165,
+            "max_ms": 35.8064390020445
+          },
+          "outcome": {
+            "delta_length_mm": 10.0,
+            "first_new_material_cut_step": 1,
+            "new_material_edges": 37,
+            "max_deviation_rest_mm": 1.0,
+            "new_columns": 10,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        },
+        "restored": {
+          "full": {
+            "frames": 915,
+            "mean_ms": 24.042099295311246,
+            "p95_ms": 32.30806012870744,
+            "max_ms": 42.04973194282502
+          },
+          "continuation": {
+            "frames": 413,
+            "mean_ms": 29.102534148447468,
+            "p95_ms": 33.467933209612966,
+            "max_ms": 42.04973194282502
+          },
+          "outcome": {
+            "delta_length_mm": 10.0,
+            "first_new_material_cut_step": 1,
+            "new_material_edges": 39,
+            "max_deviation_rest_mm": 1.0,
+            "new_columns": 10,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        }
+      },
+      "input_sha256": {
+        "results\\s15-v1-preflight-02-first-cut-00.json": "26019e1bd1fe63f9c8232111a88a9ac2c292bff74cb813afa17fda2a45d76355",
+        "review\\s15-first-cut-comparison\\decode-report.json": "9e0208b77fd26aea7171596c319360d90f526aefe004739e1ba1623423ab05e9",
+        "review\\s15-first-cut-original\\trajectory.jsonl": "43fa443d156fe5cad11c6b107a609dfb26ba80902814bd223cd0ce645d9d956f",
+        "review\\s15-first-cut-original\\report.json": "c9e278d441a2394d8a162e6e1768dce3038a91472f1ec6deb19289ffa7d1f6af",
+        "review\\s15-first-cut-restored\\trajectory.jsonl": "42430674297481ab59f64607fed716f057386c6813b043b5b33667205d8a65c7",
+        "review\\s15-first-cut-restored\\report.json": "c9e278d441a2394d8a162e6e1768dce3038a91472f1ec6deb19289ffa7d1f6af"
+      }
+    },
+    {
+      "name": "s15-v1-preflight-02-squeezing-00",
+      "fork": "squeezing",
+      "preflight_passed": true,
+      "restore_ms": 1175.203828024678,
+      "complete_video_decode_passed": true,
+      "arms": {
+        "original": {
+          "full": {
+            "frames": 615,
+            "mean_ms": 21.80943609749126,
+            "p95_ms": 30.363915034104135,
+            "max_ms": 34.51783303171396
+          },
+          "continuation": {
+            "frames": 123,
+            "mean_ms": 30.287936804021097,
+            "p95_ms": 32.81159697799012,
+            "max_ms": 34.51783303171396
+          },
+          "outcome": {
+            "delta_length_mm": 8.0,
+            "first_new_material_cut_step": 10,
+            "new_material_edges": 32,
+            "max_deviation_rest_mm": 1.0,
+            "new_columns": 8,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        },
+        "restored": {
+          "full": {
+            "frames": 615,
+            "mean_ms": 21.8349609541048,
+            "p95_ms": 30.55524523369968,
+            "max_ms": 38.46990899182856
+          },
+          "continuation": {
+            "frames": 123,
+            "mean_ms": 30.415561087088797,
+            "p95_ms": 32.819875329732895,
+            "max_ms": 38.46990899182856
+          },
+          "outcome": {
+            "delta_length_mm": 8.0,
+            "first_new_material_cut_step": 10,
+            "new_material_edges": 32,
+            "max_deviation_rest_mm": 1.0,
+            "new_columns": 8,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        }
+      },
+      "input_sha256": {
+        "results\\s15-v1-preflight-02-squeezing-00.json": "a052fa757ffde435b9d7b89a7f20cacbd92b9584c34abdfc4f54df3d5a27f06b",
+        "review\\s15-squeezing-comparison\\decode-report.json": "dce25254c2ff6f6ad8e0953a3d72ca397b8ca76a4b283f39a02581939db6f3e5",
+        "review\\s15-squeezing-original\\trajectory.jsonl": "6c922aef404a94e671cbbeff4ed17409a7f32c55cd69b930648eeaca08076491",
+        "review\\s15-squeezing-original\\report.json": "732f75e5aa211df6fccf99e89e70e921eaf256e11dd62e898e0864ed8b307ead",
+        "review\\s15-squeezing-restored\\trajectory.jsonl": "46d141aacef45323a9886cb2f37593901ec495fce1118edf6b300f58334d4984",
+        "review\\s15-squeezing-restored\\report.json": "732f75e5aa211df6fccf99e89e70e921eaf256e11dd62e898e0864ed8b307ead"
+      }
+    },
+    {
+      "name": "s15-v1-preflight-02-regrasp-00",
+      "fork": "regrasp",
+      "preflight_passed": true,
+      "restore_ms": 1195.6506710266694,
+      "complete_video_decode_passed": true,
+      "arms": {
+        "original": {
+          "full": {
+            "frames": 1055,
+            "mean_ms": 24.16322801782975,
+            "p95_ms": 38.40581539552658,
+            "max_ms": 57.16919107362628
+          },
+          "continuation": {
+            "frames": 240,
+            "mean_ms": 33.58291264642806,
+            "p95_ms": 45.09121147566474,
+            "max_ms": 57.16919107362628
+          },
+          "outcome": {
+            "delta_length_mm": 2.0,
+            "first_new_material_cut_step": 136,
+            "new_material_edges": 4,
+            "max_deviation_rest_mm": 0.0,
+            "new_columns": 2,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        },
+        "restored": {
+          "full": {
+            "frames": 1055,
+            "mean_ms": 24.16814692865757,
+            "p95_ms": 38.35435345536098,
+            "max_ms": 57.113729999400675
+          },
+          "continuation": {
+            "frames": 240,
+            "mean_ms": 33.6045353586087,
+            "p95_ms": 45.228032051818445,
+            "max_ms": 57.113729999400675
+          },
+          "outcome": {
+            "delta_length_mm": 2.0,
+            "first_new_material_cut_step": 136,
+            "new_material_edges": 4,
+            "max_deviation_rest_mm": 0.0,
+            "new_columns": 2,
+            "measurement": "material-coordinate column repeatability; no forced straightening"
+          }
+        }
+      },
+      "input_sha256": {
+        "results\\s15-v1-preflight-02-regrasp-00.json": "77fc53a5172d7207d3c5b050da01f19ce6b0d939519f4faada576dbab748df49",
+        "review\\s15-regrasp-comparison\\decode-report.json": "471d4b77cf9df520bde33c99b32e52a524d1ec286da07d4bb153814da9f3529a",
+        "review\\s15-regrasp-original\\trajectory.jsonl": "bf501ccbcfacddc78b8e4d8fa8bf8953291eb667a255e461cafc747f9318bc24",
+        "review\\s15-regrasp-original\\report.json": "eae248c394ceadc45551507f1e95940f942b8d70312f16d94e0cdca54a4de1a8",
+        "review\\s15-regrasp-restored\\trajectory.jsonl": "8ab1d8ae9637485699f0dd1a1ac1a4f9329f39756b37ee7ad631797c6f505b34",
+        "review\\s15-regrasp-restored\\report.json": "eae248c394ceadc45551507f1e95940f942b8d70312f16d94e0cdca54a4de1a8"
+      }
+    }
+  ]
+}

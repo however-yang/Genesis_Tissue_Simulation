@@ -23,7 +23,7 @@ __device__ inline void coarseAccumulateBlockOccupancy(CoarseBlock* b,float3 g,co
     blockAccumulateOccupancy(b,v,[](const void* target,const float* values){coarseAdd(target,values);});
 }
 
-template<int MinimumBlocks> __global__ __launch_bounds__(256,MinimumBlocks) void k_CoarseOccupancyBoundCache(const UnifiedState* state,CoarseBlock* blocks,CoarseBoundTerm* terms,float* actual,CoarseBlock** targets){
+template<bool IncludeContacts> __device__ __forceinline__ void coarseOccupancyBody(const UnifiedState* state,CoarseBlock* blocks,CoarseBoundTerm* terms,float* actual,CoarseBlock** targets){
     const UnifiedState& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
     float3 g=mkf3(0,0,0);Symmetric3 H={};float scale=1;
     CoarseBlock* target=t<s.activeCount?coarseNodeTerms(s,s.activeNodes[t],blocks,g,H):
@@ -31,5 +31,19 @@ template<int MinimumBlocks> __global__ __launch_bounds__(256,MinimumBlocks) void
     if(actual && t>=s.activeCount && t-s.activeCount<s.nt){int tet=t-s.activeCount;targets[tet]=target;
         float v[9]={g.x,g.y,g.z,H.xx,H.yy,H.zz,H.xy,H.xz,H.yz};for(int j=0;j<9;j++)actual[9*tet+j]=v[j];}
     coarseAccumulateBlockOccupancy(target,g,H);
-    coarseContactGripTerms(s,blocks,t,gridDim.x*blockDim.x);
+    if constexpr(IncludeContacts)coarseContactGripTerms(s,blocks,t,gridDim.x*blockDim.x);
 }
+template<int MinimumBlocks> __global__ __launch_bounds__(256,MinimumBlocks) void k_CoarseOccupancyBoundCache(const UnifiedState* state,CoarseBlock* blocks,CoarseBoundTerm* terms,float* actual,CoarseBlock** targets){
+    coarseOccupancyBody<true>(state,blocks,terms,actual,targets);
+}
+#ifdef ENDO_KIDNEY_SPLIT_COARSE
+// Keep the old material thread/reduction mapping and all per-term functions.
+// Only the contact/grip striding moves to a separate launch on the same stream;
+// the following solve still observes every complete coarse contribution.
+template<int MinimumBlocks> __global__ __launch_bounds__(256,MinimumBlocks) void k_CoarseMaterialBoundCache(const UnifiedState* state,CoarseBlock* blocks,CoarseBoundTerm* terms,float* actual,CoarseBlock** targets){
+    coarseOccupancyBody<false>(state,blocks,terms,actual,targets);
+}
+__global__ void k_CoarseContactBoundCache(const UnifiedState* state,CoarseBlock* blocks){
+    coarseContactGripTerms(*state,blocks,blockIdx.x*blockDim.x+threadIdx.x,gridDim.x*blockDim.x);
+}
+#endif

@@ -41,9 +41,9 @@ class SceneConfig:
             raise ValueError('acquisition_max_steps must be an integer in [0,240]')
         if type(self.acquisition_stable_steps) is not int or not 1 <= self.acquisition_stable_steps <= 30:
             raise ValueError('acquisition_stable_steps must be an integer in [1,30]')
-        if self.acquisition_max_steps and (self.contact_model != 1 or self.preparation not in ('held','cut_ready')
+        if self.acquisition_max_steps and (self.contact_model != 1 or self.preparation not in ('grasped','held','cut_ready')
                 or self.acquisition_max_steps < self.acquisition_stable_steps):
-            raise ValueError('Stable acquisition requires explicit pure-friction held/cut_ready and sufficient waiting steps')
+            raise ValueError('Stable acquisition requires explicit pure-friction grasped/held/cut_ready and sufficient waiting steps')
         if self.physics is not None and not isinstance(self.physics, PhysicsOverrides):
             raise TypeError("physics must be PhysicsOverrides or None")
         if self.geometry is not None:
@@ -51,8 +51,10 @@ class SceneConfig:
                 raise TypeError('geometry must be WallGeometry or None')
             if self.scene!='wall-traction' or self.spacing_scale < 1:
                 raise ValueError('Parametric geometry requires wall-traction and spacing at least 1 mm')
-        if self.scene not in SCISSORS_SCENES or self.preparation not in ("settled", "held", "cut_ready"):
+        if self.scene not in SCISSORS_SCENES or self.preparation not in ("settled", "grasped", "held", "cut_ready"):
             raise ValueError("Unknown scene or preparation")
+        if self.preparation=='grasped' and self.contact_model!=1:
+            raise ValueError('The isolated pre-lift grasped preparation requires explicit pure-friction contact_model=1')
         if self.scene == "wall" and self.preparation == "cut_ready":
             raise ValueError("The wall scene approaches the scissors before grasping; use wall-traction for cut_ready")
         if self.contact_model not in (None, 1, 2):
@@ -201,7 +203,7 @@ class NativeEnvironment:
         self._topology = None
         self.last_reset_diagnostic = None
         self.last_reset_failure_arrays = None
-        stop_stage = {"settled": "settle", "held": "lift", "cut_ready": "blade_approach"}[scene_config.preparation]
+        stop_stage = {"settled": "settle", "grasped": "close", "held": "lift", "cut_ready": "blade_approach"}[scene_config.preparation]
         try:
             if scene_config.physics is None and not telemetry:
                 self.native = NativeTissue(self.grid, self.settings, dll, scene.stages[0].command)
@@ -281,7 +283,7 @@ class NativeEnvironment:
             # Check the declared domain before exposing s0; no hidden clamping at reset.
             self.config.bounds.process(self.previous_action, self.previous_action, self.settings.dt)
             self.state = self._snapshot(previous, assessed)
-            if scene_config.preparation in ("held", "cut_ready"):
+            if scene_config.preparation in ("grasped", "held", "cut_ready"):
                 grasp = self.state.metadata['grasp']
                 acquired = (self.observed.grip_points > 0 if contact_model == 2
                             else grasp['friction_hold_evidence'])

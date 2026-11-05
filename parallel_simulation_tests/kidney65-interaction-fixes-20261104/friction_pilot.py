@@ -21,25 +21,43 @@ SOURCE=ROOT.parents[1]/'parallel_simulation_tests/20261103-s18-s25/profiling/nat
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--library',required=True);p.add_argument('--name',required=True)
-    p.add_argument('--preparation',choices=('held','cut_ready'),default='held')
-    p.add_argument('--task',choices=('dose','release','snapshot'),default='dose')
+    p.add_argument('--scene',choices=('wall-traction','kidney65'),default='wall-traction')
+    p.add_argument('--preparation',choices=('grasped','held','cut_ready'),default='held')
+    p.add_argument('--task',choices=('dose','release','snapshot','roundtrip'),default='dose')
     p.add_argument('--direction',choices=('plusx','minusx','plusy','plusz','minusz'),default='plusz')
     p.add_argument('--dose-mm',type=float,default=4.);p.add_argument('--mu',type=float)
     p.add_argument('--bite-inset-mm',type=float,default=0.,help='Explicit control-only variant: shift bite and subsequent grasper targets in -x; no physical parameter changes')
+    p.add_argument('--bite-forward-mm',type=float,choices=(0.,.5,1.,2.),default=0.,help='Explicit control-only variant: advance bite and later grasper poses along the actual jaw axis')
+    p.add_argument('--bite-lower-mm',type=float,choices=(0.,1.,2.),default=0.,help='Explicit control-only variant: lower bite and later grasper poses in world Y to capture a thicker tumor cap')
     p.add_argument('--settle-steps',type=int,choices=(0,30,60,120),default=0,help='Additional closed stationary steps at the end of the original lift ramp')
     p.add_argument('--adaptive-grasp',action='store_true',help='Opt-in isolated preparation: require five consecutive unchanged friction-hold checks, at most 180 stationary steps')
     p.add_argument('--open-jaw-preparation',action='store_true',help='Negative control: keep preparation jaws open; no held state should be accepted')
+    p.add_argument('--snapshot-buffer-check',action='store_true',help='With snapshot task: compare same-state original archive bytes and candidate owned buffer')
     p.add_argument('--seed',type=int,default=0);p.add_argument('--no-video',action='store_true')
+    p.add_argument('--regrasp-lower-mm',type=float,choices=(0.,1.,2.),default=0.,
+                   help='Roundtrip only: explicit deeper return pose; all physical parameters stay unchanged')
     a=p.parse_args()
     if os.name=='nt':p.error('All GPU tests must execute on server A100 GPU1')
     if not all(v.replace('-','').replace('_','').isalnum() for v in (a.library,a.name)):raise ValueError('Invalid label')
     if not 0<=a.dose_mm<=4:raise ValueError('Dose outside frozen 0-4 mm sweep')
     if not 0<=a.bite_inset_mm<=1:raise ValueError('Bite inset outside diagnostic 0-1 mm range')
+    if a.snapshot_buffer_check and a.task!='snapshot':p.error('Buffer comparison requires --task snapshot')
+    if a.regrasp_lower_mm and a.task!='roundtrip':p.error('A deeper return applies only to the explicit roundtrip test')
+    if a.bite_forward_mm and (a.bite_inset_mm or a.settle_steps):p.error('Test forward bite independently of inset/fixed-settle variants')
+    if a.bite_lower_mm and (a.bite_forward_mm or a.bite_inset_mm or a.settle_steps):p.error('Test lower bite independently of other position/fixed-settle variants')
     os.environ.update(CUDA_VISIBLE_DEVICES=GPU,PYOPENGL_PLATFORM='egl',OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
     sys.path.insert(0,str(SOURCE))
     import numpy as np
+    view_options={};view_factory=None;scene_name=a.scene
+    if a.scene=='kidney65':
+        from endoscopic_tissue import run,scenario
+        from scene_config import configure
+        _,view_options=configure(run,'frontal65',1.25)
+        scenario.SCISSORS_SCENES=dict(scenario.SCISSORS_SCENES,kidney=run.SCISSORS_SCENES['kidney'])
+        scenario.scissors_settings=run.scissors_settings
+        view_factory=run.EndoscopicView;scene_name='kidney'
     from endoscopic_tissue.native_backend import NativeTissue
-    from endoscopic_tissue.scenario import SCISSORS_SCENES,Command,interpolate
+    from endoscopic_tissue.scenario import SCISSORS_SCENES,Command,interpolate,scissors_settings
     if a.adaptive_grasp:
         if a.settle_steps or a.bite_inset_mm:raise ValueError('Test the adaptive protocol independently of position/fixed-duration variants')
         from endoscopic_tissue import training
@@ -52,10 +70,11 @@ def main():
     from endoscopic_tissue.training.data import atomic_json
     output=ROOT/'outputs'/a.name;output.mkdir(exist_ok=False)
     (output/'driver.py').write_bytes(Path(__file__).read_bytes())
+    if a.scene=='kidney65':(output/'scene-helper.py').write_bytes((ROOT/'scene_config.py').read_bytes())
     controls=ROOT/'controls'/a.name;controls.mkdir(exist_ok=False)
     guard=GPUReservation(GPU,controls)
     env=view=writer=None;rows=[];native_calls=[]
-    record=dict(passed=False,completed=False,scope='One strict wall-traction pilot; not the 900-trial S16d matrix',
+    record=dict(passed=False,completed=False,scope=f'One strict {a.scene} pilot; not the 900-trial S16d matrix',
                 gpu_uuid=GPU,arguments=vars(a),contact_model=1,default_replaced=False,full_surface_checks=True,
                 timing_scope='LCS_Step wall time only; video and QA excluded; initial zero-gravity setup excluded from frame means')
     original_step,original_check=NativeTissue.step,NativeTissue.check
@@ -63,13 +82,15 @@ def main():
         start=time.perf_counter();result=original_check(self,name,*values)
         if name=='LCS_Step':native_calls.append((time.perf_counter()-start)*1000)
         return result
-    scene=SCISSORS_SCENES['wall-traction']
-    if a.bite_inset_mm or a.settle_steps or a.open_jaw_preparation:
+    scene=SCISSORS_SCENES[scene_name]
+    if a.bite_inset_mm or a.bite_forward_mm or a.bite_lower_mm or a.settle_steps or a.open_jaw_preparation:
         stages=[];inside=False
         for stage in scene.stages:
             inside|=stage.name=='bite'
             command=stage.command
-            if inside:command=replace(command,hinge=tuple(np.asarray(command.hinge)-np.array([a.bite_inset_mm*.1,0,0])))
+            if inside:
+                delta=np.asarray(scissors_settings().jaw_axis)*(a.bite_forward_mm*.1)-np.array([a.bite_inset_mm*.1,a.bite_lower_mm*.1,0])
+                command=replace(command,hinge=tuple(np.asarray(command.hinge)+delta))
             if a.open_jaw_preparation:command=replace(command,closure=0.)
             changed=replace(stage,command=command)
             if stage.name=='lift' and a.settle_steps:
@@ -78,13 +99,16 @@ def main():
         scene=replace(scene,stages=tuple(stages))
         # The adapter/geometry alias this same dictionary. Keep settings and
         # acceptance thresholds frozen; the full changed command log is saved.
-        SCISSORS_SCENES['wall-traction']=scene
-        record['control_preparation_variant']=dict(bite_and_later_x_offset_mm=-a.bite_inset_mm,stationary_closed_settle_steps=a.settle_steps,physical_parameters_changed=False)
+        SCISSORS_SCENES[scene_name]=scene
+        record['control_preparation_variant']=dict(bite_and_later_x_offset_mm=-a.bite_inset_mm,
+            bite_and_later_y_offset_mm=-a.bite_lower_mm,
+            bite_and_later_jaw_axis_offset_mm=a.bite_forward_mm,jaw_axis=list(scissors_settings().jaw_axis),
+            stationary_closed_settle_steps=a.settle_steps,physical_parameters_changed=False)
         if a.open_jaw_preparation:record['control_preparation_variant']['jaws_always_open']=True
     endpoints=[];n=0
     for stage in scene.stages:
         n+=stage.steps;endpoints.append((n,stage.name))
-    preparation_end=next(end for end,label in endpoints if label==('lift' if a.preparation=='held' else 'blade_approach'))
+    preparation_end=next(end for end,label in endpoints if label=={'grasped':'close','held':'lift','cut_ready':'blade_approach'}[a.preparation])
     def stepped(self,command):
         nonlocal view,writer
         guard({os.getpid()});start=len(native_calls)
@@ -100,8 +124,8 @@ def main():
             import cv2
             if view is None:
                 from endoscopic_tissue.rendering import EndoscopicView
-                view=EndoscopicView(self.settings,1280,960,False,supersample=1,camera=scene.shot,
-                    gpu_postprocess=True,gpu_aligned_depth=True,fused_mesh=True,persistent_soup=True)
+                view=(view_factory or EndoscopicView)(self.settings,1280,960,False,supersample=1,camera=scene.shot,
+                    kidney=scene.shape,gpu_postprocess=True,gpu_aligned_depth=True,fused_mesh=True,persistent_soup=True,**view_options)
                 writer=cv2.VideoWriter(str(output/'interactions.mp4'),cv2.VideoWriter_fourcc(*'mp4v'),1/self.settings.dt,(1280,960))
                 if not writer.isOpened():raise RuntimeError('Could not open complete interaction video')
             view.update(self.surface(),observed);frame,_=view.render();writer.write(frame)
@@ -123,8 +147,8 @@ def main():
         physics=None if a.mu is None else PhysicsOverrides(grasp_friction=a.mu)
         acquisition=dict(acquisition_max_steps=180,acquisition_stable_steps=5) if a.adaptive_grasp else {}
         config=EnvironmentConfig(str(library),digest,ActionBounds(tuple(lo),tuple(hi),(10.,)*11),
-            SceneConfig('wall-traction',a.preparation,contact_model=1,physics=physics,**acquisition),
-            max_steps=120,cutting_enabled=False,full_surface_checks=True,gpu_topology_checks=True)
+            SceneConfig(scene_name,a.preparation,contact_model=1,physics=physics,**acquisition),
+            max_steps=900 if a.task=='roundtrip' else 120,cutting_enabled=False,full_surface_checks=True,gpu_topology_checks=True)
         env=NativeEnvironment(config)
         import inspect
         adapter_source=Path(inspect.getfile(NativeEnvironment)).read_bytes()
@@ -142,6 +166,8 @@ def main():
             record.update(negative_control_passed=False,failure='Open-jaw preparation incorrectly accepted')
             return 2
         atomic_json(output/'context.json',context);atomic_json(output/'preparation.json',env.preparation)
+        record['material_nodes']=context['material_node_count']
+        if a.scene=='kidney65':assert record['material_nodes']==65688
         record['initial_grasp']=state.metadata['grasp'];assert record['initial_grasp']['friction_hold_evidence']
         witness_ids=np.asarray(record['initial_grasp']['witness_ids'],dtype=np.int64)
         assert len(witness_ids)>0 and np.all((witness_ids>=0)&(witness_ids<len(state.arrays['positions_m'])))
@@ -158,12 +184,26 @@ def main():
             'min':np.min([r['jaw_load_n'] for r in env.preparation[-10:]],axis=0).tolist(),
             'max':np.max([r['jaw_load_n'] for r in env.preparation[-10:]],axis=0).tolist()}
         if a.task=='snapshot':
-            from endoscopic_tissue.training.snapshot import SnapshotBackend
+            from endoscopic_tissue.training.snapshot import SnapshotBackend,EnvSnapshot as PublicEnvSnapshot
             from endoscopic_tissue.training.data import EpisodeWriter,EpisodeReader
             import endoscopic_tissue.training.env as adapter_module
-            record['scope']='One zero-anchor wall preparation: actual adapter binding, snapshot roundtrip, six saved transitions and one-step continuation; not full S15/S16d'
+            record['scope']=f'One zero-anchor {a.scene} preparation: actual adapter binding, snapshot roundtrip, six saved transitions and one-step continuation; not full S15/S16d'
             snapshot=env.snapshot();snapshot.save(output/'held.snapshot')
             record['snapshot_python_source_binding']=snapshot.metadata['python_source_sha256']
+            if a.snapshot_buffer_check:
+                from endoscopic_tissue.training.kidney_snapshot import SnapshotBackend as OwnedBufferBackend
+                api=OwnedBufferBackend(env.native);timings=[]
+                for repeat in range(3):
+                    started=time.perf_counter();reference=SnapshotBackend(env.native).save()
+                    original_ms=(time.perf_counter()-started)*1000
+                    started=time.perf_counter();candidate=api.save_buffer()
+                    owned_ms=(time.perf_counter()-started)*1000
+                    assert candidate.dtype==np.uint8 and candidate.ndim==1 and candidate.flags.c_contiguous and not candidate.flags.writeable
+                    assert candidate.nbytes==len(reference)
+                    assert hashlib.sha256(candidate).digest()==hashlib.sha256(reference).digest(), 'Owned archive buffer differs from original ABI bytes'
+                    timings.append(dict(original_ms=original_ms,owned_buffer_ms=owned_ms,bytes=candidate.nbytes,sha256=hashlib.sha256(candidate).hexdigest()))
+                    del reference,candidate
+                record['native_save_buffer_comparisons']=timings
             saved_path=adapter_module.__file__
             try:
                 # Mutate only this process's declared module origin; actual
@@ -175,8 +215,12 @@ def main():
             finally:adapter_module.__file__=saved_path
             record['wrong_adapter_source_rejected']=rejected
             assert rejected, 'Snapshot accepted a different active training adapter source'
-            loaded=type(snapshot).load(output/'held.snapshot',dll_sha256=digest,
+            own_loaded=type(snapshot).load(output/'held.snapshot',dll_sha256=digest,
                 physics_config_sha256=snapshot.metadata['physics_config_sha256'])
+            loaded=PublicEnvSnapshot.load(output/'held.snapshot',dll_sha256=digest,
+                physics_config_sha256=snapshot.metadata['physics_config_sha256'])
+            assert own_loaded.sha256==loaded.sha256
+            record['public_snapshot_loader_used']=True
             assert loaded.sha256==snapshot.sha256
             assert SnapshotBackend(env.native).save()==snapshot.native_bytes(), 'Native save-load-save changed state'
             record['snapshot_file_hash_verified']=True
@@ -203,6 +247,15 @@ def main():
             return 0
         start=replace(Command(**env.preparation[-1]['requested_command_native']),scissors_cutting=False)
         directions=dict(plusx=(1,0,0),minusx=(-1,0,0),plusy=(0,1,0),plusz=(0,0,1),minusz=(0,0,-1))
+        if a.task=='roundtrip':
+            from friction_roundtrip import run as roundtrip
+            helper=ROOT/'friction_roundtrip.py'
+            (output/'roundtrip-helper.py').write_bytes(helper.read_bytes())
+            record['roundtrip_helper_sha256']=hashlib.sha256(helper.read_bytes()).hexdigest()
+            proof=roundtrip(env,start,directions[a.direction],a.dose_mm,output,regrasp_lower_mm=a.regrasp_lower_mm)
+            record.update(roundtrip=proof,passed=proof['passed'],completed=proof['passed'],
+                final_grasp=env.state.metadata['grasp'])
+            return 0 if record['passed'] else 2
         target=(replace(start,closure=0) if a.task=='release' else
                 replace(start,hinge=tuple(np.asarray(start.hinge)+np.asarray(directions[a.direction])*(a.dose_mm*.1))))
         results=[]
@@ -243,6 +296,8 @@ def main():
         record['error']=repr(error);raise
     finally:
         NativeTissue.check,NativeTissue.step=original_check,original_step
+        if env is not None and getattr(env,'settings',None) is not None:record['executed_settings']=asdict(env.settings)
+        if env is not None and getattr(env,'grid',None) is not None:record['material_nodes']=int(env.grid.inside.sum())
         if env is not None:env.close()
         if writer is not None:writer.release()
         if view is not None:view.close()

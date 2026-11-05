@@ -279,10 +279,21 @@ class SnapshotBackend:
         return size.value
 
     def save(self):
+        # Compatibility API for callers needing immutable native archive bytes.
+        return self.save_buffer().tobytes()
+
+    def save_buffer(self):
+        """Own a complete read-only archive without zero-fill or a second copy.
+
+        The pinned native ABI writes every byte and checks its final extent
+        before returning success. A failed call discards this private buffer;
+        no partially initialized array reaches compression or the caller.
+        """
         size = self.size()
-        buffer = ct.create_string_buffer(size)
-        self.check('LCS_SaveState', buffer, size)
-        return buffer.raw
+        buffer = np.empty(size,dtype=np.uint8)
+        self.check('LCS_SaveState', buffer.ctypes.data, size)
+        buffer.flags.writeable=False
+        return buffer
 
     def load(self, data):
         self.check('LCS_LoadState', ct.c_char_p(data), len(data))
@@ -339,7 +350,9 @@ def take_snapshot(env):
                 task=None if env.task is None else env.task.__dict__)
     if data['task'] is not None and set(data['task']) != TASK_FIELDS:
         raise RuntimeError('Task state inventory changed; snapshot codec review required')
-    native = backend.save()
+    # zstd accepts this owned contiguous buffer directly. Preserve the native
+    # wire bytes, checksum, full inventory and compression settings unchanged.
+    native = backend.save_buffer()
     python = encode_python(data)
     vision = getattr(env, '_snapshot_vision', None)
     compressor = zstd.ZstdCompressor(level=1)
@@ -358,7 +371,8 @@ def take_snapshot(env):
 
 def restore_snapshot(env, snapshot, *, branch_label=None, goal=KEEP_TASK):
     from .env import State
-    if not isinstance(snapshot, EnvSnapshot):
+    from .snapshot import EnvSnapshot as PublicEnvSnapshot
+    if not isinstance(snapshot, (EnvSnapshot,PublicEnvSnapshot)):
         raise TypeError('Expected immutable EnvSnapshot')
     if env.native is None or env.context is None or getattr(env, '_step_in_progress', False):
         raise RuntimeError('Restore requires an initialized session at a completed step boundary')

@@ -1,0 +1,115 @@
+{
+  "passed": false,
+  "completed": false,
+  "scope": "One strict kidney65 pilot; not the 900-trial S16d matrix",
+  "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "arguments": {
+    "library": "r33-packed-mg",
+    "name": "friction-kidney65-grasped-plusy4-02",
+    "scene": "kidney65",
+    "preparation": "grasped",
+    "task": "dose",
+    "direction": "plusy",
+    "dose_mm": 4.0,
+    "mu": null,
+    "bite_inset_mm": 0.0,
+    "bite_forward_mm": 0.0,
+    "bite_lower_mm": 0.0,
+    "settle_steps": 0,
+    "adaptive_grasp": true,
+    "open_jaw_preparation": false,
+    "snapshot_buffer_check": false,
+    "seed": 0,
+    "no_video": false
+  },
+  "contact_model": 1,
+  "default_replaced": false,
+  "full_surface_checks": true,
+  "timing_scope": "LCS_Step wall time only; video and QA excluded; initial zero-gravity setup excluded from frame means",
+  "library_sha256": "d00c8db6ca68496d134b32a4fba7348ddedb795a551ff0fe94dd1208de54f7e8",
+  "egl_binding": {
+    "egl_index": 1,
+    "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+  },
+  "training_adapter_sha256": "c4e37c2186c52d7e4de6c3a1e0bd8ab2f66adc45f4d739fe5c2b6fbc5cefcbe1",
+  "failure": "GRASP-01",
+  "executed_settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 1
+  },
+  "material_nodes": 65688,
+  "frames": 390,
+  "all_anchor_counts_zero": true,
+  "native_ms": {
+    "mean": 31.161475428141273,
+    "p95": 36.12236878252588,
+    "max": 36.96047991979867
+  },
+  "sliding_is_not_a_solver_failure": true,
+  "run": "friction-kidney65-grasped-plusy4-02",
+  "reset_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": true,
+    "between_pads_material_nodes": 0,
+    "witness_ids": [],
+    "witness_retained_fraction": 0.0,
+    "witness_tangential_slip_m": 0.0,
+    "witness_mean_lift_m": 0.0,
+    "geometric_loaded_hold": false,
+    "friction_hold_evidence": false,
+    "anchor_points": 0
+  },
+  "reset_last_jaw_load_n": [
+    0.20062671601772308,
+    0.12390653043985367
+  ],
+  "preparation_steps": 390,
+  "source_sha256": {
+    "result.json": "f1b7209c677445ae3158babc73635129a7d6d34abf647b1a16135fef93a5a90f",
+    "driver.py": "938e156bd71cd5386d19b6a26f124871d75a80116413b0310b4f1495cdda9356",
+    "training-adapter.py": "c4e37c2186c52d7e4de6c3a1e0bd8ab2f66adc45f4d739fe5c2b6fbc5cefcbe1",
+    "interactions.mp4": "e836f9d60dcd8fa290e64e0017f3847c3679b7c12cb7b11a0d27623d0646cec3",
+    "frame-timing.json": "7528e34a76a19365b9b2028b2602bd82e2cd6aafc616c4c73b2c2bd5643a0337"
+  },
+  "not_full_s16d_matrix": true
+}

@@ -1,0 +1,141 @@
+{
+  "passed": false,
+  "completed": false,
+  "scope": "One strict kidney65 pilot; not the 900-trial S16d matrix",
+  "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "arguments": {
+    "library": "r33-packed-mg",
+    "name": "friction-kidney65-lower1-plusy-01",
+    "scene": "kidney65",
+    "preparation": "held",
+    "task": "dose",
+    "direction": "plusy",
+    "dose_mm": 4.0,
+    "mu": null,
+    "bite_inset_mm": 0.0,
+    "bite_forward_mm": 0.0,
+    "bite_lower_mm": 1.0,
+    "settle_steps": 0,
+    "adaptive_grasp": true,
+    "open_jaw_preparation": false,
+    "snapshot_buffer_check": false,
+    "seed": 0,
+    "no_video": false
+  },
+  "contact_model": 1,
+  "default_replaced": false,
+  "full_surface_checks": true,
+  "timing_scope": "LCS_Step wall time only; video and QA excluded; initial zero-gravity setup excluded from frame means",
+  "control_preparation_variant": {
+    "bite_and_later_x_offset_mm": -0.0,
+    "bite_and_later_y_offset_mm": -1.0,
+    "bite_and_later_jaw_axis_offset_mm": 0.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "stationary_closed_settle_steps": 0,
+    "physical_parameters_changed": false
+  },
+  "library_sha256": "d00c8db6ca68496d134b32a4fba7348ddedb795a551ff0fe94dd1208de54f7e8",
+  "egl_binding": {
+    "egl_index": 1,
+    "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+  },
+  "training_adapter_sha256": "5c2b54ac63439fab494c8cddab76f4ba9a625e97638f73488bb65f3b274be703",
+  "failure": "GRASP-01",
+  "executed_settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 1
+  },
+  "material_nodes": 65688,
+  "frames": 510,
+  "all_anchor_counts_zero": true,
+  "native_ms": {
+    "mean": 27.143248715255336,
+    "p95": 36.361965123796836,
+    "max": 39.43992906715721
+  },
+  "sliding_is_not_a_solver_failure": true,
+  "run": "friction-kidney65-lower1-plusy-01",
+  "reset_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": false,
+    "between_pads_material_nodes": 0,
+    "witness_ids": [
+      114248,
+      114249,
+      121314,
+      121408,
+      121409,
+      121410,
+      121411,
+      128570,
+      128571,
+      128572,
+      135731,
+      135732,
+      135733
+    ],
+    "witness_retained_fraction": 0.0,
+    "witness_tangential_slip_m": 0.01251696976951348,
+    "witness_mean_lift_m": 0.0037301084958016872,
+    "geometric_loaded_hold": false,
+    "friction_hold_evidence": false,
+    "anchor_points": 0
+  },
+  "reset_last_jaw_load_n": [
+    0.0,
+    0.0
+  ],
+  "preparation_steps": 510,
+  "source_sha256": {
+    "result.json": "0c6e67bb7c8059c0d77fd85b216870204705b40841c4103950aea946310350fa",
+    "driver.py": "adf2feac0f811b9c3156ae5a6415829f246f4db4d1fb26392d5bbcd3f6a32a65",
+    "training-adapter.py": "5c2b54ac63439fab494c8cddab76f4ba9a625e97638f73488bb65f3b274be703",
+    "interactions.mp4": "3b58d98983273a6a91bc5533d9d8b1f381827a8cab8ce6a3fdc16ffaa1adfccc",
+    "frame-timing.json": "6986a7fdc59e44602d610f67004c469ab119548ef36c85aa4a5db07e19bd73ea"
+  },
+  "not_full_s16d_matrix": true
+}

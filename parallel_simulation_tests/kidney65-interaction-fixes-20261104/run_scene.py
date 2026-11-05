@@ -46,7 +46,10 @@ def main():
     parser.add_argument('--mg-probe',action='store_true',help='Read-only full/packed Galerkin comparisons; not a production FPS run')
     parser.add_argument('--interaction-counters',action='store_true',help='Read/reset existing counters at stage boundaries; diagnostic run, no physics changes')
     parser.add_argument('--free-mg-probe',action='store_true',help='Private original/free-only complete preconditioner comparisons; diagnostic run')
+    parser.add_argument('--coarse-proof',action='store_true',help='Existing actual-kernel coarse term/bound validation; diagnostic, not normal FPS')
     args = parser.parse_args()
+    if args.coarse_proof and (os.name=='nt' or args.native_only or not args.guard):
+        parser.error('Coarse proof requires guarded server stage recording')
     driver_inputs={name:(ROOT/name).read_bytes() for name in ('run_scene.py','scene_config.py','training_stress.py','envelope_audit.py')}
     if (args.stencil_probe or args.mg_probe or args.free_mg_probe) and (os.name=='nt' or args.native_only):parser.error('Operator comparisons require server stage recording')
     if sum((args.stencil_probe,args.mg_probe,args.free_mg_probe))>1:parser.error('Test each operator experiment independently')
@@ -171,7 +174,12 @@ def main():
 
         def check(self, name, *values):
             if name != "LCS_Step":
-                return original_check(self, name, *values)
+                result=original_check(self, name, *values)
+                if args.coarse_proof and name=='LCS_Finalize' and not getattr(self,'_coarse_proof_enabled',False):
+                    enable=native.LCS_BatchQueryValidate;enable.argtypes=[ctypes.c_int];enable.restype=ctypes.c_int
+                    assert enable(1)==0, 'Existing same-input coarse validator could not start'
+                    self._coarse_proof_enabled=True
+                return result
             begin = time.perf_counter()
             result = original_check(self, name, *values)
             frame["native_ms"] = (time.perf_counter() - begin) * 1000
@@ -201,6 +209,22 @@ def main():
             return result
 
         run.Recording.after_step = record
+        if args.coarse_proof:
+            read_coarse=native.LCS_CoarseBoundCacheStats
+            read_coarse.argtypes=[ctypes.c_void_p];read_coarse.restype=ctypes.c_int
+            coarse_before_stage=run.Recording.after_stage;coarse_proofs=[]
+            def coarse_stage(self,flow,stage,surface):
+                coarse_before_stage(self,flow,stage,surface)
+                values=(ctypes.c_ulonglong*8)();assert read_coarse(values)==0
+                coarse_proofs.append(dict(stage=stage,raw=list(values),
+                    terms_checked=values[0],term_target_differences=values[1],term_float_differences=values[2],
+                    bounds_checked=values[3],bound_target_differences=values[4],bound_float_differences=values[5],
+                    active_bounds=values[6],nontrivial_bounds=values[7]))
+                (output/'coarse-proofs.json').write_text(json.dumps(coarse_proofs,indent=2)+'\n')
+                assert values[0]>0 and values[3]>0, 'Coarse validator did not observe actual terms/bounds'
+                assert values[1]==values[2]==values[4]==values[5]==0, 'Actual cached coarse terms differ from complete reference'
+            run.Recording.after_stage=coarse_stage
+            metadata['coarse_proofs_in_run']=True
         if args.interaction_counters:
             read_stats=native.LCS_ReadInteractionStats
             read_stats.argtypes=[ctypes.c_void_p,ctypes.c_int,ctypes.c_int];read_stats.restype=ctypes.c_int

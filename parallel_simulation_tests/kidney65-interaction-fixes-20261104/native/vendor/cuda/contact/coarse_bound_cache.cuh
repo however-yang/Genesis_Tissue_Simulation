@@ -140,7 +140,14 @@ static void launchCoarseAccumulateCache(int blocks,cudaStream_t stream,const Uni
     auto terms=coarseCacheForStream(stream);int k=stream?1:0;
     if(!terms)k_CoarseAccumulate<<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse);
     else {
-        if(g_runtimeCoarseBlocks==3)k_CoarseOccupancyBoundCache<3><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
+        if(g_runtimeCoarseBlocks==3){
+#ifdef ENDO_KIDNEY_SPLIT_COARSE
+            k_CoarseMaterialBoundCache<3><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
+            k_CoarseContactBoundCache<<<128,64,0,stream>>>(state,coarse);
+#else
+            k_CoarseOccupancyBoundCache<3><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
+#endif
+        }
         else k_CoarseAccumulateBoundCache<<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
         if(g_queryValidate)k_CompareCoarseCacheTerms<false><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,d_coarseActualValues[k],d_coarseActualTargets[k],d_coarseBoundStats);
     }

@@ -1,0 +1,200 @@
+{
+  "passed": true,
+  "completed": true,
+  "scope": "One strict kidney65 pilot; not the 900-trial S16d matrix",
+  "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "arguments": {
+    "library": "r33-packed-mg",
+    "name": "friction-kidney65-grasped-lower2-plusy4-01",
+    "scene": "kidney65",
+    "preparation": "grasped",
+    "task": "dose",
+    "direction": "plusy",
+    "dose_mm": 4.0,
+    "mu": null,
+    "bite_inset_mm": 0.0,
+    "bite_forward_mm": 0.0,
+    "bite_lower_mm": 2.0,
+    "settle_steps": 0,
+    "adaptive_grasp": true,
+    "open_jaw_preparation": false,
+    "snapshot_buffer_check": false,
+    "seed": 0,
+    "no_video": false
+  },
+  "contact_model": 1,
+  "default_replaced": false,
+  "full_surface_checks": true,
+  "timing_scope": "LCS_Step wall time only; video and QA excluded; initial zero-gravity setup excluded from frame means",
+  "control_preparation_variant": {
+    "bite_and_later_x_offset_mm": -0.0,
+    "bite_and_later_y_offset_mm": -2.0,
+    "bite_and_later_jaw_axis_offset_mm": 0.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "stationary_closed_settle_steps": 0,
+    "physical_parameters_changed": false
+  },
+  "library_sha256": "d00c8db6ca68496d134b32a4fba7348ddedb795a551ff0fe94dd1208de54f7e8",
+  "egl_binding": {
+    "egl_index": 1,
+    "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+  },
+  "training_adapter_sha256": "c4e37c2186c52d7e4de6c3a1e0bd8ab2f66adc45f4d739fe5c2b6fbc5cefcbe1",
+  "material_nodes": 65688,
+  "initial_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": true,
+    "between_pads_material_nodes": 16,
+    "witness_ids": [
+      107087,
+      107088,
+      114153,
+      114248,
+      114249,
+      121314,
+      121315,
+      121408,
+      121409,
+      121410,
+      128475,
+      128476,
+      128570,
+      128571,
+      135731,
+      135732
+    ],
+    "witness_retained_fraction": 1.0,
+    "witness_tangential_slip_m": 1.97471212684629e-05,
+    "witness_mean_lift_m": -1.3589859008789062e-05,
+    "geometric_loaded_hold": true,
+    "friction_hold_evidence": true,
+    "anchor_points": 0
+  },
+  "consecutive_five_steps_verified": true,
+  "acquisition_stationary_steps": 5,
+  "preparation_last10_jaw_load_range_n": {
+    "min": [
+      0.7095134854316711,
+      0.695306122303009
+    ],
+    "max": [
+      1.0706602334976196,
+      0.9654346108436584
+    ]
+  },
+  "final_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": true,
+    "between_pads_material_nodes": 12,
+    "witness_ids": [
+      107087,
+      107088,
+      114153,
+      114248,
+      114249,
+      121314,
+      121315,
+      121408,
+      121409,
+      121410,
+      128475,
+      128476,
+      128570,
+      128571,
+      135731,
+      135732
+    ],
+    "witness_retained_fraction": 0.75,
+    "witness_tangential_slip_m": 0.0003289247904514177,
+    "witness_mean_lift_m": 0.0034941111225634813,
+    "geometric_loaded_hold": true,
+    "friction_hold_evidence": true,
+    "anchor_points": 0
+  },
+  "hold_evidence_at_end": true,
+  "witness_mean_displacement_mm": [
+    0.15783053822815418,
+    3.507699817419052,
+    0.0014087054296396673
+  ],
+  "grasper_displacement_mm": [
+    0.06671063601970673,
+    3.807108849287033,
+    0.0
+  ],
+  "max_witness_tangential_slip_mm": 0.3289247904514177,
+  "minimum_witness_retained_fraction": 0.75,
+  "first_loss_of_friction_evidence_tick": null,
+  "first_majority_witness_exit_tick": null,
+  "witness_mean_lift_change_mm": 3.5077009815722704,
+  "executed_settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 1
+  },
+  "frames": 335,
+  "all_anchor_counts_zero": true,
+  "native_ms": {
+    "mean": 31.22466198696908,
+    "p95": 37.989559257403016,
+    "max": 40.14108900446445
+  },
+  "sliding_is_not_a_solver_failure": true,
+  "run": "friction-kidney65-grasped-lower2-plusy4-01",
+  "source_sha256": {
+    "result.json": "55bba5d43554154c9dd3553b56a2d3538324f9bccd001cd496789b6f7655592a",
+    "driver.py": "938e156bd71cd5386d19b6a26f124871d75a80116413b0310b4f1495cdda9356",
+    "training-adapter.py": "c4e37c2186c52d7e4de6c3a1e0bd8ab2f66adc45f4d739fe5c2b6fbc5cefcbe1",
+    "dose-steps.json": "ad86d0e78ed9166ff64eb7d6dbe76fd7e5d68bf3e8a845057936c7cda5d787c7",
+    "interactions.mp4": "eaf7964ca4d13459d8bc8dafb6b14c04dbf10b7f226451d63d5867129152c6a2",
+    "frame-timing.json": "eee9a418d96a09c81e7770ca4458e6905d854c636719b524f528dfd4dc7b10c0",
+    "preparation.json": "dbacc44b24aeff6aca78a423d0dd5a40f74157b3075d57aece5b44217e181f24",
+    "context.json": "064a86298bdf3f397b86ae89827b5dc753a228c7b567ecca0cbd2aa790e62986"
+  },
+  "not_full_s16d_matrix": true
+}
