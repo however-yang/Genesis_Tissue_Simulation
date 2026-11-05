@@ -317,6 +317,10 @@ extern "C" int xpbd_set_coarse_bound_cache(int);
 extern "C" int xpbd_coarse_bound_stats(unsigned long long*);
 LCS_API int LCS_SetCoarseBoundCache(int enabled){return xpbd_set_coarse_bound_cache(enabled);}
 LCS_API int LCS_CoarseBoundCacheStats(unsigned long long* values){return xpbd_coarse_bound_stats(values);}
+#ifdef ENDO_KIDNEY_DEFER_SHELL
+extern "C" int cut_read_shell_work(unsigned long long*);
+LCS_API int LCS_ReadShellWork(unsigned long long* values){return cut_read_shell_work(values);}
+#endif
 
 extern "C" int xpbd_query_order_probe(int,unsigned,int,const int*,const int*,int,int*);
 LCS_API int LCS_QueryOrderProbe(int stride,unsigned packed,int kinds,const int* reference,const int* candidate,int count,int* out){return xpbd_query_order_probe(stride,packed,kinds,reference,candidate,count,out);}

@@ -3373,7 +3373,7 @@ extern "C" int xpbd_relax_reconstructed_contact(){
 
 
 static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepTool,bool componentsFresh){
-    cudaError_t e=ensureCoarseBoundCache(g_T);if(e!=cudaSuccess)return -(int)e;
+    cudaError_t e=ensureCoarseBoundCache(g_T,g_N);if(e!=cudaSuccess)return -(int)e;
     if(g_blade.enabled){
         e=allocateBlade();if(e!=cudaSuccess)return -(int)e;
         if(g_substepIndex==1)cudaMemsetAsync(d_bladeResult,0,6*sizeof(float));
@@ -4457,6 +4457,14 @@ extern "C" int xpbd_query_threads(int threads){
 }
 
 extern "C" int xpbd_set_coarse_bound_cache(int enabled){if(g_ready || (enabled!=0 && enabled!=1))return -10011;g_coarseBoundCacheEnabled=enabled;return 0;}
+#ifdef ENDO_KIDNEY_SECONDARY_PRESSURE_COUNT
+extern "C" LCS_COMBINED_EXPORT int LCS_ReadSecondaryPressureTerms(unsigned long long* out,int reset){
+    if(!out || (reset!=0 && reset!=1))return -10019;
+    cudaError_t e=cudaMemcpyFromSymbol(out,g_secondaryPressureTerms,sizeof(*out));
+    if(e==cudaSuccess && reset){unsigned long long zero=0;e=cudaMemcpyToSymbol(g_secondaryPressureTerms,&zero,sizeof(zero));}
+    return -(int)e;
+}
+#endif
 #include "../training/kidney_contact_probe.cuh"
 #ifdef ENDO_KIDNEY_FREE_ONLY_MG
 #include "../training/free_multigrid_probe.cuh"

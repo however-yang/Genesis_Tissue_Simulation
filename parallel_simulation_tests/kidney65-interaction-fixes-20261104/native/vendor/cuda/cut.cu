@@ -130,6 +130,14 @@ static unsigned long long* d_shellOwner=nullptr;
 static int* d_shellChanged=nullptr;
 static unsigned char* d_shellReleased=nullptr;
 static unsigned g_shellRevision=0;
+#ifdef ENDO_KIDNEY_DEFER_SHELL
+static unsigned long long g_shellWork[3]={};  // deferred, propagated, fixed-point passes
+extern "C" int cut_read_shell_work(unsigned long long* values){
+    if(!values)return -3211;
+    for(int i=0;i<3;i++)values[i]=g_shellWork[i];
+    return 0;
+}
+#endif
 extern "C" int xpbd_blade_sweep_count();
 // Geometry immediately before this pressure gesture first contacted tissue.
 // The blade can push the skin ahead of its centreline without crossing it.
@@ -1462,7 +1470,23 @@ int cut_ribbon_tick()
     k_SeverLinks<<<Gc(gec), 64>>>(gec, g_cdims, d_gridEdges, d_voxelCutMask, c_nbrIdx, c_bendPairs, d_topologyRevision);
     unsigned shellRevision=g_shellRevision;
     if(scissors){cudaError_t err=cudaMemcpy(&shellRevision,d_topologyRevision,sizeof(unsigned),cudaMemcpyDeviceToHost);if(err!=cudaSuccess)return -(int)err;}
-    if(scissors && shellRevision!=g_shellRevision){
+    bool staleShell=scissors && shellRevision!=g_shellRevision;
+#ifdef ENDO_KIDNEY_DEFER_SHELL
+    int currentPhase=BladePressing;
+    if(staleShell){
+        cudaError_t err=cudaMemcpy(&currentPhase,phase,sizeof(int),cudaMemcpyDeviceToHost);
+        if(err!=cudaSuccess)return -(int)err;
+        // k_SeverPieceSeams is the only consumer of these scratch labels.
+        // It returns without writing unless this exact predicate is true.
+        // Keep the old revision on defer, so a later blade commit still
+        // computes the full current topology and runs the original seam cut.
+        if(currentPhase!=BladeCutting && currentPhase!=BladeCutExit){
+            staleShell=false;
+            ++g_shellWork[0];
+        }
+    }
+#endif
+    if(staleShell){
         // A cut can force an envelope path to take more than four hops. Stop at
         // a fixed point, not a launch-order-dependent partial propagation. The
         // unchanged topology skips this whole pass, including before incision.
@@ -1483,11 +1507,17 @@ int cut_ribbon_tick()
             k_SpreadShellOwners<<<Gc(cc),64>>>(cc,c_nbrIdx,d_shellOwner,d_shellChanged);
             err=cudaMemcpy(&changed,d_shellChanged,sizeof(int),cudaMemcpyDeviceToHost);if(err!=cudaSuccess)return -(int)err;
         }
+#ifdef ENDO_KIDNEY_DEFER_SHELL
+        ++g_shellWork[1];
+        g_shellWork[2]+=pass;
+#endif
         k_SeverPieceSeams<<<Gc(gec),64>>>(gec,phase,d_gridEdges,g_cdims,g_tool.d,g_cdesc.voxelL,c_cornerPos,c_nbrIdx,c_bendPairs,
             d_shellOwner,d_voxelCutMask,d_voxelOccupied,d_cutPoint,d_cutPointCounter,g_cdesc.cutPointCapacity,c_particleRot,
             d_topologyRevision,d_shellReleased);
         k_SeverLinks<<<Gc(gec),64>>>(gec,g_cdims,d_gridEdges,d_voxelCutMask,c_nbrIdx,c_bendPairs,d_topologyRevision);
+#ifndef ENDO_KIDNEY_DEFER_SHELL
         int currentPhase;err=cudaMemcpy(&currentPhase,phase,sizeof(int),cudaMemcpyDeviceToHost);if(err!=cudaSuccess)return -(int)err;
+#endif
         if(currentPhase==BladeCutting || currentPhase==BladeCutExit){err=cudaMemcpy(&g_shellRevision,d_topologyRevision,sizeof(unsigned),cudaMemcpyDeviceToHost);if(err!=cudaSuccess)return -(int)err;}
     }
 
@@ -1698,6 +1728,9 @@ void cut_shutdown()
     cudaFree(d_pendingCrossings);d_pendingCrossings=nullptr;g_pressureCut=0;
     cudaFree(d_materialPieces);d_materialPieces=nullptr;cudaFree(d_shellOwner);d_shellOwner=nullptr;
     cudaFree(d_shellChanged);d_shellChanged=nullptr;cudaFree(d_shellReleased);d_shellReleased=nullptr;g_shellRevision=0;
+#ifdef ENDO_KIDNEY_DEFER_SHELL
+    for(auto& value:g_shellWork)value=0;
+#endif
     cudaFree(d_gridEdges);       d_gridEdges = nullptr;
     cudaFree(d_prevCorner);      d_prevCorner = nullptr;
     cudaFree(d_trainingTearCause);d_trainingTearCause=nullptr;

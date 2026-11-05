@@ -8,7 +8,7 @@ from dataclasses import asdict, replace
 import numpy as np
 
 
-def run(env, start, direction, dose_mm, output, *, regrasp_lower_mm=0.):
+def run(env, start, direction, dose_mm, output, *, regrasp_lower_mm=0., return_nominal_bite=False):
     from endoscopic_tissue.scenario import interpolate
     from endoscopic_tissue.training.actions import command_to_action
     from endoscopic_tissue.training.data import atomic_json
@@ -69,8 +69,17 @@ def run(env, start, direction, dose_mm, output, *, regrasp_lower_mm=0.):
         material_delta = env.state.arrays['positions_m'][old_ids].mean(axis=0)-old_center
         approach = replace(start,closure=0.,hinge=tuple(np.asarray(start.hinge)+material_delta*100-
             np.array([0,regrasp_lower_mm*.1,0])))
+        if return_nominal_bite:
+            # The old witnesses stay stretched and move away from the first
+            # bite. Align from outside along the original insertion direction
+            # before re-entering the known thicker tissue with open jaws.
+            approach = replace(start, closure=0., hinge=tuple(np.asarray(start.hinge)-
+                np.array([0,regrasp_lower_mm*.1,0])))
+            pre_bite = replace(approach, hinge=tuple(np.asarray(approach.hinge)-axis*.6))
+            stage(pre_bite,60,60,'nominal_bite_align_open')
         report['tracked_return_delta_mm'] = (material_delta*1000).tolist()
         report['additional_return_lower_mm'] = regrasp_lower_mm
+        report['return_nominal_bite'] = return_nominal_bite
         stage(approach,60,60,'tracked_return_open')
         # Preserve the original monitor and all its old-material slip records.
         # This independent read-only monitor certifies a NEW bite only after
@@ -93,6 +102,7 @@ def run(env, start, direction, dose_mm, output, *, regrasp_lower_mm=0.):
         report['second_lift'] = dict(all_friction_evidence=all(r['new_grasp']['friction_hold_evidence'] for r in second),
             material_delta_mm=((env.state.arrays['positions_m'][new_ids].mean(axis=0)-before)*1000).tolist(),
             minimum_retention=min(r['new_grasp']['witness_retained_fraction'] for r in second),
+            first_evidence_loss_tick=next((r['tick'] for r in second if not r['new_grasp']['friction_hold_evidence']),None),
             final_new_grasp=second[-1]['new_grasp'], final_persistent_old_grasp=second[-1]['old_grasp'])
         assert report['second_lift']['all_friction_evidence'], 'Second lift lost strict friction evidence'
         report['passed'] = True

@@ -5,6 +5,12 @@
 // only for rejected components; kernel boundaries preserve the completed full
 // energy reduction. The default evaluates all candidates for equivalence tests.
 __device__ bool pressureLineActive(const UnifiedState& s){
+#ifdef ENDO_KIDNEY_SECONDARY_PRESSURE
+    // Test only the existing regional pressure direction with an attached
+    // grasp. Keep the reference acceptance path for modes 1-4 and for
+    // separated, unconstrained fragments.
+    if(s.coarseMode==5 && s.grips>0 && s.secondary && *s.secondary->contactCount>0)return true;
+#endif
     if(fragmentCoarseEnabled(s) && s.coarseMode>=1 && s.coarseMode<=5)return true;
     return (s.coarseMode==5 || (s.coarseMode>=1 && s.coarseMode<=4 && s.grips==0)) && (s.grips>0 || *s.contactCount>0 || (s.coarseMode>=1 && s.coarseMode<=4)) &&
         (!s.secondary || *s.secondary->contactCount==0);
@@ -101,6 +107,62 @@ __device__ float pressureFrictionEnergy(float distance,float stiffness,float pre
     float boundary=limit/stiffness;if(distance<=boundary)return .5f*stiffness*distance*distance;
     float slip=distance-boundary;return .5f*limit*boundary+pressure*(muD*slip+(muS-muD)*boundary*(1-boundary/distance));
 }
+#ifdef ENDO_KIDNEY_SECONDARY_PRESSURE
+#ifdef ENDO_KIDNEY_SECONDARY_PRESSURE_COUNT
+__device__ unsigned long long g_secondaryPressureTerms=0;
+#endif
+__device__ double pressureNormalEnergy(float depth,float stiffness,float forceCap){
+    if(forceCap>=0 && stiffness>0 && depth>forceCap/stiffness){
+        return double(forceCap)*(depth-.5*forceCap/stiffness);
+    }
+    return .5*double(stiffness)*depth*depth;
+}
+
+// k_BladeCoarse already adds the cutter gradient/curvature when building the
+// direction. Certify the energy of that same fixed-pose cutter contact set
+// before moving its material witnesses. Keep the existing capped edge law,
+// body compliance, damping and frozen-pressure Coulomb line model.
+__device__ void pressureLineSecondary(const UnifiedState& primary,CoarseBlock* blocks,int pass,int start,int stride){
+    if(!primary.secondary || !pressureLineActive(primary))return;
+    const auto& blade=*primary.secondary;
+    for(int i=start;i<*blade.contactCount;i+=stride){
+        const auto& contact=blade.contacts[blade.contactIds[i]];
+        CoarseBlock* block=blocks+primary.component[contact.id[0]];
+        if(pressureLineZeroStep(*block) || (pass==1 && block->gradient.x<=0))continue;
+        float weight=0;
+        for(int j=0;j<contact.count;j++)weight+=contact.weight[j]*primary.coarseWeight[contact.id[j]];
+        if(weight==0)continue;
+        float3 point=unifiedPoint(contact,blade.pos),normal;
+        float gap=unifiedGap(blade,contact,point,normal);
+        float stiffness=unifiedContactStiffness(blade,contact);
+        float damping=unifiedImpactStiffness(blade,contact),effective=stiffness+damping;
+        float dampingShift=damping*unifiedPreviousDepth(contact,normal)/fmaxf(effective,1e-20f);
+        float depth=fmaxf(0.f,-gap-dampingShift);
+        bool yielding=blade.cutPhase && contact.kind<3 && bladeYields(*blade.cutPhase);
+        float cap=yielding?blade.cutResistance*stiffness/blade.contactK:-1.f;
+        float pressure=effective*depth;
+        if(yielding)pressure=fminf(pressure,cap);
+        float3 slip=unifiedSlip(blade,contact,point,normal);
+        double old=pressureNormalEnergy(depth,effective,cap)+
+            pressureFrictionEnergy(len3(slip),stiffness,pressure,blade.muS,blade.muD);
+        float values[3]={};
+        for(int k=pass==1?1:0;k<(pass==0?1:3);k++){
+            float3 displacement=block->step*(ldexpf(block->scale,-k)*weight);
+            float closing=dot3(displacement,normal);
+            float next=fmaxf(0.f,-gap-closing-dampingShift);
+            float3 tangent=slip+displacement-normal*closing;
+            values[k]=float(pressureNormalEnergy(next,effective,cap)+
+                pressureFrictionEnergy(len3(tangent),stiffness,pressure,blade.muS,blade.muD)-old);
+        }
+        pressureLineAdd(block,values);
+#ifdef ENDO_KIDNEY_SECONDARY_PRESSURE_COUNT
+        unsigned mask=__activemask();
+        if((threadIdx.x&31)==__ffs(mask)-1)
+            atomicAdd(&g_secondaryPressureTerms,(unsigned long long)__popc(mask));
+#endif
+    }
+}
+#endif
 __device__ void pressureLineContacts(const UnifiedState& s,CoarseBlock* blocks,int pass,int start,int stride){
     if(!pressureLineActive(s))return;
     for(int i=start;i<max(*s.contactCount,s.grips);i+=stride){
@@ -178,6 +240,9 @@ template<int Pass> __global__ void k_PressureLineMaterialFixed(const UnifiedStat
 template<int Pass> __global__ void k_PressureLineContactFixed(const UnifiedState* state,CoarseBlock* blocks){
     const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
     pressureLineContacts(s,blocks,Pass,t,gridDim.x*blockDim.x);
+#ifdef ENDO_KIDNEY_SECONDARY_PRESSURE
+    pressureLineSecondary(s,blocks,Pass,t,gridDim.x*blockDim.x);
+#endif
     fragmentPressureLineContacts(s,blocks,Pass,t,gridDim.x*blockDim.x);
 }
 #endif
@@ -188,6 +253,9 @@ __global__ void k_PressureLineMaterial(const UnifiedState* state,CoarseBlock* bl
 __global__ void k_PressureLineContact(const UnifiedState* state,CoarseBlock* blocks,int pass){
     const auto& s=*state;int t=blockIdx.x*blockDim.x+threadIdx.x;
     pressureLineContacts(s,blocks,pass,t,gridDim.x*blockDim.x);
+#ifdef ENDO_KIDNEY_SECONDARY_PRESSURE
+    pressureLineSecondary(s,blocks,pass,t,gridDim.x*blockDim.x);
+#endif
     fragmentPressureLineContacts(s,blocks,pass,t,gridDim.x*blockDim.x);
 }
 #endif

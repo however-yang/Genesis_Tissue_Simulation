@@ -10,7 +10,12 @@ import time
 
 ROOT=Path(__file__).resolve().parent
 PREFIX=ROOT.parents[1]/'envs/genesis-py311-cu125-v1'
-parser=argparse.ArgumentParser();parser.add_argument('--label',required=True);parser.add_argument('--trace',action='store_true');parser.add_argument('--precise-coarse',action='store_true');parser.add_argument('--warp-stack',action='store_true');parser.add_argument('--fragment-probe',action='store_true');parser.add_argument('--precise-interaction',action='store_true');parser.add_argument('--warp-scratch',action='store_true');parser.add_argument('--precise-tool',action='store_true');parser.add_argument('--angle-budget',choices=('0.02','0.04'),default='0.02');parser.add_argument('--dipole',action='store_true');parser.add_argument('--stage-trace',action='store_true');parser.add_argument('--precise-line',action='store_true');parser.add_argument('--precise-coarse-warp',action='store_true');parser.add_argument('--precise-mg',action='store_true');parser.add_argument('--mg-warp-reduce',action='store_true');parser.add_argument('--cache-tree-bounds',action='store_true');parser.add_argument('--split-fragment',action='store_true');parser.add_argument('--closed-ray-probe',action='store_true');parser.add_argument('--closed-ray',action='store_true');parser.add_argument('--closed-stats',action='store_true');parser.add_argument('--split-pressure',action='store_true');parser.add_argument('--specialize-pressure',action='store_true');parser.add_argument('--stencil-cache',action='store_true');parser.add_argument('--shared-stencil',action='store_true');parser.add_argument('--packed-mg',action='store_true');parser.add_argument('--pressure-zero',action='store_true');parser.add_argument('--pressure-zero-check',action='store_true');parser.add_argument('--gather-mg',action='store_true');parser.add_argument('--free-only-mg',action='store_true');parser.add_argument('--split-coarse',action='store_true');args=parser.parse_args()
+parser=argparse.ArgumentParser()
+parser.add_argument('--staged-coarse', action='store_true')
+parser.add_argument('--secondary-pressure', action='store_true')
+parser.add_argument('--secondary-pressure-count', action='store_true')
+parser.add_argument('--defer-shell', action='store_true')
+parser.add_argument('--label',required=True);parser.add_argument('--trace',action='store_true');parser.add_argument('--precise-coarse',action='store_true');parser.add_argument('--warp-stack',action='store_true');parser.add_argument('--fragment-probe',action='store_true');parser.add_argument('--precise-interaction',action='store_true');parser.add_argument('--warp-scratch',action='store_true');parser.add_argument('--precise-tool',action='store_true');parser.add_argument('--angle-budget',choices=('0.02','0.04'),default='0.02');parser.add_argument('--dipole',action='store_true');parser.add_argument('--stage-trace',action='store_true');parser.add_argument('--precise-line',action='store_true');parser.add_argument('--precise-coarse-warp',action='store_true');parser.add_argument('--precise-mg',action='store_true');parser.add_argument('--mg-warp-reduce',action='store_true');parser.add_argument('--cache-tree-bounds',action='store_true');parser.add_argument('--split-fragment',action='store_true');parser.add_argument('--closed-ray-probe',action='store_true');parser.add_argument('--closed-ray',action='store_true');parser.add_argument('--closed-stats',action='store_true');parser.add_argument('--split-pressure',action='store_true');parser.add_argument('--specialize-pressure',action='store_true');parser.add_argument('--stencil-cache',action='store_true');parser.add_argument('--shared-stencil',action='store_true');parser.add_argument('--packed-mg',action='store_true');parser.add_argument('--pressure-zero',action='store_true');parser.add_argument('--pressure-zero-check',action='store_true');parser.add_argument('--gather-mg',action='store_true');parser.add_argument('--free-only-mg',action='store_true');parser.add_argument('--split-coarse',action='store_true');args=parser.parse_args()
 assert args.label.replace('-','').replace('_','').isalnum()
 for folder in ('logs','results','binaries','tmp'):(ROOT/folder).mkdir(exist_ok=True)
 library=ROOT/'binaries'/(args.label+'.so');record=ROOT/'results'/('build-'+args.label+'.json')
@@ -24,6 +29,10 @@ available=sorted(os.sched_getaffinity(0));os.sched_setaffinity(0,[v for v in (30
 commands=[[str(PREFIX/'bin/cmake'),'-S',str(source),'-B',str(build),'-DCMAKE_BUILD_TYPE=Release',
            '-DCMAKE_CUDA_COMPILER='+str(PREFIX/'bin/nvcc'),'-DCMAKE_CXX_COMPILER=/usr/bin/g++-12',
            '-DENDO_FRAGMENT_ANGLE_BUDGET='+args.angle_budget,
+           '-DENDO_KIDNEY_STAGED_COARSE='+('ON' if args.staged_coarse else 'OFF'),
+           '-DENDO_KIDNEY_SECONDARY_PRESSURE='+('ON' if args.secondary_pressure else 'OFF'),
+           '-DENDO_KIDNEY_SECONDARY_PRESSURE_COUNT='+('ON' if args.secondary_pressure_count else 'OFF'),
+           '-DENDO_KIDNEY_DEFER_SHELL='+('ON' if args.defer_shell else 'OFF'),
            '-DENDO_KIDNEY_SPLIT_COARSE='+('ON' if args.split_coarse else 'OFF'),
            '-DENDO_KIDNEY_FREE_ONLY_MG='+('ON' if args.free_only_mg else 'OFF'),
            '-DENDO_KIDNEY_GATHER_MG='+('ON' if args.gather_mg else 'OFF'),
@@ -62,6 +71,10 @@ data=dict(label=args.label,returncode=result.returncode,commands=commands,starte
           source_directory=str(source),build_directory=str(build),
           source_sha256={str(p.relative_to(source)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(source.rglob('*')) if p.is_file()})
 data['split_coarse']=args.split_coarse
+data['staged_coarse']=args.staged_coarse
+data['secondary_pressure']=args.secondary_pressure
+data['secondary_pressure_count']=args.secondary_pressure_count
+data['defer_shell']=args.defer_shell
 if result.returncode==0:
     shutil.copy2(build/'lib/libLiverCudaSim.so',library)
     data['sha256']=hashlib.sha256(library.read_bytes()).hexdigest()

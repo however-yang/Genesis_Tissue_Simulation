@@ -7,11 +7,25 @@ static unsigned long long* d_coarseBoundStats=nullptr;
 static float* d_coarseActualValues[2]={};
 static CoarseBlock** d_coarseActualTargets[2]={};
 static cudaStream_t g_coarseBoundCacheStream=nullptr;
-static cudaError_t ensureCoarseBoundCache(int tets){
+#ifdef ENDO_KIDNEY_STAGED_COARSE
+struct CoarsePartial {int root;float values[9];};
+static CoarsePartial* d_coarsePartial[2]={};
+static int g_coarsePartialCapacity=0;
+#endif
+static cudaError_t ensureCoarseBoundCache(int tets,int nodes){
     if(!g_coarseBoundCacheEnabled || tets<=0)return cudaSuccess;
     if(tets<=g_coarseBoundCacheCapacity)return cudaSuccess;
     if(g_coarseBoundCacheCapacity)return cudaErrorInvalidValue; // never free buffers referenced by live graphs
     for(auto& terms:d_coarseBoundTerms){cudaError_t e=queryPrivateAlloc(&terms,(size_t)tets*sizeof(CoarseBoundTerm));if(e!=cudaSuccess)return e;}
+#ifdef ENDO_KIDNEY_STAGED_COARSE
+    // Scheduling-only scratch, like d_coarseBoundTerms. Every launched block
+    // writes its root marker and (if valid) all nine values before the reducer
+    // on the same stream can read them. No cross-step or restored state is
+    // consumed; native restore invalidates the execution graphs as before.
+    int blocks=(nodes+tets+ACCUMULATE_THREADS-1)/ACCUMULATE_THREADS;
+    for(auto& values:d_coarsePartial){cudaError_t e=queryPrivateAlloc(&values,(size_t)blocks*sizeof(CoarsePartial));if(e!=cudaSuccess)return e;}
+    g_coarsePartialCapacity=blocks;
+#endif
     g_coarseBoundCacheCapacity=tets;return cudaSuccess;
 }
 static cudaError_t ensureCoarseBoundStats(){
@@ -24,6 +38,10 @@ static cudaError_t ensureCoarseBoundStats(){
 }
 static void freeCoarseBoundCache(){
     cudaDeviceSynchronize();for(auto& terms:d_coarseBoundTerms){queryPrivateFree(terms);terms=nullptr;}
+#ifdef ENDO_KIDNEY_STAGED_COARSE
+    for(auto& values:d_coarsePartial){queryPrivateFree(values);values=nullptr;}
+    g_coarsePartialCapacity=0;
+#endif
     for(int k=0;k<2;k++){queryPrivateFree(d_coarseActualValues[k]);d_coarseActualValues[k]=nullptr;queryPrivateFree(d_coarseActualTargets[k]);d_coarseActualTargets[k]=nullptr;}
     queryPrivateFree(d_coarseBoundStats);d_coarseBoundStats=nullptr;g_coarseBoundCacheCapacity=0;g_coarseBoundCacheStream=nullptr;
 }
@@ -130,6 +148,9 @@ __global__ void k_CoarseBoundFromCache(const UnifiedState* state,CoarseBlock* bl
     coarseContactBoundTerms(s,blocks,t,gridDim.x*blockDim.x);
 }
 #include "coarse_occupancy.cuh"
+#ifdef ENDO_KIDNEY_STAGED_COARSE
+#include "coarse_staged.cuh"
+#endif
 
 static CoarseBoundTerm* coarseCacheForStream(cudaStream_t stream){
     if(!g_coarseBoundCacheEnabled)return nullptr;
@@ -141,7 +162,12 @@ static void launchCoarseAccumulateCache(int blocks,cudaStream_t stream,const Uni
     if(!terms)k_CoarseAccumulate<<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse);
     else {
         if(g_runtimeCoarseBlocks==3){
-#ifdef ENDO_KIDNEY_SPLIT_COARSE
+#ifdef ENDO_KIDNEY_STAGED_COARSE
+            if(d_coarsePartial[k] && blocks<=g_coarsePartialCapacity){
+                k_CoarseStagedBoundCache<3><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,d_coarsePartial[k],g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
+                k_CoarseAddPartials<<<(blocks+31)/32,32,0,stream>>>(blocks,coarse,d_coarsePartial[k]);
+            }else k_CoarseOccupancyBoundCache<3><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
+#elif defined(ENDO_KIDNEY_SPLIT_COARSE)
             k_CoarseMaterialBoundCache<3><<<blocks,ACCUMULATE_THREADS,0,stream>>>(state,coarse,terms,g_queryValidate?d_coarseActualValues[k]:nullptr,g_queryValidate?d_coarseActualTargets[k]:nullptr);
             k_CoarseContactBoundCache<<<128,64,0,stream>>>(state,coarse);
 #else

@@ -28,7 +28,7 @@ def main():
     p.add_argument('--dose-mm',type=float,default=4.);p.add_argument('--mu',type=float)
     p.add_argument('--bite-inset-mm',type=float,default=0.,help='Explicit control-only variant: shift bite and subsequent grasper targets in -x; no physical parameter changes')
     p.add_argument('--bite-forward-mm',type=float,choices=(0.,.5,1.,2.),default=0.,help='Explicit control-only variant: advance bite and later grasper poses along the actual jaw axis')
-    p.add_argument('--bite-lower-mm',type=float,choices=(0.,1.,2.),default=0.,help='Explicit control-only variant: lower bite and later grasper poses in world Y to capture a thicker tumor cap')
+    p.add_argument('--bite-lower-mm',type=float,choices=(0.,1.,2.,3.),default=0.,help='Explicit control-only variant: lower bite and later grasper poses in world Y to capture a thicker tumor cap')
     p.add_argument('--settle-steps',type=int,choices=(0,30,60,120),default=0,help='Additional closed stationary steps at the end of the original lift ramp')
     p.add_argument('--adaptive-grasp',action='store_true',help='Opt-in isolated preparation: require five consecutive unchanged friction-hold checks, at most 180 stationary steps')
     p.add_argument('--open-jaw-preparation',action='store_true',help='Negative control: keep preparation jaws open; no held state should be accepted')
@@ -36,6 +36,8 @@ def main():
     p.add_argument('--seed',type=int,default=0);p.add_argument('--no-video',action='store_true')
     p.add_argument('--regrasp-lower-mm',type=float,choices=(0.,1.,2.),default=0.,
                    help='Roundtrip only: explicit deeper return pose; all physical parameters stay unchanged')
+    p.add_argument('--return-nominal-bite',action='store_true',
+                   help='Roundtrip only: align outside and re-enter the original thicker bite with open jaws')
     a=p.parse_args()
     if os.name=='nt':p.error('All GPU tests must execute on server A100 GPU1')
     if not all(v.replace('-','').replace('_','').isalnum() for v in (a.library,a.name)):raise ValueError('Invalid label')
@@ -43,6 +45,8 @@ def main():
     if not 0<=a.bite_inset_mm<=1:raise ValueError('Bite inset outside diagnostic 0-1 mm range')
     if a.snapshot_buffer_check and a.task!='snapshot':p.error('Buffer comparison requires --task snapshot')
     if a.regrasp_lower_mm and a.task!='roundtrip':p.error('A deeper return applies only to the explicit roundtrip test')
+    if a.return_nominal_bite and a.task!='roundtrip':
+        p.error('The nominal bite return applies only to the explicit roundtrip test')
     if a.bite_forward_mm and (a.bite_inset_mm or a.settle_steps):p.error('Test forward bite independently of inset/fixed-settle variants')
     if a.bite_lower_mm and (a.bite_forward_mm or a.bite_inset_mm or a.settle_steps):p.error('Test lower bite independently of other position/fixed-settle variants')
     os.environ.update(CUDA_VISIBLE_DEVICES=GPU,PYOPENGL_PLATFORM='egl',OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
@@ -252,7 +256,8 @@ def main():
             helper=ROOT/'friction_roundtrip.py'
             (output/'roundtrip-helper.py').write_bytes(helper.read_bytes())
             record['roundtrip_helper_sha256']=hashlib.sha256(helper.read_bytes()).hexdigest()
-            proof=roundtrip(env,start,directions[a.direction],a.dose_mm,output,regrasp_lower_mm=a.regrasp_lower_mm)
+            proof=roundtrip(env,start,directions[a.direction],a.dose_mm,output,
+                            regrasp_lower_mm=a.regrasp_lower_mm,return_nominal_bite=a.return_nominal_bite)
             record.update(roundtrip=proof,passed=proof['passed'],completed=proof['passed'],
                 final_grasp=env.state.metadata['grasp'])
             return 0 if record['passed'] else 2

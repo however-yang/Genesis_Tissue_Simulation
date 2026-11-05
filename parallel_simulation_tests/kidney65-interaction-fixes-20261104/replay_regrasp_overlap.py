@@ -11,7 +11,7 @@ import time
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'s15_checks'))
 from bootstrap import GPU
-from validation_support import environment,command_sequence
+from validation_support import WallCutMeasure, command_sequence, environment
 from endoscopic_tissue.native_backend import NativeTissue
 from endoscopic_tissue.training.actions import action_to_command
 from endoscopic_tissue.training.kidney_snapshot import EnvSnapshot
@@ -24,18 +24,22 @@ from state_contacts import blade_contacts,deepest_body_sample
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--name',required=True)
     p.add_argument('--source',default='s15-v1-formal20-01-regrasp-02')
+    p.add_argument('--back-clearance-mm',type=float,choices=(0.,.25,.5),default=0.,
+                   help='Diagnostic only: in-plane tool target offset away from the reproduced right-back contact')
     a=p.parse_args()
     if os.name=='nt':p.error('GPU tests run on server A100 GPU1')
     if not all(v.replace('-','').isalnum() for v in (a.name,a.source)):p.error('Use simple labels')
     out=ROOT/'outputs'/a.name;out.mkdir(exist_ok=False)
     for filename in ('replay_regrasp_overlap.py','state_contacts.py'):(out/filename).write_bytes((ROOT/filename).read_bytes())
     original=json.loads((ROOT/'outputs'/a.source/'result.json').read_text())
+    if a.back_clearance_mm and a.source!='s15-v1-formal20-01-regrasp-02':
+        p.error('The clearance direction is measured only for the pinned right-back fixture')
     source=ROOT/'outputs'/a.source/'fork.lcssnap'
     snapshot=EnvSnapshot.load(source,dll_sha256=original['dll_sha256'],
         physics_config_sha256=original['snapshot_metadata']['physics_config_sha256'])
     controls=ROOT/'controls'/a.name;controls.mkdir(exist_ok=False)
     guard=GPUReservation(GPU,controls);env=view=writer=None
-    record=dict(passed=False,diagnostic_reproduced=False,gpu_uuid=GPU,
+    record=dict(passed=False,diagnostic_reproduced=False,gpu_uuid=GPU,back_clearance_mm=a.back_clearance_mm,
         default_replaced=False,source_run=a.source,source_file_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
         scope='Complete saved-fork continuation only; original full-prefix video is retained in the source run',
         timing_scope='LCS_Step only; first-failure archive/CPU inspection is outside native timing')
@@ -62,7 +66,21 @@ def main():
         prior=replace(action_to_command(last_request,cutting_enabled=False),scissors_cutting=False)
         stages=[replace(s,command=replace(s.command,hinge=prior.hinge)) for s in env.scene.stages
                 if s.name in ('reposition_2','incise_2')]
+        if a.back_clearance_mm:
+            evidence_path=ROOT/'outputs/s15-regrasp-exact-replay-03/first-failure.json'
+            evidence=json.loads(evidence_path.read_text())
+            assert evidence['source_file_sha256']==record['source_file_sha256']
+            normal=np.asarray(evidence['nearest_same_body_contacts'][0]['normal'])
+            width=np.cross(env.observed.scissors.axis,env.observed.scissors.normal)
+            normal-=width*np.dot(normal,width)
+            offset=-normal/np.linalg.norm(normal)*a.back_clearance_mm*.1
+            stages=[replace(s,command=replace(s.command,blade_center=tuple(np.asarray(s.command.blade_center)+offset)))
+                    for s in stages]
+            record['in_plane_tool_target_offset_mm']=(offset*10).tolist()
         sequence=command_sequence(stages,prior)
+        measure=WallCutMeasure(env)
+        initial_cut=measure.sample(env)
+        cut_onset=None
         import cv2
         from endoscopic_tissue.rendering import EndoscopicView
         cv2.setNumThreads(1)
@@ -83,6 +101,8 @@ def main():
             quality=result.after.metadata['quality']
             rows.append(dict(tick=env.native.tick,stage=label,stage_step=index,command=asdict(command),
                              quality=quality,native_ms=sum(native_ms[offset:])))
+            if cut_onset is None and measure.sample(env)['material_broken_edges']>initial_cut['material_broken_edges']:
+                cut_onset=len(rows)
             frame()
             if not quality['checked_metrics_passed'] and 'first_failure_tick' not in record:
                 record['first_failure_tick']=env.native.tick
@@ -109,6 +129,20 @@ def main():
             quality_failure_steps=sum(not r['quality']['checked_metrics_passed'] for r in rows),
             peak_body_overlap_mm=max(r['quality']['metrics']['blade_body_overlap_m'] for r in rows)*1000,
             completed_continuation=True,steps=len(rows),video_frames=len(rows)+1)
+        record['outcome']=measure.outcome(initial_cut,measure.sample(env),cut_onset)
+        native_times=[r['native_ms'] for r in rows]
+        record['native_ms']=dict(mean=float(np.mean(native_times)),p95=float(np.percentile(native_times,95)),
+                                 max=float(np.max(native_times)))
+        if a.back_clearance_mm:
+            baseline=original['restored']['outcome']
+            actual=record['outcome']
+            record['cut_screen_passed']=(cut_onset is not None and actual['new_material_edges']>0
+                and abs(actual['delta_length_mm']-baseline['delta_length_mm'])<=.8
+                and abs(cut_onset-baseline['first_new_material_cut_step'])<=5
+                and abs(actual['max_deviation_rest_mm']-baseline['max_deviation_rest_mm'])<=.16)
+            record['passed']=(record['cut_screen_passed'] and record['quality_failure_steps']==0 and
+                all(r['quality']['within_declared_local_scope'] for r in rows))
+            return 0 if record['passed'] else 2
         return 0 if record['diagnostic_reproduced'] else 2
     except BaseException as error:
         record['error']=repr(error);raise

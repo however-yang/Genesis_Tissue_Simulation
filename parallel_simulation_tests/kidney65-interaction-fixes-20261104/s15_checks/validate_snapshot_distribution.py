@@ -5,6 +5,7 @@ Original arms always continue their actual freshly prepared native session.
 """
 import argparse
 import copy
+import ctypes
 from dataclasses import asdict, replace
 import json
 from pathlib import Path
@@ -96,10 +97,16 @@ def paired_run(out, args):
               'gpu_uuid':GPU,
               'full_surface_checks': True, 'original_is_fresh_continuation': True,
               'cached_snapshot': str(args.cache) if args.cache else None}
-    capture = PairedCapture(out, 'wall-traction', args.name) if args.capture else None
+    capture = PairedCapture(out, 'wall-traction', args.name,
+                            cached_arm='restored' if args.fork=='cache' else None) if args.capture else None
     try:
         with environment(dll=args.library,preparation='cut_ready' if args.fork == 'cache' else 'held') as env:
             _, context = env.reset(args.repeat)
+            read_secondary=getattr(env.native.dll,'LCS_ReadSecondaryPressureTerms',None)
+            if read_secondary is not None:
+                read_secondary.argtypes,read_secondary.restype=[ctypes.c_void_p,ctypes.c_int],ctypes.c_int
+                terms=ctypes.c_ulonglong()
+                assert read_secondary(ctypes.byref(terms),1)==0
             atomic_json(out/'parent-context.json', context)
             record['dll_sha256'] = context['dll_sha256']
             preparation = env.preparation
@@ -129,6 +136,15 @@ def paired_run(out, args):
                     physics_config_sha256=snapshot.metadata['physics_config_sha256'])
                 record['cache_sha256'] = snapshot.sha256
                 record['cached_snapshot_metadata'] = snapshot.metadata
+                if capture:
+                    source=ROOT/'outputs'/args.cache_prefix_run
+                    source_result=json.loads((source/'result.json').read_text())
+                    assert source_result['passed'] and source_result['dll_sha256']==context['dll_sha256']
+                    assert source_result['T6_topology_restored_recut_no_healing']
+                    assert snapshot.metadata['native_tick']==env.native.tick
+                    record['cached_video_prefix']=capture.write_cached_prefix(
+                        source/'original',snapshot.metadata['native_tick'])
+                    record['cached_video_prefix']['cache_file_sha256']=hashlib.sha256(args.cache.read_bytes()).hexdigest()
             if capture:
                 monitor_before = copy.deepcopy(capture.monitor.__dict__)
                 capture.arm = 'original'
@@ -149,10 +165,15 @@ def paired_run(out, args):
                 record['T2_observation_exact'] = True
             if capture:
                 capture.monitor.__dict__.clear()
-                capture.monitor.__dict__.update(monitor_before)
+                capture.monitor.__dict__.update(copy.deepcopy(env.grasp.__dict__) if args.fork=='cache' else monitor_before)
             restored = run('restored')
             atomic_json(out/'restored-steps.json', restored.pop('rows'))
             record.update(original=original, restored=restored)
+            if read_secondary is not None:
+                assert read_secondary(ctypes.byref(terms),0)==0
+                record['secondary_pressure_terms_executed']=terms.value
+                record['timings_have_secondary_pressure_diagnostics']=True
+                assert terms.value>0, 'Secondary pressure experiment did not execute any contact terms'
             record['mechanism_passed'] = True
             record['both_continuations_cut_material'] = all(v['outcome']['new_material_edges'] > 0 for v in (original, restored))
             record['passed'] = (record['preparation_quality_failures'] == 0 and record['preparation_scope_failures'] == 0
@@ -202,12 +223,20 @@ def main():
     parser.add_argument('--repeat', type=int, default=0)
     parser.add_argument('--capture', action='store_true')
     parser.add_argument('--cache', type=Path)
+    parser.add_argument('--cache-prefix-run',
+                        help='Verified T5/T6 run whose original video contains the actual saved cache prefix')
     parser.add_argument('--library',default='r33-packed-mg')
     args = parser.parse_args()
     if (args.fork == 'cache') != (args.cache is not None):
         parser.error('T7 requires one explicitly pinned common cached cut_ready snapshot')
-    if args.fork == 'cache' and args.capture:
-        parser.error('Cached and fresh prefixes differ; use the separate T4 paired complete videos')
+    if args.cache_prefix_run:
+        if not args.cache_prefix_run.replace('-','').isalnum() or args.fork!='cache' or not args.capture:
+            parser.error('The cache prefix is only for a captured cache run')
+        expected=ROOT/'outputs'/args.cache_prefix_run/'cut-ready.lcssnap'
+        if args.cache.resolve()!=expected.resolve():
+            parser.error('Snapshot and cached prefix video must come from the same test run')
+    if args.fork == 'cache' and args.capture and not args.cache_prefix_run:
+        parser.error('Provide the actual cached preparation video with --cache-prefix-run')
     if not args.name.replace('-','').isalnum():parser.error('Use an isolated unique run name')
     out = ROOT/'outputs'/args.name
     out.mkdir(parents=True, exist_ok=False)
