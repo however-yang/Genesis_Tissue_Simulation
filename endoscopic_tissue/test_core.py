@@ -1,24 +1,26 @@
 """CPU contracts that guard the cross-language topology and unit conventions."""
 import ctypes
+import unittest
 from dataclasses import replace
 from itertools import product
-import unittest
 
 import numpy as np
+
+import trimesh
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
-import trimesh
 
+from .forces import ForceMonitor, MeasuredForce, SolverForceModel, draw_force_readout
 from .grid import BLOCK_SIZE, build_grid, connectivity_table, EDGE_CORNERS, Tab, to_genesis
+from .instrument_geometry import (SCISSORS_BACK_CLEARANCE, knife_frame, knife_geometry, load_davinci_wrist,
+                                  load_grasper, load_scissors, scissors_body_depths)
 from .kidney import Kidney
 from .native_backend import (Blade, Command, CutDesc, Grasper, GraspParams, Observation, PhysicsDesc, ReconDesc,
                              ScissorsLoads, ScissorsPose, Surface, scissors_frame)
 from .scenario import (FLAP_SCENE, SCISSORS_SCENES, WALL_SCENE, Sequence, interpolate,
                        scissors_settings, severed_edges, stage_start)
-from .visual_surface import refine_surface
-from .instrument_geometry import (SCISSORS_BACK_CLEARANCE, knife_frame, knife_geometry, load_davinci_wrist,
-                                  load_grasper, load_scissors, scissors_body_depths)
 from .surface_diagnostics import topology_statistics
+from .visual_surface import refine_surface
 
 
 class CoreTests(unittest.TestCase):
@@ -578,6 +580,60 @@ class CoreTests(unittest.TestCase):
         obs.nodes[:, 1] += 7
         with self.assertRaisesRegex(RuntimeError, "60 mm operating envelope"):
             sequence.record_step("hold", obs, 0.)
+
+    def test_force_estimate_stays_uncalibrated_until_a_model_is_installed(self):
+        blade = np.zeros(10, dtype=np.float32)
+        blade[3:7] = (250, 0, -100, 50)
+        blade[7] = 3
+        obs = Observation(np.zeros((1, 3), np.float32), np.full((1, 6), -1, np.int32), np.zeros(1, np.int32),
+                          np.zeros(3), 0.2, 0, 0.0, blade, np.array((0.1, -0.2, 0.3), np.float32),
+                          jaw_load_n=(0.4, 0.5))
+        monitor = ForceMonitor()
+        readout = monitor.readout(obs)
+        np.testing.assert_allclose(readout.blade_force_n, (2.5, 0.0, -1.0), atol=1e-6)
+        np.testing.assert_allclose(readout.blade_pressure_n, 0.5, atol=1e-6)
+        np.testing.assert_allclose(readout.reaction_n, (0.1, -0.2, 0.3), atol=1e-6)
+        self.assertAlmostEqual(readout.jaw_upper_n, 0.4)
+        self.assertIsNone(readout.scissors_left_n)
+        estimate = monitor.estimate(obs)
+        self.assertFalse(estimate.is_calibrated)
+        self.assertIn("not a measured force", estimate.lines()[0])
+        self.assertAlmostEqual(estimate.jaw_upper_n, 0.4)
+        loads = ScissorsLoads(0.11, 0.13, 0.20, 0.21, 0.41, 2, True)
+        pose = ScissorsPose(np.zeros(3), np.array((1., 0, 0)), np.array((0., 1., 0)), 0.4, 0.05,
+                            np.zeros((2, 2, 3)), 0.24, 2, 4, loads)
+        obs.scissors = pose
+        readout = monitor.readout(obs)
+        self.assertEqual((readout.scissors_left_n, readout.scissors_right_n, readout.scissors_pressure_n),
+                         (0.11, 0.13, 0.24))
+        self.assertTrue(readout.is_squeezing)
+        self.assertEqual(readout.scissors_fractures, 2)
+
+        class GainModel:
+            def estimate(self, reading):
+                base = SolverForceModel().estimate(reading)
+                return replace(base, jaw_upper_n=reading.jaw_upper_n * 2, is_calibrated=True)
+
+        monitor.model = GainModel()
+        fitted = monitor.estimate(obs)
+        self.assertTrue(fitted.is_calibrated)
+        self.assertAlmostEqual(fitted.jaw_upper_n, 0.8)
+        self.assertIn("model estimate", fitted.lines()[0])
+        pair = ForceMonitor().pair(obs, MeasuredForce(jaw_upper_n=1.25))
+        self.assertAlmostEqual(pair.measured.jaw_upper_n, 1.25)
+        self.assertAlmostEqual(pair.readout.jaw_upper_n, 0.4)
+        frame = np.zeros((240, 720, 3), np.uint8)
+        draw_force_readout(frame, fitted)
+        self.assertGreater(int(frame[:80, :400].sum()), 0)
+        self.assertEqual(int(frame[-8:, -8:].sum()), 0)
+
+        class BrokenModel:
+            def estimate(self, reading):
+                base = SolverForceModel().estimate(reading)
+                return replace(base, blade_pressure_n=np.nan)
+
+        with self.assertRaisesRegex(ValueError, "finite"):
+            ForceMonitor(model=BrokenModel()).estimate(obs)
 
 
 if __name__ == "__main__":

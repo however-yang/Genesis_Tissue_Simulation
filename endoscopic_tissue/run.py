@@ -1,25 +1,25 @@
 """Run the native grasp/lift/cut sequence, optionally viewed through Genesis.
 
 The window plays the flow at wall-clock speed: a worker thread steps the native session, holding every step to its
-simulated time, while the main thread draws the latest solved state. --headless records one frame every
---render-every steps instead, in step with the simulation.
+simulated time, while the main thread draws the latest solved state. The top-left of that window is the force estimate
+for the state on screen. --headless records one frame every --render-every steps instead, in step with the simulation.
 """
 import argparse
+import hashlib
+import json
+import queue
+import threading
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime
-import hashlib
-import json
 from pathlib import Path
-import queue
-import threading
-import time
-
-import numpy as np
 
 import cv2
+import numpy as np
 
+from .forces import ForceMonitor, draw_force_readout, solver_force_readout
 from .grid import METERS_PER_UNIT, build_grid, to_genesis
 from .instrument_geometry import scissors_body_depths
 from .native_backend import Command, NativeTissue, Observation, Settings, Surface
@@ -101,11 +101,12 @@ class StepRecorder:
             blade_body_depth, wrist_depth = (float(depth) * METERS_PER_UNIT for depth in depths)
             knife_body_depth = max(blade_body_depth, wrist_depth)
         cut_edges = int(severed_edges(sequence.initial_neighbors, obs.neighbors))
+        readout = solver_force_readout(obs)
         self.trajectory.write(json.dumps({"step": step, "time_s": step * settings.dt, "stage": stage,
             "command": asdict(command), "requested_command": asdict(requested),
             "hinge_cm": obs.hinge.tolist(), "jaw_gap_cm": obs.jaw_gap,
             "grip_points": obs.grip_points, "grip_error_m": obs.grip_error_m,
-            "blade_center_cm": obs.blade[:3].tolist(), "blade_force_n": (obs.blade[3:6] * METERS_PER_UNIT).tolist(),
+            "blade_center_cm": obs.blade[:3].tolist(), "blade_force_n": readout.blade_force_n.tolist(),
             "knife_body_penetration_mm": knife_body_depth * 1000,
             "blade_body_overlap_mm": blade_body_depth * 1000,
             "blade_phase": int(obs.blade[7]), "cut_edges": cut_edges,
@@ -292,11 +293,12 @@ def take_still(link: LiveLink, worker):
     return None
 
 
-def play_live(view: EndoscopicView, video, link: LiveLink, worker, shown, output: Path):
+def play_live(view: EndoscopicView, video, link: LiveLink, worker, shown, output: Path, monitor: ForceMonitor):
     """Show the latest posted state, starting from the image `shown`, until the worker ends; save each stage still.
 
     The video receives the image on screen at every tick of LIVE_FPS, paused time excepted, so it plays back what the
-    window showed. SPACE pauses and resumes (any key resumes), Q or Esc stops the flow.
+    window showed, including the force estimate at its top-left. SPACE pauses and resumes (any key resumes), Q or Esc
+    stops the flow.
     """
     period = 1 / LIVE_FPS
     tick = time.perf_counter()
@@ -313,6 +315,7 @@ def play_live(view: EndoscopicView, video, link: LiveLink, worker, shown, output
             if still is not None:
                 cv2.imwrite(str(output / f"{still.stage}.png"), shown)
             link.shown[snapshot.stage] += 1
+            draw_force_readout(shown, monitor.estimate(snapshot.obs))
             cv2.imshow(WINDOW, shown)
         key = cv2.waitKey(1) & 0xff
         now = time.perf_counter()
@@ -400,6 +403,7 @@ def main():
     camera = scene.shot if kidney is not None else BLOCK_CAMERA
     flow = Flow(settings, scene, stages, grid, args.steps, output)
     view, video = None, None
+    monitor = ForceMonitor() if live else None
     status, error = "partial", None
     started = time.monotonic()
     try:
@@ -423,10 +427,11 @@ def main():
                         frame, depth = view.render(depth=True)
                         cv2.imwrite(str(output / "initial.png"), frame)
                         np.save(output / "initial_depth_m.npy", depth)
+                        draw_force_readout(frame, monitor.estimate(initial.obs))
                         cv2.imshow(WINDOW, frame)
                         cv2.waitKey(1)
                         link.running.set()
-                        play_live(view, video, link, worker, frame, output)
+                        play_live(view, video, link, worker, frame, output, monitor)
                 finally:
                     link.stopping.set()
                     link.running.set()
@@ -475,14 +480,18 @@ def main():
                 frame, _ = view.render()
                 video.write(frame)
                 if live:
-                    cv2.imshow(WINDOW, frame)
+                    shown = frame.copy()
+                    draw_force_readout(shown, monitor.estimate(flow.obs))
+                    cv2.imshow(WINDOW, shown)
                     cv2.waitKey(1)
                     due += 1 / fps
                     time.sleep(max(0.0, due - time.perf_counter()))
             cv2.imwrite(str(output / "wound-closeup.png"), frame)
         if live and view is not None:
             view.update(final.surface, final.obs)
-            cv2.imshow(WINDOW, view.render()[0])
+            frame = view.render()[0]
+            draw_force_readout(frame, monitor.estimate(final.obs))
+            cv2.imshow(WINDOW, frame)
             cv2.waitKey(0)
     except (RuntimeError, ValueError, OSError) as ex:
         status, error = "failed", str(ex)
