@@ -22,7 +22,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--library',required=True);p.add_argument('--name',required=True)
     p.add_argument('--preparation',choices=('held','cut_ready'),default='held')
-    p.add_argument('--task',choices=('dose','release'),default='dose')
+    p.add_argument('--task',choices=('dose','release','snapshot'),default='dose')
     p.add_argument('--direction',choices=('plusx','minusx','plusy','plusz','minusz'),default='plusz')
     p.add_argument('--dose-mm',type=float,default=4.);p.add_argument('--mu',type=float)
     p.add_argument('--bite-inset-mm',type=float,default=0.,help='Explicit control-only variant: shift bite and subsequent grasper targets in -x; no physical parameter changes')
@@ -157,6 +157,50 @@ def main():
         record['preparation_last10_jaw_load_range_n']={
             'min':np.min([r['jaw_load_n'] for r in env.preparation[-10:]],axis=0).tolist(),
             'max':np.max([r['jaw_load_n'] for r in env.preparation[-10:]],axis=0).tolist()}
+        if a.task=='snapshot':
+            from endoscopic_tissue.training.snapshot import SnapshotBackend
+            from endoscopic_tissue.training.data import EpisodeWriter,EpisodeReader
+            import endoscopic_tissue.training.env as adapter_module
+            record['scope']='One zero-anchor wall preparation: actual adapter binding, snapshot roundtrip, six saved transitions and one-step continuation; not full S15/S16d'
+            snapshot=env.snapshot();snapshot.save(output/'held.snapshot')
+            record['snapshot_python_source_binding']=snapshot.metadata['python_source_sha256']
+            saved_path=adapter_module.__file__
+            try:
+                # Mutate only this process's declared module origin; actual
+                # source files, executable functions and physical state stay.
+                adapter_module.__file__=str(ROOT/'scene_config.py')
+                rejected=False
+                try:env.restore(snapshot,branch_label='wrong-adapter-origin')
+                except ValueError:rejected=True
+            finally:adapter_module.__file__=saved_path
+            record['wrong_adapter_source_rejected']=rejected
+            assert rejected, 'Snapshot accepted a different active training adapter source'
+            loaded=type(snapshot).load(output/'held.snapshot',dll_sha256=digest,
+                physics_config_sha256=snapshot.metadata['physics_config_sha256'])
+            assert loaded.sha256==snapshot.sha256
+            assert SnapshotBackend(env.native).save()==snapshot.native_bytes(), 'Native save-load-save changed state'
+            record['snapshot_file_hash_verified']=True
+            action=env.previous_action.copy();first=None
+            env._pilot_phase='snapshot_data_hold'
+            with EpisodeWriter(output/'episode',context,state,env.static_arrays(),env.preparation) as sink:
+                for _ in range(6):
+                    step=env.step(action);sink.append(step)
+                    assert step.after is not None and step.after.metadata['quality']['checked_metrics_passed'] and step.after.metadata['quality']['within_declared_local_scope']
+                    if first is None:first=step.after.arrays['positions_m'].copy()
+            reader=EpisodeReader(output/'episode',verify_hashes=True)
+            assert reader.manifest['states']==7 and reader.manifest['normal_transitions']==6
+            restored,branch=env.restore(loaded,branch_label='pure-friction-replay')
+            np.testing.assert_array_equal(restored.arrays['positions_m'],state.arrays['positions_m'])
+            np.testing.assert_array_equal(restored.topology['neighbors'],state.topology['neighbors'])
+            assert branch['episode_id']!=context['episode_id'] and restored.metadata['step_id']==0
+            env._pilot_phase='snapshot_restored_hold'
+            continuation=env.step(action);assert continuation.after is not None
+            error_mm=float(np.max(np.linalg.norm(continuation.after.arrays['positions_m']-first,axis=1))*1000)
+            assert error_mm<.01, 'One-step restore continuation exceeds S15 T3 0.01mm'
+            record.update(passed=True,completed=True,snapshot_api_passed=True,
+                saved_transitions=6,saved_states=7,one_step_restore_max_error_mm=error_mm,
+                final_grasp=continuation.after.metadata['grasp'])
+            return 0
         start=replace(Command(**env.preparation[-1]['requested_command_native']),scissors_cutting=False)
         directions=dict(plusx=(1,0,0),minusx=(-1,0,0),plusy=(0,1,0),plusz=(0,0,1),minusz=(0,0,-1))
         target=(replace(start,closure=0) if a.task=='release' else

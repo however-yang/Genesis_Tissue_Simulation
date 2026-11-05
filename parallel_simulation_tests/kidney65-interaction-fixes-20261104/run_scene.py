@@ -45,10 +45,11 @@ def main():
     parser.add_argument('--stencil-probe',action='store_true',help='Read-only original/cached assembly comparisons after stages; not a production FPS run')
     parser.add_argument('--mg-probe',action='store_true',help='Read-only full/packed Galerkin comparisons; not a production FPS run')
     parser.add_argument('--interaction-counters',action='store_true',help='Read/reset existing counters at stage boundaries; diagnostic run, no physics changes')
+    parser.add_argument('--free-mg-probe',action='store_true',help='Private original/free-only complete preconditioner comparisons; diagnostic run')
     args = parser.parse_args()
     driver_inputs={name:(ROOT/name).read_bytes() for name in ('run_scene.py','scene_config.py','training_stress.py','envelope_audit.py')}
-    if (args.stencil_probe or args.mg_probe) and (os.name=='nt' or args.native_only):parser.error('Assembly comparisons require server stage recording')
-    if args.stencil_probe and args.mg_probe:parser.error('Test each assembly experiment independently')
+    if (args.stencil_probe or args.mg_probe or args.free_mg_probe) and (os.name=='nt' or args.native_only):parser.error('Operator comparisons require server stage recording')
+    if sum((args.stencil_probe,args.mg_probe,args.free_mg_probe))>1:parser.error('Test each operator experiment independently')
     if args.nsys_stage and (os.name=='nt' or not args.stress_tests or not 1<=args.nsys_frames<=10):
         parser.error('Nsight capture requires server stress tests and 1-10 frames')
     if not 2<=args.replay_repeats<=20:
@@ -252,6 +253,30 @@ def main():
                 assert np.array_equal(before.nodes,after.nodes) and np.array_equal(before.neighbors,after.neighbors), 'Read-only probe changed live state'
             run.Recording.after_stage=stage_probe
             metadata['mg_probes_in_run' if args.mg_probe else 'stencil_probes_in_run']=True
+        if args.free_mg_probe:
+            import numpy as np
+            fn=native.LCS_FreeMultigridProbe;fn.argtypes=[ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p];fn.restype=ctypes.c_int
+            previous_free_stage=run.Recording.after_stage;free_probes=[]
+            def free_stage_probe(self,flow,stage,surface):
+                previous_free_stage(self,flow,stage,surface)
+                tissue=frame['tissue'];before=tissue.observe()
+                for damage in ([2,0,1] if not free_probes else [2,0]):
+                    stats=(ctypes.c_ulonglong*16)();errors=(ctypes.c_double*8)()
+                    assert fn(damage,stats,errors)==0
+                    free_probes.append(dict(stage=stage,negative_control=damage==1,original_repeat_control=damage==2,stats=list(stats),
+                        free_cg_nodes=stats[0],loaded_cg_nodes=stats[1],free_output_differences=stats[2],
+                        free_dot_differences=stats[3],nonfinite=stats[4],unused_loaded_output_differences=stats[5],
+                        free_components=stats[6],dot_components_within_roundoff_bound=stats[8],dot_components_outside_roundoff_bound=stats[9],
+                        errors_and_reference_scales=list(errors),
+                        dot_criterion='Both complete V-cycles; bit-identical free z; double atomic dot differences bounded by 2*gamma(6*n)*sum(abs(r_k*z_k)); original-original control retained'))
+                    (output/'free-mg-probes.json').write_text(json.dumps(free_probes,indent=2)+'\n')
+                    assert stats[4]==0, 'Nonfinite free preconditioner output'
+                    if damage==1:assert stats[7]>0 and stats[2]>0, 'Private output negative control was not detected'
+                    else:assert stats[2]==0 and stats[9]==0, 'Free-component V-cycle differs or dot reduction exceeds arithmetic bound'
+                after=tissue.observe()
+                assert np.array_equal(before.nodes,after.nodes) and np.array_equal(before.neighbors,after.neighbors), 'Preconditioner probe changed live physical state'
+            run.Recording.after_stage=free_stage_probe
+            metadata['free_mg_probes_in_run']=True
         if args.stress_tests:
             from training_stress import install
             install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress,replay_repeats=args.replay_repeats,nsys_stage=args.nsys_stage,nsys_frames=args.nsys_frames)

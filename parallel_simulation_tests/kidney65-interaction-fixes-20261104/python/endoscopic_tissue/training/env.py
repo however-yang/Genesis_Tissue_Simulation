@@ -12,7 +12,7 @@ from ..native_backend import NativeTissue
 from ..scenario import SCISSORS_SCENES, SCISSORS_SPACING, drive_command, interpolate, scissors_settings, stage_start
 from ..grid import build_grid
 from .actions import ActionBounds, action_to_command, command_to_action
-from .provenance import json_hash, manifest, pinned_dll
+from .provenance import json_hash, manifest, pinned_dll, sha256
 from .quality import QualityLimits, QualityMonitor
 from .grasp import GraspMonitor
 from .tasks import TaskGoal, TaskMonitor
@@ -295,6 +295,18 @@ class NativeEnvironment:
                 goal = self.task.goal.to_dict()
             self.context = manifest(self.native, self.settings, asdict(scene_config), self.config.bounds,
                                     self.native_parameters)
+            # The frozen provenance helper enumerates its own package. This
+            # opt-in module and its selected codec are actual execution inputs.
+            # Keep the frozen reference hash and bind the active overlay too.
+            source_files=self.context['current_adapter_and_asset_sha256']
+            adapter_key='endoscopic_tissue/training/env.py'
+            self.context['frozen_reference_training_env_sha256']=source_files[adapter_key]
+            source_files[adapter_key]=sha256(Path(__file__))
+            codec=Path(__file__).with_name('kidney_snapshot.py')
+            source_files['endoscopic_tissue/training/kidney_snapshot.py']=sha256(codec)
+            self.context['active_training_overlay']={
+                'adapter_path':str(Path(__file__).resolve()),'adapter_sha256':source_files[adapter_key],
+                'snapshot_codec_path':str(codec.resolve()),'snapshot_codec_sha256':sha256(codec)}
             self.context.update(episode_id=self.episode_id, seed=int(seed), goal=goal,
                                 reset_lineage_id=self.episode_id,
                                 sensitivity_overrides_are_not_default_replacements=True,
@@ -511,13 +523,13 @@ class NativeEnvironment:
 
     def snapshot(self):
         """Save a completed state using an explicitly selected snapshot ABI DLL."""
-        from .snapshot import take_snapshot
+        from .kidney_snapshot import take_snapshot
         with self._state_lock:
             return take_snapshot(self)
 
     def restore(self, snapshot, *, branch_label=None, **kwargs):
         """Open a new branch. Optional goal replaces task/reward, never physics."""
-        from .snapshot import restore_snapshot
+        from .kidney_snapshot import restore_snapshot
         with self._state_lock:
             return restore_snapshot(self, snapshot, branch_label=branch_label, **kwargs)
 

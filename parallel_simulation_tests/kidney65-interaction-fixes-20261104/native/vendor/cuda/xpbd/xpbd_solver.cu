@@ -2822,23 +2822,26 @@ static void assembleMultigrid(cudaStream_t stream){
     k_MgCoarseInverse<<<Gr(9*MG_COARSEST*MG_COARSEST),64,0,stream>>>(coarsest,d_multigridFactorInverse,d_multigridInverse);
 }
 // z = M^-1 r by one V(1,1) cycle, adding r'z into the slot `slot` of each component's PCG sums.
-static void applyMultigrid(cudaStream_t stream,const float3* r,float3* z,MaterialCGSum* sums,int slot){
-    MultigridLevel* L=g_multigrid;const int top=g_multigridLevels;
+template<bool FreeOnly=false> static void applyMultigridWorkspace(cudaStream_t stream,const float3* r,float3* z,MaterialCGSum* sums,int slot,
+    MultigridLevel* L,int top,float3* fine){
     cudaMemsetAsync(L[1].r,0,(size_t)L[1].capacity*sizeof(MgResidual),stream);
-    k_MgFinePre<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,d_cgH,r,d_multigridFine);
-    k_MgFineRestrict<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,r,d_multigridFine,L[1]);
+    k_MgFinePre<FreeOnly><<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,d_cgH,r,fine);
+    k_MgFineRestrict<FreeOnly><<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,r,fine,L[1]);
     for(int l=1;l<top;l++){
         cudaMemsetAsync(L[l+1].r,0,(size_t)L[l+1].capacity*sizeof(MgResidual),stream);
-        k_MgPre<<<Gr(L[l].capacity),64,0,stream>>>(L[l]);
-        k_MgRestrict<<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1]);
+        k_MgPre<FreeOnly><<<Gr(L[l].capacity),64,0,stream>>>(L[l],d_unified);
+        k_MgRestrict<FreeOnly><<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1],d_unified);
     }
-    k_MgCoarsest<<<Gr(3*MG_COARSEST),64,0,stream>>>(L[top],d_multigridInverse);
+    k_MgCoarsest<FreeOnly><<<Gr(3*MG_COARSEST),64,0,stream>>>(L[top],d_multigridInverse,d_unified);
     for(int l=top-1;l>=1;l--){
-        k_MgProlong<<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1]);
-        k_MgPost<<<Gr(L[l].capacity),64,0,stream>>>(L[l]);
+        k_MgProlong<FreeOnly><<<Gr(L[l].capacity),64,0,stream>>>(L[l],L[l+1],d_unified);
+        k_MgPost<FreeOnly><<<Gr(L[l].capacity),64,0,stream>>>(L[l],d_unified);
     }
-    k_MgFineProlong<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,L[1],d_multigridFine);
-    k_MgFinePost<<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,d_cgH,r,d_multigridFine,z,sums,slot);
+    k_MgFineProlong<FreeOnly><<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgStencil,L[1],fine);
+    k_MgFinePost<FreeOnly><<<Gr(g_activeNodes),64,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,d_cgH,r,fine,z,sums,slot);
+}
+template<bool FreeOnly=false> static void applyMultigrid(cudaStream_t stream,const float3* r,float3* z,MaterialCGSum* sums,int slot){
+    applyMultigridWorkspace<FreeOnly>(stream,r,z,sums,slot,g_multigrid,g_multigridLevels,d_multigridFine);
 }
 
 // Cut edges can change BETWEEN substeps and during final reconstruction.
@@ -3683,7 +3686,13 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
                     k_MaterialStencilProduct<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,previous,d_cgZ,direction,d_cgMatrix,d_cgScale,d_cgStencil,d_cgA,d_cgS,cg);
                     k_MaterialCGAdvance<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgStencil,d_cgR,direction,d_cgA,d_cgD,d_cgS,cg);
                     // The last direction is formed by no further product.
-                    if(cg+1<iterations)applyMultigrid(g_captureStream,d_cgR,d_cgZ,d_cgS,cg%3);
+                    if(cg+1<iterations){
+#ifdef ENDO_KIDNEY_FREE_ONLY_MG
+                        if(cg+1>=MaterialLoadedIterations)applyMultigrid<true>(g_captureStream,d_cgR,d_cgZ,d_cgS,cg%3);
+                        else
+#endif
+                        applyMultigrid(g_captureStream,d_cgR,d_cgZ,d_cgS,cg%3);
+                    }
                 }
                 xpbd_section_mark("cg: iterations");
                 // The trust region and the tangent-cone projection act on free recovering components alone. Without
@@ -4449,6 +4458,9 @@ extern "C" int xpbd_query_threads(int threads){
 
 extern "C" int xpbd_set_coarse_bound_cache(int enabled){if(g_ready || (enabled!=0 && enabled!=1))return -10011;g_coarseBoundCacheEnabled=enabled;return 0;}
 #include "../training/kidney_contact_probe.cuh"
+#ifdef ENDO_KIDNEY_FREE_ONLY_MG
+#include "../training/free_multigrid_probe.cuh"
+#endif
 #if defined(ENDO_KIDNEY_PACKED_MG) || defined(ENDO_KIDNEY_GATHER_MG)
 #include "../training/multigrid_packed_probe.cuh"
 #endif

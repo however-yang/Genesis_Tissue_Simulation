@@ -1,0 +1,118 @@
+{
+  "passed": true,
+  "completed": true,
+  "scope": "One strict wall-traction pilot; not the 900-trial S16d matrix",
+  "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "arguments": {
+    "library": "r33-packed-mg",
+    "name": "friction-r33-adaptive-plusy-01",
+    "preparation": "held",
+    "task": "dose",
+    "direction": "plusy",
+    "dose_mm": 4.0,
+    "mu": null,
+    "bite_inset_mm": 0.0,
+    "settle_steps": 0,
+    "adaptive_grasp": true,
+    "open_jaw_preparation": false,
+    "seed": 0,
+    "no_video": false
+  },
+  "contact_model": 1,
+  "default_replaced": false,
+  "full_surface_checks": true,
+  "timing_scope": "LCS_Step wall time only; video and QA excluded; initial zero-gravity setup excluded from frame means",
+  "library_sha256": "d00c8db6ca68496d134b32a4fba7348ddedb795a551ff0fe94dd1208de54f7e8",
+  "egl_binding": {
+    "egl_index": 1,
+    "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+  },
+  "training_adapter_sha256": "9d8706776424344174537070d61ed0411f368f12aa7d46b5b63793dc4aa291d5",
+  "initial_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": true,
+    "between_pads_material_nodes": 5,
+    "witness_ids": [
+      67394,
+      67395,
+      69085,
+      70775
+    ],
+    "witness_retained_fraction": 1.0,
+    "witness_tangential_slip_m": 4.152863607889383e-05,
+    "witness_mean_lift_m": 0.0012309807352721691,
+    "geometric_loaded_hold": true,
+    "friction_hold_evidence": true,
+    "anchor_points": 0
+  },
+  "consecutive_five_steps_verified": true,
+  "acquisition_stationary_steps": 5,
+  "preparation_last10_jaw_load_range_n": {
+    "min": [
+      0.05387693643569946,
+      0.7704569101333618
+    ],
+    "max": [
+      0.10785655677318573,
+      0.9054092168807983
+    ]
+  },
+  "final_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": false,
+    "between_pads_material_nodes": 5,
+    "witness_ids": [
+      67394,
+      67395,
+      69085,
+      70775
+    ],
+    "witness_retained_fraction": 1.0,
+    "witness_tangential_slip_m": 5.479225922886849e-05,
+    "witness_mean_lift_m": 0.00519829336553812,
+    "geometric_loaded_hold": false,
+    "friction_hold_evidence": false,
+    "anchor_points": 0
+  },
+  "hold_evidence_at_end": false,
+  "witness_mean_displacement_mm": [
+    -0.005848705768585205,
+    3.9673130959272385,
+    -0.009993091225624084
+  ],
+  "grasper_displacement_mm": [
+    0.0,
+    3.9547961205244064,
+    0.0
+  ],
+  "max_witness_tangential_slip_mm": 0.06026988075346337,
+  "minimum_witness_retained_fraction": 1.0,
+  "first_loss_of_friction_evidence_tick": 363,
+  "first_majority_witness_exit_tick": null,
+  "witness_mean_lift_change_mm": 3.967312630265951,
+  "frames": 470,
+  "all_anchor_counts_zero": true,
+  "native_ms": {
+    "mean": 20.24644303155389,
+    "p95": 25.302095530787483,
+    "max": 25.84475197363645
+  },
+  "sliding_is_not_a_solver_failure": true,
+  "run": "friction-r33-adaptive-plusy-01",
+  "source_sha256": {
+    "result.json": "46fa554739b62479a13083e253f21371c173271370417e4c72faa12e304acf3e",
+    "driver.py": "42b98491e6b0adbaf2ee2faf1b3f3af3cf050671551822c6d420a2f1866244e3",
+    "training-adapter.py": "9d8706776424344174537070d61ed0411f368f12aa7d46b5b63793dc4aa291d5",
+    "dose-steps.json": "30c60a483731ecce9cca49b425c035fb3ddac24fbfb84407c3ccb555e1083065",
+    "interactions.mp4": "85b7a218da03da8b20309479839dc65e850a1661dcec2cf22d9a6f28156860e9",
+    "frame-timing.json": "12e3e445255069dcc53feea54a66a2f11885260a244e92735b36bca01b0a7727",
+    "preparation.json": "a58223811b6e01871d8fdb99770fe2ea4d021b7e955163450649df00cd49fac7",
+    "context.json": "5a1ec9728534defee71066ca10e9a4121acaf01a86ab102270784e930d4d0423"
+  },
+  "not_full_s16d_matrix": true
+}

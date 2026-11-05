@@ -258,18 +258,29 @@ __global__ void k_MgCoarseInverse(const MultigridLevel L,const float* inverseFac
     inverse[i*stride+j]=sum;
 }
 // The coarsest correction: the dense inverse applied to the residual, or one smoothing step beyond MG_COARSEST.
-__global__ void k_MgCoarsest(MultigridLevel L,const float* inverse){
+template<bool FreeOnly=false> __global__ void k_MgCoarsest(MultigridLevel L,const float* inverse,const UnifiedState* state=nullptr){
     int count=min(*L.count,L.capacity),row=blockIdx.x*blockDim.x+threadIdx.x;const int stride=3*MG_COARSEST;
     if(count>MG_COARSEST){
-        if(row<count)L.post[row]=mgApply3(L.inverse+9*row,L.r[row])*MG_OMEGA;
+        if(row<count){
+            if constexpr(FreeOnly)if(state->graspComponents[L.component[row]]&7){L.post[row]=mkf3(0,0,0);return;}
+            L.post[row]=mgApply3(L.inverse+9*row,L.r[row])*MG_OMEGA;
+        }
         return;
     }
     if(row>=3*count)return;
+    if constexpr(FreeOnly)if(state->graspComponents[L.component[row/3]]&7){((float*)(L.post+row/3))[row%3]=0;return;}
     float sum=0;
     for(int c=0;c<count;c++){float3 r=L.r[c];const float* m=inverse+row*stride+3*c;sum+=m[0]*r.x+m[1]*r.y+m[2]*r.z;}
     float* out=(float*)(L.post+row/3);out[row%3]=sum;
 }
 // ---- One V(1,1) application z = M^-1 r.
+// After iteration 3 the PCG no longer reads loaded-component corrections.
+// Hierarchy aggregates and stencil masks never mix components. Keep the full
+// V-cycle for every free component; optionally omit only unused loaded outputs.
+template<bool FreeOnly> __device__ __forceinline__ bool mgUnusedComponent(const UnifiedState* state,int component){
+    if constexpr(FreeOnly)return (state->graspComponents[component]&7)!=0;
+    return false;
+}
 // (A x)_i of the PCG stencil restricted to the CG nodes of node i's component (the stencil mask).
 __device__ inline float3 mgStencilProduct(const UnifiedState& s,const __half* matrix,const float* blockScale,unsigned mask,
     int i,const float3* x){
@@ -281,15 +292,15 @@ __device__ inline float3 mgStencilProduct(const UnifiedState& s,const __half* ma
     }
     return out;
 }
-__global__ void k_MgFinePre(const UnifiedState* state,const unsigned short* stencil,const Symmetric3* diagonal,
+template<bool FreeOnly=false> __global__ void k_MgFinePre(const UnifiedState* state,const unsigned short* stencil,const Symmetric3* diagonal,
     const float3* r,float3* x){
     const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0)return;
-    x[i]=materialCgNode(stencil,i)?diagonal[i].solve(r[i])*MG_OMEGA:mkf3(0,0,0);
+    x[i]=materialCgNode(stencil,i) && !mgUnusedComponent<FreeOnly>(state,s.component[i])?diagonal[i].solve(r[i])*MG_OMEGA:mkf3(0,0,0);
 }
-__global__ void k_MgFineRestrict(const UnifiedState* state,const __half* matrix,const float* blockScale,
+template<bool FreeOnly=false> __global__ void k_MgFineRestrict(const UnifiedState* state,const __half* matrix,const float* blockScale,
     const unsigned short* stencil,const float3* r,const float3* x,MultigridLevel L){
     const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0)return;
-    unsigned mask=stencil[i];int c=L.parent[i];if(!(mask>>7&1) || c<0)return;
+    unsigned mask=stencil[i];int c=L.parent[i];if(!(mask>>7&1) || c<0 || mgUnusedComponent<FreeOnly>(state,s.component[i]))return;
     float3 t=r[i]-mgStencilProduct(s,matrix,blockScale,mask,i,x);
     atomicAdd(&L.r[c].x,t.x);atomicAdd(&L.r[c].y,t.y);atomicAdd(&L.r[c].z,t.z);
 }
@@ -302,34 +313,39 @@ __device__ inline float3 mgRowProduct(const MultigridLevel& L,int c,const float3
     }
     return out;
 }
-__global__ void k_MgPre(MultigridLevel L){
+template<bool FreeOnly=false> __global__ void k_MgPre(MultigridLevel L,const UnifiedState* state=nullptr){
     int c=blockIdx.x*blockDim.x+threadIdx.x;if(c>=min(*L.count,L.capacity))return;
+    if(mgUnusedComponent<FreeOnly>(state,L.component[c])){L.z[c]=mkf3(0,0,0);return;}
     L.z[c]=mgApply3(L.inverse+9*c,L.r[c])*MG_OMEGA;
 }
-__global__ void k_MgRestrict(MultigridLevel L,MultigridLevel next){
+template<bool FreeOnly=false> __global__ void k_MgRestrict(MultigridLevel L,MultigridLevel next,const UnifiedState* state=nullptr){
     int c=blockIdx.x*blockDim.x+threadIdx.x;if(c>=min(*L.count,L.capacity))return;
+    if(mgUnusedComponent<FreeOnly>(state,L.component[c]))return;
     int C=next.parent[c];if(C<0)return;
     float3 t=L.r[c]-mgRowProduct(L,c,L.z);
     atomicAdd(&next.r[C].x,t.x);atomicAdd(&next.r[C].y,t.y);atomicAdd(&next.r[C].z,t.z);
 }
-__global__ void k_MgProlong(MultigridLevel L,MultigridLevel next){
+template<bool FreeOnly=false> __global__ void k_MgProlong(MultigridLevel L,MultigridLevel next,const UnifiedState* state=nullptr){
     int c=blockIdx.x*blockDim.x+threadIdx.x;if(c>=min(*L.count,L.capacity))return;
+    if(mgUnusedComponent<FreeOnly>(state,L.component[c]))return;
     int C=next.parent[c];if(C>=0)L.z[c]=L.z[c]+next.post[C];
 }
-__global__ void k_MgPost(MultigridLevel L){
+template<bool FreeOnly=false> __global__ void k_MgPost(MultigridLevel L,const UnifiedState* state=nullptr){
     int c=blockIdx.x*blockDim.x+threadIdx.x;if(c>=min(*L.count,L.capacity))return;
+    if(mgUnusedComponent<FreeOnly>(state,L.component[c])){L.post[c]=mkf3(0,0,0);return;}
     L.post[c]=L.z[c]+mgApply3(L.inverse+9*c,L.r[c]-mgRowProduct(L,c,L.z))*MG_OMEGA;
 }
-__global__ void k_MgFineProlong(const UnifiedState* state,const unsigned short* stencil,MultigridLevel L,float3* x){
+template<bool FreeOnly=false> __global__ void k_MgFineProlong(const UnifiedState* state,const unsigned short* stencil,MultigridLevel L,float3* x){
     const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0)return;
+    if(mgUnusedComponent<FreeOnly>(state,s.component[i]))return;
     int c=L.parent[i];if(materialCgNode(stencil,i) && c>=0)x[i]=x[i]+L.post[c];
 }
 // The final post smoothing, which writes the preconditioned residual z and adds r'z into the component's slot.
-__global__ void k_MgFinePost(const UnifiedState* state,const __half* matrix,const float* blockScale,
+template<bool FreeOnly=false> __global__ void k_MgFinePost(const UnifiedState* state,const __half* matrix,const float* blockScale,
     const unsigned short* stencil,const Symmetric3* diagonal,const float3* r,const float3* x,float3* z,
     MaterialCGSum* sums,int slot){
     const auto& s=*state;int i=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(i<0)return;
-    unsigned mask=stencil[i];if(!(mask>>7&1)){z[i]=mkf3(0,0,0);return;}
+    unsigned mask=stencil[i];if(!(mask>>7&1) || mgUnusedComponent<FreeOnly>(state,s.component[i])){z[i]=mkf3(0,0,0);return;}
     float3 out=x[i]+diagonal[i].solve(r[i]-mgStencilProduct(s,matrix,blockScale,mask,i,x))*MG_OMEGA;z[i]=out;
     materialDotAdd(&sums[s.component[i]].next[slot],unifiedDot(r[i],out));
 }

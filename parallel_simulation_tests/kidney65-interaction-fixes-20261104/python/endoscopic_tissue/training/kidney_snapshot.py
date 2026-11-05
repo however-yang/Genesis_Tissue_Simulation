@@ -308,8 +308,11 @@ def binding(env):
 
 def source_binding():
     from .snapshot import source_binding as frozen_binding
+    from . import env as active_env
     root = Path(__file__).resolve().parents[3]
     result = frozen_binding()
+    result['frozen_reference_env.py']=result['env.py']
+    result['env.py']=sha256(Path(active_env.__file__))
     result.update(kidney_snapshot=sha256(Path(__file__)),
                   kidney_scene_config=sha256(root/'scene_config.py'),
                   kidney_training_adapter=sha256(root/'kidney_training.py'))

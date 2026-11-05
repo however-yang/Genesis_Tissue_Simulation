@@ -43,6 +43,7 @@ def main():
                  for stage in result.get('stress',{}).get('stages',[]))
     result['direct_profile_in_extra_steps']=profiled
     probes=bool(result.get('scene',{}).get('stencil_probes_in_run') or result.get('scene',{}).get('mg_probes_in_run') or result.get('scene',{}).get('pressure_zero_checks_in_run'))
+    probes=probes or bool(result.get('scene',{}).get('free_mg_probes_in_run'))
     result['assembly_probes_in_run']=probes
     counters=bool(result.get('scene',{}).get('interaction_counters_in_run'))
     result['interaction_counters_in_run']=counters
