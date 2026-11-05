@@ -4,16 +4,17 @@ This is an assessment harness, not a change to the scene's physical parameters.
 Run in a separate process; never connects to an existing Unity session.
 """
 import argparse
-from dataclasses import asdict, dataclass
 import hashlib
 import json
-from pathlib import Path
 import subprocess
 import sys
 import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
 
 import numpy as np
 
+from .fixation import add_fixation_arguments, apply_fixation, fixation_command, fixation_from_args
 from .grid import METERS_PER_UNIT, build_grid
 from .native_backend import DEFAULT_DLL, Command, NativeTissue, Observation, Settings, Surface
 from .scenario import STAGES, drive_command, interpolate, stage_start
@@ -92,13 +93,16 @@ def save_state(path: Path, obs: Observation, surface: Surface):
                         normals=surface.normals, faces=surface.triangles, anchors=surface.anchors)
 
 
-def assess(output: Path, spacing, release=False, settings=Settings(), vertical_spacing=.05):
+def assess(output: Path, spacing, release=False, settings=Settings(), vertical_spacing=.05, fixation=None):
     output.mkdir(parents=True, exist_ok=False)
     result = Assessment(output.name, spacing * 10, vertical_spacing * 10)
     (output / "settings.json").write_text(json.dumps(asdict(settings), indent=2), encoding="utf8")
     (output / "stages.json").write_text(json.dumps([asdict(stage) for stage in STAGES], indent=2), encoding="utf8")
     grid = build_grid(spacing, density=settings.density_kg_m3, vertical_spacing=vertical_spacing)
-    (output / "grid.json").write_text(json.dumps({"cell_size_cm": grid.cell_size.tolist(), "dims": grid.dims}), encoding="utf8")
+    if fixation is not None:
+        apply_fixation(grid, fixation)
+    (output / "grid.json").write_text(json.dumps({"cell_size_cm": grid.cell_size.tolist(), "dims": grid.dims,
+                                                  "pinned_nodes": int(grid.pinned.sum())}), encoding="utf8")
     started = time.monotonic()
     contact_log = []
     try:
@@ -253,12 +257,15 @@ def main():
     parser.add_argument("--isolated", action="store_true", help="Start each repetition in a fresh Python process")
     parser.add_argument("--refine-passes", type=int, default=8, choices=range(9))
     parser.add_argument("--without-knife-body", action="store_true", help="Diagnostic ablation of knife body contact")
+    add_fixation_arguments(parser)
     args = parser.parse_args()
     if args.repeats < 1:
         parser.error("repeats must be positive")
     if args.single_spacing is not None:
         result = assess(args.output, args.single_spacing, release=args.release, vertical_spacing=args.vertical_spacing,
-                        settings=Settings(contact_refine_passes=args.refine_passes, has_knife_body=not args.without_knife_body))
+                        settings=Settings(contact_refine_passes=args.refine_passes,
+                                          has_knife_body=not args.without_knife_body),
+                        fixation=fixation_from_args(parser, args))
         if result.status != "passed":
             raise SystemExit(1)
         return
@@ -271,14 +278,16 @@ def main():
                             "--output", str(output), "--single-spacing", str(args.spacing),
                             "--refine-passes", str(args.refine_passes), "--vertical-spacing", str(args.vertical_spacing)] +
                            (["--release"] if args.release else []) +
-                           (["--without-knife-body"] if args.without_knife_body else []), check=False)
+                           (["--without-knife-body"] if args.without_knife_body else []) +
+                           fixation_command(args), check=False)
             if completed.returncode not in (0, 1):
                 raise subprocess.CalledProcessError(completed.returncode, completed.args)
             results.append(Assessment(**json.loads((output / "assessment.json").read_text(encoding="utf8"))))
     else:
         settings = Settings(contact_refine_passes=args.refine_passes, has_knife_body=not args.without_knife_body)
+        fixation = fixation_from_args(parser, args)
         results = [assess(args.output / f"baseline-{i + 1}", args.spacing, release=args.release or i == 0,
-                          settings=settings, vertical_spacing=args.vertical_spacing)
+                          settings=settings, vertical_spacing=args.vertical_spacing, fixation=fixation)
                    for i in range(args.repeats)]
     summary = {"cases": [asdict(result) for result in results],
                "session_mode": "fresh_process_per_case" if args.isolated else "reinitialize_in_same_process",

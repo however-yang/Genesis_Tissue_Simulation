@@ -8,6 +8,8 @@ from itertools import combinations
 
 import numpy as np
 
+from .fixation import bed_pins
+
 CORNER_OFFSETS = np.array(
     ((0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0),
      (0, 0, 1), (1, 0, 1), (1, 1, 1), (0, 1, 1)), dtype=np.int32)
@@ -219,7 +221,7 @@ def build_grid(spacing=0.6, size=BLOCK_SIZE, density=1000.0, vertical_spacing=No
     occupied = inside[corners].any(axis=1).astype(np.int32)
     active = np.zeros(len(positions), dtype=np.int32)
     active[corners[occupied != 0]] = 1
-    pinned = (shape.bed(positions) & (active != 0)).astype(np.int32)
+    pinned = bed_pins(positions, shape.bed, active)
 
     ca = corners[:, EDGE_CORNERS[:, 0]]
     cb = corners[:, EDGE_CORNERS[:, 1]]

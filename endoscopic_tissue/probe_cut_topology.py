@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from .assess_interactions import save_state
+from .fixation import add_fixation_arguments, use_fixation
 from .grid import build_grid
 from .native_backend import Command, NativeTissue, Settings
 from .scenario import STAGES, Stage, drive_command, interpolate, severed_edges, stage_start
@@ -32,12 +33,14 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--fixed", action="store_true", help="Cut a fixed specimen to isolate reconstruction")
     parser.add_argument("--vertical-spacing", type=float)
+    add_fixation_arguments(parser)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     settings = Settings()
     grid = build_grid(.2, density=settings.density_kg_m3, vertical_spacing=args.vertical_spacing)
     if args.fixed:
         grid.pinned[:] = grid.active
+    use_fixation(parser, args, grid)
     stages = STAGES if not args.fixed else (
         Stage("approach", 40, Command(blade_center=(.15, 1.05, -.6))),
         Stage("incise", 100, Command(blade_center=(.15, -.15, -.6))),

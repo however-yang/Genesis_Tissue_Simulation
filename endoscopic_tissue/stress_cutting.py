@@ -11,6 +11,7 @@ import numpy as np
 import trimesh
 
 from .assess_interactions import save_state
+from .fixation import add_fixation_arguments, use_fixation
 from .grid import build_grid
 from .native_backend import DEFAULT_DLL, Command, NativeTissue, Settings
 from .rendering import EndoscopicView
@@ -71,6 +72,7 @@ def main():
     parser.add_argument("--render-every", type=int, default=3)
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=960)
+    add_fixation_arguments(parser)
     args = parser.parse_args()
     if not np.isfinite(args.yaw) or args.render_every < 1 or args.substeps < 1:
         parser.error("yaw must be finite; render-every and substeps must be positive")
@@ -78,6 +80,7 @@ def main():
     angle = np.deg2rad(args.yaw)
     settings = Settings(substeps=args.substeps, blade_axis=(float(np.sin(angle)), 0.0, float(np.cos(angle))))
     grid = build_grid(.2, density=settings.density_kg_m3, vertical_spacing=.05)
+    use_fixation(parser, args, grid)
     result = StressResult()
     view, video = None, None
     started = time.monotonic()

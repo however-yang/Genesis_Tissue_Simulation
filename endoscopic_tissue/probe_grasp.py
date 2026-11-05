@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from .assess_interactions import save_state
+from .fixation import add_fixation_arguments, use_fixation
 from .grid import build_grid
 from .native_backend import Command, NativeTissue, Settings
 from .scenario import STAGES, Sequence, drive_command, interpolate
@@ -16,10 +17,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--spacing", type=float, default=.2)
+    add_fixation_arguments(parser)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     settings = Settings()
     grid = build_grid(args.spacing, density=settings.density_kg_m3)
+    use_fixation(parser, args, grid)
     peak_error_mm = 0.
     with NativeTissue(grid, settings) as tissue:
         obs = tissue.observe()

@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from .assess_interactions import save_state
+from .fixation import add_fixation_arguments, use_fixation
 from .grid import build_grid
 from .native_backend import Command, NativeTissue, Settings
 from .scenario import interpolate, severed_edges
@@ -16,6 +17,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--without-knife-body", action="store_true")
+    add_fixation_arguments(parser)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     settings = Settings(start_force_n=10, cut_force_n=1, has_knife_body=not args.without_knife_body)
@@ -24,6 +26,7 @@ def main():
     # Fix the obstacle for this collision oracle: a freely deforming tissue
     # can move out of the way, so tool position alone would not prove blocking.
     grid.pinned[:] = grid.active
+    use_fixation(parser, args, grid)
     with NativeTissue(grid, settings) as tissue:
         baseline = tissue.observe().neighbors.copy()
         previous = Command()

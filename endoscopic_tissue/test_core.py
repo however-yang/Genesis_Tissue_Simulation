@@ -1,5 +1,8 @@
 """CPU contracts that guard the cross-language topology and unit conventions."""
+import argparse
+import contextlib
 import ctypes
+import io
 import unittest
 from dataclasses import replace
 from itertools import product
@@ -10,6 +13,8 @@ import trimesh
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 
+from .fixation import (PointFixation, RegionFixation, add_fixation_arguments, apply_fixation, fixation_from_args,
+                       surface_node_mask)
 from .forces import ForceMonitor, MeasuredForce, SolverForceModel, draw_force_readout
 from .grid import BLOCK_SIZE, build_grid, connectivity_table, EDGE_CORNERS, Tab, to_genesis
 from .instrument_geometry import (SCISSORS_BACK_CLEARANCE, knife_frame, knife_geometry, load_davinci_wrist,
@@ -634,6 +639,40 @@ class CoreTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "finite"):
             ForceMonitor(model=BrokenModel()).estimate(obs)
+
+    def test_point_and_region_fixation_replace_the_bed(self):
+        grid = build_grid(0.6)
+        bed = grid.positions[grid.pinned != 0].copy()
+        self.assertGreater(len(bed), 1)
+        surface = surface_node_mask(grid)
+        top = int(np.flatnonzero(surface)[np.argmax(grid.positions[surface, 1])])
+        target = grid.positions[top]
+        self.assertEqual(apply_fixation(grid, PointFixation(tuple(float(component) for component in target))), 1)
+        held = np.flatnonzero(grid.pinned)
+        self.assertEqual(held.tolist(), [top])
+        self.assertTrue(surface[held[0]])
+        shifted = target + np.array((0.05, 0.02, -0.04))
+        apply_fixation(grid, PointFixation(tuple(float(component) for component in shifted)))
+        self.assertEqual(np.flatnonzero(grid.pinned).tolist(), [top])
+        low = tuple(float(component) for component in bed.min(axis=0) - 0.05)
+        high = tuple(float(component) for component in bed.max(axis=0) + 0.05)
+        self.assertEqual(apply_fixation(grid, RegionFixation(low, high)), len(bed))
+        np.testing.assert_allclose(grid.positions[grid.pinned != 0], bed, atol=1e-5)
+        self.assertTrue(np.all(surface[grid.pinned != 0]))
+        with self.assertRaisesRegex(ValueError, "one cell"):
+            apply_fixation(grid, PointFixation((0, 20, 0)))
+        with self.assertRaisesRegex(ValueError, "no tissue surface"):
+            apply_fixation(grid, RegionFixation((10, 10, 10), (11, 11, 11)))
+        with self.assertRaisesRegex(ValueError, "thicker"):
+            RegionFixation((1, 0, 0), (0, 1, 1))
+        parser = argparse.ArgumentParser()
+        add_fixation_arguments(parser)
+        point = fixation_from_args(parser, parser.parse_args(
+            ["--fixation", "point", "--fixation-point", "0", "0.7", "0"]))
+        self.assertEqual(point.point, (0.0, 0.7, 0.0))
+        self.assertIsNone(fixation_from_args(parser, parser.parse_args([])))
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            fixation_from_args(parser, parser.parse_args(["--fixation", "point"]))
 
 
 if __name__ == "__main__":

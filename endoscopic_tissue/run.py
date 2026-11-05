@@ -19,6 +19,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from .fixation import add_fixation_arguments, use_fixation
 from .forces import ForceMonitor, draw_force_readout, solver_force_readout
 from .grid import METERS_PER_UNIT, build_grid, to_genesis
 from .instrument_geometry import scissors_body_depths
@@ -362,6 +363,7 @@ def main():
     parser.add_argument("--dll", type=Path, default=None, help="Native library; default native/bin-scissors")
     parser.add_argument("--demo", action="store_true",
                         help="Scissors only: move the camera in on the scissors and end the video on a 3 s still of the cut")
+    add_fixation_arguments(parser)
     args = parser.parse_args()
     if args.steps is not None and args.steps < 0:
         parser.error("steps must be nonnegative")
@@ -397,6 +399,7 @@ def main():
         grid = scene.build_grid(settings.density_kg_m3)
     else:
         grid = build_grid(args.spacing, density=settings.density_kg_m3, vertical_spacing=args.vertical_spacing)
+    use_fixation(parser, args, grid)
     # A scene with its own tissue shape frames it with its demo shot from the start. Every other scene uses the
     # block camera.
     kidney = scene.shape if scene else None
@@ -510,7 +513,8 @@ def main():
                   "scene": args.scene if scene else None, "tab_cm": asdict(scene.tab) if scene else None,
                   "dll": str(dll) if dll else None,
                   "dll_sha256": hashlib.sha256(dll.read_bytes()).hexdigest() if dll else None,
-                  "genesis_view_created": view is not None,
+                  "genesis_view_created": view is not None, "fixation": args.fixation,
+                  "pinned_nodes": int(grid.pinned.sum()),
                   "metrics": asdict(flow.sequence.metrics) if flow.sequence else None,
                   "limitations": ["Single native session", "End-effector control; no robot arm dynamics",
                                   "Anchor-assisted grasp", "Finite capsule cutting edge", "Uncalibrated tissue"]}
