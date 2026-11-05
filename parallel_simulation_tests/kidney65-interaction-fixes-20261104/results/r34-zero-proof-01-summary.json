@@ -1,0 +1,211 @@
+{
+  "run": "r34-zero-proof-01",
+  "platform": "A100-GPU1",
+  "source_sha256": {
+    "report.json": "ffdb2dbf3a02e3284b331d1c1efecd210bab04e3653603cfbe9fc9a535a8dadc",
+    "scene-config.json": "48ca9dc0374759097fa7a21518deac3c379399353f785adae5a78c4df8cae08f",
+    "native-timing.json": "f1fdb823d7309d67a818d71da8bbf52253bdcfdf49ec75b99c5d4bd3268614ce"
+  },
+  "report": {
+    "status": "partial",
+    "error": null,
+    "last_stage": "bite",
+    "steps": 165,
+    "elapsed_s": 26.04733630490955,
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 15000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "grid_spacing_cm": 0.125,
+    "cell_size_cm": [
+      0.125,
+      0.10000000149011612,
+      0.125
+    ],
+    "nodes": 236313,
+    "scene": "kidney",
+    "tab_cm": {
+      "low": [
+        -1.0,
+        2.8,
+        -1.0
+      ],
+      "high": [
+        1.0,
+        4.2,
+        1.0
+      ],
+      "attached": 1
+    },
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r34-zero-check.so",
+    "dll_sha256": "a617247c463e6fb4197324cd8b8147346d50a9808f79e382ece4a576251c8565",
+    "genesis_view_created": true,
+    "metrics": {
+      "completed": false,
+      "grasp_acquired": false,
+      "lift_m": 0.0,
+      "edges_before_incision": 0,
+      "cut_edges": 0,
+      "observed_cut_edges": 0,
+      "retained_cut_edges": 0,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 0,
+      "final_grip_points": 0,
+      "current_grip_points": 0,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 0.0,
+      "max_blade_body_overlap_m": 0.0,
+      "peak_blade_force_n": 0.0,
+      "max_node_displacement_m": 0.004214949905872345,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 0,
+      "fracture_left_n": 0.0,
+      "fracture_right_n": 0.0,
+      "two_blade_squeeze_m": 0.0,
+      "snips": [],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 0,
+      "slit_length_m": 0.0,
+      "material_components": 0,
+      "gripped_pieces": 0,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 0,
+      "acceptance_passed": false
+    },
+    "limitations": [
+      "Single native session",
+      "End-effector control; no robot arm dynamics",
+      "Anchor-assisted grasp",
+      "Finite capsule cutting edge",
+      "Uncalibrated tissue"
+    ]
+  },
+  "scene": {
+    "preset": "frontal65",
+    "spacing_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "shape_dimensions_and_material_unchanged": true,
+    "cut_normal_resolution_mm": 1.0,
+    "physics_equivalence_claimed": false,
+    "mesh_dependent_native_tolerances_follow_new_grid_spacing": true,
+    "grasper_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "scissors_yaw_deg": -45.0,
+    "prescribed_grasper_tip_locations_preserved": true,
+    "camera": [
+      [
+        0.0,
+        -0.128,
+        0.093
+      ],
+      [
+        0.0,
+        0.0,
+        0.02
+      ]
+    ],
+    "visual_only_background": true,
+    "view_options": {
+      "camera_fov": 43,
+      "lamp_gain": 0.9,
+      "roughness_scale": 1.18
+    },
+    "background": "less glossy perirenal fat and subdued reddish rear tissue; visual approximation",
+    "note": "New physical tool poses require their own interaction validation",
+    "driver_sha256": "787e11eadc3f3512d6ae4f9263ec9275d8ec705a2e3e2676a91284077b127282",
+    "driver_inputs_sha256": {
+      "run_scene.py": "787e11eadc3f3512d6ae4f9263ec9275d8ec705a2e3e2676a91284077b127282",
+      "scene_config.py": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+      "training_stress.py": "c8e5d547bff77fbd833bf9090b86f4a384370c2641d12d63f812bd426560403e",
+      "envelope_audit.py": "ad53bf86a0cec68eeb3d8690da38e028baad49998a63cdbf24b811551f73a6dc"
+    },
+    "material_nodes": 65688,
+    "active_nodes": 79548,
+    "lattice_nodes": 236313,
+    "grid_edges": 646696,
+    "cell_size_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "mass_kg": 0.11887311935424805,
+    "python_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "source_script_sha256": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+    "server_gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "egl_binding": {
+      "egl_index": 1,
+      "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+      "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+    },
+    "envelope_certification_version": 1,
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r34-zero-check.so",
+    "dll_sha256": "a617247c463e6fb4197324cd8b8147346d50a9808f79e382ece4a576251c8565",
+    "core_mode": 43264,
+    "native_schedule": {
+      "assembly_blocks": 512,
+      "manifold_blocks": 1024
+    },
+    "native_physics_source_modified": true,
+    "library_label": "r34-zero-check",
+    "timing_definition": "Synchronous headless demo RGB frame, including step/readback, surface and recording submit, renderer and video write; excludes stage saves and final async drain. Not Windows displayed FPS or full training RGB-D.",
+    "pressure_zero_checks_in_run": true
+  },
+  "native_original_calls": 165,
+  "native_original_mean_ms": 25.887671239307206,
+  "native_original_p95_ms": 34.00476695969701,
+  "native_original_max_ms": 34.43155204877257,
+  "timing_scope": "Native LCS_Step wall time; excludes init/replay, render, encoding, readback and Python checks. Not minimum FPS. Private stage assembly probes are present; run a separate normal-throughput comparison.",
+  "direct_profile_in_extra_steps": false,
+  "assembly_probes_in_run": true,
+  "interaction_counters_in_run": false,
+  "performance_usable": false
+}

@@ -2801,9 +2801,19 @@ static void rebuildMultigrid(){
 // The Galerkin operators of this solve's stencil and the dense inverse of the coarsest one.
 static void assembleMultigrid(cudaStream_t stream){
     auto blocks=[](int capacity){return (capacity+MG_GALERKIN_ROWS-1)/MG_GALERKIN_ROWS;};
+#ifdef ENDO_KIDNEY_GATHER_MG
+    k_MgGatherFine<<<min(1024,g_multigrid[1].capacity),128,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,g_multigrid[1]);
+    for(int l=2;l<=g_multigridLevels;l++)
+        k_MgGather<<<min(1024,g_multigrid[l].capacity),128,0,stream>>>(g_multigrid[l-1],g_multigrid[l]);
+#elif defined(ENDO_KIDNEY_PACKED_MG)
+    k_MgGalerkinFine<true><<<blocks(g_multigrid[1].capacity),8*MG_GALERKIN_ROWS,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,g_multigrid[1]);
+    for(int l=2;l<=g_multigridLevels;l++)
+        k_MgGalerkin<true><<<blocks(g_multigrid[l].capacity),8*MG_SLOTS*MG_GALERKIN_ROWS,0,stream>>>(g_multigrid[l-1],g_multigrid[l]);
+#else
     k_MgGalerkinFine<<<blocks(g_multigrid[1].capacity),8*MG_GALERKIN_ROWS,0,stream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgStencil,g_multigrid[1]);
     for(int l=2;l<=g_multigridLevels;l++)
         k_MgGalerkin<<<blocks(g_multigrid[l].capacity),8*MG_SLOTS*MG_GALERKIN_ROWS,0,stream>>>(g_multigrid[l-1],g_multigrid[l]);
+#endif
     const MultigridLevel& coarsest=g_multigrid[g_multigridLevels];
     cudaMemsetAsync(d_multigridDense,0,(size_t)9*MG_COARSEST*MG_COARSEST*sizeof(float),stream);
     k_MgDense<<<Gr(27*coarsest.capacity),64,0,stream>>>(coarsest,d_multigridDense);
@@ -3654,6 +3664,8 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
 #ifdef ENDO_KIDNEY_STENCIL_CACHE
                 k_MaterialTetCache<<<Gr(g_T),64,0,g_captureStream>>>(d_unified,d_materialTetCache);
                 if(anyFragmentQueries)k_MaterialStencilAssemble<true,true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH,d_materialTetCache);else k_MaterialStencilAssemble<false,true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH,d_materialTetCache);
+#elif defined(ENDO_KIDNEY_SHARED_STENCIL)
+                if(anyFragmentQueries)k_MaterialStencilAssemble<true,false,true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);else k_MaterialStencilAssemble<false,false,true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);
 #else
                 if(anyFragmentQueries)k_MaterialStencilAssemble<true><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);else k_MaterialStencilAssemble<false><<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_cgMatrix,d_cgScale,d_cgR,d_cgH);
 #endif
@@ -4437,7 +4449,10 @@ extern "C" int xpbd_query_threads(int threads){
 
 extern "C" int xpbd_set_coarse_bound_cache(int enabled){if(g_ready || (enabled!=0 && enabled!=1))return -10011;g_coarseBoundCacheEnabled=enabled;return 0;}
 #include "../training/kidney_contact_probe.cuh"
-#ifdef ENDO_KIDNEY_STENCIL_CACHE
+#if defined(ENDO_KIDNEY_PACKED_MG) || defined(ENDO_KIDNEY_GATHER_MG)
+#include "../training/multigrid_packed_probe.cuh"
+#endif
+#if defined(ENDO_KIDNEY_STENCIL_CACHE) || defined(ENDO_KIDNEY_SHARED_STENCIL)
 #include "../training/material_stencil_probe.cuh"
 #endif
 #ifdef ENDO_KIDNEY_SPECIALIZE_PRESSURE
@@ -4469,6 +4484,13 @@ extern "C" int xpbd_query_order_probe(int stride,unsigned packed,int kinds,const
 extern "C" LCS_COMBINED_EXPORT int LCS_ClosedContactCounters(unsigned long long* out,int reset){
     if(!out)return -1;cudaError_t e=cudaMemcpyFromSymbol(out,g_fragmentRuntimeStats,6*sizeof(unsigned long long));
     if(e==cudaSuccess && reset){unsigned long long zero[6]={};e=cudaMemcpyToSymbol(g_fragmentRuntimeStats,zero,sizeof(zero));}
+    return (int)e;
+}
+#endif
+#ifdef ENDO_KIDNEY_PRESSURE_ZERO_CHECK
+extern "C" LCS_COMBINED_EXPORT int LCS_PressureZeroCounters(unsigned long long* out,int reset){
+    if(!out)return -1;cudaError_t e=cudaMemcpyFromSymbol(out,g_pressureZeroStats,8*sizeof(unsigned long long));
+    if(e==cudaSuccess && reset){unsigned long long zero[8]={};e=cudaMemcpyToSymbol(g_pressureZeroStats,zero,sizeof(zero));}
     return (int)e;
 }
 #endif

@@ -43,8 +43,12 @@ def main():
     parser.add_argument('--nsys-stage',choices=('drop_settle','regrasp_close'),help='Server-only, bounded actual CUDA-graph tracing')
     parser.add_argument('--nsys-frames',type=int,default=3)
     parser.add_argument('--stencil-probe',action='store_true',help='Read-only original/cached assembly comparisons after stages; not a production FPS run')
+    parser.add_argument('--mg-probe',action='store_true',help='Read-only full/packed Galerkin comparisons; not a production FPS run')
+    parser.add_argument('--interaction-counters',action='store_true',help='Read/reset existing counters at stage boundaries; diagnostic run, no physics changes')
     args = parser.parse_args()
-    if args.stencil_probe and (os.name=='nt' or args.native_only):parser.error('Stencil comparisons require server stage recording')
+    driver_inputs={name:(ROOT/name).read_bytes() for name in ('run_scene.py','scene_config.py','training_stress.py','envelope_audit.py')}
+    if (args.stencil_probe or args.mg_probe) and (os.name=='nt' or args.native_only):parser.error('Assembly comparisons require server stage recording')
+    if args.stencil_probe and args.mg_probe:parser.error('Test each assembly experiment independently')
     if args.nsys_stage and (os.name=='nt' or not args.stress_tests or not 1<=args.nsys_frames<=10):
         parser.error('Nsight capture requires server stress tests and 1-10 frames')
     if not 2<=args.replay_repeats<=20:
@@ -63,6 +67,8 @@ def main():
     from endoscopic_tissue import run
     from scene_config import configure
     metadata, view_options = configure(run, args.preset, args.lateral_mm)
+    metadata['driver_sha256']=sha(Path(__file__))
+    metadata['driver_inputs_sha256']={name:hashlib.sha256(data).hexdigest() for name,data in driver_inputs.items()}
     grid = run.SCISSORS_SCENES["kidney"].build_grid(run.scissors_settings().density_kg_m3)
     metadata.update(material_nodes=int(grid.inside.sum()), active_nodes=int(grid.active.sum()),
                     lattice_nodes=len(grid.positions), grid_edges=len(grid.edges), cell_size_mm=(grid.cell_size * 10).tolist(),
@@ -194,28 +200,58 @@ def main():
             return result
 
         run.Recording.after_step = record
-        if args.stencil_probe:
+        if args.interaction_counters:
+            read_stats=native.LCS_ReadInteractionStats
+            read_stats.argtypes=[ctypes.c_void_p,ctypes.c_int,ctypes.c_int];read_stats.restype=ctypes.c_int
+            stats_before_stage=run.Recording.after_stage;stage_stats=[]
+            initial_stats=(ctypes.c_int*16)();assert read_stats(initial_stats,16,1)==16
+            def counter_stage(self,flow,stage,surface):
+                stats_before_stage(self,flow,stage,surface)
+                values=(ctypes.c_int*16)();assert read_stats(values,16,1)==16
+                stage_stats.append(dict(stage=stage,raw=list(values),substeps=values[0],
+                    fragment_query_sum=values[1],substeps_with_free_nodes=values[2],
+                    recovery_substeps=values[3],loaded_only_substeps=values[4],
+                    graph_rebuilds=values[5],peak_fragment_queries=values[15]))
+                (output/'interaction-counters.json').write_text(json.dumps(stage_stats,indent=2)+'\n')
+            run.Recording.after_stage=counter_stage
+            metadata['interaction_counters_in_run']=True
+        if hasattr(native,'LCS_PressureZeroCounters'):
+            read_zero=native.LCS_PressureZeroCounters;read_zero.argtypes=[ctypes.c_void_p,ctypes.c_int];read_zero.restype=ctypes.c_int
+            zero_before_stage=run.Recording.after_stage;zero_records=[]
+            def zero_stage(self,flow,stage,surface):
+                zero_before_stage(self,flow,stage,surface)
+                values=(ctypes.c_ulonglong*8)();assert read_zero(values,1)==0
+                row=dict(stage=stage,counters=list(values));zero_records.append(row)
+                (output/'pressure-zero-proof.json').write_text(json.dumps(zero_records,indent=2)+'\n')
+                assert values[2]==values[5]==0, 'An omitted tet had a nonzero reference energy change'
+                if values[1]+values[4]:assert values[6]==values[7]==1, 'Perturbed private reference negative control failed'
+            run.Recording.after_stage=zero_stage
+            metadata['pressure_zero_checks_in_run']=True
+        if args.stencil_probe or args.mg_probe:
             import numpy as np
-            fn=native.LCS_MaterialStencilProbe;fn.argtypes=[ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p];fn.restype=ctypes.c_int
+            fn=getattr(native,'LCS_MgGalerkinProbe' if args.mg_probe else 'LCS_MaterialStencilProbe');fn.argtypes=[ctypes.c_int,ctypes.c_void_p,ctypes.c_void_p];fn.restype=ctypes.c_int
             original_stage=run.Recording.after_stage
             probes=[]
             def stage_probe(self,flow,stage,surface):
                 tissue=frame['tissue']
                 original_stage(self,flow,stage,surface)
-                stats=(ctypes.c_ulonglong*9)();errors=(ctypes.c_double*8)()
+                stats=(ctypes.c_ulonglong*(49 if args.mg_probe else 9))();errors=(ctypes.c_double*(32 if args.mg_probe else 8))()
                 before=tissue.observe()
                 for damage in ([0,1] if not probes else [0]):
                     assert fn(damage,stats,errors)==0
-                    differences=sum(stats[k] for k in (1,3,5,7))
-                    probes.append(dict(stage=stage,damaged_cache=bool(damage),stats=list(stats),max_error_reference_scale=list(errors),bitwise_equal=differences==0))
-                    (output/'stencil-probes.json').write_text(json.dumps(probes,indent=2)+'\n')
-                    assert stats[8]==0, 'Nonfinite assembly probe output'
+                    differences=(sum(stats[1+6*l+k] for l in range(stats[0]) for k in (2,4)) if args.mg_probe else sum(stats[k] for k in (1,3,5,7)))
+                    nonfinite=sum(stats[1+6*l+5] for l in range(stats[0])) if args.mg_probe else stats[8]
+                    probes.append(dict(stage=stage,negative_control=bool(damage),
+                        negative_control_kind='private output perturbation' if args.mg_probe or build.get('shared_stencil') else 'private cached F perturbation',
+                        stats=list(stats),max_error_reference_scale=list(errors),bitwise_equal=differences==0))
+                    (output/('galerkin-probes.json' if args.mg_probe else 'stencil-probes.json')).write_text(json.dumps(probes,indent=2)+'\n')
+                    assert nonfinite==0, 'Nonfinite assembly probe output'
                     if damage:assert differences>0, 'Damaged-cache negative control was not detected'
                     else:assert differences==0, 'Cached assembly differs from original'
                 after=tissue.observe()
                 assert np.array_equal(before.nodes,after.nodes) and np.array_equal(before.neighbors,after.neighbors), 'Read-only probe changed live state'
             run.Recording.after_stage=stage_probe
-            metadata['stencil_probes_in_run']=True
+            metadata['mg_probes_in_run' if args.mg_probe else 'stencil_probes_in_run']=True
         if args.stress_tests:
             from training_stress import install
             install(run, output, profile=args.profile_stress,route=args.stress_route,diagnostic=args.diagnostic_stress,replay_repeats=args.replay_repeats,nsys_stage=args.nsys_stage,nsys_frames=args.nsys_frames)
@@ -235,6 +271,8 @@ def main():
             run.main()
         finally:
             if output.exists():
+                frozen=output/'driver-inputs';frozen.mkdir(exist_ok=False)
+                for filename,data in driver_inputs.items():(frozen/filename).write_bytes(data)
                 if native_calls:
                     import numpy as np
                     values=np.array([row['native_ms'] for row in native_calls])

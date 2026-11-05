@@ -56,6 +56,14 @@ __device__ void pressureLineNode(const UnifiedState& s,CoarseBlock* blocks,int i
         values[k]=(float)energy;
     }pressureLineAdd(b,values);
 }
+#ifdef ENDO_KIDNEY_PRESSURE_ZERO_CHECK
+__device__ unsigned long long g_pressureZeroStats[8]={};
+// Keep the complete reference calculation out of line: the diagnostic must
+// evaluate it, not propagate the caller's zero-relative-motion predicate.
+__device__ __noinline__ float pressureZeroReference(const UnifiedState& s,int t,const float3 (&p)[4],const float3 (&v)[4]){
+    return unifiedTetEnergyChange(s,t,p,v);
+}
+#endif
 __device__ void pressureLineTet(const UnifiedState& s,CoarseBlock* blocks,int t,int pass){
     if(t>=s.nt || !pressureLineActive(s) || !s.live[t])return;
     int id[4];unifiedTetIds(s,t,id);float w[4];for(int j=0;j<4;j++)w[j]=s.coarseWeight[id[j]];
@@ -66,6 +74,24 @@ __device__ void pressureLineTet(const UnifiedState& s,CoarseBlock* blocks,int t,
         // The change to the trial positions rounded to float, as in k_MaterialLineTets.
         float a=ldexpf(b->scale,-k);
         for(int j=0;j<4;j++)step[j]=(p[j]+b->step*(a*w[j]))-p[j];
+#ifdef ENDO_KIDNEY_PRESSURE_ZERO
+        bool translated=isfinite(step[0].x) && isfinite(step[0].y) && isfinite(step[0].z);
+        for(int j=1;j<4;j++)translated&=step[j].x==step[0].x && step[j].y==step[0].y && step[j].z==step[0].z;
+#ifdef ENDO_KIDNEY_PRESSURE_ZERO_CHECK
+        float reference=translated?pressureZeroReference(s,t,p,step):0;
+        unsigned mask=__activemask(),zero=__ballot_sync(mask,translated),bad=__ballot_sync(mask,translated && reference!=0.f);
+        if((threadIdx.x&31)==__ffs(mask)-1){int at=k?3:0;
+            atomicAdd(g_pressureZeroStats+at,(unsigned long long)__popc(mask));
+            atomicAdd(g_pressureZeroStats+at+1,(unsigned long long)__popc(zero));
+            atomicAdd(g_pressureZeroStats+at+2,(unsigned long long)__popc(bad));}
+        if(translated && atomicCAS(g_pressureZeroStats+6,0ull,1ull)==0ull){
+            float3 perturbed[4];for(int j=0;j<4;j++)perturbed[j]=step[j];perturbed[1].x+=.001f;
+            float control=pressureZeroReference(s,t,p,perturbed);
+            if(isfinite(control) && control!=0.f)atomicAdd(g_pressureZeroStats+7,1ull);
+        }
+#endif
+        if(translated){values[k]=0;continue;}
+#endif
         values[k]=unifiedTetEnergyChange(s,t,p,step);
     }
     pressureLineAdd(b,values);

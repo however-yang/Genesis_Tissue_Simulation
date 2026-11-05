@@ -3,6 +3,7 @@
 __global__ void k_StencilProbeDamage(int count,const int* live,MaterialTetCache* cache){
     if(threadIdx.x || blockIdx.x)return;for(int t=0;t<count;t++)if(live[t]){cache[t].F[0].x+=.1f;return;}
 }
+__global__ void k_StencilOutputDamage(int count,Symmetric3* h){if(count>0 && !threadIdx.x && !blockIdx.x)h[0].xx+=.1f;}
 extern "C" LCS_COMBINED_EXPORT int LCS_MaterialStencilProbe(int damage,unsigned long long* stats,double* errors){
     if(!stats || !errors || !g_ready || !d_unified || (damage!=0 && damage!=1))return -10017;
     struct Work{
@@ -17,10 +18,15 @@ extern "C" LCS_COMBINED_EXPORT int LCS_MaterialStencilProbe(int damage,unsigned 
         STENCIL_PROBE_ALLOC(w.r[i],(size_t)g_N*sizeof(float3));STENCIL_PROBE_ALLOC(w.h[i],(size_t)g_N*sizeof(Symmetric3));
     }
 #undef STENCIL_PROBE_ALLOC
+    k_MaterialStencilAssemble<true,false><<<Gr(g_activeNodes),64>>>(d_unified,w.matrix[0],w.scale[0],w.r[0],w.h[0]);
+#ifdef ENDO_KIDNEY_SHARED_STENCIL
+    k_MaterialStencilAssemble<true,false,true><<<Gr(g_activeNodes),64>>>(d_unified,w.matrix[1],w.scale[1],w.r[1],w.h[1]);
+    if(damage)k_StencilOutputDamage<<<1,1>>>(g_N,w.h[1]);
+#else
     k_MaterialTetCache<<<Gr(g_T),64>>>(d_unified,w.cache);
     if(damage)k_StencilProbeDamage<<<1,1>>>(g_T,d_tetActive,w.cache);
-    k_MaterialStencilAssemble<true,false><<<Gr(g_activeNodes),64>>>(d_unified,w.matrix[0],w.scale[0],w.r[0],w.h[0]);
     k_MaterialStencilAssemble<true,true><<<Gr(g_activeNodes),64>>>(d_unified,w.matrix[1],w.scale[1],w.r[1],w.h[1],w.cache);
+#endif
     for(int k=0;k<9;k++)stats[k]=0;for(int k=0;k<8;k++)errors[k]=0;
     for(int kind=0;kind<4;kind++){
         size_t count=(size_t)g_N*(kind==0?72:kind==1?8:kind==2?3:sizeof(Symmetric3)/sizeof(float));

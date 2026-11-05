@@ -42,9 +42,12 @@ def main():
     profiled=any('profile_gpu_sections_ms_per_step' in stage
                  for stage in result.get('stress',{}).get('stages',[]))
     result['direct_profile_in_extra_steps']=profiled
-    probes=bool(result.get('scene',{}).get('stencil_probes_in_run'))
+    probes=bool(result.get('scene',{}).get('stencil_probes_in_run') or result.get('scene',{}).get('mg_probes_in_run') or result.get('scene',{}).get('pressure_zero_checks_in_run'))
     result['assembly_probes_in_run']=probes
-    result['performance_usable']=not bool(result.get('interference')) and not profiled and not probes
+    counters=bool(result.get('scene',{}).get('interaction_counters_in_run'))
+    result['interaction_counters_in_run']=counters
+    result['performance_usable']=not bool(result.get('interference')) and not profiled and not probes and not counters
+    if counters:result['timing_scope']+=' Read/reset stage counters are present; use a separate normal timing run.'
     if probes:result['timing_scope']+=' Private stage assembly probes are present; run a separate normal-throughput comparison.'
     if profiled:
         result['timing_scope']+=' Extra stages use diagnostic direct-kernel profiling; those values are not production performance.'

@@ -11,11 +11,11 @@ __device__ inline int materialSlot(const UnifiedState& s,int i,int j){
 }
 // Adds a 3x3 block into one slot of a stencil row. Every index is fixed at compile time, which keeps the row in
 // registers: indexing it at run time would spill it to local memory.
-template<int S> __device__ __forceinline__ void materialRowAddSlot(float (&row)[72],const float (&block)[9]){
+template<int S,class Row> __device__ __forceinline__ void materialRowAddSlot(Row& row,const float (&block)[9]){
     #pragma unroll
     for(int k=0;k<9;k++)row[9*S+k]+=block[k];
 }
-__device__ __forceinline__ void materialRowAdd(float (&row)[72],int slot,const float (&block)[9]){
+template<class Row> __device__ __forceinline__ void materialRowAdd(Row& row,int slot,const float (&block)[9]){
     switch(slot){
         case 0:materialRowAddSlot<0>(row,block);break;case 1:materialRowAddSlot<1>(row,block);break;
         case 2:materialRowAddSlot<2>(row,block);break;case 3:materialRowAddSlot<3>(row,block);break;
@@ -34,10 +34,9 @@ __device__ __forceinline__ void materialRowAdd(float (&row)[72],int slot,const f
 // (tension hardening) is computed here.
 // The same pass writes the PCG right-hand side, the residual: minus the gradient of the node's energy, with the terms
 // and the summation order of k_UnifiedVertex. A fixed node gets a zero residual and an identity diagonal.
-template<bool AllowFragments=true,bool UseTetCache=false> __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matrix,float* blockScale,float3* residual,Symmetric3* diagonal,const MaterialTetCache* cache=nullptr){
-    const auto& s=*state;int node=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(node<0)return;
-    if(materialCgFixed<AllowFragments>(s,node)){residual[node]=mkf3(0,0,0);diagonal[node]={1,1,1,0,0,0};return;}
-    float3 p=s.pos[node];float inertia=1.f/(s.invMass[node]*s.h*s.h),row[72]={};
+template<bool AllowFragments,bool UseTetCache,class Row> __device__ __forceinline__ void materialStencilAssembleRow(const UnifiedState* state,__half* matrix,float* blockScale,float3* residual,Symmetric3* diagonal,int node,Row& row,const MaterialTetCache* cache){
+    const auto& s=*state;
+    float3 p=s.pos[node];float inertia=1.f/(s.invMass[node]*s.h*s.h);
     float3 gradient=(p-s.target[node])*inertia;
     if(s.attach && s.attach[node]>0)gradient=gradient+(p-s.attachRest[node])*s.attach[node]+(p-s.previous[node])*unifiedSupportDamping(s,node);
     row[0]=row[4]=row[8]=inertia+(s.attach?s.attach[node]:0)+unifiedSupportDamping(s,node);
@@ -170,6 +169,25 @@ template<bool AllowFragments=true,bool UseTetCache=false> __global__ void k_Mate
     }
 }
 
+// One row per thread. Consecutive lanes address consecutive banks for every
+// component. No other thread accesses this row, so no block barrier is needed.
+struct MaterialSharedRow{
+    volatile float* values;
+    __device__ __forceinline__ volatile float& operator[](int k){return values[64*k+threadIdx.x];}
+};
+template<bool AllowFragments=true,bool UseTetCache=false,bool UseSharedRow=false> __global__ void k_MaterialStencilAssemble(const UnifiedState* state,__half* matrix,float* blockScale,float3* residual,Symmetric3* diagonal,const MaterialTetCache* cache=nullptr){
+    const auto& s=*state;int node=unifiedActiveNode(s,blockIdx.x*blockDim.x+threadIdx.x);if(node<0)return;
+    if(materialCgFixed<AllowFragments>(s,node)){residual[node]=mkf3(0,0,0);diagonal[node]={1,1,1,0,0,0};return;}
+    if constexpr(UseSharedRow){
+        __shared__ float storage[72*64];MaterialSharedRow row{storage};
+        #pragma unroll
+        for(int k=0;k<72;k++)row[k]=0;
+        materialStencilAssembleRow<AllowFragments,UseTetCache>(state,matrix,blockScale,residual,diagonal,node,row,cache);
+    }else{
+        float row[72]={};
+        materialStencilAssembleRow<AllowFragments,UseTetCache>(state,matrix,blockScale,residual,diagonal,node,row,cache);
+    }
+}
 
 // The lattice offset of the neighbor in slot 0..14 of a stencil row: slot 7 is the node itself, slots above 7 its seven
 // upper neighbors and slots below 7 the lower ones, mirrored.

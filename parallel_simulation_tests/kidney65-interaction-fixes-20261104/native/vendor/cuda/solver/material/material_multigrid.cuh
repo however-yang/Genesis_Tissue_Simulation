@@ -137,17 +137,21 @@ __device__ inline void mgFinish(MultigridLevel& L,int c,int o,const float (&sum)
     if(o==13)mgInverse3(sum,L.inverse+9*c);
 }
 // Clears the rows of the MG_GALERKIN_ROWS aggregates a Galerkin block sums in shared memory, before any thread adds.
-__device__ inline void mgClearRows(MgReduction (*rows)[27*9]){
-    for(int k=threadIdx.x;k<MG_GALERKIN_ROWS*27*9;k+=blockDim.x)rows[k/(27*9)][k%(27*9)]=0;
+template<bool Packed> __device__ inline int mgRowOffset(int o){
+    if constexpr(Packed)return __popc(MG_COUPLED&((1u<<o)-1u));
+    return o;
+}
+template<int Width> __device__ inline void mgClearRows(MgReduction (*rows)[Width]){
+    for(int k=threadIdx.x;k<MG_GALERKIN_ROWS*Width;k+=blockDim.x)rows[k/Width][k%Width]=0;
     __syncthreads();
 }
 // Writes the coupled blocks of the rows a block summed, and the inverse of each diagonal block (mgFinish).
-__device__ inline void mgFinishRows(MultigridLevel& L,int count,const MgReduction (*rows)[27*9]){
+template<bool Packed,int Width> __device__ inline void mgFinishRows(MultigridLevel& L,int count,const MgReduction (*rows)[Width]){
     __syncthreads();
     for(int e=threadIdx.x;e<MG_GALERKIN_ROWS*27;e+=blockDim.x){
         int row=e/27,o=e%27,c=blockIdx.x*MG_GALERKIN_ROWS+row;
         if(c>=count || !mgCoupled(o))continue;
-        float sum[9];for(int k=0;k<9;k++)sum[k]=rows[row][9*o+k];
+        float sum[9];for(int k=0;k<9;k++)sum[k]=rows[row][9*mgRowOffset<Packed>(o)+k];
         mgFinish(L,c,o,sum);
     }
 }
@@ -167,9 +171,9 @@ __device__ inline void mgAddRow(MgReduction* row,const float* values){
     for(int k=0;k<9;k++)atomicAdd(row+k,values[k]);
 #endif
 }
-__global__ void k_MgGalerkinFine(const UnifiedState* state,const __half* matrix,const float* blockScale,
+template<bool Packed=false> __global__ void k_MgGalerkinFine(const UnifiedState* state,const __half* matrix,const float* blockScale,
     const unsigned short* stencil,MultigridLevel L){
-    __shared__ MgReduction sh_rows[MG_GALERKIN_ROWS][27*9];
+    __shared__ MgReduction sh_rows[MG_GALERKIN_ROWS][(Packed?15:27)*9];
     const auto& s=*state;const int count=min(*L.count,L.capacity);
     if(blockIdx.x*MG_GALERKIN_ROWS>=count)return;
     mgClearRows(sh_rows);
@@ -183,15 +187,15 @@ __global__ void k_MgGalerkinFine(const UnifiedState* state,const __half* matrix,
             int sign=slot<7?-1:1,bits=abs(slot-7);
             int o=mgOffset(mgCoarseStep(px,sign*(bits&1)),mgCoarseStep(py,sign*((bits>>1)&1)),mgCoarseStep(pz,sign*((bits>>2)&1)));
             float a[9];mgStencilBlock(s,matrix,blockScale,i,slot,a);
-            mgAddRow(&sh_rows[row][9*o],a);
+            mgAddRow(&sh_rows[row][9*mgRowOffset<Packed>(o)],a);
         }
     }
-    mgFinishRows(L,count,sh_rows);
+    mgFinishRows<Packed>(L,count,sh_rows);
 }
 // A coarser operator. Each of the 8*MG_SLOTS threads of an aggregate adds the row of one child, an aggregate of the
 // level below at a corner site of its block, into the aggregate's row, at the site offset of each child neighbor.
-__global__ void k_MgGalerkin(MultigridLevel child,MultigridLevel L){
-    __shared__ MgReduction sh_rows[MG_GALERKIN_ROWS][27*9];
+template<bool Packed=false> __global__ void k_MgGalerkin(MultigridLevel child,MultigridLevel L){
+    __shared__ MgReduction sh_rows[MG_GALERKIN_ROWS][(Packed?15:27)*9];
     const int count=min(*L.count,L.capacity);
     if(blockIdx.x*MG_GALERKIN_ROWS>=count)return;
     mgClearRows(sh_rows);
@@ -203,11 +207,12 @@ __global__ void k_MgGalerkin(MultigridLevel child,MultigridLevel L){
         if(c>=0 && L.parent[c]==C)for(int o=0;o<27;o++){
             if(!mgCoupled(o) || child.neighbor[27*c+o]<0)continue;
             int O=mgOffset(mgCoarseStep(px,o%3-1),mgCoarseStep(py,(o/3)%3-1),mgCoarseStep(pz,o/9-1));
-            mgAddRow(&sh_rows[row][9*O],child.A+(27*c+o)*9);
+            mgAddRow(&sh_rows[row][9*mgRowOffset<Packed>(O)],child.A+(27*c+o)*9);
         }
     }
-    mgFinishRows(L,count,sh_rows);
+    mgFinishRows<Packed>(L,count,sh_rows);
 }
+#include "multigrid_gather.cuh"
 // The coarsest operator as a dense matrix over its aggregates (rows of 3*MG_COARSEST), cleared beforehand.
 __global__ void k_MgDense(MultigridLevel L,float* dense){
     int t=blockIdx.x*blockDim.x+threadIdx.x,c=t/27,o=t%27,n=min(*L.count,L.capacity);

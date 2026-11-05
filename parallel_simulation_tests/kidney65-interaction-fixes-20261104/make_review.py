@@ -11,7 +11,7 @@ from PIL import Image,ImageDraw
 ROOT=Path(__file__).resolve().parent
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--candidate',required=True);p.add_argument('--baseline',default='frontal65-r5');p.add_argument('--name',required=True);p.add_argument('--full',action='store_true');args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--candidate',required=True);p.add_argument('--baseline',default='frontal65-r5');p.add_argument('--name',required=True);p.add_argument('--full',action='store_true');p.add_argument('--stage-frames',help='Comma-separated 1-based physics frames for the review sheet');args=p.parse_args()
     for value in (args.candidate,args.baseline,args.name):
         if not value.replace('-','').replace('_','').isalnum():raise ValueError('Invalid label')
     out=ROOT/'review'/args.name;out.mkdir(exist_ok=False)
@@ -22,9 +22,12 @@ def main():
     assert all(count>0 if args.full else count>=1110 for count in counts)
     comparison_frames=max(counts) if args.full else 1110
     output=out/('baseline-candidate-full.mp4' if args.full else 'baseline-candidate-common1110.mp4')
-    writer=imageio_ffmpeg.write_frames(str(output),(1280,510),fps=30,codec='libx264',quality=6,macro_block_size=2)
+    writer=imageio_ffmpeg.write_frames(str(output),(1280,510),fps=30,codec='libx264',quality=6,macro_block_size=2,output_params=['-threads','2'])
     writer.send(None)
     stages=[329,449,569,659,779,899,1049,1109,1264,1304,1384,1429,1504,1534]
+    if args.stage_frames:
+        stages=[int(value)-1 for value in args.stage_frames.split(',')]
+        assert stages and min(stages)>=0 and len(stages)==len(set(stages))
     sheets=[Image.new('RGB',(1280,260*((len([s for s in stages if s<counts[i]])+3)//4)),(12,12,12)) for i in range(2)]
     selected=[0,0];decoded=[0,0];last_frames=[None,None]
     for k in range(max(counts)):
