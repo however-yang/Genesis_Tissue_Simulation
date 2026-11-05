@@ -1,0 +1,2471 @@
+{
+  "run": "r33-paired-normal-04",
+  "platform": "a100-gpu1",
+  "source_sha256": {
+    "report.json": "57480c99c4945b585b5d024ead3c63a3c3167718df851c1d112f4745e81de8a8",
+    "scene-config.json": "5df112a4414a1e2f548a312a773fad424c46b603b4e94be99395e15daf815992",
+    "training-stress.json": "d41a93f3f08740655823eb8e898634db897f728eef0da27b7a2bdea86e098229",
+    "native-timing.json": "5a8af96b50b7f3154b4853b4658fea833215b247fc54f5dbe313ab339214c784"
+  },
+  "report": {
+    "status": "passed",
+    "error": null,
+    "last_stage": "regrasp_hold",
+    "steps": 1535,
+    "elapsed_s": 214.32539735699538,
+    "settings": {
+      "dt": 0.03333333333333333,
+      "substeps": 3,
+      "young_pa": 15000,
+      "poisson": 0.25,
+      "strain_damping_s": 0.04,
+      "density_kg_m3": 1050,
+      "jaw_length": 1.99,
+      "jaw_width": 0.52,
+      "jaw_open_gap": 1.0,
+      "jaw_axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "jaw_normal": [
+        0,
+        0,
+        1
+      ],
+      "blade_length": 1.6,
+      "blade_radius": 0.04,
+      "blade_axis": [
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ],
+      "start_force_n": 0.2,
+      "cut_force_n": 0.12,
+      "blade_drive_stiffness": 1200,
+      "blade_mass_kg": 0.02,
+      "blade_friction": 0.15,
+      "blade_preload_n": 5.0,
+      "contact_refine_passes": 8,
+      "has_knife_body": true,
+      "instrument_model": "davinci",
+      "cutting_tool": "scissors",
+      "scissors_jaw_stiffness": 2500,
+      "scissors_squeeze_cm": 0.2,
+      "contact_model": 2
+    },
+    "grid_spacing_cm": 0.125,
+    "cell_size_cm": [
+      0.125,
+      0.10000000149011612,
+      0.125
+    ],
+    "nodes": 236313,
+    "scene": "kidney",
+    "tab_cm": {
+      "low": [
+        -1.0,
+        2.8,
+        -1.0
+      ],
+      "high": [
+        1.0,
+        4.2,
+        1.0
+      ],
+      "attached": 1
+    },
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r33-packed-mg.so",
+    "dll_sha256": "d00c8db6ca68496d134b32a4fba7348ddedb795a551ff0fe94dd1208de54f7e8",
+    "genesis_view_created": true,
+    "metrics": {
+      "completed": true,
+      "grasp_acquired": true,
+      "lift_m": 0.014325933530926704,
+      "edges_before_incision": 0,
+      "cut_edges": 122,
+      "observed_cut_edges": 122,
+      "retained_cut_edges": 122,
+      "new_edges_during_withdrawal": 0,
+      "cut_wall_triangles": 168,
+      "final_grip_points": 77,
+      "current_grip_points": 77,
+      "grip_lost_after_capture": false,
+      "bite_nodes": 0,
+      "held_bite_nodes": 0,
+      "grip_slip_m": 0.0,
+      "max_knife_body_penetration_m": 5.2168965339660645e-05,
+      "max_blade_body_overlap_m": 1.916410487876247e-05,
+      "peak_blade_force_n": 0.43281424045562744,
+      "max_node_displacement_m": 0.025544237345457077,
+      "degenerate_cut_wall_triangles": 0,
+      "fractures": 2,
+      "fracture_left_n": 0.13417337834835052,
+      "fracture_right_n": 0.10839518904685974,
+      "two_blade_squeeze_m": 0.00106203740298343,
+      "snips": [
+        {
+          "stage": "incise_1",
+          "fracture_left_n": 0.13417337834835052,
+          "fracture_right_n": 0.3206357955932617,
+          "two_blade_squeeze_m": 0.00106203740298343
+        },
+        {
+          "stage": "incise_2",
+          "fracture_left_n": 0.3094047009944916,
+          "fracture_right_n": 0.10839518904685974,
+          "two_blade_squeeze_m": 0.0019514151488005261
+        }
+      ],
+      "edges_cut_without_fracture": 0,
+      "edges_cut_outside_tab": 0,
+      "uncut_columns": 0,
+      "multiply_cut_columns": 0,
+      "stray_skin_cuts": 0,
+      "slit_length_m": 0.009722718241315029,
+      "material_components": 2,
+      "gripped_pieces": 1,
+      "tumor_nodes_left": 0,
+      "lattice_pieces": 2,
+      "acceptance_passed": true
+    },
+    "limitations": [
+      "Single native session",
+      "End-effector control; no robot arm dynamics",
+      "Anchor-assisted grasp",
+      "Finite capsule cutting edge",
+      "Uncalibrated tissue"
+    ]
+  },
+  "scene": {
+    "preset": "frontal65",
+    "spacing_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "shape_dimensions_and_material_unchanged": true,
+    "cut_normal_resolution_mm": 1.0,
+    "physics_equivalence_claimed": false,
+    "mesh_dependent_native_tolerances_follow_new_grid_spacing": true,
+    "grasper_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "scissors_yaw_deg": -45.0,
+    "prescribed_grasper_tip_locations_preserved": true,
+    "camera": [
+      [
+        0.0,
+        -0.128,
+        0.093
+      ],
+      [
+        0.0,
+        0.0,
+        0.02
+      ]
+    ],
+    "visual_only_background": true,
+    "view_options": {
+      "camera_fov": 43,
+      "lamp_gain": 0.9,
+      "roughness_scale": 1.18
+    },
+    "background": "less glossy perirenal fat and subdued reddish rear tissue; visual approximation",
+    "note": "New physical tool poses require their own interaction validation",
+    "driver_sha256": "01a4b555c7fbd1657a1e1afac435d8431dd7f1eb66387610626c81a6d0842ba3",
+    "driver_inputs_sha256": {
+      "run_scene.py": "01a4b555c7fbd1657a1e1afac435d8431dd7f1eb66387610626c81a6d0842ba3",
+      "scene_config.py": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+      "training_stress.py": "c8e5d547bff77fbd833bf9090b86f4a384370c2641d12d63f812bd426560403e",
+      "envelope_audit.py": "ad53bf86a0cec68eeb3d8690da38e028baad49998a63cdbf24b811551f73a6dc"
+    },
+    "material_nodes": 65688,
+    "active_nodes": 79548,
+    "lattice_nodes": 236313,
+    "grid_edges": 646696,
+    "cell_size_mm": [
+      1.25,
+      1.0,
+      1.25
+    ],
+    "mass_kg": 0.11887311935424805,
+    "python_source": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/20261103-s18-s25/profiling/native-core-25hz-20261104/python-gpu-check",
+    "source_script_sha256": "9087f679347fab329f9bb54a12ad42448767784d472540686d34cbc050475912",
+    "server_gpu": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "egl_binding": {
+      "egl_index": 1,
+      "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+      "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+    },
+    "envelope_certification_version": 1,
+    "dll": "/srv/disk2/hryang/genesis-exec/parallel_simulation_tests/kidney65-interaction-fixes-20261104/binaries/r33-packed-mg.so",
+    "dll_sha256": "d00c8db6ca68496d134b32a4fba7348ddedb795a551ff0fe94dd1208de54f7e8",
+    "core_mode": 43264,
+    "native_schedule": {
+      "assembly_blocks": 512,
+      "manifold_blocks": 1024
+    },
+    "native_physics_source_modified": true,
+    "library_label": "r33-packed-mg",
+    "timing_definition": "Synchronous headless demo RGB frame, including step/readback, surface and recording submit, renderer and video write; excludes stage saves and final async drain. Not Windows displayed FPS or full training RGB-D."
+  },
+  "stress": {
+    "passed": true,
+    "stages": [
+      {
+        "stage": "park_scissors",
+        "steps": 45,
+        "step_readback_mean_ms": 51.748795934124956,
+        "step_readback_p95_ms": 177.380636776797,
+        "grip_points": 77,
+        "piece_mean_y_mm": 58.314491271972656,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.805600166320801,
+              28.845197677612305,
+              -3.114727020263672
+            ],
+            [
+              5.9243483543396,
+              54.124088287353516,
+              4.273556709289551
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.729948043823242,
+            25.27889060974121,
+            7.388283729553223
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.149999737739563,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "place_for_release",
+        "steps": 110,
+        "step_readback_mean_ms": 47.49170296973634,
+        "step_readback_p95_ms": 40.22317717317492,
+        "grip_points": 77,
+        "piece_mean_y_mm": 36.31952667236328,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.805616855621338,
+              28.845211029052734,
+              -3.250584602355957
+            ],
+            [
+              5.9405622482299805,
+              31.914505004882812,
+              3.8187522888183594
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.746179580688477,
+            3.069295883178711,
+            7.069336891174316
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.1499989628791809,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "grasp_release",
+        "steps": 30,
+        "step_readback_mean_ms": 49.70254357904196,
+        "step_readback_p95_ms": 135.16541107092004,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.21837615966797,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.759019374847412,
+              28.617544174194336,
+              -3.503424644470215
+            ],
+            [
+              5.569948673248291,
+              30.083009719848633,
+              3.1025376319885254
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.328968048095703,
+            1.465466022491455,
+            6.605962753295898
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999999105930328,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "drop_settle",
+        "steps": 10,
+        "step_readback_mean_ms": 56.78935698233545,
+        "step_readback_p95_ms": 141.5995573217513,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.07383728027344,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.7871270179748535,
+              28.520429611206055,
+              -3.5362422466278076
+            ],
+            [
+              5.548165321350098,
+              30.052364349365234,
+              3.0837178230285645
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.335291862487793,
+            1.5319347381591797,
+            6.619959831237793
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.7273369431495667,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "grasp_withdraw",
+        "steps": 15,
+        "step_readback_mean_ms": 50.694601804328464,
+        "step_readback_p95_ms": 93.86661850148792,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.02836227416992,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.010274291228381666,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.878853797912598,
+              28.462242126464844,
+              -3.4725306034088135
+            ],
+            [
+              5.413122177124023,
+              30.050334930419922,
+              3.0383152961730957
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.291975975036621,
+            1.5880918502807617,
+            6.510845184326172
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.6371116042137146,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_above",
+        "steps": 20,
+        "step_readback_mean_ms": 47.54935231176205,
+        "step_readback_p95_ms": 47.982647287426644,
+        "grip_points": 0,
+        "piece_mean_y_mm": 34.07640838623047,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.879243850708008,
+              28.50029945373535,
+              -3.4032275676727295
+            ],
+            [
+              5.460231304168701,
+              30.097742080688477,
+              3.0900869369506836
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.33947467803955,
+            1.597442626953125,
+            6.493314743041992
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.7032440304756165,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_approach",
+        "steps": 45,
+        "step_readback_mean_ms": 48.67796137566782,
+        "step_readback_p95_ms": 43.98106758017093,
+        "grip_points": 0,
+        "piece_mean_y_mm": 30.68286895751953,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.011995509400031443,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -6.265172004699707,
+              25.361616134643555,
+              -3.747418165206909
+            ],
+            [
+              5.120068550109863,
+              27.535764694213867,
+              2.3789901733398438
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.38524055480957,
+            2.1741485595703125,
+            6.126408576965332
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.15063554048538208,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_close",
+        "steps": 45,
+        "step_readback_mean_ms": 57.253564933004476,
+        "step_readback_p95_ms": 185.50100976135536,
+        "grip_points": 113,
+        "piece_mean_y_mm": 30.615327835083008,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.09420833951995894,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.905144214630127,
+              25.211307525634766,
+              -5.087764263153076
+            ],
+            [
+              4.976585388183594,
+              27.325849533081055,
+              2.2297472953796387
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            10.881729125976562,
+            2.114541530609131,
+            7.317511558532715
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.15000000596046448,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_lift",
+        "steps": 75,
+        "step_readback_mean_ms": 53.0201268925642,
+        "step_readback_p95_ms": 96.71506503364026,
+        "grip_points": 113,
+        "piece_mean_y_mm": 38.17300033569336,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.805612564086914,
+              28.84521484375,
+              -4.738760471343994
+            ],
+            [
+              5.597446441650391,
+              34.637535095214844,
+              3.1189208030700684
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.403059959411621,
+            5.7923197746276855,
+            7.8576812744140625
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999842643737793,
+        "invalid_tets": 0
+      },
+      {
+        "stage": "regrasp_hold",
+        "steps": 30,
+        "step_readback_mean_ms": 52.071300393436104,
+        "step_readback_p95_ms": 135.42307555326212,
+        "grip_points": 113,
+        "piece_mean_y_mm": 38.177059173583984,
+        "main_organ_watertight": true,
+        "piece_nodes_inside_organ": 0,
+        "max_piece_node_depth_mm": 0.0,
+        "surface_audit": {
+          "triangles": 26432,
+          "wall_triangles": 168,
+          "degenerate_triangles": 0,
+          "positional_boundary_edges": 0,
+          "positional_nonmanifold_edges": 0,
+          "duplicate_triangles": 0,
+          "winding_consistent": true,
+          "wall_bounds_native_mm": [
+            [
+              -5.805612564086914,
+              28.84521484375,
+              -4.760617733001709
+            ],
+            [
+              5.619702339172363,
+              34.66434860229492,
+              3.1189208030700684
+            ]
+          ],
+          "wall_extent_mm_not_incision_depth": [
+            11.425314903259277,
+            5.819132328033447,
+            7.879538536071777
+          ]
+        },
+        "max_body_overlap_mm": 0.0,
+        "min_volume_ratio": 0.14999964833259583,
+        "invalid_tets": 0
+      }
+    ],
+    "replay": {
+      "snapshot_bytes": 2738368379,
+      "snapshot_sha256": "9dec549ed93873fa6394ff1c2744a734ce7c75c605b6b05286707bf947d33f62",
+      "exact_restore": true,
+      "complete_archive_exact": true,
+      "precut_restore_clears_release_flags": true,
+      "continuation_max_error_mm": 0.0,
+      "continuation_errors_mm": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trials": [
+        {
+          "repeat": 1,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 2,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 3,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 4,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 5,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 6,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 7,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 8,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 9,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 10,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 11,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 12,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 13,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 14,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 15,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 16,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 17,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 18,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        },
+        {
+          "repeat": 19,
+          "errors_mm": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_step_detail": [
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            },
+            {
+              "worst_node": 0,
+              "material": false,
+              "active": false,
+              "piece": false,
+              "material_max_mm": 0.0,
+              "material_rms_mm": 0.0,
+              "piece_max_mm": 0.0,
+              "main_max_mm": 0.0
+            }
+          ]
+        }
+      ],
+      "repeats": 20,
+      "passed": true,
+      "steps": 8
+    },
+    "contact_model": 2,
+    "route": "tracked",
+    "original_sequence_passed": true,
+    "original_error": null,
+    "diagnostic_continuation": false,
+    "archive_restore_exact": true,
+    "regrasp_material_nodes": 81,
+    "regrasp_other_material_nodes": 0,
+    "regrasp_lift_mm": 7.561731338500977,
+    "physical_checks_passed": true
+  },
+  "native_original_calls": 1110,
+  "native_original_mean_ms": 34.44444402005641,
+  "native_original_p95_ms": 38.595642207656056,
+  "native_original_max_ms": 53.5530709894374,
+  "native_extra_calls": 425,
+  "native_extra_mean_ms": 38.20293206776328,
+  "native_extra_p95_ms": 44.52104163356125,
+  "native_extra_max_ms": 56.795308948494494,
+  "timing_scope": "Native LCS_Step wall time; excludes init/replay, render, encoding, readback and Python checks. Not minimum FPS.",
+  "direct_profile_in_extra_steps": false,
+  "assembly_probes_in_run": false,
+  "interaction_counters_in_run": false,
+  "performance_usable": true
+}

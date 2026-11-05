@@ -1,0 +1,190 @@
+{
+  "passed": false,
+  "completed": false,
+  "scope": "One strict kidney65 pilot; not the 900-trial S16d matrix",
+  "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+  "arguments": {
+    "library": "r33-packed-mg",
+    "name": "friction-kidney65-r33-nominal-bite3-01",
+    "scene": "kidney65",
+    "preparation": "grasped",
+    "task": "roundtrip",
+    "direction": "plusy",
+    "dose_mm": 4.0,
+    "mu": null,
+    "bite_inset_mm": 0.0,
+    "bite_forward_mm": 0.0,
+    "bite_lower_mm": 3.0,
+    "settle_steps": 0,
+    "adaptive_grasp": true,
+    "open_jaw_preparation": false,
+    "snapshot_buffer_check": false,
+    "seed": 0,
+    "no_video": false,
+    "regrasp_lower_mm": 0.0,
+    "return_nominal_bite": true
+  },
+  "contact_model": 1,
+  "default_replaced": false,
+  "full_surface_checks": true,
+  "timing_scope": "LCS_Step wall time only; video and QA excluded; initial zero-gravity setup excluded from frame means",
+  "control_preparation_variant": {
+    "bite_and_later_x_offset_mm": -0.0,
+    "bite_and_later_y_offset_mm": -3.0,
+    "bite_and_later_jaw_axis_offset_mm": 0.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "stationary_closed_settle_steps": 0,
+    "physical_parameters_changed": false
+  },
+  "library_sha256": "d00c8db6ca68496d134b32a4fba7348ddedb795a551ff0fe94dd1208de54f7e8",
+  "egl_binding": {
+    "egl_index": 1,
+    "gpu_uuid": "GPU-c1c4c0d5-5b39-9b0e-84a0-a667e65484fa",
+    "method": "EGL_CUDA_DEVICE_NV and CUDA driver UUID, queried without visibility remapping"
+  },
+  "training_adapter_sha256": "c4e37c2186c52d7e4de6c3a1e0bd8ab2f66adc45f4d739fe5c2b6fbc5cefcbe1",
+  "material_nodes": 65688,
+  "initial_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": true,
+    "between_pads_material_nodes": 14,
+    "witness_ids": [
+      107087,
+      107088,
+      114248,
+      114249,
+      121314,
+      121315,
+      121408,
+      121409,
+      121410,
+      128475,
+      128570,
+      128571,
+      135731,
+      135732
+    ],
+    "witness_retained_fraction": 1.0,
+    "witness_tangential_slip_m": 1.633831347008046e-05,
+    "witness_mean_lift_m": -1.8539705706643872e-05,
+    "geometric_loaded_hold": true,
+    "friction_hold_evidence": true,
+    "anchor_points": 0
+  },
+  "consecutive_five_steps_verified": true,
+  "acquisition_stationary_steps": 5,
+  "preparation_last10_jaw_load_range_n": {
+    "min": [
+      0.6159143447875977,
+      0.9933521747589111
+    ],
+    "max": [
+      1.0813021659851074,
+      1.8146685361862183
+    ]
+  },
+  "roundtrip_helper_sha256": "18e5e83fe799445c7c4d8cd6b8236e3760418900021e3d97d7375a9ce1dbe008",
+  "roundtrip": {
+    "passed": false,
+    "scope": "One scripted pure-friction lift/open/withdraw/regrasp/relift; not S16d",
+    "new_monitor_is_read_only": true,
+    "persistent_old_witnesses_retained": true,
+    "return_controller_uses_material_ids": true,
+    "training_adapter_automatic_witness_reacquisition_implemented": false,
+    "first_lift": {
+      "all_friction_evidence": false,
+      "material_delta_mm": [
+        0.06638688500970602,
+        3.1675882637500763,
+        -0.17005051267915405
+      ],
+      "minimum_retention": 0.07142857142857142
+    },
+    "error": "AssertionError('First small lift lost strict friction evidence')",
+    "post_preparation_frames": 120
+  },
+  "final_grasp": {
+    "contact_model": 1,
+    "assisted": false,
+    "force_threshold_n": 0.05,
+    "bilateral_load": true,
+    "between_pads_material_nodes": 1,
+    "witness_ids": [
+      107087,
+      107088,
+      114248,
+      114249,
+      121314,
+      121315,
+      121408,
+      121409,
+      121410,
+      128475,
+      128570,
+      128571,
+      135731,
+      135732
+    ],
+    "witness_retained_fraction": 0.07142857142857142,
+    "witness_tangential_slip_m": 0.0007006669702087163,
+    "witness_mean_lift_m": 0.0031490419059991837,
+    "geometric_loaded_hold": true,
+    "friction_hold_evidence": false,
+    "anchor_points": 0
+  },
+  "executed_settings": {
+    "dt": 0.03333333333333333,
+    "substeps": 3,
+    "young_pa": 15000,
+    "poisson": 0.25,
+    "strain_damping_s": 0.04,
+    "density_kg_m3": 1050,
+    "jaw_length": 1.99,
+    "jaw_width": 0.52,
+    "jaw_open_gap": 1.0,
+    "jaw_axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "jaw_normal": [
+      0,
+      0,
+      1
+    ],
+    "blade_length": 1.6,
+    "blade_radius": 0.04,
+    "blade_axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ],
+    "start_force_n": 0.2,
+    "cut_force_n": 0.12,
+    "blade_drive_stiffness": 1200,
+    "blade_mass_kg": 0.02,
+    "blade_friction": 0.15,
+    "blade_preload_n": 5.0,
+    "contact_refine_passes": 8,
+    "has_knife_body": true,
+    "instrument_model": "davinci",
+    "cutting_tool": "scissors",
+    "scissors_jaw_stiffness": 2500,
+    "scissors_squeeze_cm": 0.2,
+    "contact_model": 1
+  },
+  "frames": 335,
+  "all_anchor_counts_zero": true,
+  "native_ms": {
+    "mean": 31.259833448983507,
+    "p95": 38.74152078060433,
+    "max": 40.66198295913637
+  },
+  "sliding_is_not_a_solver_failure": true
+}
