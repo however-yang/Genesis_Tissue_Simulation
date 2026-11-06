@@ -19,6 +19,7 @@ from genesis.ext import pyrender
 from .grid import METERS_PER_UNIT, TO_GENESIS, to_genesis
 from .instrument_geometry import knife_frame, knife_geometry, load_davinci_wrist, load_grasper, load_scissors
 from .kidney import Kidney
+from .liver import SCOPE_WALL, TORSO_RADIUS_X, TORSO_RADIUS_Y, Liver, cavity_mesh
 from .native_backend import Observation, Settings, Surface
 from .visual_surface import refine_surface
 
@@ -44,6 +45,11 @@ UV_AXES = np.array(((1, 2), (0, 2), (0, 1)))
 # tissue darkens with the square of its distance; its output follows the squared viewing distance, as the automatic
 # light control of an endoscope keeps a close-up exposed like a wide shot.
 LAMP_IRRADIANCE = 2.6
+# The liver albedo is dark and the lobe curves away from the lens. This multiple of the endoscope lamp, with the warm
+# fill below, keeps the lit face and the shaded face readable.
+LIVER_LAMP_SCALE = 4.0
+LIVER_AMBIENT = (.10, .04, .035)
+PERITONEUM_TEXTURE = Path(__file__).parent / "assets/textures/peritoneum.jpg"
 # Barrel distortion of the endoscope optics: the image at radius r, in units of the field stop radius, shows the scene
 # at r (1 + BARREL r^2) / (1 + BARREL), which magnifies the centre by 1 + BARREL and keeps the edge of the view.
 BARREL = .08
@@ -230,12 +236,13 @@ class EndoscopicView:
     fat texture clean in recorded video but almost doubles the time per frame. With 1, for a live window, the
     renderer's own multisampling still smooths the edges, which then show a slight staircase.
 
-    The tissue is the fat block among liver-textured organs, or with `kidney` that kidney and its tumor in perirenal
-    fat. `camera` is the endoscope's (position, look-at) in Genesis metres, by default BLOCK_CAMERA.
+    The tissue is the fat block among liver-textured organs, with `kidney` that kidney and its tumor in perirenal fat,
+    or with `liver` the posed liver inside the peritoneal cavity. `camera` is the endoscope's (position, look-at) in
+    Genesis metres, by default BLOCK_CAMERA. `fov` is the vertical field of view in degrees.
     """
 
     def __init__(self, settings: Settings, width=1280, height=960, viewer=False, supersample=2,
-                 kidney: Kidney | None = None, camera=BLOCK_CAMERA):
+                 kidney: Kidney | None = None, camera=BLOCK_CAMERA, liver: Liver | None = None, fov=43):
         if supersample not in (1, 2):
             raise ValueError("supersample must be 1 or 2")
         self.settings = settings
@@ -250,7 +257,23 @@ class EndoscopicView:
         self.knife_geometry = knife_geometry(settings.blade_length, settings.instrument_model)
         self.scissors_geometry = load_scissors() if settings.cutting_tool == "scissors" else None
         self.wrist = load_davinci_wrist() if settings.instrument_model == "davinci" else ()
-        if kidney is None:
+        self.lamp_irradiance = LAMP_IRRADIANCE
+        self.lamp_pos = None
+        self.overhead = None
+        ambient = (.012, .010, .010)
+        if liver is not None:
+            self.skin, self.interior = tissue_materials("liver")
+            self.colors, self.texture_cm, backdrop, floor = None, FAT_TEXTURE_CM, (), None
+            self.lamp_irradiance = LAMP_IRRADIANCE * LIVER_LAMP_SCALE
+            ambient = LIVER_AMBIENT
+            # A second lamp sits directly above the lobe, clear of the cavity, so its light falls straight down.
+            # lamp_reach is the squared distance that gives one full lamp's irradiance on the liver centre.
+            center = (liver.low + liver.high) / 2
+            overhead = center.copy()
+            overhead[1] = liver.high[1] + 12.0
+            self.lamp_pos = to_genesis(overhead.reshape(1, 3))[0]
+            self.lamp_reach = np.sum((self.lamp_pos - to_genesis(center.reshape(1, 3))[0]) ** 2)
+        elif kidney is None:
             self.skin, self.interior = tissue_materials()
             backdrop_skin, _ = tissue_materials("liver")
             self.colors, self.texture_cm, backdrop, floor = None, FAT_TEXTURE_CM, LIVER_BACKDROP, -0.018
@@ -269,26 +292,63 @@ class EndoscopicView:
             baseColorFactor=(.88, .88, .83, 1), metallicFactor=.9, roughnessFactor=.16)
         gs.init(backend=gs.cpu, logging_level="warning")
         camera, target = camera
-        # The endoscope lamp lights the scene (see render); the faint fill keeps unlit tissue off pure black. Shadow
-        # maps would cost every frame for nothing visible: the shadows of a lamp on the lens hide behind what casts
-        # them, and the fill is too faint to cast any.
+        # The endoscope lamp lights the scene (see render). The fill keeps tissue the lamp misses off pure black.
+        # Shadow maps would cost every frame for nothing visible: the shadows of a lamp on the lens hide behind
+        # what casts them.
         self.scene = gs.Scene(
             sim_options=gs.options.SimOptions(dt=settings.dt, gravity=(0, 0, 0)),
             viewer_options=gs.options.ViewerOptions(camera_pos=camera, camera_lookat=target,
-                camera_fov=43, res=(width, height), realtime_factor=None),
+                camera_fov=fov, res=(width, height), realtime_factor=None),
             vis_options=gs.options.VisOptions(show_world_frame=False, shadow=False,
-                background_color=(.006, .002, .003), ambient_light=(.012, .010, .010),
+                background_color=(.006, .002, .003), ambient_light=ambient,
                 lights=[gs.options.vis.DirectionalLight(dir=(.7, .3, -.7),
                             color=(.85, .91, 1), intensity=.10),
                         gs.options.vis.DirectionalLight(dir=(-.5, -.2, -.7),
                             color=(1, .94, .87), intensity=.05)]),
             show_viewer=viewer)
-        self.scene.add_entity(gs.morphs.Box(size=(0.16, 0.13, 0.01), pos=(0, 0, floor),
-                                           fixed=True, collision=False),
-                              surface=gs.surfaces.Plastic(color=(0.16, 0.035, 0.045), roughness=.55))
+        if floor is not None:
+            self.scene.add_entity(gs.morphs.Box(size=(0.16, 0.13, 0.01), pos=(0, 0, floor),
+                                               fixed=True, collision=False),
+                                  surface=gs.surfaces.Plastic(color=(0.16, 0.035, 0.045), roughness=.55))
         self.camera = self.scene.add_camera(res=(width * supersample, height * supersample), pos=camera,
-                                            lookat=target, fov=43, near=0.001, far=0.5, debug=True, GUI=False)
+                                            lookat=target, fov=fov, near=0.001, far=0.5, debug=True, GUI=False)
         self.scene.build()
+        if liver is not None:
+            shell, shell_faces = cavity_mesh()
+            # The photograph runs along the body and around the shell, one copy to the full height, with the
+            # circumferential repeat keeping its pixel aspect. The branch cut sits on the scope's side, behind the lens.
+            theta = np.arctan2(shell[:, 1] / TORSO_RADIUS_Y, shell[:, 0] / TORSO_RADIUS_X)
+            scope = SCOPE_WALL / np.linalg.norm(SCOPE_WALL)
+            scope_theta = float(np.arctan2(scope[1] / TORSO_RADIUS_Y, scope[0] / TORSO_RADIUS_X))
+            u = np.mod(theta - scope_theta, 2 * np.pi) / (2 * np.pi)
+            shell_height = float(shell[:, 2].max() - shell[:, 2].min())
+            v = (shell[:, 2] - float(shell[:, 2].min())) / shell_height
+            corner_u = u[shell_faces]
+            wrap = corner_u.max(axis=1) - corner_u.min(axis=1) > 0.5
+            low = wrap[:, None] & (corner_u < 0.5)
+            seam = np.unique(shell_faces[low])
+            vertices = np.vstack((shell, shell[seam]))
+            u = np.concatenate((u, u[seam] + 1))
+            v = np.concatenate((v, v[seam]))
+            remap = np.full(shell.shape[0], -1, dtype=np.int32)
+            remap[seam] = np.arange(shell.shape[0], shell.shape[0] + seam.shape[0])
+            faces = np.where(low, remap[shell_faces], shell_faces)
+            segments = int(np.count_nonzero(np.abs(shell[:, 2] - shell[0, 2]) <= 1e-4))
+            ring = np.vstack((shell[:segments, :2], shell[:1, :2]))
+            circumference = float(np.linalg.norm(np.diff(ring, axis=0), axis=1).sum())
+            image = Image.open(PERITONEUM_TEXTURE).convert("RGB")
+            aspect = image.size[0] / image.size[1]
+            u = u * (circumference / (aspect * shell_height))
+            cavity = trimesh.Trimesh(to_genesis(vertices), faces, process=False)
+            cavity.visual = trimesh.visual.texture.TextureVisuals(uv=np.column_stack((u, v)).astype(np.float32))
+            peritoneum = pyrender.MetallicRoughnessMaterial(
+                baseColorTexture=pyrender.Texture(
+                    source=image, source_channels="RGB",
+                    sampler=pyrender.Sampler(wrapS=pyrender.GLTF.MIRRORED_REPEAT, wrapT=pyrender.GLTF.MIRRORED_REPEAT)),
+                # Integer components are read as 0-255, so the multiplier is written in floats.
+                baseColorFactor=(1.0, 1.0, 1.0, 1.0), metallicFactor=0, roughnessFactor=.84, doubleSided=True,
+                alphaMode="OPAQUE")
+            self.add_mesh(cavity, peritoneum)
         for center, scale in backdrop:
             mesh = trimesh.creation.icosphere(subdivisions=4 if kidney is None else 5)
             directions = mesh.vertices
@@ -307,6 +367,12 @@ class EndoscopicView:
             mesh.visual = trimesh.visual.texture.TextureVisuals(uv=uv)
             self.add_mesh(mesh, backdrop_skin)
         self.lamp = self.scene.visualizer.context.add_node(pyrender.PointLight(color=(1, .97, .93), intensity=0))
+        if self.lamp_pos is not None:
+            self.overhead = self.scene.visualizer.context.add_node(
+                pyrender.PointLight(color=(1, .97, .93), intensity=0))
+            overhead_pose = np.eye(4)
+            overhead_pose[:3, 3] = self.lamp_pos
+            self.scene.visualizer.context.set_node_pose(self.overhead, overhead_pose)
         # Pixel offsets from the image centre, and their radius in units of 0.68 image heights: the vignette closes
         # the field stop at radius 1.05.
         offset = np.stack(np.meshgrid(np.arange(width) - (width - 1) / 2, np.arange(height) - (height - 1) / 2), axis=2)
@@ -452,7 +518,11 @@ class EndoscopicView:
         lamp_pose = np.eye(4)
         lamp_pose[:3, 3] = pos
         self.scene.visualizer.context.set_node_pose(self.lamp, lamp_pose)
-        self.lamp.light.intensity = LAMP_IRRADIANCE * np.sum((lookat - pos) ** 2)
+        self.lamp.light.intensity = self.lamp_irradiance * np.sum((lookat - pos) ** 2)
+        # The liver keeps this lens lamp and the overhead lamp. Each is half of one full lamp.
+        if self.overhead is not None:
+            self.lamp.light.intensity *= 0.5
+            self.overhead.light.intensity = 0.5 * self.lamp_irradiance * self.lamp_reach
         rgb, depth_m, _, _ = self.camera.render(rgb=True, depth=depth, force_render=True)
         # The image is an upright view of the bottom-up GL buffer. The buffer itself needs no copy for OpenCV, and
         # the lens map samples it upside down.

@@ -22,6 +22,8 @@ import numpy as np
 from .fixation import add_fixation_arguments, use_fixation
 from .forces import ForceMonitor, draw_force_readout, solver_force_readout
 from .grid import METERS_PER_UNIT, build_grid, to_genesis
+from .kidney import Kidney
+from .liver import Liver
 from .instrument_geometry import scissors_body_depths
 from .native_backend import Command, NativeTissue, Observation, Settings, Surface
 from .rendering import BLOCK_CAMERA, EndoscopicView
@@ -357,7 +359,7 @@ def main():
     parser.add_argument("--tool", choices=("scissors", "knife"), default="scissors")
     parser.add_argument("--scene", choices=tuple(SCISSORS_SCENES), default="wall",
                         help="Scissors only: cut a long wound along a wall standing on the block, split a short flap, "
-                             "or excise a tumor from a kidney")
+                             "excise a tumor from a kidney, or grasp and cut the left lobe of a liver in a cavity")
     parser.add_argument("--start-force", type=float, default=None,
                         help="Cut initiation force in N (scissors: each blade needs half of it); default from Settings")
     parser.add_argument("--dll", type=Path, default=None, help="Native library; default native/bin-scissors")
@@ -369,10 +371,12 @@ def main():
         parser.error("steps must be nonnegative")
     if args.demo and (args.tool != "scissors" or args.native_only):
         parser.error("--demo records the scissors flow and needs the Genesis view")
+    scene = SCISSORS_SCENES[args.scene] if args.tool == "scissors" else None
+    spacing = scene.spacing if scene else SCISSORS_SPACING
     if args.spacing is None:
-        args.spacing = SCISSORS_SPACING if args.tool == "scissors" else 0.2
-    elif args.tool == "scissors" and not np.isclose(args.spacing, SCISSORS_SPACING):
-        parser.error(f"the scissors poses put the shear plane mid-cell for spacing {SCISSORS_SPACING} cm only")
+        args.spacing = spacing if args.tool == "scissors" else 0.2
+    elif args.tool == "scissors" and not np.isclose(args.spacing, spacing):
+        parser.error(f"the scissors poses put the shear plane mid-cell for spacing {spacing} cm only")
     live = not args.headless and not args.native_only
     if args.render_every is None:
         args.render_every = 1 if live else 3
@@ -385,9 +389,13 @@ def main():
         if not args.start_force > settings.cut_force_n:
             parser.error(f"start force must exceed the cutting force {settings.cut_force_n} N")
         settings = replace(settings, start_force_n=args.start_force)
-    scene = SCISSORS_SCENES[args.scene] if args.tool == "scissors" else None
     if scene:
         settings = replace(settings, contact_model=scene.contact_model, young_pa=scene.young_pa)
+        if scene.jaw_axis is not None:
+            gap = settings.jaw_open_gap if scene.jaw_open_gap is None else scene.jaw_open_gap
+            settings = replace(settings, jaw_axis=scene.jaw_axis, jaw_normal=scene.jaw_normal, jaw_open_gap=gap)
+        if scene.jaw_stiffness is not None:
+            settings = replace(settings, jaw_stiffness=scene.jaw_stiffness)
     if args.vertical_spacing is None:
         args.vertical_spacing = scene.vertical_spacing if scene else .05
     elif scene and not np.isclose(args.vertical_spacing, scene.vertical_spacing):
@@ -402,8 +410,10 @@ def main():
     use_fixation(parser, args, grid)
     # A scene with its own tissue shape frames it with its demo shot from the start. Every other scene uses the
     # block camera.
-    kidney = scene.shape if scene else None
-    camera = scene.shot if kidney is not None else BLOCK_CAMERA
+    kidney = scene.shape if scene is not None and isinstance(scene.shape, Kidney) else None
+    liver = scene.shape if scene is not None and isinstance(scene.shape, Liver) else None
+    camera = scene.shot if scene is not None and scene.shape is not None else BLOCK_CAMERA
+    fov = 70 if liver is not None else 43
     flow = Flow(settings, scene, stages, grid, args.steps, output)
     view, video = None, None
     monitor = ForceMonitor() if live else None
@@ -417,7 +427,7 @@ def main():
                 worker = executor.submit(step_live, flow, link, grid, settings, args.dll, stages[0].command)
                 try:
                     view = EndoscopicView(settings, args.width, args.height, args.viewer, supersample=1, kidney=kidney,
-                                          camera=camera)
+                                          camera=camera, liver=liver, fov=fov)
                     video = cv2.VideoWriter(str(output / "endoscopic_demo.mp4"), cv2.VideoWriter_fourcc(*"mp4v"),
                                             LIVE_FPS, (args.width, args.height))
                     if not video.isOpened():
@@ -449,7 +459,8 @@ def main():
                 flow.open(tissue)
                 sink = None
                 if not args.native_only:
-                    view = EndoscopicView(settings, args.width, args.height, args.viewer, kidney=kidney, camera=camera)
+                    view = EndoscopicView(settings, args.width, args.height, args.viewer, kidney=kidney,
+                                          camera=camera, liver=liver, fov=fov)
                     video = cv2.VideoWriter(str(output / "endoscopic_demo.mp4"), cv2.VideoWriter_fourcc(*"mp4v"),
                                             1 / (settings.dt * args.render_every), (args.width, args.height))
                     if not video.isOpened():

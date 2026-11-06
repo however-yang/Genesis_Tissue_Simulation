@@ -6,7 +6,8 @@ from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 from scipy.spatial import cKDTree
 
-from .grid import METERS_PER_UNIT, Tab, build_grid
+from .grid import METERS_PER_UNIT, Tab, build_grid, to_genesis
+from .liver import GRASP_CLOSED_GAP, GRASP_OPEN_GAP, Liver, endoscope_pose, liver_cut, load_liver
 from .instrument_geometry import load_grasper
 from .kidney import Kidney
 from .native_backend import Command, Observation, ScissorsPose, Settings, Surface, scissors_frame
@@ -65,18 +66,28 @@ class ScissorsScene:
     # Grasper contact model of the flow, see Settings.contact_model.
     contact_model: int
     # Tissue in place of the block and its tab, and its Young's modulus.
-    shape: Kidney | None = None
+    shape: Kidney | Liver | None = None
     young_pa: float = Settings.young_pa
     # Material pieces at the end: 1 when the cut leaves the tissue whole, 2
     # when it excises the shape's tumor, which the grasper then holds.
     pieces: int = 1
+    # Lateral cell, cm. The wall, flap and kidney stay on the 1 mm scissors grid.
+    spacing: float = 0.1
+    # Grasper axes and opening. None keeps the grasper of scissors_settings.
+    jaw_axis: tuple[float, float, float] | None = None
+    jaw_normal: tuple[float, float, float] | None = None
+    jaw_open_gap: float | None = None
+    # Grasper closing spring, native force per cm. None keeps Settings.jaw_stiffness.
+    jaw_stiffness: float | None = None
+    # The anchor grasp has to still be holding at the end. The liver cut crosses the rim those anchors sit in,
+    # and lifting that rim clear of the blades folds the cut, so the liver scene does not require it.
+    require_anchor_hold: bool = True
 
     def build_grid(self, density):
         """Return the lattice of the scene's tissue, of `density` in kg/m^3."""
         if self.shape is not None:
-            return build_grid(SCISSORS_SPACING, density=density, vertical_spacing=self.vertical_spacing,
-                              shape=self.shape)
-        return build_grid(SCISSORS_SPACING, density=density, vertical_spacing=self.vertical_spacing, tab=self.tab)
+            return build_grid(self.spacing, density=density, vertical_spacing=self.vertical_spacing, shape=self.shape)
+        return build_grid(self.spacing, density=density, vertical_spacing=self.vertical_spacing, tab=self.tab)
 
 
 # Lateral material cell of the scissors scenes, cm.
@@ -334,8 +345,68 @@ KIDNEY_SCENE = ScissorsScene(
     ((-.026, -.07, .076), (.003, 0, .034)), (-.012, -.03, .025), contact_model=2, shape=KIDNEY, young_pa=15000,
     pieces=2)
 
+def liver_stages(cut):
+    """Return the stages that grasp one side, lift it, and cut it vertically three times.
+
+    The grasper reaches in from outside, jaws open vertically, closes on the caudal end and raises it. The scissors
+    open up and down on one vertical plane and close three times. Between closures they step toward the liver, then
+    leave back outside and stop.
+    """
+    orientation = dict(scissors_pitch_deg=0.0, scissors_roll_deg=0.0, scissors_yaw_deg=0.0)
+    # The shear-face width points along -Z, so the hinge sits this far headward of the plane.
+    hinge_z = float(cut.plane) + SCISSORS_FACE_WIDTH
+    bites = tuple((float(depth), float(cut.blade_y), hinge_z) for depth in cut.depths)
+    park = (bites[0][0] + 1.5, bites[0][1], hinge_z)
+    # The stored grasp is the jaw hinge, already outside the side. The approach comes from further outside.
+    bite = tuple(float(value) for value in cut.grasp)
+    ready = (bite[0] + 2.0, bite[1], bite[2])
+    # The closed jaws rise 8.5 mm and lift the side.
+    lifted = (bite[0], bite[1] + 0.85, bite[2])
+    waiting = Command(ready, 0, park, **orientation)
+    # The scissors stay outside while the side rises, then come in on the raised tissue.
+    # The closed tips stop at GRASP_CLOSED_GAP, so the side stays thicker between the pads.
+    closed = 1.0 - GRASP_CLOSED_GAP / GRASP_OPEN_GAP
+    held = Command(lifted, closed, bites[0], **orientation)
+    stages = [Stage("settle", 30, replace(waiting, hinge=(ready[0], ready[1] + 1.5, ready[2]))),
+              Stage("approach", 90, waiting), Stage("bite", 45, replace(waiting, hinge=bite)),
+              Stage("close", 45, replace(waiting, hinge=bite, closure=closed)),
+              Stage("lift", 60, replace(waiting, hinge=lifted, closure=closed)),
+              Stage("blade_approach", 120, held)]
+    for number, center in enumerate(bites, 1):
+        if number > 1:
+            stages.append(Stage(f"reposition_{number}", 60, replace(held, blade_center=center)))
+        stages.append(Stage(f"incise_{number}", 150,
+                            replace(held, blade_center=center, scissors_closure=1, scissors_cutting=True), ramp=.5))
+        if number < len(bites):
+            stages.append(Stage(f"open_{number}", 30, replace(held, blade_center=center)))
+    return (*stages, Stage("withdraw", 90, replace(held, blade_center=park, scissors_closure=1)),
+            Stage("release", 45, replace(held, blade_center=park)),
+            Stage("hold", 30, replace(held, blade_center=park)))
+
+
+LIVER = load_liver()
+LIVER_CUT = liver_cut(LIVER)
+# The shear plane is the vertical lattice mid-plane through the free side. The raised side meets the blades on one
+# lattice line. The wound box holds the four columns severed there and leaves the intact lines beside them out.
+LIVER_PLANE = float(LIVER_CUT.plane)
+_LIVER_DEPTHS = tuple(float(value) for value in LIVER_CUT.depths)
+LIVER_TAB = Tab(low=(min(_LIVER_DEPTHS) - 2.2, LIVER_CUT.blade_y - 1.8, LIVER_PLANE - 1.2),
+                high=(max(_LIVER_DEPTHS) + 1.6, LIVER_CUT.blade_y + 1.8, LIVER_PLANE + 1.2), attached=0)
+_LIVER_POS, _LIVER_LOOK = endoscope_pose(LIVER)
+LIVER_SCENE = ScissorsScene(
+    LIVER_TAB, LIVER_CUT.cell, 2, LIVER_PLANE, 0.0,
+    (3.25, 0.15, 8.50),
+    (3.45, 1.40, 9.16),
+    (-1.0, 0.0, 0.0), liver_stages(LIVER_CUT),
+    (tuple(float(value) for value in to_genesis(np.asarray(_LIVER_POS, dtype=np.float32).reshape(1, 3))[0]),
+     tuple(float(value) for value in to_genesis(np.asarray(_LIVER_LOOK, dtype=np.float32).reshape(1, 3))[0])),
+    (0.0, -0.02, 0.012), contact_model=2, shape=LIVER, young_pa=6000, spacing=LIVER_CUT.cell,
+    jaw_axis=(-1.0, 0.0, 0.0), jaw_normal=(0.0, 1.0, 0.0), jaw_open_gap=GRASP_OPEN_GAP,
+    jaw_stiffness=75.0,
+    require_anchor_hold=False)
+
 SCISSORS_SCENES = {"wall": WALL_SCENE, "wall-traction": WALL_TRACTION_SCENE, "flap": FLAP_SCENE,
-                   "kidney": KIDNEY_SCENE}
+                   "kidney": KIDNEY_SCENE, "liver": LIVER_SCENE}
 
 
 def scissors_settings():
@@ -665,7 +736,8 @@ class Sequence:
             return 0
         if not np.any(material):
             return int(np.count_nonzero(~material))
-        distance, _ = cKDTree(midpoints[material]).query(midpoints[~material], distance_upper_bound=1.5 * SCISSORS_SPACING)
+        distance, _ = cKDTree(midpoints[material]).query(midpoints[~material],
+                                                         distance_upper_bound=1.5 * self.scene.spacing)
         return int(np.count_nonzero(np.isinf(distance)))
 
     def pieces(self, neighbors, members):
@@ -730,12 +802,14 @@ class Sequence:
             # slide of more than one material cell (1 mm) takes much of it out of
             # them. Within a cell, the tracked interior nodes also follow the
             # shear of the tissue between them and the pad faces.
-            held = m.grip_slip_m <= .001 if self.friction_grasp else obs.grip_points > 0
+            # See require_anchor_hold on ScissorsScene. The liver cut crosses the anchored rim.
+            anchor_held = not self.scene.require_anchor_hold or (
+                (m.grip_slip_m <= .001 if self.friction_grasp else obs.grip_points > 0)
+                and not m.grip_lost_after_capture)
             passed = bool(m.grasp_acquired and m.lift_m >= 0.001 and m.cut_edges > 0
                           and m.cut_wall_triangles > 0
-                          and m.retained_cut_edges == m.cut_edges and held
+                          and m.retained_cut_edges == m.cut_edges and anchor_held
                           and m.new_edges_during_withdrawal == 0
-                          and not m.grip_lost_after_capture
                           and m.degenerate_cut_wall_triangles == 0
                           and m.max_knife_body_penetration_m <= .0002
                           and m.max_node_displacement_m <= .06)

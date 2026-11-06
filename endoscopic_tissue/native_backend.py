@@ -92,6 +92,8 @@ class Settings:
     jaw_length: float = 1.99
     jaw_width: float = 0.52
     jaw_open_gap: float = 1.0
+    # Spring from the commanded jaw gap to the solved gap, in native force per cm.
+    jaw_stiffness: float = 150
     jaw_axis: tuple[float, float, float] = (0.0, -0.8, 0.6)
     jaw_normal: tuple[float, float, float] = (1.0, 0.0, 0.0)
     blade_length: float = 1.6
@@ -309,7 +311,7 @@ class NativeTissue:
         self.check("LCS_SetTissueMaterial", 80, 0.01)
         self.check("LCS_SetGraspPatch", 0.35, 1 / 100000, 0.005)
         self.check("LCS_SetToolDynamics", 0.02, 1200, 10, g.spacing * 0.25)
-        self.check("LCS_SetJawDynamics", 0.005, 150, 2, 1.2)
+        self.check("LCS_SetJawDynamics", 0.005, s.jaw_stiffness, 2, 1.2)
         self.check("LCS_SetInstrumentControl", 1)
         gp = GraspParams(0.5, 0.3, 0, 0.55, 0.6, 1e-8, g.spacing * 0.5,
                          0.5, g.spacing * 0.2, 0.25, 0.25, 1e-5, 15000,

@@ -20,6 +20,7 @@ from .grid import BLOCK_SIZE, build_grid, connectivity_table, EDGE_CORNERS, Tab,
 from .instrument_geometry import (SCISSORS_BACK_CLEARANCE, knife_frame, knife_geometry, load_davinci_wrist,
                                   load_grasper, load_scissors, scissors_body_depths)
 from .kidney import Kidney
+from .liver import LIGAMENT_RADIUS
 from .native_backend import (Blade, Command, CutDesc, Grasper, GraspParams, Observation, PhysicsDesc, ReconDesc,
                              ScissorsLoads, ScissorsPose, Surface, scissors_frame)
 from .scenario import (FLAP_SCENE, SCISSORS_SCENES, WALL_SCENE, Sequence, interpolate,
@@ -193,6 +194,34 @@ class CoreTests(unittest.TestCase):
         cols = grid.neighbors[inside].reshape(-1)
         keep = (cols >= 0) & (grid.inside[np.maximum(cols, 0)] != 0)
         graph = coo_matrix((np.ones(np.count_nonzero(keep)), (rows[keep], cols[keep])), shape=(len(grid.positions),) * 2)
+        labels = connected_components(graph, directed=False)[1]
+        self.assertEqual(len(np.unique(labels[inside])), 1)
+
+    def test_liver_rim_stays_clear_of_the_ligaments(self):
+        scene = SCISSORS_SCENES["liver"]
+        grid = scene.build_grid(1050)
+        hit, normal = grid.intersections["position"], grid.intersections["normal"]
+        np.testing.assert_allclose(scene.shape.distance(hit), 0, atol=1e-4)
+        np.testing.assert_allclose(np.linalg.norm(normal, axis=1), 1, atol=1e-5)
+        a, b, inside_a = (grid.intersections[name] for name in ("a", "b", "inside_a"))
+        interior = grid.positions[np.where(inside_a != 0, a, b)]
+        exterior = grid.positions[np.where(inside_a != 0, b, a)]
+        self.assertTrue(np.all(scene.shape.distance(interior) < 0) and np.all(scene.shape.distance(exterior) >= 0))
+        self.assertTrue(np.all(np.einsum("ij,ij->i", normal, exterior - interior) > 0))
+        pinned = grid.positions[grid.pinned != 0]
+        self.assertGreater(len(pinned), 0)
+        nearest = np.linalg.norm(pinned[:, None, :] - scene.shape.ligaments, axis=2).min(axis=1)
+        self.assertTrue(np.all(nearest <= LIGAMENT_RADIUS + 1e-3))
+        low, high = scene.cut_low, scene.cut_high
+        wound = np.all((grid.positions >= low) & (grid.positions <= high), axis=1) & (grid.inside != 0)
+        self.assertGreater(np.count_nonzero(wound), 0)
+        self.assertFalse(np.any(grid.pinned[wound]))
+        inside = np.flatnonzero(grid.inside)
+        rows = np.repeat(inside, 6)
+        cols = grid.neighbors[inside].reshape(-1)
+        keep = (cols >= 0) & (grid.inside[np.maximum(cols, 0)] != 0)
+        graph = coo_matrix((np.ones(np.count_nonzero(keep)), (rows[keep], cols[keep])),
+                           shape=(len(grid.positions),) * 2)
         labels = connected_components(graph, directed=False)[1]
         self.assertEqual(len(np.unique(labels[inside])), 1)
 
