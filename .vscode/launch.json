@@ -1,0 +1,105 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "软组织夹取与切割（窗口）",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "endoscopic_tissue.run",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "--scene",
+                "wall-traction",
+                "--dll",
+                "${workspaceFolder}/endoscopic_tissue/native/bin-sm120/LiverCudaSim.dll"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "Genesis 机械臂基础示例（窗口）",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/tutorials/hello_genesis.py",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "软组织接口测试（无窗口）",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "unittest",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "endoscopic_tissue.test_core",
+                "-v"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "Open3D 环境检查（球体窗口）",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/open3d/check_environment.py",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "点云框架：生成演示点云",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/open3d/generate_demo.py",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "点云框架：Poisson 重建（窗口）",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/open3d/pointcloud_to_mesh.py",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "--input",
+                "${workspaceFolder}/examples/open3d/data/input/demo_points.ply",
+                "--output",
+                "${workspaceFolder}/examples/open3d/data/output/mesh_poisson.ply",
+                "--method",
+                "poisson",
+                "--depth",
+                "8",
+                "--view"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "点云框架：Ball Pivoting 重建（窗口）",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/open3d/pointcloud_to_mesh.py",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "--input",
+                "${workspaceFolder}/examples/open3d/data/input/demo_points.ply",
+                "--output",
+                "${workspaceFolder}/examples/open3d/data/output/mesh_bpa.ply",
+                "--method",
+                "bpa",
+                "--view"
+            ],
+            "justMyCode": true
+        }
+    ]
+}
