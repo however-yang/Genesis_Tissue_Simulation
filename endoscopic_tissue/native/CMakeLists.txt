@@ -17,6 +17,6 @@ target_compile_options(LiverCudaSim PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:/utf-8>
     $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=/utf-8>)
 set_target_properties(LiverCudaSim PROPERTIES
-    CUDA_ARCHITECTURES "86"
+    CUDA_ARCHITECTURES "120"
     CUDA_SEPARABLE_COMPILATION ON
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${ENDO_BINARY_DIR}")
