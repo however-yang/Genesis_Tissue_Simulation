@@ -1,0 +1,63 @@
+{
+  "note": "CUDA Graphs disabled. Section event timings include launch gaps; compare localization only. Different trajectories and one run per DLL do not isolate kernel causes.",
+  "runs": {
+    "baseline": {
+      "steps": 1110,
+      "sections_ms_per_step": {
+        "begin frame, cut tick and rebuild between substeps": 1.3547394594594595,
+        "cg assembly: mask": 0.10916207207207208,
+        "cg assembly: start": 0.013779009009009009,
+        "cg assembly: stencil and residual": 2.4204364864864862,
+        "cg: assembly": 2.7636177477477477,
+        "cg: feasible": 0.8536294594594594,
+        "cg: iterations": 5.357222882882883,
+        "cg: line search": 1.3737293693693693,
+        "cg: trust, projection": 0.035611531531531536,
+        "loop: coarse modes": 4.2251326126126125,
+        "loop: contact discovery": 4.815986396396396,
+        "loop: local sweeps": 5.684215315315315,
+        "loop: manifold, contact marks": 3.174553423423423,
+        "loop: regional mode": 1.809841981981982,
+        "loop: rigid modes": 1.1130766666666665,
+        "loop: tool, safe and global coarse": 3.3358513513513515,
+        "post: blade and contact reactions, velocity": 0.3521100900900901,
+        "post: fragment contact": 2.4686651351351356,
+        "post: free-component nullspace": 0.4254157657657658,
+        "pre: predictor, recovery query": 2.298927657657657,
+        "pre: tool, contact discovery, manifold": 2.5066405405405408,
+        "substep prologue: liveness, fragment contact, predict": 2.587555225225225
+      },
+      "quality_passed": false,
+      "dll_sha256": "0d09f56a1f4acb813424cd1dee3233d89ce7ef5c0d45e64f079c7d7387912225"
+    },
+    "gated": {
+      "steps": 1110,
+      "sections_ms_per_step": {
+        "begin frame, cut tick and rebuild between substeps": 1.3746375675675675,
+        "cg assembly: mask": 0.12360873873873877,
+        "cg assembly: start": 0.02679135135135135,
+        "cg assembly: stencil and residual": 2.4166384684684687,
+        "cg: assembly": 2.818846036036036,
+        "cg: feasible": 0.8825149549549549,
+        "cg: iterations": 5.383041441441442,
+        "cg: line search": 1.3813344144144146,
+        "cg: trust, projection": 0.04730387387387388,
+        "loop: coarse modes": 8.164092432432433,
+        "loop: contact discovery": 4.8990493693693695,
+        "loop: local sweeps": 5.737234504504504,
+        "loop: manifold, contact marks": 3.2576559459459458,
+        "loop: regional mode": 1.8013303603603603,
+        "loop: rigid modes": 1.117361801801802,
+        "loop: tool, safe and global coarse": 3.488552792792793,
+        "post: blade and contact reactions, velocity": 0.3805524324324324,
+        "post: fragment contact": 2.4565148648648654,
+        "post: free-component nullspace": 0.4422041441441441,
+        "pre: predictor, recovery query": 2.2963820720720722,
+        "pre: tool, contact discovery, manifold": 3.1254258558558563,
+        "substep prologue: liveness, fragment contact, predict": 2.541691171171171
+      },
+      "quality_passed": false,
+      "dll_sha256": "1e42962032c74e712c244c3f886c0920cece619319b06e99cbd5c46fe409f442"
+    }
+  }
+}

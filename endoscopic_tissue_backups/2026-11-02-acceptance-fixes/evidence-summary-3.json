@@ -1,0 +1,42 @@
+{
+  "overall_passed": false,
+  "candidate_adopted": false,
+  "default_replaced": false,
+  "github_pushed": false,
+  "cpu_tests": {
+    "tests": 92,
+    "failures": 0,
+    "errors": 0,
+    "passed": true,
+    "modules": [
+      "endoscopic_tissue.training.test_physics",
+      "endoscopic_tissue.training.test_damage",
+      "endoscopic_tissue.training.test_snapshot",
+      "endoscopic_tissue.training.test_geometry",
+      "endoscopic_tissue.training.test_contract",
+      "endoscopic_tissue.training.test_tasks",
+      "endoscopic_tissue.training.test_splits",
+      "test_validation_guard",
+      "test_failure_dose_guard",
+      "test_video_contract",
+      "test_snapshot_diagnostic"
+    ]
+  },
+  "diagnostics": [
+    {
+      "path": "regrasp-boundary-forensics-r1/first-failures/01-tick-954/native-contact-final.json",
+      "finding": "Cut wall has live contact, embedding error below 0.01 mm and neighboring tetrahedra near the existing volume floor; hypothesis, not root-cause proof."
+    },
+    {
+      "path": "flap-step-baseline-r0/result-material-mask-corrected.json",
+      "finding": "Five original/restore maxima below 0.01 mm, external work present; diagnostic only."
+    }
+  ],
+  "candidate": {
+    "name": "repair-feasible-snapshot3",
+    "dll_sha256": "f26280bc11284fac6feb2b6c21b69aebb74a40c45aa3ec78ee27349d6660fd48",
+    "built": true,
+    "validated": false
+  },
+  "protected_defaults_unchanged": true
+}

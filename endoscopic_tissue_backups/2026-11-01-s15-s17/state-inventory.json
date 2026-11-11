@@ -1,0 +1,3929 @@
+{
+  "schema": "native_state_inventory_review_v1",
+  "source": "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\artifacts\\training-state1\\source\\vendor",
+  "allocation_sites": 266,
+  "storage_candidates": 415,
+  "review_complete": false,
+  "files": [
+    {
+      "file": "cuda/contact/friction_contact.cuh",
+      "declarations": [
+        {
+          "line": 12,
+          "brace_depth": 0,
+          "declaration": "static JawMeshBounds h_jawMeshBounds[2]={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 13,
+          "brace_depth": 0,
+          "declaration": "__constant__ JawMeshBounds c_jawMeshBounds[2];",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": []
+    },
+    {
+      "file": "cuda/cut.cu",
+      "declarations": [
+        {
+          "line": 44,
+          "brace_depth": 0,
+          "declaration": "static GridEdgeGpu2*  d_gridEdges      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 45,
+          "brace_depth": 0,
+          "declaration": "static float3*        d_prevCorner     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 46,
+          "brace_depth": 0,
+          "declaration": "static Conn4096Gpu*   d_conn4096       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 47,
+          "brace_depth": 0,
+          "declaration": "static unsigned int*  d_voxelOccupied  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 48,
+          "brace_depth": 0,
+          "declaration": "static unsigned int*  d_voxelCutMask   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 49,
+          "brace_depth": 0,
+          "declaration": "static CutPointGpu*   d_cutPoint       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 50,
+          "brace_depth": 0,
+          "declaration": "static unsigned int*  d_cutPointCounter= nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 51,
+          "brace_depth": 0,
+          "declaration": "static unsigned int*  d_topologyRevision=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 52,
+          "brace_depth": 0,
+          "declaration": "static float4*        d_cutFP          = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 53,
+          "brace_depth": 0,
+          "declaration": "static float*         d_edgeCutT       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 54,
+          "brace_depth": 0,
+          "declaration": "__device__ float*     edgeCutTDevice   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 55,
+          "brace_depth": 0,
+          "declaration": "__device__ const float* edgeSkinTDevice = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 56,
+          "brace_depth": 0,
+          "declaration": "__device__ const int* edgeInsideDevice = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 57,
+          "brace_depth": 0,
+          "declaration": "__device__ const float3* materialRestDevice = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 59,
+          "brace_depth": 0,
+          "declaration": "static int*           d_cornerInside   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 60,
+          "brace_depth": 0,
+          "declaration": "static float*         d_cutFPAccumPos  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 61,
+          "brace_depth": 0,
+          "declaration": "static int*           d_cutFPAccumCnt  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 62,
+          "brace_depth": 0,
+          "declaration": "static unsigned int*  d_voxelFPCount   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 63,
+          "brace_depth": 0,
+          "declaration": "static int*           d_cutFPNormal    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 64,
+          "brace_depth": 0,
+          "declaration": "static float3*        d_cutFPNormalF   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 66,
+          "brace_depth": 0,
+          "declaration": "static int*           d_cutNrmAccum    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 67,
+          "brace_depth": 0,
+          "declaration": "static unsigned int*  d_dbg            = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 68,
+          "brace_depth": 0,
+          "declaration": "static int*           d_graspRing      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 73,
+          "brace_depth": 0,
+          "declaration": "static int*           d_graspRingTmp   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 74,
+          "brace_depth": 0,
+          "declaration": "static int*           d_nbrIdxAtInit   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 78,
+          "brace_depth": 0,
+          "declaration": "static int*           d_edgeWasExempt  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 81,
+          "brace_depth": 0,
+          "declaration": "static int*           d_edgeDecayTicks = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 83,
+          "brace_depth": 0,
+          "declaration": "static const int      TEAR_DECAY_TIMEOUT_TICKS = 2000;",
+          "classification": "review_required"
+        },
+        {
+          "line": 92,
+          "brace_depth": 0,
+          "declaration": "static float3*       c_cornerPos       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 93,
+          "brace_depth": 0,
+          "declaration": "static const float3* c_cornerRest      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 94,
+          "brace_depth": 0,
+          "declaration": "static IsectGpu*     c_isect           = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 95,
+          "brace_depth": 0,
+          "declaration": "static float3*       c_isectWorld      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 96,
+          "brace_depth": 0,
+          "declaration": "static int*          c_voxelIsectOffset= nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 97,
+          "brace_depth": 0,
+          "declaration": "static int*          c_voxelIsectCount = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 98,
+          "brace_depth": 0,
+          "declaration": "static int*          c_voxelCorner     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 99,
+          "brace_depth": 0,
+          "declaration": "static int*          c_tri             = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 100,
+          "brace_depth": 0,
+          "declaration": "static unsigned int* c_triCounter      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 101,
+          "brace_depth": 0,
+          "declaration": "static RotGpu*       c_particleRot     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 102,
+          "brace_depth": 0,
+          "declaration": "static int*          c_nbrIdx          = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 103,
+          "brace_depth": 0,
+          "declaration": "static BendPairGpuC* c_bendPairs       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 104,
+          "brace_depth": 0,
+          "declaration": "static int*          c_active          = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 106,
+          "brace_depth": 0,
+          "declaration": "static CutInitDesc g_cdesc = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 107,
+          "brace_depth": 0,
+          "declaration": "static int3        g_cdims = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 108,
+          "brace_depth": 0,
+          "declaration": "static CutToolDesc g_tool  = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 111,
+          "brace_depth": 0,
+          "declaration": "static int g_pressureCut=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 112,
+          "brace_depth": 0,
+          "declaration": "static float4* d_pendingCrossings=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 114,
+          "brace_depth": 0,
+          "declaration": "static int* d_materialPieces=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 115,
+          "brace_depth": 0,
+          "declaration": "static unsigned long long* d_shellOwner=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 120,
+          "brace_depth": 0,
+          "declaration": "static float3* d_entryCorner=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 121,
+          "brace_depth": 0,
+          "declaration": "static RotGpu* d_entryRotation=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 122,
+          "brace_depth": 0,
+          "declaration": "static int* d_entryState=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 128,
+          "brace_depth": 0,
+          "declaration": "static unsigned* d_columnLevel=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 129,
+          "brace_depth": 0,
+          "declaration": "static int* d_columnAxis=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 157,
+          "brace_depth": 0,
+          "declaration": "static bool        g_cut_ready = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 165,
+          "brace_depth": 0,
+          "declaration": "static bool   g_toolSet        = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 166,
+          "brace_depth": 0,
+          "declaration": "static bool   g_havePrevCorner = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 167,
+          "brace_depth": 0,
+          "declaration": "static float3 g_emitNcut  = { 0.f, 1.f, 0.f };",
+          "classification": "review_required"
+        },
+        {
+          "line": 168,
+          "brace_depth": 0,
+          "declaration": "static unsigned char* d_trainingTearCause=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 169,
+          "brace_depth": 0,
+          "declaration": "static int* d_trainingGraspNeighborhood=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 170,
+          "brace_depth": 0,
+          "declaration": "static float  g_tearLen2  = 0.f;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 1135,
+          "call": "cudaMalloc(&d_gridEdges,       (size_t)gecA   * sizeof(GridEdgeGpu2))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1136,
+          "call": "cudaMalloc(&d_edgeCutT,(size_t)6*desc->cornerCount*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1139,
+          "call": "cudaMalloc(&d_prevCorner,      (size_t)desc->cornerCount * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1140,
+          "call": "cudaMalloc(&d_conn4096,        (size_t)4096   * sizeof(Conn4096Gpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1141,
+          "call": "cudaMalloc(&d_voxelOccupied,   (size_t)vc     * sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1142,
+          "call": "cudaMalloc(&d_voxelCutMask,    (size_t)vc     * sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1143,
+          "call": "cudaMalloc(&d_cutPoint,        (size_t)cpc    * sizeof(CutPointGpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1144,
+          "call": "cudaMalloc(&d_cutPointCounter,                  sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1145,
+          "call": "cudaMalloc(&d_topologyRevision,                 sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1146,
+          "call": "cudaMalloc(&d_cutFP,           (size_t)slot   * sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1147,
+          "call": "cudaMalloc(&d_cornerInside,    (size_t)desc->cornerCount * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1148,
+          "call": "cudaMalloc(&d_cutFPAccumPos,   (size_t)3*slot * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1149,
+          "call": "cudaMalloc(&d_cutFPAccumCnt,   (size_t)slot   * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1150,
+          "call": "cudaMalloc(&d_voxelFPCount,    (size_t)vc     * sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1151,
+          "call": "cudaMalloc(&d_cutFPNormal,     (size_t)3*slot * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1152,
+          "call": "cudaMalloc(&d_cutFPNormalF,    (size_t)slot   * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1153,
+          "call": "cudaMalloc(&d_cutNrmAccum,     (size_t)3*slot * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1154,
+          "call": "cudaMalloc(&d_dbg,             (size_t)16     * sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1155,
+          "call": "cudaMalloc(&d_graspRing,       (size_t)desc->cornerCount * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1157,
+          "call": "cudaMalloc(&d_graspRingTmp,    (size_t)desc->cornerCount * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1158,
+          "call": "cudaMalloc(&d_nbrIdxAtInit,    (size_t)6 * desc->cornerCount * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1159,
+          "call": "cudaMalloc(&d_edgeWasExempt,   (size_t)gecA * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1160,
+          "call": "cudaMalloc(&d_edgeDecayTicks,  (size_t)gecA * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1328,
+          "call": "cudaMalloc(&d_pendingCrossings,gec*sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1355,
+          "call": "cudaMalloc(&d_entryCorner,cc*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1357,
+          "call": "cudaMalloc(&d_columnLevel,cc*sizeof(unsigned))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1361,
+          "call": "cudaMalloc(&d_columnAxis,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1364,
+          "call": "cudaMalloc(&d_entryRotation,cc*sizeof(RotGpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1365,
+          "call": "cudaMalloc(&d_entryState,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1424,
+          "call": "cudaMalloc(&d_materialPieces,cc*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1425,
+          "call": "cudaMalloc(&d_shellOwner,cc*sizeof(unsigned long long))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1585,
+          "call": "cudaMalloc(&(p), (n))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/cutting/pressure_blade.cuh",
+      "declarations": [
+        {
+          "line": 4,
+          "brace_depth": 0,
+          "declaration": "static UnifiedState* d_bladeState=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 5,
+          "brace_depth": 0,
+          "declaration": "static CoupledTool* d_bladeBody=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 6,
+          "brace_depth": 0,
+          "declaration": "static SurfaceContact* d_bladeContacts=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 7,
+          "brace_depth": 0,
+          "declaration": "static SurfaceContact* d_bladeBackCache=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 8,
+          "brace_depth": 0,
+          "declaration": "static int* d_bladeBackCacheSlots=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 9,
+          "brace_depth": 0,
+          "declaration": "static int *d_bladeIds=nullptr,*d_bladeCount=nullptr,*d_bladeDegree=nullptr,*d_bladePhase=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 10,
+          "brace_depth": 0,
+          "declaration": "static SurfaceContact* d_bladeManifold=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 11,
+          "brace_depth": 0,
+          "declaration": "static int *d_bladeManifoldIds=nullptr,*d_bladeManifoldCount=nullptr,*d_bladeOwners=nullptr,*d_bladeEdgeCount=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 12,
+          "brace_depth": 0,
+          "declaration": "static float* d_bladeQuadrature=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 17,
+          "brace_depth": 0,
+          "declaration": "static float3* d_bladeSweep=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 19,
+          "brace_depth": 0,
+          "declaration": "static BladeHistory* d_bladeHistory=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 23,
+          "brace_depth": 0,
+          "declaration": "static float* d_bladeResult=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 26,
+          "brace_depth": 0,
+          "declaration": "static float* d_scissorsLoads=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 27,
+          "brace_depth": 0,
+          "declaration": "static int g_bladeCapacity=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 28,
+          "brace_depth": 0,
+          "declaration": "static XpbdBladeState g_blade={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 29,
+          "brace_depth": 0,
+          "declaration": "static XpbdScissorsState g_scissors={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 30,
+          "brace_depth": 0,
+          "declaration": "static bool g_scissorsMode=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 31,
+          "brace_depth": 0,
+          "declaration": "static bool g_knifeBody=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 32,
+          "brace_depth": 0,
+          "declaration": "static XpbdScissorsBackBox g_knifeBoxes[2]={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 34,
+          "brace_depth": 0,
+          "declaration": "static float g_scissorsWrist[3]={0,0,0};",
+          "classification": "review_required"
+        },
+        {
+          "line": 84,
+          "brace_depth": 0,
+          "declaration": "static XpbdToolState g_bladeCommand={},g_bladeInitial={};",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 53,
+          "call": "cudaMalloc(&d_toolClearance,9*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 152,
+          "call": "cudaMalloc(&d_bladeSweep,18*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 153,
+          "call": "cudaMalloc(&d_bladeState,sizeof(UnifiedState))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 154,
+          "call": "cudaMalloc(&d_bladeBody,sizeof(CoupledTool))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 155,
+          "call": "cudaMalloc(&d_bladeCount,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 156,
+          "call": "cudaMalloc(&d_bladePhase,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 157,
+          "call": "cudaMalloc(&d_bladeResult,6*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 158,
+          "call": "cudaMalloc(&d_scissorsLoads,7*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 159,
+          "call": "cudaMalloc(&d_bladeHistory,sizeof(BladeHistory))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 160,
+          "call": "cudaMalloc(&d_bladeDegree,g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 162,
+          "call": "cudaMalloc(&d_bladeBackCache,CONTACT_CACHE_SIZE*sizeof(SurfaceContact))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 163,
+          "call": "cudaMalloc(&d_bladeBackCacheSlots,CONTACT_CACHE_SIZE*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 166,
+          "call": "cudaMalloc(&d_bladeManifoldCount,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 167,
+          "call": "cudaMalloc(&d_bladeEdgeCount,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 170,
+          "call": "cudaMalloc(&d_bladeContacts,BLADE_KIND_SLOTS*g_surfaceCapacity*sizeof(SurfaceContact))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 172,
+          "call": "cudaMalloc(&d_bladeIds,BLADE_KIND_SLOTS*g_surfaceCapacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 177,
+          "call": "cudaMalloc(&d_bladeManifold,capacity*sizeof(SurfaceContact))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 178,
+          "call": "cudaMalloc(&d_bladeManifoldIds,capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 179,
+          "call": "cudaMalloc(&d_bladeOwners,capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 180,
+          "call": "cudaMalloc(&d_bladeQuadrature,capacity*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/dc_recon.cu",
+      "declarations": [
+        {
+          "line": 29,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_cornerPos        = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 30,
+          "brace_depth": 0,
+          "declaration": "static int*          d_voxelCorner      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 31,
+          "brace_depth": 0,
+          "declaration": "static int*          d_voxelIsectOffset = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 32,
+          "brace_depth": 0,
+          "declaration": "static int*          d_voxelIsectCount  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 33,
+          "brace_depth": 0,
+          "declaration": "static IsectGpu*     d_isect            = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 34,
+          "brace_depth": 0,
+          "declaration": "static float*        d_surfaceEdgeT     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 35,
+          "brace_depth": 0,
+          "declaration": "static GridEdgeGpu*  d_surfaceEdges     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 36,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_isectWorld       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 37,
+          "brace_depth": 0,
+          "declaration": "static float4*       d_voxelExternalFP  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 38,
+          "brace_depth": 0,
+          "declaration": "static int*          d_tri              = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 39,
+          "brace_depth": 0,
+          "declaration": "static unsigned int* d_triCounter       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 40,
+          "brace_depth": 0,
+          "declaration": "static int*          d_extNormalFixed   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 41,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_extNormalF       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 43,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_expandPos        = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 44,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_expandNrm        = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 51,
+          "brace_depth": 0,
+          "declaration": "static float4*       d_voxelExternalFPRest = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 52,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_cornerPosRest       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 53,
+          "brace_depth": 0,
+          "declaration": "static float4*       d_expandAux           = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 57,
+          "brace_depth": 0,
+          "declaration": "static unsigned int* d_cut_voxelCutMask = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 58,
+          "brace_depth": 0,
+          "declaration": "static unsigned int* d_cut_voxelOccupied= nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 59,
+          "brace_depth": 0,
+          "declaration": "static Conn4096Gpu*  d_cut_conn4096     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 60,
+          "brace_depth": 0,
+          "declaration": "static float4*       d_cut_cutFP        = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 61,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_cut_cutFPNormalF = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 62,
+          "brace_depth": 0,
+          "declaration": "static int*          d_cut_cutFPNormal  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 63,
+          "brace_depth": 0,
+          "declaration": "static int           g_cutActive        = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 65,
+          "brace_depth": 0,
+          "declaration": "static ReconInitDesc g_desc = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 66,
+          "brace_depth": 0,
+          "declaration": "static int3          g_dims = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 67,
+          "brace_depth": 0,
+          "declaration": "static bool          g_ready = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 68,
+          "brace_depth": 0,
+          "declaration": "static bool          g_haveRestSurface = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 74,
+          "brace_depth": 0,
+          "declaration": "__device__ const int3 STENCIL_OFF[12] =\n{\n    // axis 0 = x\n    { 0, 0, 0}, { 0,-1, 0}, { 0,-1,-1}, { 0, 0,-1},\n    // axis 1 = y\n    { 0, 0, 0}, { 0, 0,-1}, {-1, 0,-1}, {-1, 0, 0},\n    // axis 2 = z\n    { 0, 0, 0}, {-1, 0, 0}, {-1,-1, 0}, { 0,-1, 0},\n};",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 568,
+          "call": "cudaMalloc(&d_cornerPos,        (size_t)cc        * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 569,
+          "call": "cudaMalloc(&d_voxelCorner,      (size_t)8 * vc    * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 570,
+          "call": "cudaMalloc(&d_voxelIsectOffset, (size_t)vc        * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 571,
+          "call": "cudaMalloc(&d_voxelIsectCount,  (size_t)vc        * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 572,
+          "call": "cudaMalloc(&d_isect,            (size_t)icA       * sizeof(IsectGpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 573,
+          "call": "cudaMalloc(&d_surfaceEdgeT,     (size_t)6*cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 574,
+          "call": "cudaMalloc(&d_surfaceEdges,     (size_t)secA      * sizeof(GridEdgeGpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 575,
+          "call": "cudaMalloc(&d_isectWorld,       (size_t)icA       * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 576,
+          "call": "cudaMalloc(&d_voxelExternalFP,  (size_t)vc        * sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 577,
+          "call": "cudaMalloc(&d_tri,              (size_t)3 * tcap  * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 578,
+          "call": "cudaMalloc(&d_triCounter,                          sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 579,
+          "call": "cudaMalloc(&d_extNormalFixed,   (size_t)3 * vc    * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 580,
+          "call": "cudaMalloc(&d_extNormalF,       (size_t)vc        * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 581,
+          "call": "cudaMalloc(&d_expandPos,        (size_t)3 * tcap  * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 582,
+          "call": "cudaMalloc(&d_expandNrm,        (size_t)3 * tcap  * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 586,
+          "call": "cudaMalloc(&d_voxelExternalFPRest, (size_t)vc      * sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 587,
+          "call": "cudaMalloc(&d_cornerPosRest,       (size_t)cc      * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 588,
+          "call": "cudaMalloc(&d_expandAux,           (size_t)3 * tcap * sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/haptics.cu",
+      "declarations": [
+        {
+          "line": 111,
+          "brace_depth": 0,
+          "declaration": "static float4*       d_triVms = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 112,
+          "brace_depth": 0,
+          "declaration": "static unsigned int* d_vmsKey = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 113,
+          "brace_depth": 0,
+          "declaration": "static int*          d_vmsTri = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 114,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_contactDisp = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 116,
+          "brace_depth": 0,
+          "declaration": "static int*          d_penCount = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 117,
+          "brace_depth": 0,
+          "declaration": "static float*        d_depthSum = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 118,
+          "brace_depth": 0,
+          "declaration": "static int           g_triCap = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 121,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_toolTri     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 122,
+          "brace_depth": 0,
+          "declaration": "static int           g_toolTriCap  = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 123,
+          "brace_depth": 0,
+          "declaration": "static int           g_toolTriCount = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 124,
+          "brace_depth": 0,
+          "declaration": "static float3        g_toolCenter  = { 0, 0, 0 };",
+          "classification": "review_required"
+        },
+        {
+          "line": 125,
+          "brace_depth": 0,
+          "declaration": "static float         g_toolBoundR  = 0.f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 127,
+          "brace_depth": 0,
+          "declaration": "static HapticParams  g_hp = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 128,
+          "brace_depth": 0,
+          "declaration": "static int           g_cornerCount = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 129,
+          "brace_depth": 0,
+          "declaration": "static float3        g_physS, g_physE, g_physPos;",
+          "classification": "review_required"
+        },
+        {
+          "line": 130,
+          "brace_depth": 0,
+          "declaration": "static float4        g_physQuat  = { 0, 0, 0, 1 };",
+          "classification": "review_required"
+        },
+        {
+          "line": 131,
+          "brace_depth": 0,
+          "declaration": "static float3        g_linVel, g_angVel;",
+          "classification": "review_required"
+        },
+        {
+          "line": 132,
+          "brace_depth": 0,
+          "declaration": "static float3        g_proxyS, g_proxyE, g_proxyPos_dev;",
+          "classification": "review_required"
+        },
+        {
+          "line": 133,
+          "brace_depth": 0,
+          "declaration": "static float4        g_proxyQuat = { 0, 0, 0, 1 };",
+          "classification": "review_required"
+        },
+        {
+          "line": 134,
+          "brace_depth": 0,
+          "declaration": "static bool          g_hasProxy = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 135,
+          "brace_depth": 0,
+          "declaration": "static float3        g_prevPhysPos = { 0, 0, 0 };",
+          "classification": "review_required"
+        },
+        {
+          "line": 136,
+          "brace_depth": 0,
+          "declaration": "static bool          g_havePrev = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 139,
+          "brace_depth": 0,
+          "declaration": "static float3        g_stickAnchor = { 0, 0, 0 };",
+          "classification": "review_required"
+        },
+        {
+          "line": 140,
+          "brace_depth": 0,
+          "declaration": "static bool          g_slipping    = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 141,
+          "brace_depth": 0,
+          "declaration": "static float3        g_lastNormal  = { 0, 1, 0 };",
+          "classification": "review_required"
+        },
+        {
+          "line": 142,
+          "brace_depth": 0,
+          "declaration": "static float         g_graspMu     = 1.f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 143,
+          "brace_depth": 0,
+          "declaration": "static float         g_toolRadius = 0.f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 144,
+          "brace_depth": 0,
+          "declaration": "static float3        g_force, g_torque;",
+          "classification": "review_required"
+        },
+        {
+          "line": 145,
+          "brace_depth": 0,
+          "declaration": "static bool          g_inContact = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 146,
+          "brace_depth": 0,
+          "declaration": "static int           g_minTri = -1;",
+          "classification": "review_required"
+        },
+        {
+          "line": 148,
+          "brace_depth": 0,
+          "declaration": "static float3*       c_cornerPos   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 149,
+          "brace_depth": 0,
+          "declaration": "static float3*       c_hapticForce = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 150,
+          "brace_depth": 0,
+          "declaration": "static int*          c_active      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 151,
+          "brace_depth": 0,
+          "declaration": "static int*          c_pinned      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 152,
+          "brace_depth": 0,
+          "declaration": "static float3*       c_vel         = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 153,
+          "brace_depth": 0,
+          "declaration": "static bool          g_ready = false;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 394,
+          "call": "cudaMalloc(&d_triVms, (size_t)triCapacity * sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 395,
+          "call": "cudaMalloc(&d_vmsKey, sizeof(unsigned int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 396,
+          "call": "cudaMalloc(&d_vmsTri, sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 397,
+          "call": "cudaMalloc(&d_contactDisp, (size_t)cornerCount * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 399,
+          "call": "cudaMalloc(&d_penCount, sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 400,
+          "call": "cudaMalloc(&d_depthSum, sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 402,
+          "call": "cudaMalloc(&d_toolTri, (size_t)3 * g_toolTriCap * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/physics.cu",
+      "declarations": [
+        {
+          "line": 67,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_vel         = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 68,
+          "brace_depth": 0,
+          "declaration": "static float*        d_mass        = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 69,
+          "brace_depth": 0,
+          "declaration": "static int*          d_pinned      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 70,
+          "brace_depth": 0,
+          "declaration": "static int*          d_active      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 71,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_extForce    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 72,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_hapticForce = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 73,
+          "brace_depth": 0,
+          "declaration": "static int*          d_nbrIdx      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 74,
+          "brace_depth": 0,
+          "declaration": "static float3*       d_restNbr     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 75,
+          "brace_depth": 0,
+          "declaration": "static BendPairGpu*  d_bendPairs   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 76,
+          "brace_depth": 0,
+          "declaration": "static RotGpu*       d_particleRot = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 77,
+          "brace_depth": 0,
+          "declaration": "static RotGpu*       d_particleRotPrev = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 79,
+          "brace_depth": 0,
+          "declaration": "static PhysicsInitDesc g_pdesc = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 80,
+          "brace_depth": 0,
+          "declaration": "static bool            g_phys_ready = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 81,
+          "brace_depth": 0,
+          "declaration": "static int             g_graspNExempt = 1;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 232,
+          "call": "cudaMalloc(&d_vel,         (size_t)cc      * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 233,
+          "call": "cudaMalloc(&d_mass,        (size_t)cc      * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 234,
+          "call": "cudaMalloc(&d_pinned,      (size_t)cc      * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 235,
+          "call": "cudaMalloc(&d_active,      (size_t)cc      * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 236,
+          "call": "cudaMalloc(&d_extForce,    (size_t)cc      * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 237,
+          "call": "cudaMalloc(&d_hapticForce, (size_t)cc      * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 239,
+          "call": "cudaMalloc(&d_nbrIdx,      (size_t)6 * cc  * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 240,
+          "call": "cudaMalloc(&d_restNbr,     (size_t)6 * cc  * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 241,
+          "call": "cudaMalloc(&d_bendPairs,   (size_t)bpcA    * sizeof(BendPairGpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 242,
+          "call": "cudaMalloc(&d_particleRot,     (size_t)cc  * sizeof(RotGpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 243,
+          "call": "cudaMalloc(&d_particleRotPrev, (size_t)cc  * sizeof(RotGpu))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/render_buffer.cuh",
+      "declarations": [
+        {
+          "line": 5,
+          "brace_depth": 1,
+          "declaration": "__device__ void operator=(float4 a){x=a.x;",
+          "classification": "review_required"
+        },
+        {
+          "line": 10,
+          "brace_depth": 0,
+          "declaration": "static RenderVertex* d_render=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 11,
+          "brace_depth": 0,
+          "declaration": "static float3 *d_renderNormal=nullptr,*d_renderTangent=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 12,
+          "brace_depth": 0,
+          "declaration": "static float* d_renderBounds=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 13,
+          "brace_depth": 0,
+          "declaration": "static int* d_renderCounts=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 14,
+          "brace_depth": 0,
+          "declaration": "static int g_renderCapacity=0;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 54,
+          "call": "cudaMalloc(&d_renderNormal,(size_t)9*g_desc.voxelCount*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 55,
+          "call": "cudaMalloc(&d_renderTangent,(size_t)9*g_desc.voxelCount*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 56,
+          "call": "cudaMalloc(&d_renderBounds,6*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 57,
+          "call": "cudaMalloc(&d_renderCounts,2*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 59,
+          "call": "cudaMalloc(&d_render,(size_t)count*sizeof(RenderVertex))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/solver/material/coupled_material.cuh",
+      "declarations": [
+        {
+          "line": 10,
+          "brace_depth": 0,
+          "declaration": "static constexpr int MaterialFreeIterations=7;",
+          "classification": "review_required"
+        },
+        {
+          "line": 11,
+          "brace_depth": 0,
+          "declaration": "static constexpr int MaterialLoadedIterations=3;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": []
+    },
+    {
+      "file": "cuda/solver/material/material_line_search.cuh",
+      "declarations": [
+        {
+          "line": 14,
+          "brace_depth": 0,
+          "declaration": "static constexpr float MaterialFloorBand=.95f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 16,
+          "brace_depth": 0,
+          "declaration": "static constexpr int MaterialFloorRecoverySubsteps=6;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": []
+    },
+    {
+      "file": "cuda/solver/material/unified_vertex.cuh",
+      "declarations": [
+        {
+          "line": 49,
+          "brace_depth": 0,
+          "declaration": "static constexpr int MaterialFloorRestricted=1<<30;",
+          "classification": "review_required"
+        },
+        {
+          "line": 50,
+          "brace_depth": 0,
+          "declaration": "static constexpr int MaterialCutterContact=16;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": []
+    },
+    {
+      "file": "cuda/surface_cleanup.cuh",
+      "declarations": [
+        {
+          "line": 3,
+          "brace_depth": 0,
+          "declaration": "static int4* d_faceTable=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 4,
+          "brace_depth": 0,
+          "declaration": "static int* d_cleanTriangles=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 5,
+          "brace_depth": 0,
+          "declaration": "static int g_faceCapacity=0,g_cleanCapacity=0;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 42,
+          "call": "cudaMalloc(&d_faceTable,capacity*sizeof(int4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 46,
+          "call": "cudaMalloc(&d_cleanTriangles,indices*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/training/cut_training.cuh",
+      "declarations": [],
+      "allocations": [
+        {
+          "line": 5,
+          "call": "cudaMalloc(&d_trainingTearCause,(size_t)std::max(g_cdesc.gridEdgeCount,1))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 7,
+          "call": "cudaMalloc(&d_trainingGraspNeighborhood,(size_t)g_cdesc.cornerCount*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/training/xpbd_training.cuh",
+      "declarations": [
+        {
+          "line": 3,
+          "brace_depth": 0,
+          "declaration": "static float3* d_trainingCoreRaw=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 4,
+          "brace_depth": 0,
+          "declaration": "static float* d_trainingCoreEMA=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 5,
+          "brace_depth": 0,
+          "declaration": "static int* d_trainingBroken=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 6,
+          "brace_depth": 0,
+          "declaration": "static unsigned* d_trainingBreakCounts=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 7,
+          "brace_depth": 0,
+          "declaration": "static float* d_trainingForceScratch=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 8,
+          "brace_depth": 0,
+          "declaration": "static TrainingMetrics* d_trainingMetrics=nullptr;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 57,
+          "call": "cudaMalloc(&d_trainingCoreRaw,(size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 58,
+          "call": "cudaMalloc(&d_trainingCoreEMA,(size_t)g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 59,
+          "call": "cudaMalloc(&d_trainingBroken,(size_t)g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 60,
+          "call": "cudaMalloc(&d_trainingForceScratch,(size_t)g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 61,
+          "call": "cudaMalloc(&d_trainingBreakCounts,2*sizeof(unsigned))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 62,
+          "call": "cudaMalloc(&d_trainingMetrics,sizeof(TrainingMetrics))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 99,
+          "call": "cudaMalloc(&d_toolClearance,9*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/xpbd/tool_feedback.cuh",
+      "declarations": [
+        {
+          "line": 9,
+          "brace_depth": 0,
+          "declaration": "static ToolFeedbackPacket* d_toolFeedback=nullptr;",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 37,
+          "call": "cudaMalloc(&d_toolFeedback,sizeof(ToolFeedbackPacket))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    },
+    {
+      "file": "cuda/xpbd/xpbd_solver.cu",
+      "declarations": [
+        {
+          "line": 14,
+          "brace_depth": 0,
+          "declaration": "static int g_trainingFlags=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 20,
+          "brace_depth": 0,
+          "declaration": "static bool g_profile=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 21,
+          "brace_depth": 0,
+          "declaration": "static std::vector<cudaEvent_t> g_profileEvents;",
+          "classification": "review_required"
+        },
+        {
+          "line": 38,
+          "brace_depth": 0,
+          "declaration": "static bool g_sectionProfile=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 39,
+          "brace_depth": 0,
+          "declaration": "static std::vector<std::pair<const char*,cudaEvent_t>> g_sectionMarks;",
+          "classification": "review_required"
+        },
+        {
+          "line": 40,
+          "brace_depth": 0,
+          "declaration": "static std::vector<cudaEvent_t> g_sectionPool;",
+          "classification": "review_required"
+        },
+        {
+          "line": 41,
+          "brace_depth": 0,
+          "declaration": "static std::vector<std::pair<std::string,double>> g_sectionTotals;",
+          "classification": "review_required"
+        },
+        {
+          "line": 82,
+          "brace_depth": 0,
+          "declaration": "static FragmentVertex* d_fragmentVertices=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 83,
+          "brace_depth": 0,
+          "declaration": "static int* d_fragmentSupported=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 84,
+          "brace_depth": 0,
+          "declaration": "static int* d_fragmentDegree=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 85,
+          "brace_depth": 0,
+          "declaration": "static float* d_fragmentLambda=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 86,
+          "brace_depth": 0,
+          "declaration": "static float3* d_fragmentBefore=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 87,
+          "brace_depth": 0,
+          "declaration": "static float3* d_fragmentStart=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 88,
+          "brace_depth": 0,
+          "declaration": "static int *d_fragmentQueries=nullptr,*d_fragmentQueryCount=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 89,
+          "brace_depth": 0,
+          "declaration": "static int g_fragmentCapacity=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 97,
+          "brace_depth": 0,
+          "declaration": "static __half* d_cgMatrix=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 98,
+          "brace_depth": 0,
+          "declaration": "static float* d_cgScale=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 99,
+          "brace_depth": 0,
+          "declaration": "static unsigned short* d_cgStencil=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 102,
+          "brace_depth": 0,
+          "declaration": "static float3 *d_cgR=nullptr,*d_cgP=nullptr,*d_cgQ=nullptr,*d_cgD=nullptr,*d_cgA=nullptr,*d_cgZ=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 103,
+          "brace_depth": 0,
+          "declaration": "static Symmetric3* d_cgH=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 104,
+          "brace_depth": 0,
+          "declaration": "static MaterialCGSum* d_cgS=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 105,
+          "brace_depth": 0,
+          "declaration": "static MaterialLineSearch* d_cgSearch=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 106,
+          "brace_depth": 0,
+          "declaration": "static UnifiedState* d_unified=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 107,
+          "brace_depth": 0,
+          "declaration": "static float3* d_unifiedTarget=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 108,
+          "brace_depth": 0,
+          "declaration": "static float3* d_unifiedPreviousInverse=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 109,
+          "brace_depth": 0,
+          "declaration": "static float* d_unifiedRestMetric=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 110,
+          "brace_depth": 0,
+          "declaration": "static int g_unifiedTetCapacity=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 111,
+          "brace_depth": 0,
+          "declaration": "static int* d_unifiedComponents=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 116,
+          "brace_depth": 0,
+          "declaration": "static unsigned* d_topologyRecords=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 117,
+          "brace_depth": 0,
+          "declaration": "static unsigned* d_multigridRevision=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 118,
+          "brace_depth": 0,
+          "declaration": "static unsigned* d_componentRevision=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 119,
+          "brace_depth": 0,
+          "declaration": "static unsigned* d_livenessRevision=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 120,
+          "brace_depth": 0,
+          "declaration": "static unsigned* d_edgeSupportRevision=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 123,
+          "brace_depth": 0,
+          "declaration": "static int* d_graspComponents=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 124,
+          "brace_depth": 0,
+          "declaration": "static int* d_floorRecovery=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 125,
+          "brace_depth": 0,
+          "declaration": "static int* d_safeCluster=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 126,
+          "brace_depth": 0,
+          "declaration": "static SafeCoarseCluster* d_safeAggregate=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 127,
+          "brace_depth": 0,
+          "declaration": "static int* d_safeJoined=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 129,
+          "brace_depth": 0,
+          "declaration": "static float* d_coarseWeight=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 130,
+          "brace_depth": 0,
+          "declaration": "static float* d_unifiedInteraction=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 132,
+          "brace_depth": 0,
+          "declaration": "static int *d_sweepSites=nullptr,*d_sweepCount=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 133,
+          "brace_depth": 0,
+          "declaration": "static CoarseBlock* d_coarseBlock=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 134,
+          "brace_depth": 0,
+          "declaration": "static CoarseBlock* d_globalCoarse=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 135,
+          "brace_depth": 0,
+          "declaration": "static SurfaceContact* d_manifold=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 136,
+          "brace_depth": 0,
+          "declaration": "static int *d_manifoldIds=nullptr,*d_manifoldCount=nullptr,*d_manifoldOwners=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 137,
+          "brace_depth": 0,
+          "declaration": "static float* d_manifoldQuadrature=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 138,
+          "brace_depth": 0,
+          "declaration": "static int g_manifoldCapacity=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 139,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_unifiedGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 140,
+          "brace_depth": 0,
+          "declaration": "static bool g_unifiedGraphDirty=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 141,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_unifiedRecoveryGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 142,
+          "brace_depth": 0,
+          "declaration": "static bool g_unifiedRecoveryGraphDirty=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 144,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_unifiedLoadedGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 145,
+          "brace_depth": 0,
+          "declaration": "static bool g_unifiedLoadedGraphDirty=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 146,
+          "brace_depth": 0,
+          "declaration": "static int* d_substepQuery=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 147,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_unifiedContactGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 148,
+          "brace_depth": 0,
+          "declaration": "static bool g_unifiedContactGraphDirty=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 151,
+          "brace_depth": 0,
+          "declaration": "static float3* d_pos      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 152,
+          "brace_depth": 0,
+          "declaration": "static float3* d_prevPos  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 153,
+          "brace_depth": 0,
+          "declaration": "static float* d_attachStiffness = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 154,
+          "brace_depth": 0,
+          "declaration": "static float3* d_attachRest = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 155,
+          "brace_depth": 0,
+          "declaration": "static float3* d_attachLambda = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 156,
+          "brace_depth": 0,
+          "declaration": "static float3* d_vel      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 157,
+          "brace_depth": 0,
+          "declaration": "static float*  d_invMass  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 158,
+          "brace_depth": 0,
+          "declaration": "static int*    d_edgeI    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 159,
+          "brace_depth": 0,
+          "declaration": "static int*    d_edgeJ    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 160,
+          "brace_depth": 0,
+          "declaration": "static float*  d_restLen  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 161,
+          "brace_depth": 0,
+          "declaration": "static float*  d_lambda   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 162,
+          "brace_depth": 0,
+          "declaration": "static int*    d_edgeActive = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 167,
+          "brace_depth": 0,
+          "declaration": "static int     g_N = 0, g_E = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 168,
+          "brace_depth": 0,
+          "declaration": "static std::vector<int> g_colorOff, g_colorCnt;",
+          "classification": "review_required"
+        },
+        {
+          "line": 169,
+          "brace_depth": 0,
+          "declaration": "static int     g_numColors = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 170,
+          "brace_depth": 0,
+          "declaration": "static bool    g_ready = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 177,
+          "brace_depth": 0,
+          "declaration": "static int* d_edgeSrcIdx = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 178,
+          "brace_depth": 0,
+          "declaration": "static std::vector<int> g_edgeSlotOfInput;",
+          "classification": "review_required"
+        },
+        {
+          "line": 182,
+          "brace_depth": 0,
+          "declaration": "static float g_hFrame = 0.f, g_alphaTildeF = 0.f, g_velScaleF = 1.f, g_betaGammaHSF = 0.f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 183,
+          "brace_depth": 0,
+          "declaration": "static float g_alphaBF = 0.f, g_betaGammaHBF = 0.f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 184,
+          "brace_depth": 0,
+          "declaration": "static int   g_itersF = 1;",
+          "classification": "review_required"
+        },
+        {
+          "line": 185,
+          "brace_depth": 0,
+          "declaration": "static bool  g_doBendF = false, g_frameReady = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 186,
+          "brace_depth": 0,
+          "declaration": "static bool  g_doStrainF = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 189,
+          "brace_depth": 0,
+          "declaration": "static int*    d_bendI = nullptr, *d_bendJ = nullptr, *d_bendK = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 190,
+          "brace_depth": 0,
+          "declaration": "static float*  d_bendTheta0 = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 191,
+          "brace_depth": 0,
+          "declaration": "static int*    d_bendActive = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 192,
+          "brace_depth": 0,
+          "declaration": "static float*  d_bendLambda = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 193,
+          "brace_depth": 0,
+          "declaration": "static int     g_B = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 194,
+          "brace_depth": 0,
+          "declaration": "static std::vector<int> g_bColorOff, g_bColorCnt;",
+          "classification": "review_required"
+        },
+        {
+          "line": 195,
+          "brace_depth": 0,
+          "declaration": "static int     g_bNumColors = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 196,
+          "brace_depth": 0,
+          "declaration": "static int*    d_bendSrcIdx = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 197,
+          "brace_depth": 0,
+          "declaration": "static std::vector<int> g_bendSlotOfInput;",
+          "classification": "review_required"
+        },
+        {
+          "line": 205,
+          "brace_depth": 0,
+          "declaration": "static int*    d_tetIds     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 206,
+          "brace_depth": 0,
+          "declaration": "static float3* d_tetBr0     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 207,
+          "brace_depth": 0,
+          "declaration": "static float3* d_tetBr1     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 208,
+          "brace_depth": 0,
+          "declaration": "static float3* d_tetBr2     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 209,
+          "brace_depth": 0,
+          "declaration": "static float*  d_tetMuV     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 210,
+          "brace_depth": 0,
+          "declaration": "static float*  d_tetLambdaV = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 211,
+          "brace_depth": 0,
+          "declaration": "static float*  d_tetAlphaDev= nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 212,
+          "brace_depth": 0,
+          "declaration": "static float*  d_tetAlphaHyd= nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 213,
+          "brace_depth": 0,
+          "declaration": "static float*  d_tetLambdaDevL = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 214,
+          "brace_depth": 0,
+          "declaration": "static float*  d_tetLambdaHydL = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 215,
+          "brace_depth": 0,
+          "declaration": "static int*    d_tetActive  = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 216,
+          "brace_depth": 0,
+          "declaration": "static int*    d_tetEdgeOwnerSlot = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 217,
+          "brace_depth": 0,
+          "declaration": "static int*    d_edgeTetSupport = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 218,
+          "brace_depth": 0,
+          "declaration": "static int*    d_tetCellBase = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 219,
+          "brace_depth": 0,
+          "declaration": "static KuhnTet* d_kuhnTets   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 220,
+          "brace_depth": 0,
+          "declaration": "static int     g_T = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 221,
+          "brace_depth": 0,
+          "declaration": "static int     g_tetCells = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 222,
+          "brace_depth": 0,
+          "declaration": "static int*    d_activeNodes = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 223,
+          "brace_depth": 0,
+          "declaration": "static int     g_activeNodes = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 224,
+          "brace_depth": 0,
+          "declaration": "static std::vector<int> g_tColorOff, g_tColorCnt;",
+          "classification": "review_required"
+        },
+        {
+          "line": 225,
+          "brace_depth": 0,
+          "declaration": "static int     g_tNumColors = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 227,
+          "brace_depth": 0,
+          "declaration": "static std::vector<int> g_tetColorOrder;",
+          "classification": "review_required"
+        },
+        {
+          "line": 228,
+          "brace_depth": 0,
+          "declaration": "static int* d_tetColorOrder=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 230,
+          "brace_depth": 0,
+          "declaration": "static int4* d_colorTetIds=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 231,
+          "brace_depth": 0,
+          "declaration": "static float* d_colorTetDet=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 232,
+          "brace_depth": 0,
+          "declaration": "static int* d_localTets=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 233,
+          "brace_depth": 0,
+          "declaration": "static std::vector<int> g_localOff,g_localCount;",
+          "classification": "review_required"
+        },
+        {
+          "line": 234,
+          "brace_depth": 0,
+          "declaration": "static int g_localPasses=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 235,
+          "brace_depth": 0,
+          "declaration": "static float g_minTetVolume=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 236,
+          "brace_depth": 0,
+          "declaration": "static int g_volumePasses=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 237,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_pressureGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 238,
+          "brace_depth": 0,
+          "declaration": "static float g_tissueHardening=80.f,g_bulkDampingSeconds=.003125f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 239,
+          "brace_depth": 0,
+          "declaration": "static float* d_fiberLambda=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 240,
+          "brace_depth": 0,
+          "declaration": "static int* d_captureInside=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 241,
+          "brace_depth": 0,
+          "declaration": "static bool g_captureWedge=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 242,
+          "brace_depth": 0,
+          "declaration": "static float3* d_feasibleStart=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 243,
+          "brace_depth": 0,
+          "declaration": "static float3* d_feasibleTarget=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 244,
+          "brace_depth": 0,
+          "declaration": "static int* d_incidentOffsets=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 245,
+          "brace_depth": 0,
+          "declaration": "static int* d_incidentTets=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 246,
+          "brace_depth": 0,
+          "declaration": "static int* d_needFeasible=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 248,
+          "brace_depth": 0,
+          "declaration": "static bool    g_haveTets = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 249,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_tetGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 250,
+          "brace_depth": 0,
+          "declaration": "static cudaStream_t g_captureStream=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 251,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_feasibleGraphs[8]={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 253,
+          "brace_depth": 0,
+          "declaration": "static float g_graphOmega=0,g_graphDamping=0,g_graphH=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 254,
+          "brace_depth": 0,
+          "declaration": "static int g_graphTetCount=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 260,
+          "brace_depth": 0,
+          "declaration": "static int*    d_grasped          = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 261,
+          "brace_depth": 0,
+          "declaration": "static int*    d_graspCore        = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 262,
+          "brace_depth": 0,
+          "declaration": "static float*  d_coreOffU         = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 263,
+          "brace_depth": 0,
+          "declaration": "static float*  d_coreOffN         = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 264,
+          "brace_depth": 0,
+          "declaration": "static float*  d_coreOffW         = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 265,
+          "brace_depth": 0,
+          "declaration": "static float* d_coreComplianceScale=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 266,
+          "brace_depth": 0,
+          "declaration": "static float3* d_coreLambda       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 267,
+          "brace_depth": 0,
+          "declaration": "static float*  d_coreForceEMA     = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 271,
+          "brace_depth": 0,
+          "declaration": "static int*    d_candScratch = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 272,
+          "brace_depth": 0,
+          "declaration": "static float*  d_uScratch    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 273,
+          "brace_depth": 0,
+          "declaration": "static float*  d_vScratch    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 274,
+          "brace_depth": 0,
+          "declaration": "static float*  d_nScratch    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 275,
+          "brace_depth": 0,
+          "declaration": "static float*  d_slabLambda       = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 276,
+          "brace_depth": 0,
+          "declaration": "static float*  d_slabLambdaPrev   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 277,
+          "brace_depth": 0,
+          "declaration": "static float*  d_jawContactLambda = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 278,
+          "brace_depth": 0,
+          "declaration": "static float*  d_shaftContactLambda = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 279,
+          "brace_depth": 0,
+          "declaration": "static float*  d_coulombAnchorU   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 280,
+          "brace_depth": 0,
+          "declaration": "static float*  d_coulombAnchorW   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 281,
+          "brace_depth": 0,
+          "declaration": "static bool    g_grasping = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 282,
+          "brace_depth": 0,
+          "declaration": "static bool    g_toolArmed = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 288,
+          "brace_depth": 0,
+          "declaration": "static XpbdToolState  g_tool = {}, g_toolFrom = {};",
+          "classification": "review_required"
+        },
+        {
+          "line": 289,
+          "brace_depth": 0,
+          "declaration": "static int g_substepIndex = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 290,
+          "brace_depth": 0,
+          "declaration": "static XpbdGraspParams g_gp = { 0.5f, 0.3f, 0.02f, 0.55f, 0.3f, 1.0e-7f, 0.02f,\n                                /*ccdVelThresh*/0.5f, /*ccdMaxDisp*/0.045f, /*ccdOmega*/0.25f,\n                                /*omegaGrasp*/0.25f, /*coreAlpha*/1.0e-7f, /*coreBreakForce*/150.f,\n                                /*graspMaxDisp*/0.045f, /*nExemptRings*/1 };",
+          "classification": "review_required"
+        },
+        {
+          "line": 294,
+          "brace_depth": 0,
+          "declaration": "static bool g_frictionContact=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 295,
+          "brace_depth": 0,
+          "declaration": "static bool g_anchorAssist=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 296,
+          "brace_depth": 0,
+          "declaration": "static bool g_embeddedGrip=false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 297,
+          "brace_depth": 0,
+          "declaration": "static CoupledTool* d_coupledTool=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 298,
+          "brace_depth": 0,
+          "declaration": "static int g_guidedInstrument=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 299,
+          "brace_depth": 0,
+          "declaration": "static float g_toolMass=.02f,g_toolStiffness=300.f,g_toolDamping=5.f,g_toolMaxTravel=.1f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 300,
+          "brace_depth": 0,
+          "declaration": "static float g_jawMass=.005f,g_jawStiffness=0,g_jawDamping=2.f,g_jawSpeed=1.f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 301,
+          "brace_depth": 0,
+          "declaration": "static float g_openJawGap=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 302,
+          "brace_depth": 0,
+          "declaration": "static float3* d_contactMobility=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 303,
+          "brace_depth": 0,
+          "declaration": "static float* d_gripError=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 304,
+          "brace_depth": 0,
+          "declaration": "static float* d_contactResidual=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 305,
+          "brace_depth": 0,
+          "declaration": "static GripPoint* d_gripPoints=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 306,
+          "brace_depth": 0,
+          "declaration": "static GripSolveStep* d_gripStep=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 307,
+          "brace_depth": 0,
+          "declaration": "static GripPatch* d_gripPatch=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 308,
+          "brace_depth": 0,
+          "declaration": "static float* d_gripPatchWeights=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 309,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_gripGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 311,
+          "brace_depth": 0,
+          "declaration": "static int g_gripCount=0,g_gripCapacity=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 312,
+          "brace_depth": 0,
+          "declaration": "static int *d_gripCounter=nullptr,*d_gripLive=nullptr,*d_gripDegree=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 313,
+          "brace_depth": 0,
+          "declaration": "static float* d_gripMoments=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 314,
+          "brace_depth": 0,
+          "declaration": "static float g_gripSigma=.15f,g_gripCompliance=1.f/8000.f,g_gripDamping=.02f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 315,
+          "brace_depth": 0,
+          "declaration": "static float g_pressureH=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 317,
+          "brace_depth": 0,
+          "declaration": "static float g_muStatic=.5f,g_muDynamic=.3f,g_jawThickness=.1f,g_contactRadius=.02f;",
+          "classification": "review_required"
+        },
+        {
+          "line": 318,
+          "brace_depth": 0,
+          "declaration": "static ContactRecord* d_contacts=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 319,
+          "brace_depth": 0,
+          "declaration": "static float* d_contactNormalLambda=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 320,
+          "brace_depth": 0,
+          "declaration": "static float3* d_contactTangentLambda=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 322,
+          "brace_depth": 0,
+          "declaration": "static int g_surfaceCount=0,g_surfaceCapacity=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 323,
+          "brace_depth": 0,
+          "declaration": "static float* d_toolClearance=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 324,
+          "brace_depth": 0,
+          "declaration": "static XpbdToolState g_previousAcceptedTool={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 325,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_surfaceGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 326,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_velocityGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 327,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_repairGraph=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 329,
+          "brace_depth": 0,
+          "declaration": "static float g_velocityH=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 330,
+          "brace_depth": 0,
+          "declaration": "static int g_graphClosing=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 331,
+          "brace_depth": 0,
+          "declaration": "static float g_graphAlpha=0,g_graphMuS=0,g_graphMuD=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 333,
+          "brace_depth": 0,
+          "declaration": "static const float3* g_surfaceRest=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 334,
+          "brace_depth": 0,
+          "declaration": "static const float4* g_surfaceMaterialFP=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 335,
+          "brace_depth": 0,
+          "declaration": "static const int *g_surfaceTags=nullptr,*g_surfaceCorners=nullptr,*g_surfaceConn=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 336,
+          "brace_depth": 0,
+          "declaration": "static const unsigned* g_surfaceMasks=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 337,
+          "brace_depth": 0,
+          "declaration": "static const float3* g_surfaceExpanded=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 338,
+          "brace_depth": 0,
+          "declaration": "static SurfaceVertex* d_surfaceVertices=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 339,
+          "brace_depth": 0,
+          "declaration": "static float4* d_jawLoad=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 340,
+          "brace_depth": 0,
+          "declaration": "static ContactGroupBounds* d_contactGroups=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 341,
+          "brace_depth": 0,
+          "declaration": "static unsigned char* d_contactGroupRejected=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 342,
+          "brace_depth": 0,
+          "declaration": "static float4* d_surfaceCurrent=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 343,
+          "brace_depth": 0,
+          "declaration": "static float3* d_surfacePrevious=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 344,
+          "brace_depth": 0,
+          "declaration": "static SurfaceContact* d_surfaceContacts=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 345,
+          "brace_depth": 0,
+          "declaration": "static SurfaceContact* d_contactCache=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 346,
+          "brace_depth": 0,
+          "declaration": "static int* d_contactCacheSlots=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 347,
+          "brace_depth": 0,
+          "declaration": "static int* d_surfaceDegree=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 348,
+          "brace_depth": 0,
+          "declaration": "static int *d_surfaceActive=nullptr,*d_surfaceActiveCount=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 349,
+          "brace_depth": 0,
+          "declaration": "static float3* d_surfaceDelta=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 350,
+          "brace_depth": 0,
+          "declaration": "static float4* d_contactReaction=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 352,
+          "brace_depth": 0,
+          "declaration": "static float3  g_jawW = { 1.f, 0.f, 0.f };",
+          "classification": "review_required"
+        },
+        {
+          "line": 354,
+          "brace_depth": 0,
+          "declaration": "static XpbdParams g_p = { /*numSubsteps*/20, /*iters*/1, /*omega*/1.0f, /*damping*/0.02f,\n                          /*ks*/7.5e4f, /*gx*/0.f, /*gy*/-9.81f, /*gz*/0.f, /*kb*/2.0e4f,\n                          /*alpha*/0.f, /*betaS*/0.f, /*betaB*/0.f,\n                          /*youngE*/0.f, /*poisson*/0.45f };",
+          "classification": "review_required"
+        },
+        {
+          "line": 365,
+          "brace_depth": 0,
+          "declaration": "static bool  g_bound         = false;",
+          "classification": "review_required"
+        },
+        {
+          "line": 366,
+          "brace_depth": 0,
+          "declaration": "static int*  d_edgeOwnerSlot = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 367,
+          "brace_depth": 0,
+          "declaration": "static const float3* g_liveRestNbr=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 368,
+          "brace_depth": 0,
+          "declaration": "static const int*             g_liveNbrIdx      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 369,
+          "brace_depth": 0,
+          "declaration": "static const XpbdBendPairGpu* g_liveBendPairs   = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 370,
+          "brace_depth": 0,
+          "declaration": "static const int*             g_liveActive      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 371,
+          "brace_depth": 0,
+          "declaration": "static const int*             g_livePinned      = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 372,
+          "brace_depth": 0,
+          "declaration": "static const float*           g_liveMass        = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 373,
+          "brace_depth": 0,
+          "declaration": "static const float3*          g_liveExtForce    = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 374,
+          "brace_depth": 0,
+          "declaration": "static const float3*          g_liveHapticForce = nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 375,
+          "brace_depth": 0,
+          "declaration": "static int g_dimsX = 0, g_dimsY = 0, g_dimsZ = 0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 385,
+          "brace_depth": 0,
+          "declaration": "static int g_sweepBlocks=0,g_predictorBlocks=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 1632,
+          "brace_depth": 1,
+          "declaration": "static const int TET_TABLE[6][4] = { {0,1,3,7}, {0,3,2,7}, {0,2,6,7}, {0,6,4,7}, {0,4,5,7}, {0,5,1,7} };",
+          "classification": "review_required"
+        },
+        {
+          "line": 2647,
+          "brace_depth": 0,
+          "declaration": "static int g_multigridLevels=0;",
+          "classification": "review_required"
+        },
+        {
+          "line": 2648,
+          "brace_depth": 0,
+          "declaration": "static MultigridLevel g_multigrid[MG_MAX_LEVELS+1]={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 2650,
+          "brace_depth": 0,
+          "declaration": "static float *d_multigridDense=nullptr,*d_multigridFactorInverse=nullptr,*d_multigridInverse=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 2652,
+          "brace_depth": 0,
+          "declaration": "static float3* d_multigridFine=nullptr;",
+          "classification": "review_required"
+        },
+        {
+          "line": 2788,
+          "brace_depth": 0,
+          "declaration": "static cudaGraphExec_t g_fragmentPassGraph[2]={};",
+          "classification": "review_required"
+        },
+        {
+          "line": 2789,
+          "brace_depth": 0,
+          "declaration": "static FragmentPassKey g_fragmentPassKey[2]={};",
+          "classification": "review_required"
+        }
+      ],
+      "allocations": [
+        {
+          "line": 1260,
+          "call": "cudaMalloc(&d_pos,     (size_t)g_N * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1261,
+          "call": "cudaMalloc(&d_prevPos, (size_t)g_N * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1262,
+          "call": "cudaMalloc(&d_vel,     (size_t)g_N * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1263,
+          "call": "cudaMalloc(&d_invMass, (size_t)g_N * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1265,
+          "call": "cudaMalloc(&d_edgeI,     (size_t)g_E * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1266,
+          "call": "cudaMalloc(&d_edgeJ,     (size_t)g_E * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1267,
+          "call": "cudaMalloc(&d_restLen,   (size_t)g_E * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1268,
+          "call": "cudaMalloc(&d_lambda,    (size_t)g_E * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1269,
+          "call": "cudaMalloc(&d_edgeActive,(size_t)g_E * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1270,
+          "call": "cudaMalloc(&d_edgeSrcIdx,(size_t)g_E * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1397,
+          "call": "cudaMalloc(&d_bendI,(size_t)g_B*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1397,
+          "call": "cudaMalloc(&d_bendJ,(size_t)g_B*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1398,
+          "call": "cudaMalloc(&d_bendK,(size_t)g_B*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1398,
+          "call": "cudaMalloc(&d_bendTheta0,(size_t)g_B*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1399,
+          "call": "cudaMalloc(&d_bendActive,(size_t)g_B*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1399,
+          "call": "cudaMalloc(&d_bendLambda,(size_t)g_B*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1400,
+          "call": "cudaMalloc(&d_bendSrcIdx,(size_t)g_B*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1507,
+          "call": "cudaMalloc(&d_edgeOwnerSlot, (size_t)E * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1524,
+          "call": "cudaMalloc(&d_topologyRecords, 8 * sizeof(unsigned))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1538,
+          "call": "cudaMalloc(&d_surfaceDegree,(size_t)cc*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1539,
+          "call": "cudaMalloc(&d_surfaceActiveCount,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1540,
+          "call": "cudaMalloc(&d_jawLoad,sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1542,
+          "call": "cudaMalloc(&d_surfaceDelta,(size_t)cc*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1543,
+          "call": "cudaMalloc(&d_contactReaction,sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1545,
+          "call": "cudaMalloc(&d_contacts,(size_t)3*cc*sizeof(ContactRecord))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1546,
+          "call": "cudaMalloc(&d_contactNormalLambda,(size_t)3*cc*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1547,
+          "call": "cudaMalloc(&d_contactTangentLambda,(size_t)3*cc*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1548,
+          "call": "cudaMalloc(&d_grasped,            (size_t)cc * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1549,
+          "call": "cudaMalloc(&d_graspCore,          (size_t)cc * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1550,
+          "call": "cudaMalloc(&d_coreOffU,           (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1551,
+          "call": "cudaMalloc(&d_coreOffN,           (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1552,
+          "call": "cudaMalloc(&d_coreOffW,           (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1553,
+          "call": "cudaMalloc(&d_coreComplianceScale,(size_t)cc*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1554,
+          "call": "cudaMalloc(&d_coreLambda,         (size_t)cc * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1555,
+          "call": "cudaMalloc(&d_coreForceEMA,       (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1556,
+          "call": "cudaMalloc(&d_candScratch,        (size_t)cc * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1557,
+          "call": "cudaMalloc(&d_uScratch,           (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1558,
+          "call": "cudaMalloc(&d_vScratch,           (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1559,
+          "call": "cudaMalloc(&d_nScratch,           (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1560,
+          "call": "cudaMalloc(&d_slabLambda,         (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1561,
+          "call": "cudaMalloc(&d_slabLambdaPrev,     (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1562,
+          "call": "cudaMalloc(&d_jawContactLambda,   (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1563,
+          "call": "cudaMalloc(&d_shaftContactLambda, (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1564,
+          "call": "cudaMalloc(&d_coulombAnchorU,     (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1565,
+          "call": "cudaMalloc(&d_coulombAnchorW,     (size_t)cc * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1808,
+          "call": "cudaMalloc(&d_activeNodes, activeNodes.size() * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1812,
+          "call": "cudaMalloc(&d_tetCellBase,   (size_t)cells * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1814,
+          "call": "cudaMalloc(&d_kuhnTets,      6 * sizeof(KuhnTet))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1815,
+          "call": "cudaMalloc(&d_tetIds,        (size_t)4*T * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1816,
+          "call": "cudaMalloc(&d_tetBr0,        (size_t)T   * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1817,
+          "call": "cudaMalloc(&d_tetBr1,        (size_t)T   * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1818,
+          "call": "cudaMalloc(&d_tetBr2,        (size_t)T   * sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1819,
+          "call": "cudaMalloc(&d_tetMuV,        (size_t)T   * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1820,
+          "call": "cudaMalloc(&d_tetLambdaV,    (size_t)T   * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1821,
+          "call": "cudaMalloc(&d_tetAlphaDev,   (size_t)T   * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1822,
+          "call": "cudaMalloc(&d_tetAlphaHyd,   (size_t)T   * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1823,
+          "call": "cudaMalloc(&d_tetLambdaDevL, (size_t)T   * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1824,
+          "call": "cudaMalloc(&d_tetLambdaHydL, (size_t)T   * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1825,
+          "call": "cudaMalloc(&d_tetActive,     (size_t)T   * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1826,
+          "call": "cudaMalloc(&d_fiberLambda,(size_t)6*T*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1827,
+          "call": "cudaMalloc(&d_tetEdgeOwnerSlot, (size_t)3*T * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1828,
+          "call": "cudaMalloc(&d_tetColorOrder,  (size_t)T   * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1829,
+          "call": "cudaMalloc(&d_colorTetIds,    (size_t)T   * sizeof(int4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1830,
+          "call": "cudaMalloc(&d_colorTetDet,    (size_t)T   * sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1831,
+          "call": "cudaMalloc(&d_edgeTetSupport, (size_t)6*g_N * sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1906,
+          "call": "cudaMalloc(&d_captureInside,(size_t)g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1908,
+          "call": "cudaMalloc(&d_feasibleStart,(size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1909,
+          "call": "cudaMalloc(&d_feasibleTarget,(size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1910,
+          "call": "cudaMalloc(&d_needFeasible,(size_t)(g_N+1)*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1917,
+          "call": "cudaMalloc(&d_incidentOffsets,offsets.size()*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 1918,
+          "call": "cudaMalloc(&d_incidentTets,incident.size()*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2004,
+          "call": "cudaMalloc(&d_contactCache,CONTACT_CACHE_SIZE*sizeof(SurfaceContact))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2005,
+          "call": "cudaMalloc(&d_contactCacheSlots,CONTACT_CACHE_SIZE*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2020,
+          "call": "cudaMalloc(&d_surfaceVertices,(size_t)3*capacity*sizeof(SurfaceVertex))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2021,
+          "call": "cudaMalloc(&d_surfaceContacts,(size_t)3*capacity*sizeof(SurfaceContact))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2023,
+          "call": "cudaMalloc(&d_surfaceActive,(size_t)3*capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2024,
+          "call": "cudaMalloc(&d_surfaceCurrent,(size_t)3*capacity*sizeof(float4))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2025,
+          "call": "cudaMalloc(&d_surfacePrevious,(size_t)3*capacity*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2026,
+          "call": "cudaMalloc(&d_contactGroups,(size_t)contactGroupCount(capacity)*sizeof(ContactGroupBounds))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2027,
+          "call": "cudaMalloc(&d_contactGroupRejected,(size_t)6*contactGroupCount(capacity))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2060,
+          "call": "cudaMalloc(&d_toolClearance,9*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2083,
+          "call": "cudaMalloc(&d_toolClearance,9*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2130,
+          "call": "cudaMalloc(&d_localTets,selected.size()*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2146,
+          "call": "cudaMalloc(&d_toolClearance,9*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2154,
+          "call": "cudaMalloc(&d_toolClearance,9*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2185,
+          "call": "cudaMalloc(&scratch,136*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2226,
+          "call": "cudaMalloc(&d_gripCounter,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2227,
+          "call": "cudaMalloc(&d_gripStep,sizeof(GripSolveStep))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2228,
+          "call": "cudaMalloc(&d_gripLive,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2229,
+          "call": "cudaMalloc(&d_gripMoments,4*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2230,
+          "call": "cudaMalloc(&d_gripDegree,(size_t)g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2231,
+          "call": "cudaMalloc(&d_gripPatch,sizeof(GripPatch))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2232,
+          "call": "cudaMalloc(&d_gripPatchWeights,(size_t)3*g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2242,
+          "call": "cudaMalloc(&d_coupledTool,sizeof(CoupledTool))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2243,
+          "call": "cudaMalloc(&d_contactMobility,(size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2244,
+          "call": "cudaMalloc(&d_gripError,3*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2245,
+          "call": "cudaMalloc(&d_contactResidual,3*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2298,
+          "call": "cudaMalloc(&points,(size_t)g_surfaceCount*sizeof(GripPoint))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2671,
+          "call": "cudaMalloc(&L.slots,(size_t)capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2672,
+          "call": "cudaMalloc(&L.index,(size_t)capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2673,
+          "call": "cudaMalloc(&L.count,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2674,
+          "call": "cudaMalloc(&L.parent,(size_t)children*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2675,
+          "call": "cudaMalloc(&L.site,(size_t)capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2676,
+          "call": "cudaMalloc(&L.component,(size_t)capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2677,
+          "call": "cudaMalloc(&L.neighbor,(size_t)27*capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2678,
+          "call": "cudaMalloc(&L.A,(size_t)27*9*capacity*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2679,
+          "call": "cudaMalloc(&L.inverse,(size_t)9*capacity*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2680,
+          "call": "cudaMalloc(&L.r,(size_t)capacity*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2681,
+          "call": "cudaMalloc(&L.z,(size_t)capacity*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2682,
+          "call": "cudaMalloc(&L.post,(size_t)capacity*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2687,
+          "call": "cudaMalloc(&d_multigridDense,dense)",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2688,
+          "call": "cudaMalloc(&d_multigridFactorInverse,dense)",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2689,
+          "call": "cudaMalloc(&d_multigridInverse,dense)",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2690,
+          "call": "cudaMalloc(&d_multigridFine,(size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2759,
+          "call": "cudaMalloc(&d_fragmentSupported,g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2834,
+          "call": "cudaMalloc(&d_fragmentLambda,6*g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2835,
+          "call": "cudaMalloc(&d_fragmentDegree,g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2836,
+          "call": "cudaMalloc(&d_fragmentBefore,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2837,
+          "call": "cudaMalloc(&d_fragmentStart,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2838,
+          "call": "cudaMalloc(&d_fragmentQueryCount,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2841,
+          "call": "cudaMalloc(&d_fragmentVertices,3*g_surfaceCount*sizeof(FragmentVertex))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2842,
+          "call": "cudaMalloc(&d_fragmentQueries,(3*g_surfaceCount+g_N)*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2871,
+          "call": "cudaMalloc(&d_manifoldCount,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2876,
+          "call": "cudaMalloc(&d_manifold,capacity*sizeof(SurfaceContact))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2877,
+          "call": "cudaMalloc(&d_manifoldIds,capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2878,
+          "call": "cudaMalloc(&d_manifoldOwners,capacity*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 2879,
+          "call": "cudaMalloc(&d_manifoldQuadrature,capacity*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3081,
+          "call": "cudaMalloc(&d_unified,sizeof(UnifiedState))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3082,
+          "call": "cudaMalloc(&d_unifiedTarget,(size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3085,
+          "call": "cudaMalloc(&d_coarseWeight,(size_t)g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3088,
+          "call": "cudaMalloc(&d_coarseBlock,sizeof(CoarseBlock))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3089,
+          "call": "cudaMalloc(&d_unifiedInteraction,(size_t)9*g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3091,
+          "call": "cudaMalloc(&d_sweepSites,(size_t)8*((g_dimsX+2)/2)*((g_dimsY+2)/2)*((g_dimsZ+2)/2)*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3092,
+          "call": "cudaMalloc(&d_sweepCount,8*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3098,
+          "call": "cudaMalloc(&d_unifiedPreviousInverse,(size_t)3*g_T*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3099,
+          "call": "cudaMalloc(&d_unifiedRestMetric,(size_t)7*g_T*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3105,
+          "call": "cudaMalloc(&d_cgStencil,g_N*sizeof(unsigned short))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3106,
+          "call": "cudaMalloc(&d_cgZ,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3107,
+          "call": "cudaMalloc(&d_cgMatrix,(size_t)72*g_N*sizeof(__half))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3109,
+          "call": "cudaMalloc(&d_cgScale,(size_t)8*g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3110,
+          "call": "cudaMalloc(&d_cgR,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3111,
+          "call": "cudaMalloc(&d_cgP,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3112,
+          "call": "cudaMalloc(&d_cgQ,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3113,
+          "call": "cudaMalloc(&d_cgD,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3114,
+          "call": "cudaMalloc(&d_cgA,g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3115,
+          "call": "cudaMalloc(&d_cgH,g_N*sizeof(Symmetric3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3116,
+          "call": "cudaMalloc(&d_cgS,g_N*sizeof(MaterialCGSum))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3117,
+          "call": "cudaMalloc(&d_cgSearch,g_N*sizeof(MaterialLineSearch))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3127,
+          "call": "cudaMalloc(&d_unifiedComponents,g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3128,
+          "call": "cudaMalloc(&d_graspComponents,g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3130,
+          "call": "cudaMalloc(&d_floorRecovery,g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3132,
+          "call": "cudaMalloc(&d_safeCluster,g_N*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3133,
+          "call": "cudaMalloc(&d_safeAggregate,g_N*sizeof(SafeCoarseCluster))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3134,
+          "call": "cudaMalloc(&d_safeJoined,sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3135,
+          "call": "cudaMalloc(&d_globalCoarse,g_N*sizeof(CoarseBlock))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3204,
+          "call": "cudaMalloc(&d_substepQuery,2*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3768,
+          "call": "cudaMalloc(&d_attachStiffness, (size_t)g_N*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3769,
+          "call": "cudaMalloc(&d_attachRest, (size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3770,
+          "call": "cudaMalloc(&d_attachLambda, (size_t)g_N*sizeof(float3))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3902,
+          "call": "cudaMalloc(&device,count*sizeof(int))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        },
+        {
+          "line": 3912,
+          "call": "cudaMalloc(&d,9*sizeof(float))",
+          "classification": "save_all_first_version_pending_pointer_layout_audit"
+        }
+      ]
+    }
+  ]
+}

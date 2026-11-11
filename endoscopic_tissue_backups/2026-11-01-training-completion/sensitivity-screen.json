@@ -1,0 +1,64 @@
+{
+  "schema": "tissue_experiment_v1",
+  "purpose": "collection",
+  "dll": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+  "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+  "episode_timeout_s": 600,
+  "min_free_disk_bytes": 1073741824,
+  "episodes": [
+    {
+      "id": "nominal",
+      "scene": "wall-traction",
+      "preparation": "held",
+      "seed": 3700,
+      "steps": 20,
+      "policy": {
+        "kind": "hold"
+      }
+    },
+    {
+      "id": "half-dt",
+      "scene": "wall-traction",
+      "preparation": "held",
+      "seed": 3701,
+      "steps": 40,
+      "dt_s": 0.016666666666666666,
+      "policy": {
+        "kind": "hold"
+      }
+    },
+    {
+      "id": "six-substeps",
+      "scene": "wall-traction",
+      "preparation": "held",
+      "seed": 3702,
+      "steps": 20,
+      "substeps": 6,
+      "policy": {
+        "kind": "hold"
+      }
+    },
+    {
+      "id": "coarse-spacing",
+      "scene": "wall-traction",
+      "preparation": "held",
+      "seed": 3703,
+      "steps": 20,
+      "spacing_scale": 1.25,
+      "policy": {
+        "kind": "hold"
+      }
+    },
+    {
+      "id": "fine-spacing",
+      "scene": "wall-traction",
+      "preparation": "held",
+      "seed": 3704,
+      "steps": 20,
+      "spacing_scale": 0.8,
+      "policy": {
+        "kind": "hold"
+      }
+    }
+  ]
+}

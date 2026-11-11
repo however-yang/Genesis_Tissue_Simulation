@@ -1,0 +1,288 @@
+--- a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -2868,8 +2868,8 @@
+         if(e!=cudaSuccess)return e;g_manifoldCapacity=capacity;
+     }
+     cudaMemsetAsync(d_manifoldCount,0,sizeof(int));cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int));
+-    if(g_surfaceCount>0)k_UnifiedManifold<<<MANIFOLD_BLOCKS,64>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
+-        d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);
++    if(g_surfaceCount>0){xpbd_section_mark("probe31: before k_UnifiedManifold");k_UnifiedManifold<<<MANIFOLD_BLOCKS,64>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
++        d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);xpbd_section_mark("probe31: k_UnifiedManifold");}
+     return cudaGetLastError();
+ }
+ // A finite-stiffness contact has a nonzero equilibrium residual under load.
+@@ -2887,11 +2887,11 @@
+         g_surfaceCorners,g_surfaceMasks,g_surfaceConn,d_pos,d_surfaceVertices,g_surfaceRest,g_surfaceMaterialFP);
+     cudaMemsetAsync(d_surfaceDegree,0,(size_t)g_N*sizeof(int));
+     cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int));
+-    k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++    {xpbd_section_mark("probe31: before k_UpdateSurfacePoints");k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceCurrent,d_surfacePrevious);xpbd_section_mark("probe31: k_UpdateSurfacePoints");}
+     for(int kind=0;kind<3;kind++){
+         ContactShape shape=contactShape(g_tool,kind,g_jawThickness,g_gp.jawGapClosed);
+-        k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,shape,shape,g_contactRadius,
+-            d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,true,d_contactCacheSlots,d_contactCache);
++        {xpbd_section_mark("probe31: before k_FindSurface");k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,shape,shape,g_contactRadius,
++            d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,true,d_contactCacheSlots,d_contactCache);xpbd_section_mark("probe31: k_FindSurface");}
+     }
+     // Surface-count changes invalidate captured launch sizes, not the final
+     // substep's implicit objective. Never switch to legacy XPBD/projections
+@@ -2936,14 +2936,14 @@
+             if(it==0){
+                 k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,5);
+                 k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseAccumulate");k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseAccumulate");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
+                 k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseBound");k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseBound");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
+                 k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 for(int pass=0;pass<2;pass++){
+-                    k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
++                    {if(!g_captureStream)xpbd_section_mark("probe31: before k_PressureLine");k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);if(!g_captureStream)xpbd_section_mark("probe31: k_PressureLine");}
+                 }
+                 k_PressureLineSelect<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+@@ -2952,13 +2952,13 @@
+             if(it>0 && g_surfaceCount>0){
+                 cudaMemsetAsync(d_manifoldCount,0,sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+-                k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedManifold");k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedManifold");}
+                 // Recompute the blade footprint after tissue relaxation too.
+                 // The cut lip can rebound into a different part of the finite
+                 // back while the grasper manifold is being refreshed.
+                 if(g_blade.enabled){
+-                    k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++                    {if(!g_captureStream)xpbd_section_mark("probe31: before k_UpdateSurfacePoints");k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceCurrent,d_surfacePrevious);if(!g_captureStream)xpbd_section_mark("probe31: k_UpdateSurfacePoints");}
+                     findBlade(g_captureStream,true);
+                     k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);
+                 }
+@@ -2967,19 +2967,19 @@
+             k_SweepSites<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,SweepRepair,sites,d_sweepSites,d_sweepCount);
+             for(int c=0;c<8;c++){
+                 k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);
+-                k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedVertex");k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedVertex");}
+             }
+-            k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);
++            {if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedTool");k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedTool");}
+             // Fracture has already consumed this substep's actual blade sweep.
+             // Keep that pose during reconstruction repair; advancing it here
+             // would skip a segment of CCD before the next predictor resets previous.
+
+             if(it==0){
+                 k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseAccumulate");k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseAccumulate");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
+                 k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+-                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseBound");k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseBound");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,true);
+             k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+             }
+@@ -3128,11 +3128,11 @@
+     if(g_embeddedGrip && g_grasping)refreshGrip();
+     cudaMemsetAsync(d_surfaceDegree,0,(size_t)g_N*sizeof(int));cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int));
+     if(g_surfaceCount>0){
+-        k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
+-        for(int kind=0;kind<3;kind++)k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,
++        {xpbd_section_mark("probe31: before k_UpdateSurfacePoints");k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);xpbd_section_mark("probe31: k_UpdateSurfacePoints");}
++        for(int kind=0;kind<3;kind++){xpbd_section_mark("probe31: before k_FindSurface");k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,
+             contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+             d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,
+-            d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++            d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);xpbd_section_mark("probe31: k_FindSurface");}
+     }
+     if(g_blade.enabled)findBlade();
+     e=prepareUnifiedManifold();if(e!=cudaSuccess)return -(int)e;
+@@ -3209,23 +3209,23 @@
+
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int),g_captureStream);
+-                k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
+-                for(int kind=0;kind<3;kind++)k_FindSurface<<<Gr(g_surfaceCount),64,0,g_captureStream>>>(g_surfaceCount,kind,
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_UpdateSurfacePoints");k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);if(!g_captureStream)xpbd_section_mark("probe31: k_UpdateSurfacePoints");}
++                for(int kind=0;kind<3;kind++){if(!g_captureStream)xpbd_section_mark("probe31: before k_FindSurface");k_FindSurface<<<Gr(g_surfaceCount),64,0,g_captureStream>>>(g_surfaceCount,kind,
+                     contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+                     d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);if(!g_captureStream)xpbd_section_mark("probe31: k_FindSurface");}
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_manifoldCount,0,sizeof(int),g_captureStream);
+-                k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedManifold");k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedManifold");}
+                     };
+         for(int it=0;it<4;it++){
+             if(it==3)k_MaterialReady<<<1,1,0,g_captureStream>>>(d_unified,false);
+             if(it>0 && g_surfaceCount>0){
+                 cudaMemsetAsync(d_manifoldCount,0,sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+-                k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedManifold");k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedManifold");}
+             }
+             if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);}
+             k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
+@@ -3234,20 +3234,20 @@
+             if(it==0 || it==2)for(int mode=1;mode<=(it==0?4:1);mode++){
+                 k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,mode);
+                 k_InitSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+-                k_JoinSafeCoarse<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_JoinSafeCoarse");k_JoinSafeCoarse<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);if(!g_captureStream)xpbd_section_mark("probe31: k_JoinSafeCoarse");}
+                 k_FlattenSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                 k_AccumulateSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                 k_FinishSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+                 k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseAccumulate");k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseAccumulate");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
+                 k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseBound");k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseBound");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
+                 if(mode>=1 && mode<=4){
+                     k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                     for(int pass=0;pass<2;pass++){
+-                        k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
++                        {if(!g_captureStream)xpbd_section_mark("probe31: before k_PressureLine");k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);if(!g_captureStream)xpbd_section_mark("probe31: k_PressureLine");}
+                     }
+                     k_PressureLineSelect<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 }
+@@ -3333,15 +3333,15 @@
+             if((it==0 || it==2) && g_surfaceCount>0){
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int),g_captureStream);
+-                k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
+-                for(int kind=0;kind<3;kind++)k_FindSurface<<<Gr(g_surfaceCount),64,0,g_captureStream>>>(g_surfaceCount,kind,
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_UpdateSurfacePoints");k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);if(!g_captureStream)xpbd_section_mark("probe31: k_UpdateSurfacePoints");}
++                for(int kind=0;kind<3;kind++){if(!g_captureStream)xpbd_section_mark("probe31: before k_FindSurface");k_FindSurface<<<Gr(g_surfaceCount),64,0,g_captureStream>>>(g_surfaceCount,kind,
+                     contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+                     d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);if(!g_captureStream)xpbd_section_mark("probe31: k_FindSurface");}
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_manifoldCount,0,sizeof(int),g_captureStream);
+-                k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedManifold");k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,d_manifold,d_manifoldIds,d_manifoldCount,d_manifoldOwners,d_manifoldQuadrature,d_surfaceDegree);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedManifold");}
+             }
+             if(g_blade.enabled){findBlade(g_captureStream);k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);}
+             k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_unified);
+@@ -3351,14 +3351,14 @@
+             if(it==0 || it==2){
+                 k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,5);
+                 k_CoarseBegin<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseAccumulate");k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseAccumulate");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,false);
+                 k_CoarseSolve<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+-                k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);
++                {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseBound");k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_globalCoarse);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseBound");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_globalCoarse,true);
+                 k_PressureLineClear<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 for(int pass=0;pass<2;pass++){
+-                    k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);
++                    {if(!g_captureStream)xpbd_section_mark("probe31: before k_PressureLine");k_PressureLine<<<Gr(g_activeNodes+g_T),64,0,g_captureStream>>>(d_unified,d_globalCoarse,pass);if(!g_captureStream)xpbd_section_mark("probe31: k_PressureLine");}
+                 }
+                 k_PressureLineSelect<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+                 k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_globalCoarse);
+@@ -3367,23 +3367,23 @@
+             k_CoarseWeights<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,0);
+             cudaMemsetAsync(d_sweepCount,0,8*sizeof(int),g_captureStream);
+             k_SweepSites<<<Gr(g_N),64,0,g_captureStream>>>(d_unified,SweepLocal,sites,d_sweepSites,d_sweepCount);
+-            for(int c=0;c<8;c++){k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);}
++            for(int c=0;c<8;c++){k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_unified,c);if(g_blade.enabled)k_AssembleUnifiedInteractions<<<ASSEMBLY_BLOCKS,64,0,g_captureStream>>>(d_bladeState,c);{if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedVertex");k_UnifiedVertex<<<g_sweepBlocks,64,0,g_captureStream>>>(d_unified,d_sweepSites+c*sites,d_sweepCount+c);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedVertex");}}
+             xpbd_section_mark("loop: local sweeps");
+-            k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);
+-            if(g_blade.enabled)k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_bladeState);
++            {if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedTool");k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_unified);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedTool");}
++            if(g_blade.enabled){if(!g_captureStream)xpbd_section_mark("probe31: before k_UnifiedTool");k_UnifiedTool<<<1,32,0,g_captureStream>>>(d_bladeState);if(!g_captureStream)xpbd_section_mark("probe31: k_UnifiedTool");}
+             // The coupled tool/patch direction needs the same feasible basis
+             // as the tissue-only modes. Otherwise one nearly collapsed tet
+             // stalls the entire drive, then releases it after a local sweep.
+             k_InitSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+-            k_JoinSafeCoarse<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);
++            {if(!g_captureStream)xpbd_section_mark("probe31: before k_JoinSafeCoarse");k_JoinSafeCoarse<<<Gr(g_T),64,0,g_captureStream>>>(d_unified);if(!g_captureStream)xpbd_section_mark("probe31: k_JoinSafeCoarse");}
+             k_FlattenSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+             k_AccumulateSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+             k_FinishSafeCoarse<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified);
+             k_CoarseBegin<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+-            k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
++            {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseAccumulate");k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseAccumulate");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,false);
+             k_CoarseSolve<<<1,1,0,g_captureStream>>>(d_unified,d_coarseBlock);
+-            k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);
++            {if(!g_captureStream)xpbd_section_mark("probe31: before k_CoarseBound");k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS,0,g_captureStream>>>(d_unified,d_coarseBlock);if(!g_captureStream)xpbd_section_mark("probe31: k_CoarseBound");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64,0,g_captureStream>>>(d_unified,d_bladeState,d_coarseBlock,true);
+             k_CoarseApply<<<Gr(g_activeNodes),64,0,g_captureStream>>>(d_unified,d_coarseBlock);
+             xpbd_section_mark("loop: tool, safe and global coarse");
+@@ -3422,10 +3422,10 @@
+     // correction there would undo the tool/tissue contact balance.
+     k_CoarseWeights<<<Gr(g_activeNodes),64>>>(d_unified,6);
+     k_CoarseBegin<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
+-    k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
++    {xpbd_section_mark("probe31: before k_CoarseAccumulate");k_CoarseAccumulate<<<GrAccumulate(g_activeNodes+g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);xpbd_section_mark("probe31: k_CoarseAccumulate");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,false);
+     k_CoarseSolve<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
+-    k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);
++    {xpbd_section_mark("probe31: before k_CoarseBound");k_CoarseBound<<<GrAccumulate(g_T),ACCUMULATE_THREADS>>>(d_unified,d_globalCoarse);xpbd_section_mark("probe31: k_CoarseBound");}
+             if(g_blade.enabled)k_BladeCoarse<<<128,64>>>(d_unified,d_bladeState,d_globalCoarse,true);
+     k_CoarseApply<<<Gr(g_activeNodes),64>>>(d_unified,d_globalCoarse);
+     xpbd_section_mark("post: free-component nullspace");
+@@ -3434,7 +3434,7 @@
+     xpbd_section_mark("post: fragment contact");
+     if(g_blade.enabled){
+         k_BladeReaction<<<1,32>>>(d_bladeState,d_bladePhase,g_blade.startForce,d_bladeResult,d_bladeHistory,true,false,d_scissorsLoads,g_scissors.squeeze);
+-        k_UnifiedTool<<<1,32>>>(d_bladeState);
++        {xpbd_section_mark("probe31: before k_UnifiedTool");k_UnifiedTool<<<1,32>>>(d_bladeState);xpbd_section_mark("probe31: k_UnifiedTool");}
+         k_BladeReaction<<<1,32>>>(d_bladeState,d_bladePhase,g_blade.startForce,d_bladeResult,d_bladeHistory,false,true);
+         k_BladeSweep<<<1,1>>>(d_bladeBody,d_bladeSweep,d_bladeHistory);
+         k_EndTool<<<1,1>>>(d_bladeBody);
+@@ -3633,12 +3633,12 @@
+         if(g_surfaceCount>0){
+             cudaMemsetAsync(d_surfaceDegree,0,(size_t)g_N*sizeof(int));
+             cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int));
+-            k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++            {xpbd_section_mark("probe31: before k_UpdateSurfacePoints");k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);xpbd_section_mark("probe31: k_UpdateSurfacePoints");}
+             for(int kind=0;kind<3;kind++)
+-                k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,
++                {xpbd_section_mark("probe31: before k_FindSurface");k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,
+                     contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),
+                     contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+-                    d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++                    d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);xpbd_section_mark("probe31: k_FindSurface");}
+             cudaError_t contactError=solveSurfaceGraph(g_gp.contactAlpha/(h*h),g_grasping && !g_anchorAssist?1:0);
+             if(contactError!=cudaSuccess)return -(int)contactError;
+             // Pressure/contact block iterations: let incompressibility displace
+--- a/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
+@@ -416,15 +416,15 @@
+     cudaMemsetAsync(d_bladeCount,0,sizeof(int),stream);cudaMemsetAsync(d_bladeDegree,0,g_N*sizeof(int),stream);
+     for(int index=0;index<bladeShapeCount();index++){
+     int kind=bladeShapeKind(index);
+-    if(g_surfaceCount>0)k_FindSurface<<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
++    if(g_surfaceCount>0){if(!stream)xpbd_section_mark("probe31: before k_FindSurface");k_FindSurface<<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
+         contactShape(g_bladeInitial,0,0,0),contactShape(g_bladeCommand,0,0,0),kind>=3?g_contactRadius:0,
+-        d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious,d_bladeBody,0,0,stationary,kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3);
++        d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious,d_bladeBody,0,0,stationary,kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3);if(!stream)xpbd_section_mark("probe31: k_FindSurface");}
+     }
+     cudaMemsetAsync(d_bladeBackCacheSlots,0xff,CONTACT_CACHE_SIZE*sizeof(int),stream);
+-    if(g_surfaceCount>0)k_CacheBladeBackContacts<<<Gr(BLADE_KIND_SLOTS*g_surfaceCount),64,0,stream>>>(d_bladeContacts,d_bladeIds,d_bladeCount,d_bladeBackCacheSlots,d_bladeBackCache);
++    if(g_surfaceCount>0){if(!stream)xpbd_section_mark("probe31: before k_CacheBladeBackContacts");k_CacheBladeBackContacts<<<Gr(BLADE_KIND_SLOTS*g_surfaceCount),64,0,stream>>>(d_bladeContacts,d_bladeIds,d_bladeCount,d_bladeBackCacheSlots,d_bladeBackCache);if(!stream)xpbd_section_mark("probe31: k_CacheBladeBackContacts");}
+     cudaMemsetAsync(d_bladeManifoldCount,0,sizeof(int),stream);cudaMemsetAsync(d_bladeDegree,0,g_N*sizeof(int),stream);
+-    if(g_surfaceCount>0)k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,stream>>>(d_bladeContacts,d_bladeIds,d_bladeCount,d_surfaceVertices,
+-        d_pos,d_prevPos,d_bladeBody,0,0,g_contactRadius,d_bladeManifold,d_bladeManifoldIds,d_bladeManifoldCount,d_bladeOwners,d_bladeQuadrature,d_bladeDegree,BLADE_KIND_SLOTS);
++    if(g_surfaceCount>0){if(!stream)xpbd_section_mark("probe31: before k_UnifiedManifold");k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,stream>>>(d_bladeContacts,d_bladeIds,d_bladeCount,d_surfaceVertices,
++        d_pos,d_prevPos,d_bladeBody,0,0,g_contactRadius,d_bladeManifold,d_bladeManifoldIds,d_bladeManifoldCount,d_bladeOwners,d_bladeQuadrature,d_bladeDegree,BLADE_KIND_SLOTS);if(!stream)xpbd_section_mark("probe31: k_UnifiedManifold");}
+     cudaMemsetAsync(d_bladeEdgeCount,0,sizeof(int),stream);
+     k_CountCutContacts<<<128,64,0,stream>>>(d_bladeManifold,d_bladeManifoldIds,d_bladeManifoldCount,d_bladeEdgeCount);
+ }

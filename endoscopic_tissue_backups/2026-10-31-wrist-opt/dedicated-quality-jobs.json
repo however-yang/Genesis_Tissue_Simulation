@@ -1,0 +1,24 @@
+[
+  {
+    "script": "endoscopic_tissue_backups/2026-10-31-wrist-opt/check_contact_equivalence.py",
+    "output": "endoscopic_tissue/outputs/wrist-opt-20261031/dedicated-equivalence",
+    "args": [
+      "--tool",
+      "scissors",
+      "--dll",
+      "endoscopic_tissue/native/bin-wrist-dedicated31-probe/LiverCudaSim.dll"
+    ]
+  },
+  {
+    "script": "endoscopic_tissue_backups/2026-10-31-wrist-opt/capture_motion.py",
+    "output": "endoscopic_tissue/outputs/wrist-opt-20261031/dedicated-capture",
+    "args": [
+      "--scene",
+      "kidney",
+      "--tool",
+      "scissors",
+      "--dll",
+      "endoscopic_tissue/native/bin-wrist-dedicated31/LiverCudaSim.dll"
+    ]
+  }
+]

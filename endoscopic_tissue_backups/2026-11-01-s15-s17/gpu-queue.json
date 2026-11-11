@@ -1,0 +1,2670 @@
+{
+  "closed": false,
+  "jobs": [
+    {
+      "name": "snapshot-settle-r1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_native_snapshot.py",
+        "--name",
+        "settle-r1",
+        "--stage",
+        "settle"
+      ]
+    },
+    {
+      "name": "damage-observe-lift-r1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "observe-lift-r1",
+        "--telemetry",
+        "--stop-after",
+        "lift"
+      ]
+    },
+    {
+      "name": "snapshot-env-smoke-r1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/acceptance_job.py",
+        "--require",
+        "endoscopic_tissue/outputs/s15-s17-20261101/snapshot/settle-r1/result.json",
+        "--",
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_environment_snapshot.py",
+        "--name",
+        "env-smoke-r1"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r00",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r00",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "0",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-snapshot-before_contact-r00-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\original"
+      ]
+    },
+    {
+      "name": "render-snapshot-before_contact-r00-1",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\restored"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r00",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r00",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "0",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-snapshot-first_cut-r00-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\original"
+      ]
+    },
+    {
+      "name": "render-snapshot-first_cut-r00-1",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\restored"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r00",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r00",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "0",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-snapshot-squeezing-r00-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\original"
+      ]
+    },
+    {
+      "name": "render-snapshot-squeezing-r00-1",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\restored"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r00",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r00",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "0",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-snapshot-regrasp-r00-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\original"
+      ]
+    },
+    {
+      "name": "render-snapshot-regrasp-r00-1",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\restored"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r00",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r00",
+        "--fork",
+        "cache",
+        "--repeat",
+        "0",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "active-failure-endpoint-11",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_parameters.py",
+        "--worker",
+        "11",
+        "--dll",
+        "bin-s15-training-state1",
+        "--series",
+        "parameters-training-abi"
+      ]
+    },
+    {
+      "name": "active-failure-endpoint-14",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_parameters.py",
+        "--worker",
+        "14",
+        "--dll",
+        "bin-s15-training-state1",
+        "--series",
+        "parameters-training-abi"
+      ]
+    },
+    {
+      "name": "timing-a1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-a1",
+        "--variant",
+        "original",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "timing-b1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-b1",
+        "--variant",
+        "new",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "timing-b2",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-b2",
+        "--variant",
+        "new",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "timing-a2",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "timing-a2",
+        "--variant",
+        "original",
+        "--scene",
+        "wall-traction"
+      ]
+    },
+    {
+      "name": "video-wall-a",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-a",
+        "--variant",
+        "original",
+        "--scene",
+        "wall-traction",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-video-wall-a-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\default-comparison\\video-wall-a"
+      ]
+    },
+    {
+      "name": "video-wall-b",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-b",
+        "--variant",
+        "new",
+        "--scene",
+        "wall-traction",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-video-wall-b-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\default-comparison\\video-wall-b"
+      ]
+    },
+    {
+      "name": "video-wall-postcut-a",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-postcut-a",
+        "--variant",
+        "original",
+        "--scene",
+        "wall",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-video-wall-postcut-a-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\default-comparison\\video-wall-postcut-a"
+      ]
+    },
+    {
+      "name": "video-wall-postcut-b",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/compare_default.py",
+        "--worker",
+        "video-wall-postcut-b",
+        "--variant",
+        "new",
+        "--scene",
+        "wall",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-video-wall-postcut-b-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\default-comparison\\video-wall-postcut-b"
+      ]
+    },
+    {
+      "name": "native-off-timing-a1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "native-off-timing-a1",
+        "--dll",
+        "bin-contact-groups31"
+      ]
+    },
+    {
+      "name": "native-off-timing-b1",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "native-off-timing-b1",
+        "--dll",
+        "bin-s15-training-snapshot1"
+      ]
+    },
+    {
+      "name": "native-off-timing-b2",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "native-off-timing-b2",
+        "--dll",
+        "bin-s15-training-snapshot1"
+      ]
+    },
+    {
+      "name": "native-off-timing-a2",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "native-off-timing-a2",
+        "--dll",
+        "bin-contact-groups31"
+      ]
+    },
+    {
+      "name": "native-off-video-wall-traction-a",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "native-off-video-wall-traction-a",
+        "--dll",
+        "bin-contact-groups31",
+        "--scene",
+        "wall-traction",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-native-off-video-wall-traction-a-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\native-off-video-wall-traction-a"
+      ]
+    },
+    {
+      "name": "native-off-video-wall-traction-b",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "native-off-video-wall-traction-b",
+        "--dll",
+        "bin-s15-training-snapshot1",
+        "--scene",
+        "wall-traction",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-native-off-video-wall-traction-b-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\native-off-video-wall-traction-b"
+      ]
+    },
+    {
+      "name": "native-off-video-wall-a",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "native-off-video-wall-a",
+        "--dll",
+        "bin-contact-groups31",
+        "--scene",
+        "wall",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-native-off-video-wall-a-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\native-off-video-wall-a"
+      ]
+    },
+    {
+      "name": "native-off-video-wall-b",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "native-off-video-wall-b",
+        "--dll",
+        "bin-s15-training-snapshot1",
+        "--scene",
+        "wall",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-native-off-video-wall-b-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\native-off-video-wall-b"
+      ]
+    },
+    {
+      "name": "nominal-tear-0-r0",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "nominal-tear-0-r0",
+        "--telemetry",
+        "--tear",
+        "0"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.3-r0",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "nominal-tear-1.3-r0",
+        "--telemetry",
+        "--tear",
+        "1.3"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.5-r0",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "nominal-tear-1.5-r0",
+        "--telemetry",
+        "--tear",
+        "1.5"
+      ]
+    },
+    {
+      "name": "nominal-tear-2-r0",
+      "args": [
+        "endoscopic_tissue_backups/2026-11-01-s15-s17/validate_damage.py",
+        "--name",
+        "nominal-tear-2-r0",
+        "--telemetry",
+        "--tear",
+        "2"
+      ]
+    },
+    {
+      "name": "nominal-tear-0-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-0-r1",
+        "--telemetry",
+        "--tear",
+        "0",
+        "--seed",
+        "1",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-nominal-tear-0-r1-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-0-r1"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.3-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.3-r1",
+        "--telemetry",
+        "--tear",
+        "1.3",
+        "--seed",
+        "1",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-nominal-tear-1.3-r1-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.3-r1"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.5-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.5-r1",
+        "--telemetry",
+        "--tear",
+        "1.5",
+        "--seed",
+        "1",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-nominal-tear-1.5-r1-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.5-r1"
+      ]
+    },
+    {
+      "name": "nominal-tear-2-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-2-r1",
+        "--telemetry",
+        "--tear",
+        "2",
+        "--seed",
+        "1",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-nominal-tear-2-r1-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-2-r1"
+      ]
+    },
+    {
+      "name": "nominal-tear-0-r2",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-0-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-0-r2",
+        "--telemetry",
+        "--tear",
+        "0",
+        "--seed",
+        "2"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.3-r2",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.3-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.3-r2",
+        "--telemetry",
+        "--tear",
+        "1.3",
+        "--seed",
+        "2"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.5-r2",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.5-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.5-r2",
+        "--telemetry",
+        "--tear",
+        "1.5",
+        "--seed",
+        "2"
+      ]
+    },
+    {
+      "name": "nominal-tear-2-r2",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-2-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-2-r2",
+        "--telemetry",
+        "--tear",
+        "2",
+        "--seed",
+        "2"
+      ]
+    },
+    {
+      "name": "nominal-tear-0-r3",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-0-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-0-r3",
+        "--telemetry",
+        "--tear",
+        "0",
+        "--seed",
+        "3"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.3-r3",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.3-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.3-r3",
+        "--telemetry",
+        "--tear",
+        "1.3",
+        "--seed",
+        "3"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.5-r3",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.5-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.5-r3",
+        "--telemetry",
+        "--tear",
+        "1.5",
+        "--seed",
+        "3"
+      ]
+    },
+    {
+      "name": "nominal-tear-2-r3",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-2-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-2-r3",
+        "--telemetry",
+        "--tear",
+        "2",
+        "--seed",
+        "3"
+      ]
+    },
+    {
+      "name": "nominal-tear-0-r4",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-0-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-0-r4",
+        "--telemetry",
+        "--tear",
+        "0",
+        "--seed",
+        "4"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.3-r4",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.3-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.3-r4",
+        "--telemetry",
+        "--tear",
+        "1.3",
+        "--seed",
+        "4"
+      ]
+    },
+    {
+      "name": "nominal-tear-1.5-r4",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-1.5-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-1.5-r4",
+        "--telemetry",
+        "--tear",
+        "1.5",
+        "--seed",
+        "4"
+      ]
+    },
+    {
+      "name": "nominal-tear-2-r4",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\nominal-tear-2-r0\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "nominal-tear-2-r4",
+        "--telemetry",
+        "--tear",
+        "2",
+        "--seed",
+        "4"
+      ]
+    },
+    {
+      "name": "geometry-wall-24mm-r0",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-24mm-r0",
+        "--seed",
+        "0",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-24mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-24mm-r0\\episode",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-geometry-wall-24mm-r0-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\geometry-wall-24mm-r0"
+      ]
+    },
+    {
+      "name": "geometry-wall-24mm-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-24mm-r1",
+        "--seed",
+        "1",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-24mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-24mm-r1\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-24mm-r2",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-24mm-r2",
+        "--seed",
+        "2",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-24mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-24mm-r2\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-24mm-r3",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-24mm-r3",
+        "--seed",
+        "3",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-24mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-24mm-r3\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-24mm-r4",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-24mm-r4",
+        "--seed",
+        "4",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-24mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-24mm-r4\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-25mm-r0",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-25mm-r0",
+        "--seed",
+        "0",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-25mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-25mm-r0\\episode",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-geometry-wall-25mm-r0-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\geometry-wall-25mm-r0"
+      ]
+    },
+    {
+      "name": "geometry-wall-25mm-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-25mm-r1",
+        "--seed",
+        "1",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-25mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-25mm-r1\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-25mm-r2",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-25mm-r2",
+        "--seed",
+        "2",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-25mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-25mm-r2\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-25mm-r3",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-25mm-r3",
+        "--seed",
+        "3",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-25mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-25mm-r3\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-25mm-r4",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-25mm-r4",
+        "--seed",
+        "4",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-25mm.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\collection\\geometry-wall-25mm-r4\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-26mm-heldout-r0",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-26mm-heldout-r0",
+        "--seed",
+        "0",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-26mm-heldout.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\evaluation\\geometry-wall-26mm-heldout-r0\\episode",
+        "--capture"
+      ]
+    },
+    {
+      "name": "render-geometry-wall-26mm-heldout-r0-0",
+      "s15_full_video_render": true,
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\render_validation.py",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\damage\\geometry-wall-26mm-heldout-r0"
+      ]
+    },
+    {
+      "name": "geometry-wall-26mm-heldout-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-26mm-heldout-r1",
+        "--seed",
+        "1",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-26mm-heldout.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\evaluation\\geometry-wall-26mm-heldout-r1\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-26mm-heldout-r2",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-26mm-heldout-r2",
+        "--seed",
+        "2",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-26mm-heldout.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\evaluation\\geometry-wall-26mm-heldout-r2\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-26mm-heldout-r3",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-26mm-heldout-r3",
+        "--seed",
+        "3",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-26mm-heldout.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\evaluation\\geometry-wall-26mm-heldout-r3\\episode"
+      ]
+    },
+    {
+      "name": "geometry-wall-26mm-heldout-r4",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_damage.py",
+        "--name",
+        "geometry-wall-26mm-heldout-r4",
+        "--seed",
+        "4",
+        "--dll",
+        "bin-contact-groups31",
+        "--geometry",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\geometries\\wall-26mm-heldout.json",
+        "--probe-dir",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\geometry-batches\\evaluation\\geometry-wall-26mm-heldout-r4\\episode"
+      ]
+    },
+    {
+      "name": "snapshot-flap-smoke-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_environment_snapshot.py",
+        "--name",
+        "snapshot-flap-smoke-r1",
+        "--scene",
+        "flap"
+      ]
+    },
+    {
+      "name": "snapshot-vision-smoke-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_environment_snapshot.py",
+        "--name",
+        "snapshot-vision-smoke-r1",
+        "--vision"
+      ]
+    },
+    {
+      "name": "snapshot-resources-1000-r1",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_environment_snapshot.py",
+        "--name",
+        "snapshot-resources-1000-r1",
+        "--resources",
+        "1000"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r01",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r01",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "1"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r01",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r01",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "1"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r01",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r01",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "1"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r01",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r01",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "1"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r01",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r01",
+        "--fork",
+        "cache",
+        "--repeat",
+        "1",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r02",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r02",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "2"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r02",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r02",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "2"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r02",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r02",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "2"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r02",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r02",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "2"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r02",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r02",
+        "--fork",
+        "cache",
+        "--repeat",
+        "2",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r03",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r03",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "3"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r03",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r03",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "3"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r03",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r03",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "3"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r03",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r03",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "3"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r03",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r03",
+        "--fork",
+        "cache",
+        "--repeat",
+        "3",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r04",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r04",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "4"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r04",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r04",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "4"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r04",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r04",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "4"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r04",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r04",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "4"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r04",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r04",
+        "--fork",
+        "cache",
+        "--repeat",
+        "4",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r05",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r05",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "5"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r05",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r05",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "5"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r05",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r05",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "5"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r05",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r05",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "5"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r05",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r05",
+        "--fork",
+        "cache",
+        "--repeat",
+        "5",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r06",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r06",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "6"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r06",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r06",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "6"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r06",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r06",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "6"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r06",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r06",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "6"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r06",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r06",
+        "--fork",
+        "cache",
+        "--repeat",
+        "6",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r07",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r07",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "7"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r07",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r07",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "7"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r07",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r07",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "7"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r07",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r07",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "7"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r07",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r07",
+        "--fork",
+        "cache",
+        "--repeat",
+        "7",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r08",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r08",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "8"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r08",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r08",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "8"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r08",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r08",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "8"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r08",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r08",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "8"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r08",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r08",
+        "--fork",
+        "cache",
+        "--repeat",
+        "8",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r09",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r09",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "9"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r09",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r09",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "9"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r09",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r09",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "9"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r09",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r09",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "9"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r09",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r09",
+        "--fork",
+        "cache",
+        "--repeat",
+        "9",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r10",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r10",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "10"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r10",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r10",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "10"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r10",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r10",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "10"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r10",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r10",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "10"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r10",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r10",
+        "--fork",
+        "cache",
+        "--repeat",
+        "10",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r11",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r11",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "11"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r11",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r11",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "11"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r11",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r11",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "11"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r11",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r11",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "11"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r11",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r11",
+        "--fork",
+        "cache",
+        "--repeat",
+        "11",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r12",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r12",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "12"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r12",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r12",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "12"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r12",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r12",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "12"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r12",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r12",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "12"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r12",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r12",
+        "--fork",
+        "cache",
+        "--repeat",
+        "12",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r13",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r13",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "13"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r13",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r13",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "13"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r13",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r13",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "13"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r13",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r13",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "13"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r13",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r13",
+        "--fork",
+        "cache",
+        "--repeat",
+        "13",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r14",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r14",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "14"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r14",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r14",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "14"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r14",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r14",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "14"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r14",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r14",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "14"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r14",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r14",
+        "--fork",
+        "cache",
+        "--repeat",
+        "14",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r15",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r15",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "15"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r15",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r15",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "15"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r15",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r15",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "15"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r15",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r15",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "15"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r15",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r15",
+        "--fork",
+        "cache",
+        "--repeat",
+        "15",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r16",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r16",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "16"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r16",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r16",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "16"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r16",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r16",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "16"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r16",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r16",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "16"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r16",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r16",
+        "--fork",
+        "cache",
+        "--repeat",
+        "16",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r17",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r17",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "17"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r17",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r17",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "17"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r17",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r17",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "17"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r17",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r17",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "17"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r17",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r17",
+        "--fork",
+        "cache",
+        "--repeat",
+        "17",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r18",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r18",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "18"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r18",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r18",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "18"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r18",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r18",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "18"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r18",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r18",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "18"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r18",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r18",
+        "--fork",
+        "cache",
+        "--repeat",
+        "18",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    },
+    {
+      "name": "snapshot-before_contact-r19",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-before_contact-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-before_contact-r19",
+        "--fork",
+        "before_contact",
+        "--repeat",
+        "19"
+      ]
+    },
+    {
+      "name": "snapshot-first_cut-r19",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-first_cut-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-first_cut-r19",
+        "--fork",
+        "first_cut",
+        "--repeat",
+        "19"
+      ]
+    },
+    {
+      "name": "snapshot-squeezing-r19",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-squeezing-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-squeezing-r19",
+        "--fork",
+        "squeezing",
+        "--repeat",
+        "19"
+      ]
+    },
+    {
+      "name": "snapshot-regrasp-r19",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-regrasp-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-regrasp-r19",
+        "--fork",
+        "regrasp",
+        "--repeat",
+        "19"
+      ]
+    },
+    {
+      "name": "snapshot-cache-r19",
+      "args": [
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\acceptance_job.py",
+        "--require",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot-distribution\\snapshot-cache-r00\\result.json",
+        "--",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-s15-s17\\validate_snapshot_distribution.py",
+        "--name",
+        "snapshot-cache-r19",
+        "--fork",
+        "cache",
+        "--repeat",
+        "19",
+        "--cache",
+        "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\s15-s17-20261101\\snapshot\\env-smoke-r1\\cut-ready.lcssnap"
+      ]
+    }
+  ]
+}

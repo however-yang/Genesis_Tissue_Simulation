@@ -224,7 +224,7 @@ def tissue_materials(kind="fat"):
 
 
 class EndoscopicView:
-    """The endoscope camera on one Genesis scene: the tissue surface rebuilt per update, the instruments posed.
+    """The endoscope camera on one Genesis scene: the tissue buffers updated per frame, the instruments posed.
 
     With `supersample` 2 the camera renders twice the output resolution and filters it down, which keeps edges and the
     fat texture clean in recorded video but almost doubles the time per frame. With 1, for a live window, the
@@ -245,7 +245,7 @@ class EndoscopicView:
         offsets = (np.arange(12) - 5.5) / 2
         lanczos = np.sinc(offsets) * np.sinc(offsets / 3)
         self.lanczos = lanczos / lanczos.sum()
-        self.tissue_meshes = []
+        self.tissue_meshes = [None, None]
         self.grasper_geometry = load_grasper(settings.jaw_length, settings.jaw_width, settings.instrument_model)
         self.knife_geometry = knife_geometry(settings.blade_length, settings.instrument_model)
         self.scissors_geometry = load_scissors() if settings.cutting_tool == "scissors" else None
@@ -385,42 +385,70 @@ class EndoscopicView:
             self.scene.visualizer.context.set_node_pose(node, pose)
 
     def update(self, surface: Surface, obs: Observation, *, divisions=1):
-        for mesh in self.tissue_meshes:
-            self.scene.clear_debug_object(mesh)
-        self.tissue_meshes.clear()
         refined = refine_surface(surface, divisions=divisions) if divisions > 1 else surface
         triangles = refined.triangles
+        # Native reconstruction emits a triangle soup. Its vertices already have
+        # independent texture projections, so no projection-index expansion is needed.
+        soup = triangles.size == len(refined.vertices) and np.array_equal(
+            triangles.ravel(), np.arange(len(refined.vertices), dtype=np.int32))
         wall = refined.anchors[triangles[:, 0], 3] > .5
-        rest = refined.anchors[triangles, :3]
+        rest = refined.anchors[:, :3].reshape(-1, 3, 3) if soup else refined.anchors[triangles, :3]
         # Dominant rest-space projection prevents stretched textures on
         # vertical sides; the selected plane is stable during deformation.
         projection = np.abs(np.cross(rest[:, 1] - rest[:, 0], rest[:, 2] - rest[:, 0])).argmax(axis=1)
         positions = to_genesis(refined.vertices)
         normals = refined.normals @ TO_GENESIS.T
-        for is_wall, material in ((False, self.skin), (True, self.interior)):
+        context = self.scene.visualizer.context
+        for part, (is_wall, material) in enumerate(((False, self.skin), (True, self.interior))):
             selected = wall == is_wall
+            mesh = self.tissue_meshes[part]
             if not np.any(selected):
+                if mesh is not None:
+                    self.scene.clear_debug_object(mesh)
+                    self.tissue_meshes[part] = None
                 continue
             # One vertex per surface vertex and projection axis, since the texture coordinates of a vertex depend on
             # the axis of its triangle.
-            keys = triangles[selected] * 3 + projection[selected, None]
-            is_used = np.zeros(3 * len(refined.vertices), dtype=bool)
-            is_used[keys] = True
-            used = np.flatnonzero(is_used)
-            ids = used // 3
-            # Static vertex data keeps the surface normals of the reconstruction, which round the cut lips and the
-            # edges where the lamp glints. Streamed positions would make the renderer replace them by the normals of
-            # the flat triangles.
-            primitive = pyrender.Primitive(
-                positions=positions[ids], normals=normals[ids],
-                texcoord_0=np.take_along_axis(refined.anchors[ids], UV_AXES[used % 3], axis=1) / self.texture_cm,
-                color_0=None if self.colors is None else self.colors(refined.anchors[ids, :3], is_wall),
-                indices=(np.cumsum(is_used) - 1)[keys], material=material, poses=np.eye(4)[None],
-                stream_positions=False)
-            mesh = pyrender.Mesh([primitive], name="endo_" + str(gs.UID()))
+            if soup:
+                ids = triangles[selected].ravel()
+                axes = np.repeat(projection[selected], 3)
+                indices = np.arange(len(ids), dtype=np.int32).reshape(-1, 3)
+            else:
+                keys = triangles[selected] * 3 + projection[selected, None]
+                is_used = np.zeros(3 * len(refined.vertices), dtype=bool)
+                is_used[keys] = True
+                used = np.flatnonzero(is_used)
+                ids, axes = used // 3, used % 3
+                indices = (np.cumsum(is_used) - 1)[keys]
+            texcoord = refined.anchors[ids[:, None], UV_AXES[axes]] / self.texture_cm
+            colors = None if self.colors is None else self.colors(refined.anchors[ids, :3], is_wall)
             with self.scene.visualizer.viewer_lock:
-                self.scene.visualizer.context.add_external_node(mesh)
-            self.tissue_meshes.append(mesh)
+                # Reconstruction may reorder vertices without changing their count.
+                # Update every attribute; reuse storage only with identical indexing.
+                if mesh is not None:
+                    primitive = mesh.primitives[0]
+                    if len(primitive.positions) != len(ids) or not np.array_equal(primitive.indices, indices):
+                        context.clear_debug_object(mesh)
+                        mesh = None
+                if mesh is None:
+                    primitive = pyrender.Primitive(
+                        positions=positions[ids], normals=normals[ids], texcoord_0=texcoord, color_0=colors,
+                        indices=indices, material=material, poses=np.eye(4)[None], stream_positions=True)
+                    mesh = pyrender.Mesh([primitive], name="endo_" + str(gs.UID()))
+                    context.add_external_node(mesh)
+                    self.tissue_meshes[part] = mesh
+                else:
+                    primitive.positions = positions[ids]
+                    primitive.normals = normals[ids]
+                    primitive.texcoord_0 = texcoord
+                    primitive.color_0 = colors
+                node = context.external_nodes[mesh.name]
+                context.jit.update_buffer(node, "pos", primitive.positions)
+                # Upload even on the first frame: streamed primitives initially
+                # compute flat normals, which must not replace the rounded cut lips.
+                context.jit.update_buffer(node, "normal", primitive.normals)
+                attributes = primitive.texcoord_0 if colors is None else np.hstack((primitive.texcoord_0, primitive.color_0))
+                context.jit.update_buffer(node, "vertex", attributes)
 
         axis, normal = np.array(self.settings.jaw_axis), np.array(self.settings.jaw_normal)
         self.place(self.grasper_body, obs.hinge, self.jaw_frame)
@@ -428,10 +456,13 @@ class EndoscopicView:
             self.place((node,), obs.hinge, frame)
         if self.scissors_geometry is not None:
             pose = obs.scissors
-            # A saved state without a scissors pose shows the tissue alone. Visibility takes effect when the scene's
-            # meshes change, which every update does by replacing the tissue.
-            for node in (*self.scissors_blades, *self.scissors_body):
-                node.mesh.is_visible = pose is not None
+            # Visibility must invalidate the draw list even when tissue buffers are reused.
+            with self.scene.visualizer.viewer_lock:
+                for node in (*self.scissors_blades, *self.scissors_body):
+                    if node.mesh.is_visible != (pose is not None):
+                        context._scene.remove_node(node)
+                        node.mesh.is_visible = pose is not None
+                        context._scene.add_node(node)
             if pose is None:
                 return
             for node, frame in zip(self.scissors_blades,

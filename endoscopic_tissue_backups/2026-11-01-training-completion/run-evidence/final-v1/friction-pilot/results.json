@@ -1,0 +1,137 @@
+{
+  "schema": "tissue_experiment_result_v1",
+  "spec_sha256": "27ad614d7d7a97b2a9a966ae3818eef4e1f5f03e506cc973f4054a642fb95ae8",
+  "episodes": [
+    {
+      "id": "friction-preparation",
+      "seed": 3600,
+      "group": "536388e491c9e198afec55f2f9054aa21ae80efd408310592fcc6b63944b17ba",
+      "status": "recorded",
+      "training_domain_approved": false,
+      "config": {
+        "dll_path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+        "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+        "bounds": {
+          "lower": [
+            0.0124,
+            0.029599999999999998,
+            0.0175,
+            1.0,
+            0.033600000000000005,
+            0.009968,
+            0.0378,
+            -0.03490658503988659,
+            1.53588974175501,
+            -0.9948376736367679,
+            0.0
+          ],
+          "upper": [
+            0.0134,
+            0.0306,
+            0.018500000000000003,
+            1.0,
+            0.034600000000000006,
+            0.010968,
+            0.0388,
+            0.03490658503988659,
+            1.6057029118347832,
+            -0.9250245035569946,
+            1.0
+          ],
+          "max_rate": [
+            0.002,
+            0.002,
+            0.002,
+            0.0,
+            0.002,
+            0.002,
+            0.002,
+            0.08726646259971647,
+            0.08726646259971647,
+            0.08726646259971647,
+            1.0
+          ]
+        },
+        "scene": {
+          "scene": "wall-traction",
+          "preparation": "held",
+          "contact_model": 1,
+          "dt_s": null,
+          "substeps": null,
+          "spacing_scale": 1.0
+        },
+        "cutting_enabled": false,
+        "max_steps": 30,
+        "full_surface_checks": true,
+        "diagnostic_continue": false,
+        "limits": {
+          "max_displacement_m": 0.06,
+          "max_body_overlap_m": 0.0002,
+          "max_estimated_speed_m_s": 2.0
+        }
+      },
+      "split": "train",
+      "collect_wall_s": 3.388391299988143,
+      "transitions": 30,
+      "states": 31,
+      "reason": "time_limit",
+      "reset_wall_ms": 25950.18029998755,
+      "policy": {
+        "implementation": "tissue_policy_v1",
+        "configuration": {
+          "kind": "force_feedback"
+        },
+        "seed": 3600,
+        "privileged_observation": false,
+        "policy_sha256": "cc71983f681f62a42a8d38895f25f5cb1eba54571151526c58c502fcea7256ea"
+      },
+      "task_evaluated": false,
+      "task_success": false,
+      "task_failure": null,
+      "valid_reward_sum": null,
+      "valid_reward_transitions": 0,
+      "offline_reward_match": false,
+      "transitions_per_wall_second": 8.853759009505477,
+      "timing_ms": {
+        "native_step": {
+          "mean": 43.055359999804445,
+          "p95": 55.60042000142857,
+          "max": 60.593999980483204
+        },
+        "quality_and_export": {
+          "mean": 42.673230004341654,
+          "p95": 55.738685006508604,
+          "max": 59.38249995233491
+        },
+        "snapshot": {
+          "mean": 2.649166671714435,
+          "p95": 3.530464999494142,
+          "max": 3.9026999729685485
+        },
+        "surface_export": {
+          "mean": 1.0990199943383534,
+          "p95": 1.428369988570921,
+          "max": 1.5542000182904303
+        },
+        "total": {
+          "mean": 88.49779666440251,
+          "p95": 101.5822150191525,
+          "max": 103.72209997149184
+        }
+      },
+      "wall_s": 29.6478638999979,
+      "worker_peak_rss_bytes": 351715328,
+      "supervised_wall_s": 35.9733353999909
+    }
+  ],
+  "summary": {
+    "attempted_episodes": 1,
+    "recorded_episodes": 1,
+    "task_evaluated_episodes": 0,
+    "task_successes": 0,
+    "success_fraction_of_all_attempts": 0.0,
+    "failures_and_timeouts": [],
+    "recorded_transitions": 30,
+    "training_domain_approved": false
+  }
+}

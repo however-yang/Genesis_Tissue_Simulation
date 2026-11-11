@@ -1,0 +1,173 @@
+[
+  {
+    "name": "Detached intact flight",
+    "allowed": true,
+    "detail": [
+      {
+        "root": 1,
+        "active_nodes": 8,
+        "material_nodes": 8,
+        "absolute_max_mm": 100.0,
+        "intact_material_cell": [
+          8,
+          12,
+          10,
+          14,
+          9,
+          13,
+          11,
+          15
+        ],
+        "allowed": true,
+        "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+        "intrinsic_max_mm": 1.8998980522155762e-06,
+        "intrinsic_rms_mm": 1.8998980522155762e-06,
+        "com_mm": [
+          20.499999523162842,
+          -99.49999809265137,
+          0.5000000074505806
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Detached rotated flight",
+    "allowed": true,
+    "detail": [
+      {
+        "root": 1,
+        "active_nodes": 8,
+        "material_nodes": 8,
+        "absolute_max_mm": 101.50245666503906,
+        "intact_material_cell": [
+          8,
+          12,
+          10,
+          14,
+          9,
+          13,
+          11,
+          15
+        ],
+        "allowed": true,
+        "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+        "intrinsic_max_mm": 2.4328741233431837e-06,
+        "intrinsic_rms_mm": 2.4328741233431837e-06,
+        "com_mm": [
+          20.0,
+          -99.99999523162842,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Attached body motion",
+    "allowed": false,
+    "detail": [
+      {
+        "root": 0,
+        "active_nodes": 8,
+        "material_nodes": 8,
+        "absolute_max_mm": 100.0,
+        "allowed": false,
+        "reason": "A pinned or captured component left the absolute envelope"
+      }
+    ]
+  },
+  {
+    "name": "Held piece motion",
+    "allowed": false,
+    "detail": [
+      {
+        "root": 1,
+        "active_nodes": 8,
+        "material_nodes": 8,
+        "absolute_max_mm": 100.0,
+        "allowed": false,
+        "reason": "A pinned or captured component left the absolute envelope"
+      }
+    ]
+  },
+  {
+    "name": "Detached severe deformation",
+    "allowed": false,
+    "detail": [
+      {
+        "root": 1,
+        "active_nodes": 8,
+        "material_nodes": 8,
+        "absolute_max_mm": 316.2277526855469,
+        "intact_material_cell": [
+          8,
+          12,
+          10,
+          14,
+          9,
+          13,
+          11,
+          15
+        ],
+        "allowed": false,
+        "reason": "Detached volume: absolute flight and intrinsic deformation reported separately",
+        "intrinsic_max_mm": 261.13497284553625,
+        "intrinsic_rms_mm": 98.70597916321609,
+        "com_mm": [
+          57.99999952316284,
+          -99.49999809265137,
+          0.5000000074505806
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Support-only remnant excursion",
+    "allowed": false,
+    "detail": [
+      {
+        "root": 1,
+        "active_nodes": 8,
+        "material_nodes": 0,
+        "absolute_max_mm": 100.0,
+        "allowed": false,
+        "reason": "Unsupported isolated remnants retain the absolute guard"
+      }
+    ]
+  },
+  {
+    "name": "Planar material-labelled remnant",
+    "allowed": false,
+    "detail": [
+      {
+        "root": 1,
+        "active_nodes": 8,
+        "material_nodes": 8,
+        "absolute_max_mm": 100.0,
+        "allowed": false,
+        "reason": "No intact interior material cell; retain the absolute guard"
+      }
+    ]
+  },
+  {
+    "name": "Disconnected material sheets",
+    "allowed": false,
+    "detail": [
+      {
+        "root": 1,
+        "active_nodes": 4,
+        "material_nodes": 4,
+        "absolute_max_mm": 100.0,
+        "allowed": false,
+        "reason": "No intact interior material cell; retain the absolute guard"
+      },
+      {
+        "root": 2,
+        "active_nodes": 4,
+        "material_nodes": 4,
+        "absolute_max_mm": 100.0,
+        "allowed": false,
+        "reason": "No intact interior material cell; retain the absolute guard"
+      }
+    ]
+  }
+]

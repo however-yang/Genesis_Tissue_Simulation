@@ -1,0 +1,40 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+index efceb1f..3f5ee77 100644
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -226,6 +226,25 @@ __device__ inline float3 bladeTriangleWitness(ContactShape shape,const float3* q
+     }
+     return best;
+ }
++// Use the finite-segment solution for a non-cutting wrist only where the
++// closest-point geometry is well conditioned. Keep the existing witness for
++// degenerate/parallel configurations and undefined normals near the capsule axis.
++__device__ inline float3 wristTriangleWitness(ContactShape shape,const float3* q){
++    float3 a=q[1]-q[0],b=q[2]-q[0],axis=shape.b-shape.a,normal=cross3(a,b);
++    float axis2=dot3(axis,axis),area2=dot3(normal,normal);
++    float edge2=fmaxf(dot3(a,a),fmaxf(dot3(b,b),dot3(b-a,b-a))),projection=dot3(axis,normal);
++    if(!(axis2>1e-20f && area2>1e-6f*edge2*edge2) ||
++       projection*projection<=1e-8f*axis2*area2)
++        return triangleWitness(shape,q[0],q[1],q[2]);
++    float3 bary=bladeTriangleWitness(shape,q),n,s;
++    if(!isfinite(bary.x) || !isfinite(bary.y) || !isfinite(bary.z) ||
++       bary.x<0 || bary.y<0 || bary.z<0 || fabsf(bary.x+bary.y+bary.z-1)>1e-4f)
++        return triangleWitness(shape,q[0],q[1],q[2]);
++    float distance=shapeDistance(shape,q[0]*bary.x+q[1]*bary.y+q[2]*bary.z,n,s);
++    if(!isfinite(distance) || distance<=-shape.radius+fmaxf(1e-6f,1e-4f*shape.radius))
++        return triangleWitness(shape,q[0],q[1],q[2]);
++    return bary;
++}
+ __device__ inline void shapeBounds(ContactShape s,float radius,float3& lo,float3& hi){
+     float3 center=s.capsule?(s.a+s.b)*.5f:s.center;
+     float3 e=s.capsule?mkf3(fabsf(s.b.x-s.a.x)*.5f+s.radius,fabsf(s.b.y-s.a.y)*.5f+s.radius,fabsf(s.b.z-s.a.z)*.5f+s.radius):
+@@ -466,7 +485,8 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         out.plane.target=surface+normal*skin;
+         out.plane.motion=surface-witnessAt(to,from,surface);
+     }else if(to.capsule){
+-        bary=bladePhase?bladeTriangleWitness(to,q):triangleWitness(to,q[0],q[1],q[2]);
++        bary=bladePhase?bladeTriangleWitness(to,q):body && body->scissors && kind==5?
++            wristTriangleWitness(to,q):triangleWitness(to,q[0],q[1],q[2]);
+         out.plane=traceToolContact(from,to,skin,p[0]*bary.x+p[1]*bary.y+p[2]*bary.z,q[0]*bary.x+q[1]*bary.y+q[2]*bary.z);
+         // The swept endpoint witness is not the first point on a face hit by
+         // a grazing capsule. Its radial TOI normal can be almost tangential,

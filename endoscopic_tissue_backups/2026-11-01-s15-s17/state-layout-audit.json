@@ -1,0 +1,834 @@
+{
+  "schema": "native_pod_layout_review_v1",
+  "runtime_accepted": false,
+  "allocation_sites": 266,
+  "allocated_sizeof_types": [
+    "BendPairGpu",
+    "BladeHistory",
+    "CoarseBlock",
+    "Conn4096Gpu",
+    "ContactGroupBounds",
+    "ContactRecord",
+    "CoupledTool",
+    "CutPointGpu",
+    "FragmentVertex",
+    "GridEdgeGpu",
+    "GridEdgeGpu2",
+    "GripPatch",
+    "GripPoint",
+    "GripSolveStep",
+    "IsectGpu",
+    "KuhnTet",
+    "MaterialCGSum",
+    "MaterialLineSearch",
+    "RenderVertex",
+    "RotGpu",
+    "SafeCoarseCluster",
+    "SurfaceContact",
+    "SurfaceVertex",
+    "Symmetric3",
+    "ToolFeedbackPacket",
+    "TrainingMetrics",
+    "UnifiedState",
+    "__half",
+    "float",
+    "float3",
+    "float4",
+    "int",
+    "int4",
+    "unsigned",
+    "unsigned int",
+    "unsigned long long",
+    "unsigned short"
+  ],
+  "records": [
+    {
+      "type": "BendPairGpu",
+      "source": "cuda/physics.cu",
+      "members": [
+        "int i, j, k",
+        "float theta0",
+        "int alive, _p0, _p1, _p2"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "b5b47ee221388a6be03552f83eb5474f4c09903a8f51c00ddae1774709a039ba"
+    },
+    {
+      "type": "BladeHistory",
+      "source": "cuda/cutting/pressure_blade.cuh",
+      "members": [
+        "float3 entryAxis",
+        "float freeTravel",
+        "int fractured,hadContact",
+        "int squeezing",
+        "float squeezeGap,strokeGap"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "2dad4d07591101e2cc251f95d3443e13489c07dc1d7332f689d0af371c7a1634"
+    },
+    {
+      "type": "CoarseBlock",
+      "source": "cuda/solver/material/unified_vertex.cuh",
+      "members": [
+        "float3 gradient,step",
+        "float xx,yy,zz,xy,xz,yz,scale",
+        "int external",
+        "float3 center,pivot",
+        "float mass",
+        "int pins"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "df1d0e7b2f92ee105386dd6c322c4e0bc3cd6993e8b70f9ac4a08dad97840fc6"
+    },
+    {
+      "type": "Conn4096Gpu",
+      "source": "cuda/cut.cuh",
+      "members": [
+        "int compCount",
+        "int v0, v1, v2, v3, v4, v5, v6, v7"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "5d79ee361fa6624111131f6a56f4d8cf51c957510382242b76feb955a98a8da3"
+    },
+    {
+      "type": "ContactGroupBounds",
+      "source": "cuda/contact/contact_groups.cuh",
+      "members": [
+        "float3 lo, hi"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "3905cc6aa64ed9732828f607e0b9b042c8b131cef284c5f5dce98da32f059422"
+    },
+    {
+      "type": "ContactRecord",
+      "source": "cuda/contact/friction_contact.cuh",
+      "members": [
+        "float3 normal, target, motion",
+        "int valid"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "dd26fc5838277bceab43375e533a7bca79b1d030e5282c0f55b5f81ce5f3729a"
+    },
+    {
+      "type": "ContactShape",
+      "source": "cuda/contact/friction_contact.cuh",
+      "members": [
+        "float3 center, u, n, w, half, a, b",
+        "float radius",
+        "int capsule"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "dd26fc5838277bceab43375e533a7bca79b1d030e5282c0f55b5f81ce5f3729a"
+    },
+    {
+      "type": "CoupledTool",
+      "source": "cuda/grasp/tool_coupling.cuh",
+      "members": [
+        "XpbdToolState pose, previous",
+        "float3 velocity, delta",
+        "float inverseMass, h",
+        "int initialized",
+        "float gapVelocity,gapDelta,gapInverseMass,maxGap",
+        "const float3* feasibleNormal",
+        "float3 drivePosition,drivePrediction",
+        "float driveGap",
+        "int guided",
+        "float3 guideAxis,guideOrigin",
+        "float guideLength,gapLo,gapHi",
+        "int scissors, scissorsCutting, knifeBody",
+        "float3 edgeA[2],edgeB[2]",
+        "float scissorsRadius",
+        "int backContact",
+        "XpbdScissorsBackBox backs[2]",
+        "float wristFront, wristLength, wristRadius"
+      ],
+      "nested_value_types": [
+        "XpbdToolState",
+        "XpbdScissorsBackBox"
+      ],
+      "pointer_layout": [
+        "const float3* feasibleNormal"
+      ],
+      "layout_handling": "explicit offsetof field layout",
+      "source_sha256": "036765feb6d98d56c8abb2801804305c95461b94bbcf92fb53ac471374376243"
+    },
+    {
+      "type": "CutInitDesc",
+      "source": "cuda/cut.h",
+      "members": [
+        "int   voxelCount, cornerCount, gridEdgeCount, isectCount, triCapacity",
+        "int   dimsX, dimsY, dimsZ",
+        "float voxelL",
+        "float originX, originY, originZ",
+        "int   cutPointCapacity",
+        "float cutFPInterp",
+        "float tearStretchRatio"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "501c56724df675d513d10023477ceb614085c09ff114bd4d85907f5e77bdc267"
+    },
+    {
+      "type": "CutPointGpu",
+      "source": "cuda/cut.cuh",
+      "members": [
+        "float3 localOffset",
+        "int    ownerParticle",
+        "int    edgeId",
+        "float3 matNrm"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "5d79ee361fa6624111131f6a56f4d8cf51c957510382242b76feb955a98a8da3"
+    },
+    {
+      "type": "CutToolDesc",
+      "source": "cuda/cut.h",
+      "members": [
+        "float t1v0[3], t1v1[3], t1v2[3]",
+        "float t2v0[3], t2v1[3], t2v2[3]",
+        "float ncut[3]",
+        "float d",
+        "int   valid",
+        "float aabbMin[3], aabbMax[3]"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "501c56724df675d513d10023477ceb614085c09ff114bd4d85907f5e77bdc267"
+    },
+    {
+      "type": "FragmentVertex",
+      "source": "cuda/contact/fragment_contact.cuh",
+      "members": [
+        "int root",
+        "float3 current,previous,recovery"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "9b5810e19585bf9859d22e4e9517c531947741c3739fc0969aab291486d931f5"
+    },
+    {
+      "type": "GridEdgeGpu",
+      "source": "cuda/common.cuh",
+      "members": [
+        "int axis",
+        "int bcX, bcY, bcZ",
+        "int insideA",
+        "int _pad, _pad2, _pad3"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "8baec8d8110b81acbdc60ca7f6ac6b987b98aa748816c779fcbeeef5c856c4dc"
+    },
+    {
+      "type": "GridEdgeGpu2",
+      "source": "cuda/cut.cuh",
+      "members": [
+        "int axis",
+        "int bcX, bcY, bcZ"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "5d79ee361fa6624111131f6a56f4d8cf51c957510382242b76feb955a98a8da3"
+    },
+    {
+      "type": "GripPatch",
+      "source": "cuda/grasp/gaussian_grasp.cuh",
+      "members": [
+        "float3 local,offset,lambda,point,old,dl",
+        "float strength,mobility",
+        "float3 refU,refV,offsetU,offsetV,pointU,pointV,oldU,oldV,lambdaU,lambdaV,dlU,dlV",
+        "float massUU,massUV,massVV,mass0U,mass0V"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "64216978f376244c62ac115b87650687468830b82329c83db1ddc8e5a15a25c6"
+    },
+    {
+      "type": "GripPoint",
+      "source": "cuda/grasp/gaussian_grasp.cuh",
+      "members": [
+        "int id[24], count, voxel[3], valid",
+        "unsigned mask[3]",
+        "float weight[24], area, complianceScale",
+        "float3 offset, local, lambda"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "64216978f376244c62ac115b87650687468830b82329c83db1ddc8e5a15a25c6"
+    },
+    {
+      "type": "GripSolveStep",
+      "source": "cuda/grasp/gaussian_grasp.cuh",
+      "members": [
+        "XpbdToolState tool,from",
+        "float minGap,alpha,damping,maxStep"
+      ],
+      "nested_value_types": [
+        "XpbdToolState"
+      ],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "64216978f376244c62ac115b87650687468830b82329c83db1ddc8e5a15a25c6"
+    },
+    {
+      "type": "HapticParams",
+      "source": "cuda/haptics.h",
+      "members": [
+        "float kP, dP, kO, dO, a, eps, reactionMax, contactBeta, contactDispMax, captureMargin, proxyTrackStep, muS, muK",
+        "int outerMax"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "ee0c7963de52ead1fcf89d4f1f91b203416f6eb0225d9fbe390c3ce66ab35aa1"
+    },
+    {
+      "type": "IsectGpu",
+      "source": "cuda/common.cuh",
+      "members": [
+        "float3 globalRest",
+        "float3 normal",
+        "int    cornerA",
+        "int    cornerB",
+        "float  t",
+        "int    insideA"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "8baec8d8110b81acbdc60ca7f6ac6b987b98aa748816c779fcbeeef5c856c4dc"
+    },
+    {
+      "type": "JawMeshBounds",
+      "source": "cuda/contact/friction_contact.cuh",
+      "members": [
+        "float3 center,half",
+        "int enabled"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "dd26fc5838277bceab43375e533a7bca79b1d030e5282c0f55b5f81ce5f3729a"
+    },
+    {
+      "type": "KuhnTet",
+      "source": "cuda/solver/material/unified_vertex.cuh",
+      "members": [
+        "float3 b0,b1,b2",
+        "float metric[7]",
+        "float muV,bulkV",
+        "int offset[4]"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "df1d0e7b2f92ee105386dd6c322c4e0bc3cd6993e8b70f9ac4a08dad97840fc6"
+    },
+    {
+      "type": "MaterialCGSum",
+      "source": "cuda/solver/material/coupled_material.cuh",
+      "members": [
+        "double denominator[3],next[3]"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "c94df49d57b3d21cdff9fc1b2c2844f5492ad80ab9fa8d7528a4e9d8f33db730"
+    },
+    {
+      "type": "MaterialLineSearch",
+      "source": "cuda/solver/material/material_line_search.cuh",
+      "members": [
+        "double energy[5]",
+        "int invalid"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "a4704ab5f5758b367c9442d14d91674079a82990d9564166cc8d0566e746f867"
+    },
+    {
+      "type": "MultigridLevel",
+      "source": "cuda/solver/material/material_multigrid.cuh",
+      "members": [
+        "int sx,sy,sz,capacity",
+        "int *slots,*index,*count",
+        "int *parent",
+        "int *site,*component,*neighbor",
+        "float *A,*inverse",
+        "float3 *r,*z,*post"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": [
+        "int *slots,*index,*count",
+        "int *parent",
+        "int *site,*component,*neighbor",
+        "float *A,*inverse",
+        "float3 *r,*z,*post"
+      ],
+      "layout_handling": "explicit offsetof field layout",
+      "source_sha256": "cb48c204d6580ff208a345ca7afe1ecb7ff1a01aadc01661d13a2ca15e01aabb"
+    },
+    {
+      "type": "PhysicsInitDesc",
+      "source": "cuda/physics.h",
+      "members": [
+        "int   cornerCount",
+        "int   bendPairCount",
+        "float ks, cs, kb, cb",
+        "float hInit",
+        "float hMax",
+        "int   maxSubsteps",
+        "float alpha",
+        "float youngE",
+        "float poisson",
+        "float strainDamping"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "895c4a64a15993c2948d58e34a038fbdbce16dbfb29aa52e60eb687cb6d69177"
+    },
+    {
+      "type": "ReconInitDesc",
+      "source": "cuda/dc_recon.h",
+      "members": [
+        "int   voxelCount",
+        "int   cornerCount",
+        "int   isectCount",
+        "int   surfaceEdgeCount",
+        "int   triCapacity",
+        "int   dimsX, dimsY, dimsZ",
+        "float L",
+        "int   qefIters"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "97c2b00f1a5c68c573443bd020febcf280868e87afd754b064e434ad4ed93ff6"
+    },
+    {
+      "type": "RenderVertex",
+      "source": "cuda/render_buffer.cuh",
+      "members": [
+        "float3 p,n",
+        "RenderFour tangent",
+        "float2 uv",
+        "RenderFour aux"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "6811f0af388e486eea552173af835024646c0c78b529e8cef62da11160c6c652"
+    },
+    {
+      "type": "RotGpu",
+      "source": "cuda/cut.cuh",
+      "members": [
+        "float3 r0, r1, r2"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "5d79ee361fa6624111131f6a56f4d8cf51c957510382242b76feb955a98a8da3"
+    },
+    {
+      "type": "RotGpu",
+      "source": "cuda/physics.cu",
+      "members": [
+        "float3 r0, r1, r2"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "b5b47ee221388a6be03552f83eb5474f4c09903a8f51c00ddae1774709a039ba"
+    },
+    {
+      "type": "SafeCoarseCluster",
+      "source": "cuda/solver/material/unified_vertex.cuh",
+      "members": [
+        "float weight,gripWeight",
+        "int count,grips,pinned"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "df1d0e7b2f92ee105386dd6c322c4e0bc3cd6993e8b70f9ac4a08dad97840fc6"
+    },
+    {
+      "type": "SurfaceContact",
+      "source": "cuda/contact/surface_contact.cuh",
+      "members": [
+        "int id[24],count,kind",
+        "float weight[24]",
+        "float3 offset,previous",
+        "ContactRecord plane",
+        "float lambdaN",
+        "float3 lambdaT",
+        "int owner[3],component[3]",
+        "unsigned mask[3]",
+        "float3 toolOrigin,gapGradient",
+        "float toolGap",
+        "ContactShape referenceShape",
+        "int incoming",
+        "float3 stick,stickSpring",
+        "float stickStiffness"
+      ],
+      "nested_value_types": [
+        "ContactRecord",
+        "ContactShape"
+      ],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "41f15aaf8b3f2d765894f4052b6a90d05fcd3b404b8611a05bacf7f2d608c6e1"
+    },
+    {
+      "type": "SurfaceVertex",
+      "source": "cuda/contact/surface_contact.cuh",
+      "members": [
+        "int id[8],count,voxel,component",
+        "unsigned mask",
+        "float weight[8]",
+        "float3 offset"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "41f15aaf8b3f2d765894f4052b6a90d05fcd3b404b8611a05bacf7f2d608c6e1"
+    },
+    {
+      "type": "Symmetric3",
+      "source": "cuda/solver/material/unified_vertex.cuh",
+      "members": [
+        "float xx,yy,zz,xy,xz,yz"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "df1d0e7b2f92ee105386dd6c322c4e0bc3cd6993e8b70f9ac4a08dad97840fc6"
+    },
+    {
+      "type": "ToolFeedbackPacket",
+      "source": "cuda/xpbd/tool_feedback.cuh",
+      "members": [
+        "XpbdToolState pose",
+        "int initialized",
+        "XpbdToolFeedback feedback"
+      ],
+      "nested_value_types": [
+        "XpbdToolState",
+        "XpbdToolFeedback"
+      ],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "df54e0a36f794ce3217ee6e5b2af3f34ce4a863a7b4193ebeadd12f175a442eb"
+    },
+    {
+      "type": "TrainingMetrics",
+      "source": "cuda/training/training_api.h",
+      "members": [
+        "float maxStretch, rimStretch, graspRingStretch",
+        "float coreForceMax, coreForceMedian",
+        "std::uint32_t activeCoreCorners, brokenCoreCorners, brokenGripPoints",
+        "std::uint32_t tearEdges, materialTearEdges, rimTearEdges, interiorTearEdges, nearGraspTearEdges",
+        "float minVolumeRatio",
+        "std::uint32_t invalidTets"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "43f4d8809a0241c910742bda75e9fa44296b13dcf162b499fb9cdd8378b47dff"
+    },
+    {
+      "type": "UnifiedState",
+      "source": "cuda/solver/material/unified_vertex.cuh",
+      "members": [
+        "int n,nx,ny,nt,grips,coarseMode",
+        "bool coupledReady, recoveryOnly",
+        "const KuhnTet* kuhn",
+        "const int* cellBase",
+        "int cells",
+        "const int* activeNodes",
+        "int activeCount",
+        "UnifiedState* secondary",
+        "const int *cutPhase,*cutContactCount",
+        "float cutResistance",
+        "const int* componentSupport",
+        "int* component",
+        "int* graspComponents",
+        "int* safeCluster",
+        "SafeCoarseCluster* safeAggregate",
+        "int* safeJoined",
+        "int* floorRecovery",
+        "const int *offsets,*incident,*ids,*live,*contactIds,*contactCount,*degree,*gripDegree,*neighbors,*edgeSupport,*active",
+        "const float3 *b0,*b1,*b2,*previous,*target,*attachRest,*restNeighbors",
+        "const float3* previousInverse",
+        "const float* restMetric",
+        "const float *mu,*bulk,*invMass,*attach,*contactQuadrature",
+        "float3* pos",
+        "float* coarseWeight",
+        "float* interaction",
+        "SurfaceContact* contacts",
+        "GripPoint* points",
+        "CoupledTool* tool",
+        "float h,minimum,damping,hardening,contactK,gripK,minGap,muS,muD,edgeK,skin,thickness",
+        "float3 toolTarget",
+        "float gapTarget",
+        "float3 patchOffset",
+        "float patchCoreRadius,patchFalloff"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": [
+        "const KuhnTet* kuhn",
+        "const int* cellBase",
+        "const int* activeNodes",
+        "UnifiedState* secondary",
+        "const int *cutPhase,*cutContactCount",
+        "const int* componentSupport",
+        "int* component",
+        "int* graspComponents",
+        "int* safeCluster",
+        "SafeCoarseCluster* safeAggregate",
+        "int* safeJoined",
+        "int* floorRecovery",
+        "const int *offsets,*incident,*ids,*live,*contactIds,*contactCount,*degree,*gripDegree,*neighbors,*edgeSupport,*active",
+        "const float3 *b0,*b1,*b2,*previous,*target,*attachRest,*restNeighbors",
+        "const float3* previousInverse",
+        "const float* restMetric",
+        "const float *mu,*bulk,*invMass,*attach,*contactQuadrature",
+        "float3* pos",
+        "float* coarseWeight",
+        "float* interaction",
+        "SurfaceContact* contacts",
+        "GripPoint* points",
+        "CoupledTool* tool"
+      ],
+      "layout_handling": "explicit offsetof field layout",
+      "source_sha256": "df1d0e7b2f92ee105386dd6c322c4e0bc3cd6993e8b70f9ac4a08dad97840fc6"
+    },
+    {
+      "type": "XpbdBladeState",
+      "source": "cuda/xpbd/xpbd_solver.h",
+      "members": [
+        "float3 a,b",
+        "float radius,startForce,cutForce,driveStiffness,mass,friction",
+        "int enabled"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "601cd585eeec40d15b2ed9f61564f1f844d021d41269892c718a0de15ce97704"
+    },
+    {
+      "type": "XpbdGraspParams",
+      "source": "cuda/xpbd/xpbd_solver.h",
+      "members": [
+        "float graspThreshold, releaseThreshold",
+        "float jawGapClosed",
+        "float coreEllipseFrac",
+        "float mu",
+        "float contactAlpha",
+        "float contactSkin",
+        "float ccdVelThresh",
+        "float ccdMaxDisp",
+        "float ccdOmega",
+        "float omegaGrasp",
+        "float coreAlpha",
+        "float coreBreakForce",
+        "float graspMaxDisp",
+        "int   nExemptRings"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "601cd585eeec40d15b2ed9f61564f1f844d021d41269892c718a0de15ce97704"
+    },
+    {
+      "type": "XpbdParams",
+      "source": "cuda/xpbd/xpbd_solver.h",
+      "members": [
+        "int   numSubsteps",
+        "int   iters",
+        "float omega",
+        "float damping",
+        "float ks",
+        "float gx, gy, gz",
+        "float kb",
+        "float alpha",
+        "float betaS",
+        "float betaB",
+        "float youngE",
+        "float poisson",
+        "float strainDamping"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "601cd585eeec40d15b2ed9f61564f1f844d021d41269892c718a0de15ce97704"
+    },
+    {
+      "type": "XpbdScissorsBackBox",
+      "source": "cuda/xpbd/xpbd_solver.h",
+      "members": [
+        "float3 center,halfSize,axisX,axisY"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "601cd585eeec40d15b2ed9f61564f1f844d021d41269892c718a0de15ce97704"
+    },
+    {
+      "type": "XpbdScissorsState",
+      "source": "cuda/xpbd/xpbd_solver.h",
+      "members": [
+        "float3 hinge,axis,normal,leftA,leftB,rightA,rightB",
+        "float length,gap,maxGap,jawSpeed,startForce,cutForce,driveStiffness,mass,friction,jawMass,jawStiffness",
+        "int enabled,cutting,guided",
+        "XpbdScissorsBackBox leftBack,rightBack",
+        "int backContact",
+        "float squeeze"
+      ],
+      "nested_value_types": [
+        "XpbdScissorsBackBox"
+      ],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "601cd585eeec40d15b2ed9f61564f1f844d021d41269892c718a0de15ce97704"
+    },
+    {
+      "type": "XpbdToolFeedback",
+      "source": "cuda/xpbd/tool_feedback.h",
+      "members": [
+        "float3 hinge",
+        "float gripError",
+        "int live",
+        "float jawGap",
+        "float load[4]",
+        "int graspLocked",
+        "float3 reaction",
+        "int contacts",
+        "float blade[10]"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "af11f30f8e1a21d299dacf7313a8f11823390330f709ae3fb23a523f230170da"
+    },
+    {
+      "type": "XpbdToolState",
+      "source": "cuda/xpbd/xpbd_solver.h",
+      "members": [
+        "float3 shaftA, shaftB",
+        "float shaftR",
+        "float3 jawHinge, jawAxis, jawMid, jawNormal",
+        "float jawHalfWidth, jawLen, jawGap",
+        "float grasp01"
+      ],
+      "nested_value_types": [],
+      "pointer_layout": "none",
+      "layout_handling": "POD bytes; no pointer-valued members",
+      "source_sha256": "601cd585eeec40d15b2ed9f61564f1f844d021d41269892c718a0de15ce97704"
+    },
+    {
+      "type": "__half",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "float",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "float3",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "float4",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "int",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "int4",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "unsigned",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "unsigned int",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "unsigned long long",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    },
+    {
+      "type": "unsigned short",
+      "pointer_layout": "none",
+      "category": "CUDA numeric scalar/vector"
+    }
+  ],
+  "explicit_pointer_records": [
+    "CoupledTool",
+    "MultigridLevel",
+    "UnifiedState"
+  ],
+  "conservative_scope": "All live allocations saved. No scratch buffer excluded to meet the size target.",
+  "additional_serialization_state": [
+    {
+      "state": "allocation IDs, site hashes, sizes, normalized layouts, nextId",
+      "category": "save in archive tables/header"
+    },
+    {
+      "state": "allocation addresses",
+      "category": "recompute/rebind to current allocations; T1/new-session tests required"
+    },
+    {
+      "state": "known-layout whitelist",
+      "category": "recompute from same DLL declarations during collect"
+    },
+    {
+      "state": "atBoundary",
+      "category": "restore to completed-boundary true only after successful load"
+    },
+    {
+      "state": "errorText",
+      "category": "diagnostic only; never consumed by physics"
+    }
+  ]
+}

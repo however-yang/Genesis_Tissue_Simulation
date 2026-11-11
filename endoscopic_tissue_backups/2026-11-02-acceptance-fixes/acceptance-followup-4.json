@@ -1,0 +1,101 @@
+{
+  "note": "Serial follow-up only after every job of feasible-diagnose-2 has returned. Preserve all failures. Timings require prior physical smoke checks; no acceptance/promotion/push is automatic.",
+  "jobs": [
+    {
+      "name": "tear13-boundary-state-r0",
+      "worker": "trace_damage.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2",
+        "--tear",
+        "1.3",
+        "--capture",
+        "--snapshot-first-failure",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "tear13-feasible-state-r0",
+      "worker": "trace_damage.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3",
+        "--tear",
+        "1.3",
+        "--capture",
+        "--snapshot-first-failure",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "feasible-pcores-a1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true,
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r1/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-flap-snapshot-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-three-snips-r0/result.json"
+      ]
+    },
+    {
+      "name": "feasible-pcores-b1",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true,
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r1/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-flap-snapshot-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-three-snips-r0/result.json"
+      ]
+    },
+    {
+      "name": "feasible-pcores-b2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true,
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r1/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-flap-snapshot-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-three-snips-r0/result.json"
+      ]
+    },
+    {
+      "name": "feasible-pcores-a2",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-s15-training-snapshot1",
+        "--cpu-affinity",
+        "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+      ],
+      "performance": true,
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r1/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-flap-snapshot-r0/result.json",
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/feasible-three-snips-r0/result.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "note": "Unaccepted candidate; isolate same-state repair before full fresh interactions. Diagnostic import never counts as same-DLL snapshot acceptance.",
+  "jobs": [
+    {
+      "name": "repair-feasible-state-parent-r0",
+      "worker": "repair_state_probe.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-boundary-snapshot2"
+      ]
+    },
+    {
+      "name": "repair-feasible-state-candidate-r0",
+      "worker": "repair_state_probe.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3"
+      ]
+    },
+    {
+      "name": "regrasp-feasible-r0",
+      "worker": "regrasp_trial.py",
+      "args": [
+        "--capture",
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3",
+        "--stall-seconds",
+        "300"
+      ]
+    },
+    {
+      "name": "regrasp-feasible-r1",
+      "worker": "regrasp_trial.py",
+      "args": [
+        "--repeat",
+        "1",
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3"
+      ],
+      "requires_pass": [
+        "D:/Simulation/genesis-world/endoscopic_tissue/outputs/acceptance-fixes-20261102/regrasp-feasible-r0/result.json"
+      ]
+    },
+    {
+      "name": "feasible-flap-snapshot-r0",
+      "worker": "environment_snapshot_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3",
+        "--scene",
+        "flap"
+      ]
+    },
+    {
+      "name": "feasible-three-snips-r0",
+      "worker": "damage_trial.py",
+      "args": [
+        "--dll",
+        "bin-acceptance-repair-feasible-snapshot3",
+        "--capture"
+      ]
+    }
+  ]
+}

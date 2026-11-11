@@ -1,0 +1,12 @@
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -166,7 +166,8 @@
+     bary=mkf3(0,0,0);for(int k=0;k<count;k++)bary=bary+b[k];bary=bary*(1.f/count);
+     return true;
+ }
+-__device__ inline float3 triangleWitness(ContactShape shape,float3 a,float3 b,float3 c){
++// Share the large SDF search instead of expanding it at each contact call site.
++__device__ __noinline__ float3 triangleWitness(ContactShape shape,float3 a,float3 b,float3 c){
+     float3 q[3]={a,b,c},bar=mkf3(1.f/3,1.f/3,1.f/3),best=bar,n,s;
+     float bestD=shapeDistance(shape,(a+b+c)*(1.f/3),n,s);
+     for(int k=0;k<3;k++){float d=shapeDistance(shape,q[k],n,s);if(d<bestD){bestD=d;best=mkf3(k==0,k==1,k==2);}}

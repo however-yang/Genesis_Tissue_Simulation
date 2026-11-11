@@ -1,0 +1,274 @@
+{
+  "schema": "tissue_experiment_result_v1",
+  "spec_sha256": "6f852c5e0fab22ac3ac9d6b7b7fb353baaafe2289dab7a4ba5031cdcc092687f",
+  "episodes": [
+    {
+      "id": "eval-00",
+      "seed": 3200,
+      "group": "721c31f79ae8c299296d25f29de58ea55c4f449f56037cac7a760611e134316f",
+      "status": "recorded",
+      "training_domain_approved": false,
+      "config": {
+        "dll_path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+        "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+        "bounds": {
+          "lower": [
+            0.0124,
+            0.029599999999999998,
+            0.0175,
+            1.0,
+            0.024999999999999998,
+            0.009968,
+            0.025500000000000002,
+            -0.03490658503988659,
+            1.53588974175501,
+            -0.9948376736367679,
+            0.0
+          ],
+          "upper": [
+            0.0134,
+            0.0306,
+            0.018500000000000003,
+            1.0,
+            0.026,
+            0.010968,
+            0.026500000000000003,
+            0.03490658503988659,
+            1.6057029118347832,
+            -0.9250245035569946,
+            1.0
+          ],
+          "max_rate": [
+            0.002,
+            0.002,
+            0.002,
+            0.0,
+            0.002,
+            0.002,
+            0.002,
+            0.08726646259971647,
+            0.08726646259971647,
+            0.08726646259971647,
+            1.0
+          ]
+        },
+        "scene": {
+          "scene": "wall-traction",
+          "preparation": "cut_ready",
+          "contact_model": null,
+          "dt_s": null,
+          "substeps": null,
+          "spacing_scale": 1.0
+        },
+        "cutting_enabled": false,
+        "max_steps": 90,
+        "full_surface_checks": true,
+        "diagnostic_continue": false,
+        "limits": {
+          "max_displacement_m": 0.06,
+          "max_body_overlap_m": 0.0002,
+          "max_estimated_speed_m_s": 2.0
+        }
+      },
+      "split": "evaluation",
+      "collect_wall_s": 7.672433500003535,
+      "transitions": 90,
+      "states": 91,
+      "reason": "time_limit",
+      "reset_wall_ms": 32979.566299996804,
+      "policy": {
+        "implementation": "tissue_policy_v1",
+        "configuration": {
+          "kind": "hold"
+        },
+        "seed": 3200,
+        "privileged_observation": false,
+        "policy_sha256": "c1663e20373cab9e3f3b63e49b9dd0c4c0ade196bde914f7d2bb59bf1e0ccf17"
+      },
+      "task_evaluated": true,
+      "task_success": false,
+      "task_failure": null,
+      "valid_reward_sum": 0.0,
+      "valid_reward_transitions": 90,
+      "offline_reward_match": true,
+      "transitions_per_wall_second": 11.730306948891577,
+      "timing_ms": {
+        "native_step": {
+          "mean": 29.30252666378187,
+          "p95": 32.1610500162933,
+          "max": 33.471800037659705
+        },
+        "quality_and_export": {
+          "mean": 43.19195444242925,
+          "p95": 52.51205495442263,
+          "max": 69.1526000155136
+        },
+        "snapshot": {
+          "mean": 2.8743577817092754,
+          "p95": 4.1532799892593175,
+          "max": 5.18130004638806
+        },
+        "surface_export": {
+          "mean": 0.962616664926625,
+          "p95": 1.4325350144645197,
+          "max": 2.314700046554208
+        },
+        "total": {
+          "mean": 75.56096444734268,
+          "p95": 86.75352000282146,
+          "max": 105.97720002988353
+        }
+      },
+      "wall_s": 42.03459469997324,
+      "worker_peak_rss_bytes": 353918976,
+      "supervised_wall_s": 43.59439359995304
+    },
+    {
+      "id": "eval-01",
+      "seed": 3201,
+      "group": "4ec65fcf5c4cb6535d3cf613f59adaf19568577783797738984049c544a8f8e9",
+      "status": "recorded",
+      "training_domain_approved": false,
+      "config": {
+        "dll_path": "D:\\Simulation\\genesis-world\\endoscopic_tissue\\native\\bin-contact-groups31\\LiverCudaSim.dll",
+        "dll_sha256": "4515f14aa15309162c2c54b6370792e128e63a7e8d3054c506da19e3aeb37d2f",
+        "bounds": {
+          "lower": [
+            0.0124,
+            0.029599999999999998,
+            0.0175,
+            1.0,
+            0.024999999999999998,
+            0.009968,
+            0.025500000000000002,
+            -0.03490658503988659,
+            1.53588974175501,
+            -0.9948376736367679,
+            0.0
+          ],
+          "upper": [
+            0.0134,
+            0.0306,
+            0.018500000000000003,
+            1.0,
+            0.026,
+            0.010968,
+            0.026500000000000003,
+            0.03490658503988659,
+            1.6057029118347832,
+            -0.9250245035569946,
+            1.0
+          ],
+          "max_rate": [
+            0.002,
+            0.002,
+            0.002,
+            0.0,
+            0.002,
+            0.002,
+            0.002,
+            0.08726646259971647,
+            0.08726646259971647,
+            0.08726646259971647,
+            1.0
+          ]
+        },
+        "scene": {
+          "scene": "wall-traction",
+          "preparation": "cut_ready",
+          "contact_model": null,
+          "dt_s": null,
+          "substeps": null,
+          "spacing_scale": 1.0
+        },
+        "cutting_enabled": false,
+        "max_steps": 90,
+        "full_surface_checks": true,
+        "diagnostic_continue": false,
+        "limits": {
+          "max_displacement_m": 0.06,
+          "max_body_overlap_m": 0.0002,
+          "max_estimated_speed_m_s": 2.0
+        }
+      },
+      "split": "evaluation",
+      "collect_wall_s": 8.280213000020012,
+      "transitions": 90,
+      "states": 91,
+      "reason": "time_limit",
+      "reset_wall_ms": 33016.92800002638,
+      "policy": {
+        "implementation": "tissue_policy_v1",
+        "configuration": {
+          "kind": "smooth_random"
+        },
+        "seed": 3201,
+        "privileged_observation": false,
+        "policy_sha256": "ec885538084d29b2d028154cc0772001600a2439147c5055813fa190f8490b5f"
+      },
+      "task_evaluated": true,
+      "task_success": false,
+      "task_failure": null,
+      "valid_reward_sum": 0.0,
+      "valid_reward_transitions": 90,
+      "offline_reward_match": true,
+      "transitions_per_wall_second": 10.869285608930891,
+      "timing_ms": {
+        "native_step": {
+          "mean": 35.53132000379264,
+          "p95": 41.35799500218127,
+          "max": 323.8310000160709
+        },
+        "quality_and_export": {
+          "mean": 43.192313332757394,
+          "p95": 47.455159993842244,
+          "max": 59.39790001139045
+        },
+        "snapshot": {
+          "mean": 2.846592219753398,
+          "p95": 3.672585013555363,
+          "max": 5.195700039621443
+        },
+        "surface_export": {
+          "mean": 0.9458722229788287,
+          "p95": 1.515475029009394,
+          "max": 2.6440999936312437
+        },
+        "total": {
+          "mean": 81.76285333142408,
+          "p95": 89.7993400139967,
+          "max": 372.47000000206754
+        }
+      },
+      "wall_s": 42.7814931999892,
+      "worker_peak_rss_bytes": 357027840,
+      "supervised_wall_s": 44.471451100020204
+    },
+    {
+      "id": "eval-02",
+      "status": "collection_failure",
+      "error": "OSError('disk_budget_exceeded; partial episode retained')",
+      "group": "8f01cc70387a3a797f61b75af25125c370d73a288d018d8610c8f40daeaf5411",
+      "worker_peak_rss_bytes": 361512960,
+      "supervised_wall_s": 35.36880270001711
+    },
+    {
+      "id": "eval-03",
+      "status": "disk_budget_exceeded",
+      "group": "80750c5190bc534f279b38f45be17a895711d9c3cd38bfc2560163668c5cfde1"
+    }
+  ],
+  "summary": {
+    "attempted_episodes": 4,
+    "recorded_episodes": 2,
+    "task_evaluated_episodes": 2,
+    "task_successes": 0,
+    "success_fraction_of_all_attempts": 0.0,
+    "failures_and_timeouts": [
+      "eval-02",
+      "eval-03"
+    ],
+    "recorded_transitions": 180,
+    "training_domain_approved": false
+  }
+}

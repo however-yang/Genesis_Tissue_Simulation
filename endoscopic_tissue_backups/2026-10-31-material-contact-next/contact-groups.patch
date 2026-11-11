@@ -1,0 +1,163 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+index 45170b3..21778c3 100644
+--- a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -72,6 +72,7 @@ __host__ __device__ __forceinline__ float  compF3(float3 v, int k) { return (k==
+ #include "../contact/friction_contact.cuh"
+ #include "../grasp/tool_coupling.cuh"
+ #include "../contact/surface_contact.cuh"
++#include "../../../../../endoscopic_tissue_backups/2026-10-31-material-contact-next/contact_groups.cuh"
+ #include "../contact/fragment_contact.cuh"
+ static FragmentVertex* d_fragmentVertices=nullptr;
+ static int* d_fragmentSupported=nullptr;
+@@ -331,6 +332,8 @@ static const unsigned* g_surfaceMasks=nullptr;
+ static const float3* g_surfaceExpanded=nullptr;
+ static SurfaceVertex* d_surfaceVertices=nullptr;
+ static float4* d_jawLoad=nullptr;
++static ContactGroupBounds* d_contactGroups=nullptr;
++static unsigned char* d_contactGroupRejected=nullptr;
+ static float4* d_surfaceCurrent=nullptr;
+ static float3* d_surfacePrevious=nullptr;
+ static SurfaceContact* d_surfaceContacts=nullptr;
+@@ -2001,6 +2004,7 @@ extern "C" int xpbd_set_contact_surface(int count,const int* tags,const float3*
+     if(g_surfaceCount>0 && g_toolArmed && g_substepIndex>0)
+         k_CacheContacts<<<Gr(3*g_surfaceCount),64>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_contactCacheSlots,d_contactCache);
+     if(count>g_surfaceCapacity){
++        cudaFree(d_contactGroups);cudaFree(d_contactGroupRejected);d_contactGroups=nullptr;d_contactGroupRejected=nullptr;
+         cudaFree(d_surfaceCurrent);cudaFree(d_surfacePrevious);d_surfaceCurrent=nullptr;d_surfacePrevious=nullptr;
+         cudaFree(d_surfaceVertices);cudaFree(d_surfaceContacts);cudaFree(d_surfaceActive);d_surfaceVertices=nullptr;d_surfaceContacts=nullptr;d_surfaceActive=nullptr;
+         // Reserve growth for cut-created faces. Reallocating the surface,
+@@ -2014,6 +2018,8 @@ extern "C" int xpbd_set_contact_surface(int count,const int* tags,const float3*
+         if(e==cudaSuccess)e=cudaMalloc(&d_surfaceActive,(size_t)3*capacity*sizeof(int));
+         if(e==cudaSuccess)e=cudaMalloc(&d_surfaceCurrent,(size_t)3*capacity*sizeof(float4));
+         if(e==cudaSuccess)e=cudaMalloc(&d_surfacePrevious,(size_t)3*capacity*sizeof(float3));
++        if(e==cudaSuccess)e=cudaMalloc(&d_contactGroups,(size_t)contactGroupCount(capacity)*sizeof(ContactGroupBounds));
++        if(e==cudaSuccess)e=cudaMalloc(&d_contactGroupRejected,(size_t)6*contactGroupCount(capacity));
+         if(e!=cudaSuccess){g_surfaceCount=0;return -(int)e;}g_surfaceCapacity=capacity;
+     }
+     if(count!=g_surfaceCount){
+@@ -2888,10 +2894,12 @@ extern "C" int xpbd_relax_reconstructed_contact(){
+     cudaMemsetAsync(d_surfaceDegree,0,(size_t)g_N*sizeof(int));
+     cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int));
+     k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++    buildContactGroups(g_surfaceCount,d_surfaceCurrent,d_surfacePrevious,d_contactGroups,0);
++    classifyContactGroups(g_surfaceCount,3,d_contactGroups,d_contactGroupRejected,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,true,false,0);
+     for(int kind=0;kind<3;kind++){
+         ContactShape shape=contactShape(g_tool,kind,g_jawThickness,g_gp.jawGapClosed);
+         k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,shape,shape,g_contactRadius,
+-            d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,true,d_contactCacheSlots,d_contactCache);
++            d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,true,d_contactCacheSlots,d_contactCache,nullptr,3,false,d_contactGroupRejected+kind*contactGroupCount(g_surfaceCount));
+     }
+     // Surface-count changes invalidate captured launch sizes, not the final
+     // substep's implicit objective. Never switch to legacy XPBD/projections
+@@ -2959,6 +2967,7 @@ extern "C" int xpbd_relax_reconstructed_contact(){
+                 // back while the grasper manifold is being refreshed.
+                 if(g_blade.enabled){
+                     k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_pos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++                    buildContactGroups(g_surfaceCount,d_surfaceCurrent,d_surfacePrevious,d_contactGroups,g_captureStream);
+                     findBlade(g_captureStream,true);
+                     k_MarkCoarseContact<<<128,64,0,g_captureStream>>>(d_bladeState,2|MaterialCutterContact);
+                 }
+@@ -3129,10 +3138,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
+     cudaMemsetAsync(d_surfaceDegree,0,(size_t)g_N*sizeof(int));cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int));
+     if(g_surfaceCount>0){
+         k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++        buildContactGroups(g_surfaceCount,d_surfaceCurrent,d_surfacePrevious,d_contactGroups,0);
++        classifyContactGroups(g_surfaceCount,3,d_contactGroups,d_contactGroupRejected,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,false,false,0);
+         for(int kind=0;kind<3;kind++)k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,
+             contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+             d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,
+-            d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++            d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache,nullptr,3,false,d_contactGroupRejected+kind*contactGroupCount(g_surfaceCount));
+     }
+     if(g_blade.enabled)findBlade();
+     e=prepareUnifiedManifold();if(e!=cudaSuccess)return -(int)e;
+@@ -3210,10 +3221,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int),g_captureStream);
+                 k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++                buildContactGroups(g_surfaceCount,d_surfaceCurrent,d_surfacePrevious,d_contactGroups,g_captureStream);
++                classifyContactGroups(g_surfaceCount,3,d_contactGroups,d_contactGroupRejected,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,false,false,g_captureStream);
+                 for(int kind=0;kind<3;kind++)k_FindSurface<<<Gr(g_surfaceCount),64,0,g_captureStream>>>(g_surfaceCount,kind,
+                     contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+                     d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache,nullptr,3,false,d_contactGroupRejected+kind*contactGroupCount(g_surfaceCount));
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_manifoldCount,0,sizeof(int),g_captureStream);
+                 k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
+@@ -3334,10 +3347,12 @@ static int unifiedSubstep(float h,XpbdToolState previousTool,XpbdToolState stepT
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int),g_captureStream);
+                 k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64,0,g_captureStream>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++                buildContactGroups(g_surfaceCount,d_surfaceCurrent,d_surfacePrevious,d_contactGroups,g_captureStream);
++                classifyContactGroups(g_surfaceCount,3,d_contactGroups,d_contactGroupRejected,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,false,false,g_captureStream);
+                 for(int kind=0;kind<3;kind++)k_FindSurface<<<Gr(g_surfaceCount),64,0,g_captureStream>>>(g_surfaceCount,kind,
+                     contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+                     d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,
+-                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++                    d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache,nullptr,3,false,d_contactGroupRejected+kind*contactGroupCount(g_surfaceCount));
+                 cudaMemsetAsync(d_surfaceDegree,0,g_N*sizeof(int),g_captureStream);
+                 cudaMemsetAsync(d_manifoldCount,0,sizeof(int),g_captureStream);
+                 k_UnifiedManifold<<<MANIFOLD_BLOCKS,64,0,g_captureStream>>>(d_surfaceContacts,d_surfaceActive,d_surfaceActiveCount,d_surfaceVertices,d_pos,d_prevPos,
+@@ -3634,11 +3649,13 @@ extern "C" int xpbd_substep(void)
+             cudaMemsetAsync(d_surfaceDegree,0,(size_t)g_N*sizeof(int));
+             cudaMemsetAsync(d_surfaceActiveCount,0,sizeof(int));
+             k_UpdateSurfacePoints<<<Gr(3*g_surfaceCount),64>>>(3*g_surfaceCount,d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceCurrent,d_surfacePrevious);
++            buildContactGroups(g_surfaceCount,d_surfaceCurrent,d_surfacePrevious,d_contactGroups,0);
++            classifyContactGroups(g_surfaceCount,3,d_contactGroups,d_contactGroupRejected,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,g_contactRadius,false,false,0);
+             for(int kind=0;kind<3;kind++)
+                 k_FindSurface<<<Gr(g_surfaceCount),64>>>(g_surfaceCount,kind,
+                     contactShape(previousTool,kind,g_jawThickness,g_gp.jawGapClosed),
+                     contactShape(stepTool,kind,g_jawThickness,g_gp.jawGapClosed),g_contactRadius,
+-                    d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache);
++                    d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_surfaceContacts,d_surfaceDegree,d_surfaceActive,d_surfaceActiveCount,d_surfaceCurrent,d_surfacePrevious,d_coupledTool,g_jawThickness,g_gp.jawGapClosed,false,d_contactCacheSlots,d_contactCache,nullptr,3,false,d_contactGroupRejected+kind*contactGroupCount(g_surfaceCount));
+             cudaError_t contactError=solveSurfaceGraph(g_gp.contactAlpha/(h*h),g_grasping && !g_anchorAssist?1:0);
+             if(contactError!=cudaSuccess)return -(int)contactError;
+             // Pressure/contact block iterations: let incompressibility displace
+@@ -3833,6 +3850,7 @@ extern "C" void xpbd_shutdown()
+     g_T = 0; g_tColorOff.clear(); g_tColorCnt.clear(); g_tNumColors = 0; g_haveTets = false; g_doStrainF = false;
+     // STEP 8 grasp/contact buffers.
+     cudaFree(d_surfaceVertices);d_surfaceVertices=nullptr;cudaFree(d_surfaceContacts);d_surfaceContacts=nullptr;
++    cudaFree(d_contactGroups);cudaFree(d_contactGroupRejected);d_contactGroups=nullptr;d_contactGroupRejected=nullptr;
+     cudaFree(d_surfaceCurrent);d_surfaceCurrent=nullptr;cudaFree(d_surfacePrevious);d_surfacePrevious=nullptr;
+     cudaFree(d_jawLoad);d_jawLoad=nullptr;
+     cudaFree(d_surfaceActive);d_surfaceActive=nullptr;cudaFree(d_surfaceActiveCount);d_surfaceActiveCount=nullptr;
+diff --git a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+index efceb1f..af1c833 100644
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -327,9 +327,14 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     const SurfaceVertex* vertices,const unsigned* masks,const float3* prev,const float3* pos,
+     SurfaceContact* contacts,int* degree,int* active,int* activeCount,const float4* current,const float3* previous,
+     const CoupledTool* body=nullptr,float thickness=0,float minGap=0,bool stationary=false,
+-    const int* cacheSlots=nullptr,const SurfaceContact* cache=nullptr,const int* bladePhase=nullptr,int stride=3,bool cacheComponents=false){
++    const int* cacheSlots=nullptr,const SurfaceContact* cache=nullptr,const int* bladePhase=nullptr,int stride=3,bool cacheComponents=false,const unsigned char* groupRejected=nullptr){
+     int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=triangles)return;
+     int slot=stride*t+kind;
++    // A carried cutting preload may survive outside the current tool AABB.
++    if(groupRejected && groupRejected[t/64] &&
++       !(body && bladePhase && (*bladePhase==0 || *bladePhase==4) && contacts[slot].count>0)){
++        contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;
++    }
+     if(body){from=bodyContactShape(body,stationary?body->pose:body->previous,kind,thickness,minGap);to=bodyContactShape(body,body->pose,kind,thickness,minGap);}
+     // Reject distant triangles before reading/probing the material-contact
+     // cache or copying a 24-node witness. This is the dominant no-contact path.
+diff --git a/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh b/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
+index 0141f4b..df1c344 100644
+--- a/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/cutting/pressure_blade.cuh
+@@ -414,11 +414,12 @@ __global__ void k_CountCutContacts(const SurfaceContact* contacts,const int* ids
+ }
+ static void findBlade(cudaStream_t stream=0,bool stationary=false){
+     cudaMemsetAsync(d_bladeCount,0,sizeof(int),stream);cudaMemsetAsync(d_bladeDegree,0,g_N*sizeof(int),stream);
++    classifyContactGroups(g_surfaceCount,BLADE_KIND_SLOTS,d_contactGroups,d_contactGroupRejected,d_bladeBody,0,0,g_contactRadius,stationary,true,stream);
+     for(int index=0;index<bladeShapeCount();index++){
+     int kind=bladeShapeKind(index);
+     if(g_surfaceCount>0)k_FindSurface<<<Gr(g_surfaceCount),64,0,stream>>>(g_surfaceCount,kind,
+         contactShape(g_bladeInitial,0,0,0),contactShape(g_bladeCommand,0,0,0),kind>=3?g_contactRadius:0,
+-        d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious,d_bladeBody,0,0,stationary,kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3);
++        d_surfaceVertices,g_surfaceMasks,d_prevPos,d_pos,d_bladeContacts,d_bladeDegree,d_bladeIds,d_bladeCount,d_surfaceCurrent,d_surfacePrevious,d_bladeBody,0,0,stationary,kind>=3?d_bladeBackCacheSlots:nullptr,kind>=3?d_bladeBackCache:nullptr,kind<3?d_bladePhase:nullptr,BLADE_KIND_SLOTS,kind>=3,d_contactGroupRejected+kind*contactGroupCount(g_surfaceCount));
+     }
+     cudaMemsetAsync(d_bladeBackCacheSlots,0xff,CONTACT_CACHE_SIZE*sizeof(int),stream);
+     if(g_surfaceCount>0)k_CacheBladeBackContacts<<<Gr(BLADE_KIND_SLOTS*g_surfaceCount),64,0,stream>>>(d_bladeContacts,d_bladeIds,d_bladeCount,d_bladeBackCacheSlots,d_bladeBackCache);

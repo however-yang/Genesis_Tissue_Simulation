@@ -1,0 +1,162 @@
+diff --git a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+index efceb1f..181d868 100644
+--- a/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
++++ b/endoscopic_tissue/native/vendor/cuda/contact/surface_contact.cuh
+@@ -1,3 +1,20 @@
++// Diagnostic only: integer work counters, never used by the solver.
++__device__ unsigned long long g_contactWork[96];
++__device__ inline void contactWorkAdd(unsigned index,unsigned value=1){
++    unsigned group=__match_any_sync(__activemask(),index);
++    unsigned sum=__reduce_add_sync(group,value);
++    if((threadIdx.x&31)==__ffs(group)-1)atomicAdd(g_contactWork+index,(unsigned long long)sum);
++}
++struct ContactTraceWork {
++    unsigned steps=0;
++    __device__ ~ContactTraceWork(){
++        contactWorkAdd(68,steps);
++        unsigned mask=__activemask(),maximum=__reduce_max_sync(mask,steps);
++        if((threadIdx.x&31)==__ffs(mask)-1)atomicMax(g_contactWork+69,(unsigned long long)maximum);
++        unsigned bin=steps==0?0:steps==1?1:33-__clz(steps-1);
++        contactWorkAdd(70+min(bin,15u));
++    }
++};
+ // Triangle/SDF local optimization (Macklin et al., 2020) with embedded XPBD response.
+ // Intact production surfaces use the renderer's fixed material weights. Cut components
+ // retain a local affine approximation, rebuilt with the DC surface each outer frame.
+@@ -167,6 +184,7 @@ __device__ inline bool clippedBoxWitness(ContactShape shape,const float3* q,floa
+     return true;
+ }
+ __device__ inline float3 triangleWitness(ContactShape shape,float3 a,float3 b,float3 c){
++    contactWorkAdd(64);
+     float3 q[3]={a,b,c},bar=mkf3(1.f/3,1.f/3,1.f/3),best=bar,n,s;
+     float bestD=shapeDistance(shape,(a+b+c)*(1.f/3),n,s);
+     for(int k=0;k<3;k++){float d=shapeDistance(shape,q[k],n,s);if(d<bestD){bestD=d;best=mkf3(k==0,k==1,k==2);}}
+@@ -197,6 +215,7 @@ __device__ inline float3 triangleWitness(ContactShape shape,float3 a,float3 b,fl
+ // SDF minimizer can miss a sub-millimetre blade on a large/skinny cut triangle.
+ // The minimum is a face crossing, an endpoint/face pair, or an edge/edge pair.
+ __device__ inline float3 bladeTriangleWitness(ContactShape shape,const float3* q){
++    contactWorkAdd(65);
+     float3 e0=q[1]-q[0],e1=q[2]-q[0],axis=shape.b-shape.a,n=cross3(e0,e1);
+     float nn=dot3(n,n),aa=dot3(axis,axis),bestD=1e30f;float3 best=mkf3(1,0,0);
+     float d00=dot3(e0,e0),d01=dot3(e0,e1),d11=dot3(e1,e1);
+@@ -264,6 +283,7 @@ __device__ inline bool sweptAxisInterval(float3 a,float3 b,float3 c,float3 veloc
+     enter=fmaxf(enter,lo);leave=fminf(leave,hi);return enter<=leave;
+ }
+ __device__ inline ContactRecord traceTriangleBox(ContactShape from,ContactShape to,float skin,const float3* p,const float3* q,float3& bary){
++    contactWorkAdd(67);ContactTraceWork contactTraceWork;
+     // ACCD's relative-motion bound: common translation cannot close the gap.
+     // Retain the existing conservative rotation bound for the finite jaw.
+     ContactRecord out={};float3 translation=to.center-from.center;
+@@ -280,6 +300,7 @@ __device__ inline ContactRecord traceTriangleBox(ContactShape from,ContactShape
+         }
+     }
+     if(len3(to.u-from.u)+len3(to.n-from.n)<1e-7f && len3(q[1]-p[1]-motion)+len3(q[2]-p[2]-motion)<1e-7f){
++        contactWorkAdd(66);
+         float3 a[3],axes[3]={mkf3(1,0,0),mkf3(0,1,0),mkf3(0,0,1)};
+         for(int k=0;k<3;k++){float3 x=p[k]-from.center;a[k]=mkf3(dot3(x,to.u),dot3(x,to.n),dot3(x,to.w));}
+         float3 v=motion-translation;v=mkf3(dot3(v,to.u),dot3(v,to.n),dot3(v,to.w));
+@@ -299,7 +320,9 @@ __device__ inline ContactRecord traceTriangleBox(ContactShape from,ContactShape
+     float speed=4.f*len3(to.half)*(len3(to.u-from.u)+len3(to.n-from.n));
+     float vertexSpeed=0;for(int k=0;k<3;k++)vertexSpeed=fmaxf(vertexSpeed,len3(q[k]-p[k]-translation));speed+=vertexSpeed;
+     double time=0;float tol=fmaxf(1e-6f,1e-4f*len3(to.half));ContactShape hit=from;float3 x[3];bool found=false;
++    contactWorkAdd(86);
+     while(time<=1.){
++        contactTraceWork.steps++;
+         hit=shapeLerp(from,to,time);for(int k=0;k<3;k++)x[k]=p[k]*(1-time)+q[k]*time;
+         float gap=triangleBoxGap(hit,x[0],x[1],x[2])-skin;
+         if(gap<=tol){found=true;break;}
+@@ -329,6 +352,8 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     const CoupledTool* body=nullptr,float thickness=0,float minGap=0,bool stationary=false,
+     const int* cacheSlots=nullptr,const SurfaceContact* cache=nullptr,const int* bladePhase=nullptr,int stride=3,bool cacheComponents=false){
+     int t=blockIdx.x*blockDim.x+threadIdx.x;if(t>=triangles)return;
++    int workSlot=body && body->scissors?kind+2:kind;
++    contactWorkAdd(8*workSlot);
+     int slot=stride*t+kind;
+     if(body){from=bodyContactShape(body,stationary?body->pose:body->previous,kind,thickness,minGap);to=bodyContactShape(body,body->pose,kind,thickness,minGap);}
+     // Reject distant triangles before reading/probing the material-contact
+@@ -344,6 +369,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     // preload at K*radius, then reverses the normal and lets the blade through.
+     // Carry this material witness until fracture or separation, including cut
+     // components. Rebind its interpolation below to the current reconstruction.
++    contactWorkAdd(8*workSlot+7);
+     bool preload=body && to.capsule && bladePhase && (*bladePhase==0 || *bladePhase==4) && contacts[slot].count>0;
+     for(int k=0;k<3 && preload;k++)preload=contacts[slot].owner[k]==vertices[3*t+k].voxel &&
+         contacts[slot].mask[k]==vertices[3*t+k].mask && contacts[slot].component[k]==vertices[3*t+k].component;
+@@ -370,6 +396,8 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         float mn=1e30f,mx=-1e30f;for(int k=0;k<3;k++){mn=fminf(mn,fminf(compF3(q[k],ax),compF3(p[k],ax)));mx=fmaxf(mx,fmaxf(compF3(q[k],ax),compF3(p[k],ax)));}
+         if(!preload && (mx<fminf(compF3(lo,ax),compF3(l0,ax)) || mn>fmaxf(compF3(hi,ax),compF3(h0,ax)))){contacts[slot].count=0;contacts[slot].lambdaN=0;contacts[slot].kind=kind;return;}
+     }
++    contactWorkAdd(8*workSlot+1);
++    if(preload)contactWorkAdd(8*workSlot+2);
+     // Persist a material witness while its triangle owners and cut masks match.
+     // A nearest-face query inside a thin jaw can otherwise flip its normal and
+     // push tissue through the opposite face on the next substep.
+@@ -454,6 +482,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     float3 bary=mkf3(0,0,0);
+     if(preload){bary=preloadBary;out.plane=preloadPlane;}
+     else if(retainedPlane.valid && !to.capsule){
++        contactWorkAdd(8*workSlot+3);
+         bary=triangleWitness(to,q[0],q[1],q[2]);
+         out.plane=retainedPlane;out.stick=retained.stick;
+         float3 normal=out.plane.normal;
+@@ -466,7 +495,27 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+         out.plane.target=surface+normal*skin;
+         out.plane.motion=surface-witnessAt(to,from,surface);
+     }else if(to.capsule){
++        contactWorkAdd(8*workSlot+4);
+         bary=bladePhase?bladeTriangleWitness(to,q):triangleWitness(to,q[0],q[1],q[2]);
++        if(body && body->scissors && kind==5){
++            float3 exact=bladeTriangleWitness(to,q);
++            float3 oldPoint=q[0]*bary.x+q[1]*bary.y+q[2]*bary.z;
++            float3 newPoint=q[0]*exact.x+q[1]*exact.y+q[2]*exact.z;
++            float3 oldNormal,oldSurface,newNormal,newSurface;
++            float oldDistance=shapeDistance(to,oldPoint,oldNormal,oldSurface);
++            float newDistance=shapeDistance(to,newPoint,newNormal,newSurface);
++            float difference=oldDistance-newDistance,move=len3(newPoint-oldPoint);
++            contactWorkAdd(87);
++            if(difference>1e-5f)contactWorkAdd(88);
++            if(difference< -1e-5f)contactWorkAdd(89);
++            if(move>1e-4f)contactWorkAdd(90);
++            if((oldDistance<=skin)!=(newDistance<=skin))contactWorkAdd(91);
++            if(!isfinite(newDistance) || exact.x<0 || exact.y<0 || exact.z<0 ||
++               fabsf(exact.x+exact.y+exact.z-1)>1e-4f)contactWorkAdd(92);
++            atomicMax(g_contactWork+93,(unsigned long long)__float_as_uint(fabsf(difference)));
++            atomicMax(g_contactWork+94,(unsigned long long)__float_as_uint(move));
++            atomicMax(g_contactWork+95,(unsigned long long)__float_as_uint(fmaxf(0.f,1.f-dot3(oldNormal,newNormal))));
++        }
+         out.plane=traceToolContact(from,to,skin,p[0]*bary.x+p[1]*bary.y+p[2]*bary.z,q[0]*bary.x+q[1]*bary.y+q[2]*bary.z);
+         // The swept endpoint witness is not the first point on a face hit by
+         // a grazing capsule. Its radial TOI normal can be almost tangential,
+@@ -489,7 +538,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+                 out.plane.motion=surface-witnessAt(to,from,surface);
+             }
+         }
+-    }else out.plane=traceTriangleBox(from,to,skin,p,q,bary);
++    }else {contactWorkAdd(8*workSlot+5);out.plane=traceTriangleBox(from,to,skin,p,q,bary);}
+     float3 x=q[0]*bary.x+q[1]*bary.y+q[2]*bary.z;
+     float3 old=p[0]*bary.x+p[1]*bary.y+p[2]*bary.z;
+     if(!out.plane.valid)return;
+@@ -526,7 +575,7 @@ __global__ void k_FindSurface(int triangles,int kind,ContactShape from,ContactSh
+     }
+     for(int j=0;j<out.count;j++)atomicAdd(&degree[out.id[j]],1);
+     contacts[slot]=out;
+-    if(out.count)active[atomicAdd(activeCount,1)]=slot;
++    if(out.count){contactWorkAdd(8*workSlot+6);active[atomicAdd(activeCount,1)]=slot;}
+ }
+ // Bounded grid-stride launch consumes every active contact without a CPU count readback.
+ __global__ void k_SolveSurface(int count,float alpha,float muS,float muD,const float* invMass,
+diff --git a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+index 45170b3..c72094b 100644
+--- a/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
++++ b/endoscopic_tissue/native/vendor/cuda/xpbd/xpbd_solver.cu
+@@ -3895,3 +3895,10 @@ extern "C" int xpbd_grasp_tangent_error(float* error){
+     if(!error || !d_gripError)return XPBD_ERR_BAD_ARG;
+     return -(int)cudaMemcpy(error,d_gripError+2,sizeof(float),cudaMemcpyDeviceToHost);
+ }
++
++extern "C" __declspec(dllexport) int LCS_ReadContactWork(unsigned long long* output,int reset){
++    cudaError_t status=cudaMemcpyFromSymbol(output,g_contactWork,96*sizeof(unsigned long long));
++    if(status!=cudaSuccess)return -(int)status;
++    if(reset){unsigned long long zero[96]={};status=cudaMemcpyToSymbol(g_contactWork,zero,sizeof(zero));}
++    return status==cudaSuccess?0:-(int)status;
++}

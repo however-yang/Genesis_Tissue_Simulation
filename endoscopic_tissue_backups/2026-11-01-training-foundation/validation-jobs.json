@@ -1,0 +1,94 @@
+[
+  {
+    "name": "repeat-legacy",
+    "exit_code": 0,
+    "wall_time_s": 174.4517143999692,
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-foundation\\paired_replay.py",
+      "--mode",
+      "legacy",
+      "--output",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\legacy-wall-03"
+    ]
+  },
+  {
+    "name": "native-reset",
+    "exit_code": 0,
+    "wall_time_s": 35.071947999997064,
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-foundation\\verify_native_reset.py"
+    ]
+  },
+  {
+    "name": "compare-adapter",
+    "exit_code": 0,
+    "wall_time_s": 4.228850300016347,
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-foundation\\compare_replays.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\legacy-wall-02",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\adapter-wall-01",
+      "--output",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-foundation\\paired-adapter.json"
+    ]
+  },
+  {
+    "name": "compare-repeat",
+    "exit_code": 0,
+    "wall_time_s": 4.134107600024436,
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-foundation\\compare_replays.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\legacy-wall-02",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\legacy-wall-03",
+      "--output",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-11-01-training-foundation\\paired-repeat.json"
+    ]
+  },
+  {
+    "name": "render-legacy-wall-02",
+    "exit_code": 0,
+    "wall_time_s": 74.47718749998603,
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-grasp-cut-validation\\render_review.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\legacy-wall-02"
+    ]
+  },
+  {
+    "name": "render-adapter-wall-01",
+    "exit_code": 0,
+    "wall_time_s": 71.01795439998386,
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-grasp-cut-validation\\render_review.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\adapter-wall-01"
+    ]
+  },
+  {
+    "name": "render-legacy-wall-03",
+    "exit_code": 0,
+    "wall_time_s": 70.79524309997214,
+    "command": [
+      "D:\\develop\\anaconda3\\envs\\genesis_world\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue_backups\\2026-10-31-grasp-cut-validation\\render_review.py",
+      "D:\\Simulation\\genesis-world\\endoscopic_tissue\\outputs\\training-foundation-20261101\\legacy-wall-03"
+    ]
+  }
+]

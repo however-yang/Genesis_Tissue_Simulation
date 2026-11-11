@@ -14,6 +14,8 @@ dependencies = [
     # * 2.13.0 sets the private state of a model built by 'model_construct', which pickling reads.
     "pydantic>=2.13.0",
     "numpy>=1.26.4",
+    # Bounds nested BLAS workers during the threaded endoscopic demo.
+    "threadpoolctl>=3.6",
     "frozendict",
     # * 4.8.2 fixed linear/sRGB color conversion in `to_color()`.
     # * 5.0 transforms a mesh without drawing from the global random generator of numpy, which the particle samplers
