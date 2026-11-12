@@ -1,0 +1,55 @@
+# Motion-only setup: geometry, joint limits and initial base poses.
+# Positions use centimetres; angles use degrees; angular speeds use degrees per second.
+[grasper]
+base_position_cm = [-3.466, 8.838, 0.0]
+base_quaternion_xyzw = [0.632455532, -0.316227766, -0.316227766, 0.632455532]
+jaw_length_cm = 1.99
+max_gap_cm = 1.0
+shaft_length_cm = 4.0
+
+[grasper.roll]
+axis = [1.0, 0.0, 0.0]
+lower_deg = -180.0
+upper_deg = 180.0
+max_speed_deg_s = 90.0
+
+[grasper.pitch]
+axis = [0.0, -1.0, 0.0]
+origin_cm = [0.91, 0.0, 0.0]
+max_speed_deg_s = 60.0
+
+[grasper.yaw]
+axis = [0.0, 0.0, 1.0]
+origin_cm = [0.91, 0.0, 0.0]
+max_speed_deg_s = 60.0
+
+[grasper.opening]
+initial_deg = 20.0
+max_speed_deg_s = 45.0
+
+[scissors]
+base_position_cm = [1.13669, 3.6968, 4.02825]
+base_quaternion_xyzw = [-0.430459, 0.560986, 0.560986, 0.430459]
+jaw_length_cm = 1.305
+shaft_length_cm = 6.0
+
+[scissors.roll]
+axis = [1.0, 0.0, 0.0]
+lower_deg = -180.0
+upper_deg = 180.0
+max_speed_deg_s = 90.0
+
+[scissors.pitch]
+axis = [0.0, -1.0, 0.0]
+origin_cm = [0.91, 0.0, 0.0]
+max_speed_deg_s = 60.0
+
+[scissors.yaw]
+axis = [0.0, 0.0, 1.0]
+origin_cm = [0.91, 0.0, 0.0]
+max_speed_deg_s = 60.0
+
+[scissors.opening]
+# Round below degrees(1.39626), the source model's exact opening limit.
+initial_deg = 79.9998
+max_speed_deg_s = 45.0
