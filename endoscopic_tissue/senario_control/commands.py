@@ -52,6 +52,22 @@ class Settings:
     # slips out. 2: persistent compliant anchors also tie the bitten surface
     # to the jaws from capture until release.
     contact_model: int = 2
+    # HYC 运动参数的默认值统一由场景层管理，解析后打包传给 CUDA。
+    # 夹爪使用 tool_* / jaw_*；剪刀使用上方 blade_*、scissors_jaw_stiffness 和下方开合质量。
+    # 刚度/阻尼保持老师的原生单位；位置与速度分别使用厘米、厘米/秒。
+    tool_mass_kg: float = 0.02
+    tool_drive_stiffness: float = 1200
+    tool_drive_damping: float = 10
+    tool_travel_fraction: float = 0.25  # 每子步目标移动上限=网格间距×此比例/子步数。
+    jaw_mass_kg: float = 0.005
+    jaw_drive_stiffness: float = 150
+    jaw_drive_damping: float = 2
+    jaw_speed_cm_s: float = 1.2
+    jaw_opening_speed_multiplier: float = 4  # 张开速度相对闭合速度的倍率。
+    scissors_jaw_mass_kg: float = 0.005
+    contact_radius_cm: float = 0.01
+    grasper_guided: bool = True  # 约束平移沿请求方向，横向反力由操作者导向支撑。
+    scissors_guided: bool = False
 
 
 __all__ = ("Command", "Settings")

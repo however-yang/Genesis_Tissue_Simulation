@@ -13,9 +13,8 @@ import numpy as np
 from ..native_backend import Observation, Surface
 from ..scenario import SCISSORS_SCENES
 from .commands import Command, Settings
-from .config import ScenarioConfig, load_config
+from .config import ScenarioConfig, load_config, resolve_settings
 from .cuda_adapter import CudaJointAdapter
-from .cutting import scissors_settings
 from .instrument_control.config import MotionConfig, grasper_config, scissors_config
 from .instrument_control.instruments import Grasper, JointCommand, JointTargets, Scissors
 from .instrument_control.joints import scissors_frame, validate_command
@@ -65,15 +64,8 @@ class SimulationInterface:
             has_configured_pose = False
         else:
             has_configured_pose = True
-        if settings is not None and config.physics is not None:
-            raise ValueError("Supply physical settings through either settings or config.physics")
         self.config = config
-        self.settings = settings if settings is not None else config.physics
-        if self.settings is None:
-            self.settings = replace(scissors_settings(), young_pa=self.scene.young_pa,
-                                    contact_model=self.scene.contact_model)
-        self.settings = replace(self.settings, jaw_length=config.grasper.jaw_length_cm,
-                                jaw_open_gap=config.grasper.max_gap_cm)
+        self.settings = resolve_settings(config, scene=self.scene, settings=settings)
         if self.settings.cutting_tool != "scissors":
             raise ValueError("SimulationInterface requires cutting_tool='scissors'")
         if not np.isfinite(self.settings.dt) or self.settings.dt <= 0:

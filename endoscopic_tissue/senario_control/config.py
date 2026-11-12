@@ -48,3 +48,22 @@ def load_config(path: str | Path):
         scissors=update_instrument(scissors_config(), values.get("scissors", {})),
         physics=physics,
     )
+
+
+def resolve_settings(config: ScenarioConfig, *, scene=None, settings=None):
+    """为场景模拟器和 HYC CUDA 使用同一套物理参数解析规则。"""
+    # 显式 settings 与文件中的 [physics] 不能同时提供，避免参数来源歧义。
+    if settings is not None and config.physics is not None:
+        raise ValueError("Supply physical settings through either settings or config.physics")
+    if scene is None:
+        from ..scenario import SCISSORS_SCENES
+        try:
+            scene = SCISSORS_SCENES[config.scene]
+        except KeyError as error:
+            raise ValueError(f"Unknown scissors scene: {config.scene}") from error
+    # 优先取唯一的显式输入；没有提供物理参数时，才采用该场景的已有默认设置。
+    resolved = settings if settings is not None else config.physics
+    if resolved is None:
+        resolved = replace(scissors_settings(), young_pa=scene.young_pa, contact_model=scene.contact_model)
+    # 夹口长度和最大间隙统一服从器械配置，避免物理设置与模型尺寸各取一份值。
+    return replace(resolved, jaw_length=config.grasper.jaw_length_cm, jaw_open_gap=config.grasper.max_gap_cm)

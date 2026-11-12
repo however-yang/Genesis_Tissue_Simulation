@@ -9,7 +9,6 @@ from dataclasses import replace
 import numpy as np
 
 from ..grid import METERS_PER_UNIT
-from ..instrument_geometry import SCISSORS_WRIST_FRONT
 from ..native_backend import Grasper, NativeTissue, ScissorsBack, ScissorsControl, V3
 from .instrument_control.instruments import JointCommand
 
@@ -30,16 +29,17 @@ class CudaJointAdapter(NativeTissue):
         if config.scissors.max_gap_cm > source_max_gap + 1e-6:
             raise ValueError("Scissors maximum gap exceeds the loaded blade model's opening limit")
         super().__init__(grid, settings, dll_path, initial_command=initial_command)
-        is_ready = False
-        try:
-            self.grasper_geometry = replace(self.grasper_geometry, shaft_length=config.grasper.shaft_length_cm)
+
+    def initialize(self):
+        """在父类上传原生几何、启用剪刀之前，先应用场景中的器械尺寸。"""
+        # NativeTissue.__init__ 已加载模型，并通过 self.initialize() 调用此钩子。
+        # 修改本地几何后，父类只在启用剪刀前设置一次腕部；失败清理仍由父类负责。
+        config = self.joint_config
+        self.grasper_geometry = replace(self.grasper_geometry, shaft_length=config.grasper.shaft_length_cm)
+        if self.scissors_geometry is not None:
             jaws = replace(self.scissors_geometry.jaws, shaft_length=config.scissors.shaft_length_cm)
             self.scissors_geometry = replace(self.scissors_geometry, jaws=jaws)
-            self.check("LCS_SetScissorsWrist", SCISSORS_WRIST_FRONT, jaws.shaft_length, jaws.shaft_radius)
-            is_ready = True
-        finally:
-            if not is_ready:
-                self.close()
+        super().initialize()
 
     def limit_joint_command(self, command: JointCommand, observation):
         """Bound the articulated scissors drive offset while translating all of its links together."""
