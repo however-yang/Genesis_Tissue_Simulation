@@ -19,7 +19,7 @@ from genesis.ext import pyrender
 from .grid import METERS_PER_UNIT, TO_GENESIS, to_genesis
 from .instrument_geometry import knife_frame, knife_geometry, load_davinci_wrist, load_grasper, load_scissors
 from .kidney import Kidney
-from .liver import SCOPE_WALL, TORSO_RADIUS_X, TORSO_RADIUS_Y, Liver, cavity_mesh
+from .liver import SCOPE_WALL, TORSO_RADIUS_X, TORSO_RADIUS_Y, Liver, cavity_mesh, diaphragm_mesh
 from .native_backend import Observation, Settings, Surface
 from .visual_surface import refine_surface
 
@@ -349,6 +349,12 @@ class EndoscopicView:
                 baseColorFactor=(1.0, 1.0, 1.0, 1.0), metallicFactor=0, roughnessFactor=.84, doubleSided=True,
                 alphaMode="OPAQUE")
             self.add_mesh(cavity, peritoneum)
+            wall, wall_faces = diaphragm_mesh(liver)
+            # The diaphragm uses the shell's centimetres per repeat, so the photograph has the same size on both.
+            wall_uv = np.column_stack((0.5 + wall[:, 0] / (aspect * shell_height), 0.5 + wall[:, 1] / shell_height))
+            disk = trimesh.Trimesh(to_genesis(wall), wall_faces, process=False)
+            disk.visual = trimesh.visual.texture.TextureVisuals(uv=wall_uv.astype(np.float32))
+            self.add_mesh(disk, peritoneum)
         for center, scale in backdrop:
             mesh = trimesh.creation.icosphere(subdivisions=4 if kidney is None else 5)
             directions = mesh.vertices

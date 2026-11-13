@@ -34,6 +34,8 @@ TORSO_RADIUS_X = 18.0
 TORSO_RADIUS_Y = 9.0
 TORSO_Z_MIN = -12.0
 TORSO_Z_MAX = 18.0
+# The diaphragm stands this far, in cm, past the surface point furthest along the sight line.
+DIAPHRAGM_INSET = 3.0
 # Azimuth of the wall-texture join, on the lower wall under the liver so the lobe and the far opening cover it.
 SCOPE_WALL = np.array((-5.0, -9.0, 0.0))
 # Pad centre of the grasper, centimetres along the jaw from the hinge. The jaws have to open wide enough that the
@@ -284,3 +286,35 @@ def endoscope_pose(liver):
     along = float(np.dot(focus - position, view))
     framing = position - LOBE_SHIFT
     return framing, framing + view * along
+
+
+def diaphragm_mesh(liver, segments=36):
+    """Return the elliptical diaphragm that closes the cavity beyond the liver.
+
+    The wall stands DIAPHRAGM_INSET centimetres past the surface point furthest along the sight line, on the side
+    facing away from the scope. Its normal points toward the scope.
+    """
+    nodes, tets = _mesh_arrays(MESH_PATH)
+    low, high = nodes.min(axis=0), nodes.max(axis=0)
+    posed = pose_points(nodes, (low + high) / 2)
+    corners = (tets[:, [0, 1, 2]], tets[:, [0, 1, 3]], tets[:, [0, 2, 3]], tets[:, [1, 2, 3]])
+    faces = np.sort(np.concatenate(corners), axis=1)
+    key = np.dtype([("a", np.int32), ("b", np.int32), ("c", np.int32)])
+    coded = np.ascontiguousarray(faces).view(key).ravel()
+    unique, counts = np.unique(coded, return_counts=True)
+    # A face of two tetrahedra is interior. The inset is measured from the boundary.
+    boundary = unique[counts == 1].view(np.int32).reshape(-1, 3)
+    surface = posed[np.unique(boundary)]
+    position, look = endoscope_pose(liver)
+    view = look - position
+    view /= np.linalg.norm(view)
+    far = surface[np.argmax((surface - position) @ view)]
+    # Inward is native -Z, so the wall is the vertical section of the cavity there.
+    wall_z = far[2] - DIAPHRAGM_INSET
+    angles = np.linspace(0, 2 * np.pi, segments, endpoint=False)
+    rim = np.column_stack((np.cos(angles) * TORSO_RADIUS_X, np.sin(angles) * TORSO_RADIUS_Y,
+                           np.full(segments, wall_z)))
+    vertices = np.vstack((np.array((0.0, 0.0, wall_z)), rim))
+    triangles = [(0, index, index + 1) for index in range(1, segments)]
+    triangles.append((0, segments, 1))
+    return vertices.astype(np.float32), np.asarray(triangles, dtype=np.int32)
