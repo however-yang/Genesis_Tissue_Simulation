@@ -19,8 +19,12 @@ from .native_backend import Settings
 MESH_PATH = Path(__file__).parent / "assets" / "liver" / "liver3_refined_1.msh"
 # Long-axis resolution of the source scene, in voxels. The resulting cell stays inside the lattice limits.
 LONG_AXIS_VOXELS = 56
-# Offset is the source scene's placement, in cm. The depression already faces model -Y, which is world down.
-POSE_OFFSET = np.array((-3.0, -1.0, 6.0))
+# The scope looks along -Z, so view-left is native -X. The lobe moves one centimetre that way from the source placement.
+LOBE_SHIFT = np.array((-1.0, 0.0, 0.0))
+# The tools' first pose moves one centimetre view-right, which is native +X. Later poses follow the lobe.
+INSTRUMENT_START_SHIFT = np.array((1.0, 0.0, 0.0))
+# Offset is the source scene's placement plus LOBE_SHIFT, in cm. The depression already faces model -Y, world down.
+POSE_OFFSET = np.array((-3.0, -1.0, 6.0)) + LOBE_SHIFT
 # Normalized sites in the unposed model box, and the radius of each pinned patch, in cm.
 LIGAMENT_SITES = ((0.8, 0.85, 0.35), (0.35, 0.85, 0.65))
 LIGAMENT_RADIUS = 2.5
@@ -267,14 +271,16 @@ def liver_cut(liver):
 def endoscope_pose(liver):
     """Return the scope (position, look-at) in native cm, looking back along the cavity at the other face.
 
-    The scope is just outside the +Z opening and a little above the liver. The far opening then falls above the lobe
-    and the grasped end is on the right.
+    The scope is just outside the +Z opening and a little above the unshifted liver centre. The far opening then
+    falls above the lobe and the grasped end is on the right.
     """
     focus = (np.asarray(liver.low) + np.asarray(liver.high)) / 2
     position = np.array((float(focus[0]), float(focus[1]) + 3.5, TORSO_Z_MAX + 8.0))
     view = focus - position
     view /= np.linalg.norm(view)
     # The lamp exposes the look-at (see LAMP_IRRADIANCE). Projecting the liver centre onto the optical axis puts
-    # that exposure on the tissue.
+    # that exposure on the tissue. Removing LOBE_SHIFT here keeps the scope on the previous framing, so the lobe
+    # sits view-left of centre.
     along = float(np.dot(focus - position, view))
-    return position, position + view * along
+    framing = position - LOBE_SHIFT
+    return framing, framing + view * along

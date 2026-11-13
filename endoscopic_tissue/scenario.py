@@ -7,7 +7,8 @@ from scipy.sparse.csgraph import connected_components
 from scipy.spatial import cKDTree
 
 from .grid import METERS_PER_UNIT, Tab, build_grid, to_genesis
-from .liver import GRASP_CLOSED_GAP, GRASP_OPEN_GAP, Liver, endoscope_pose, liver_cut, load_liver
+from .liver import (GRASP_CLOSED_GAP, GRASP_OPEN_GAP, INSTRUMENT_START_SHIFT, LOBE_SHIFT, Liver, endoscope_pose,
+                     liver_cut, load_liver)
 from .instrument_geometry import load_grasper
 from .kidney import Kidney
 from .native_backend import Command, Observation, ScissorsPose, Settings, Surface, scissors_frame
@@ -356,10 +357,12 @@ def liver_stages(cut):
     # The shear-face width points along -Z, so the hinge sits this far headward of the plane.
     hinge_z = float(cut.plane) + SCISSORS_FACE_WIDTH
     bites = tuple((float(depth), float(cut.blade_y), hinge_z) for depth in cut.depths)
-    park = (bites[0][0] + 1.5, bites[0][1], hinge_z)
+    # The lobe moved view-left. These outside poses move view-right, so the reach grows by both shifts.
+    reach = float(INSTRUMENT_START_SHIFT[0] - LOBE_SHIFT[0])
+    park = (bites[0][0] + 1.5 + reach, bites[0][1], hinge_z)
     # The stored grasp is the jaw hinge, already outside the side. The approach comes from further outside.
     bite = tuple(float(value) for value in cut.grasp)
-    ready = (bite[0] + 2.0, bite[1], bite[2])
+    ready = (bite[0] + 2.0 + reach, bite[1], bite[2])
     # The closed jaws rise 8.5 mm and lift the side.
     lifted = (bite[0], bite[1] + 0.85, bite[2])
     waiting = Command(ready, 0, park, **orientation)
@@ -387,7 +390,8 @@ def liver_stages(cut):
 LIVER = load_liver()
 LIVER_CUT = liver_cut(LIVER)
 # The shear plane is the vertical lattice mid-plane through the free side. The raised side meets the blades on one
-# lattice line. The wound box holds the four columns severed there and leaves the intact lines beside them out.
+# lattice line. The wound box holds the four columns severed there, moves with the lobe, and leaves the intact
+# lines beside them out.
 LIVER_PLANE = float(LIVER_CUT.plane)
 _LIVER_DEPTHS = tuple(float(value) for value in LIVER_CUT.depths)
 LIVER_TAB = Tab(low=(min(_LIVER_DEPTHS) - 2.2, LIVER_CUT.blade_y - 1.8, LIVER_PLANE - 1.2),
@@ -395,8 +399,8 @@ LIVER_TAB = Tab(low=(min(_LIVER_DEPTHS) - 2.2, LIVER_CUT.blade_y - 1.8, LIVER_PL
 _LIVER_POS, _LIVER_LOOK = endoscope_pose(LIVER)
 LIVER_SCENE = ScissorsScene(
     LIVER_TAB, LIVER_CUT.cell, 2, LIVER_PLANE, 0.0,
-    (3.25, 0.15, 8.50),
-    (3.45, 1.40, 9.16),
+    (3.25 + float(LOBE_SHIFT[0]), 0.15, 8.50),
+    (3.45 + float(LOBE_SHIFT[0]), 1.40, 9.16),
     (-1.0, 0.0, 0.0), liver_stages(LIVER_CUT),
     (tuple(float(value) for value in to_genesis(np.asarray(_LIVER_POS, dtype=np.float32).reshape(1, 3))[0]),
      tuple(float(value) for value in to_genesis(np.asarray(_LIVER_LOOK, dtype=np.float32).reshape(1, 3))[0])),
