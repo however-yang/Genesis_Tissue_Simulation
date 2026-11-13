@@ -357,17 +357,36 @@ class EndoscopicView:
             disk = trimesh.Trimesh(to_genesis(wall), wall_faces, process=False)
             disk.visual = trimesh.visual.texture.TextureVisuals(uv=wall_uv.astype(np.float32))
             self.add_mesh(disk, peritoneum)
-            # Packing is drawn only, so the grasp and the cuts are unchanged. It wears the liver surface.
+            # Packing is drawn only, so the grasp and the cuts are unchanged. Pads under the lobe use the cavity
+            # photograph with the wet roughness of the liver surface. The pads above keep the liver surface.
             packing_skin, _ = tissue_materials("liver")
+            pink_height = np.array(image.convert("L"), dtype=np.float32) / 255
+            pink_dy, pink_dx = np.gradient(pink_height)
+            pink_normal = np.stack((-pink_dx * 2, pink_dy * 2, np.ones_like(pink_height)), axis=-1)
+            pink_normal /= np.linalg.norm(pink_normal, axis=-1, keepdims=True)
+            lower_skin = pyrender.MetallicRoughnessMaterial(
+                baseColorTexture=pyrender.Texture(
+                    source=image, source_channels="RGB",
+                    sampler=pyrender.Sampler(wrapS=pyrender.GLTF.MIRRORED_REPEAT, wrapT=pyrender.GLTF.MIRRORED_REPEAT)),
+                baseColorFactor=(1.0, 1.0, 1.0, 1.0),
+                normalTexture=pyrender.Texture(
+                    source=Image.fromarray(((pink_normal * .5 + .5) * 255).astype(np.uint8)).convert("RGBA"),
+                    source_channels="RGBA"),
+                metallicFactor=0, roughnessFactor=.26, doubleSided=True, alphaMode="OPAQUE")
             for centre, scale in LIVER_PACKING:
                 mesh = trimesh.creation.icosphere(subdivisions=4)
                 directions = mesh.vertices
                 native = directions * scale + centre
                 native += directions * (0.12 * wave_noise(native, 3.5, seed=8))[:, None]
                 mesh.vertices = to_genesis(native)
-                uv = np.column_stack((native[:, 0], native[:, 2])) / FAT_TEXTURE_CM
+                # Pads under the lobe share the cavity photograph's scale. The pads above keep the liver repeat.
+                is_below = centre[1] < 0
+                if is_below:
+                    uv = np.column_stack((native[:, 0] / (aspect * shell_height), native[:, 2] / shell_height))
+                else:
+                    uv = np.column_stack((native[:, 0], native[:, 2])) / FAT_TEXTURE_CM
                 mesh.visual = trimesh.visual.texture.TextureVisuals(uv=uv.astype(np.float32))
-                self.add_mesh(mesh, packing_skin)
+                self.add_mesh(mesh, lower_skin if is_below else packing_skin)
         for center, scale in backdrop:
             mesh = trimesh.creation.icosphere(subdivisions=4 if kidney is None else 5)
             directions = mesh.vertices
