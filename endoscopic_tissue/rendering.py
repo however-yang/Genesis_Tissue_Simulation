@@ -19,7 +19,8 @@ from genesis.ext import pyrender
 from .grid import METERS_PER_UNIT, TO_GENESIS, to_genesis
 from .instrument_geometry import knife_frame, knife_geometry, load_davinci_wrist, load_grasper, load_scissors
 from .kidney import Kidney
-from .liver import SCOPE_WALL, TORSO_RADIUS_X, TORSO_RADIUS_Y, Liver, cavity_mesh, diaphragm_mesh
+from .liver import (LIVER_PACKING, SCOPE_WALL, TORSO_CENTER_X, TORSO_RADIUS_X, TORSO_RADIUS_Y, Liver, cavity_mesh,
+                    diaphragm_mesh)
 from .native_backend import Observation, Settings, Surface
 from .visual_surface import refine_surface
 
@@ -317,9 +318,9 @@ class EndoscopicView:
             shell, shell_faces = cavity_mesh()
             # The photograph runs along the body and around the shell, one copy to the full height, with the
             # circumferential repeat keeping its pixel aspect. The branch cut sits on the scope's side, behind the lens.
-            theta = np.arctan2(shell[:, 1] / TORSO_RADIUS_Y, shell[:, 0] / TORSO_RADIUS_X)
-            scope = SCOPE_WALL / np.linalg.norm(SCOPE_WALL)
-            scope_theta = float(np.arctan2(scope[1] / TORSO_RADIUS_Y, scope[0] / TORSO_RADIUS_X))
+            theta = np.arctan2(shell[:, 1] / TORSO_RADIUS_Y, (shell[:, 0] - TORSO_CENTER_X) / TORSO_RADIUS_X)
+            scope_theta = float(np.arctan2(SCOPE_WALL[1] / TORSO_RADIUS_Y,
+                                           (SCOPE_WALL[0] - TORSO_CENTER_X) / TORSO_RADIUS_X))
             u = np.mod(theta - scope_theta, 2 * np.pi) / (2 * np.pi)
             shell_height = float(shell[:, 2].max() - shell[:, 2].min())
             v = (shell[:, 2] - float(shell[:, 2].min())) / shell_height
@@ -351,10 +352,22 @@ class EndoscopicView:
             self.add_mesh(cavity, peritoneum)
             wall, wall_faces = diaphragm_mesh(liver)
             # The diaphragm uses the shell's centimetres per repeat, so the photograph has the same size on both.
-            wall_uv = np.column_stack((0.5 + wall[:, 0] / (aspect * shell_height), 0.5 + wall[:, 1] / shell_height))
+            wall_uv = np.column_stack((0.5 + (wall[:, 0] - TORSO_CENTER_X) / (aspect * shell_height),
+                                       0.5 + wall[:, 1] / shell_height))
             disk = trimesh.Trimesh(to_genesis(wall), wall_faces, process=False)
             disk.visual = trimesh.visual.texture.TextureVisuals(uv=wall_uv.astype(np.float32))
             self.add_mesh(disk, peritoneum)
+            # Packing is drawn only, so the grasp and the cuts are unchanged. It wears the liver surface.
+            packing_skin, _ = tissue_materials("liver")
+            for centre, scale in LIVER_PACKING:
+                mesh = trimesh.creation.icosphere(subdivisions=4)
+                directions = mesh.vertices
+                native = directions * scale + centre
+                native += directions * (0.12 * wave_noise(native, 3.5, seed=8))[:, None]
+                mesh.vertices = to_genesis(native)
+                uv = np.column_stack((native[:, 0], native[:, 2])) / FAT_TEXTURE_CM
+                mesh.visual = trimesh.visual.texture.TextureVisuals(uv=uv.astype(np.float32))
+                self.add_mesh(mesh, packing_skin)
         for center, scale in backdrop:
             mesh = trimesh.creation.icosphere(subdivisions=4 if kidney is None else 5)
             directions = mesh.vertices

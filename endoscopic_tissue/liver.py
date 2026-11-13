@@ -28,9 +28,11 @@ POSE_OFFSET = np.array((-3.0, -1.0, 6.0)) + LOBE_SHIFT
 # Normalized sites in the unposed model box, and the radius of each pinned patch, in cm.
 LIGAMENT_SITES = ((0.8, 0.85, 0.35), (0.35, 0.85, 0.65))
 LIGAMENT_RADIUS = 2.5
-# Supine peritoneal shell, centred on the world origin, in cm. The scope sits just outside the +Z opening,
-# above the liver, and looks back along the cavity. The grasped end is then on the right.
-TORSO_RADIUS_X = 18.0
+# Supine peritoneal shell, in cm. The scope sits just outside the +Z opening, above the liver, and looks back
+# along the cavity. The grasped end is then on the right. The lobe already meets the lower-left wall, so the
+# section keeps that side and draws in on the instrument side.
+TORSO_CENTER_X = -2.0
+TORSO_RADIUS_X = 16.0
 TORSO_RADIUS_Y = 9.0
 TORSO_Z_MIN = -12.0
 TORSO_Z_MAX = 18.0
@@ -38,6 +40,14 @@ TORSO_Z_MAX = 18.0
 DIAPHRAGM_INSET = 3.0
 # Azimuth of the wall-texture join, on the lower wall under the liver so the lobe and the far opening cover it.
 SCOPE_WALL = np.array((-5.0, -9.0, 0.0))
+# Tissue packed around the lobe, as (centre, half extents) in cm. The two upper pads overlap into one piece.
+# The lower pad reaches toward the scope and stays clear of the lobe. All of them stay off the instrument corridor.
+LIVER_PACKING = (
+    ((-5.5, -4.15, 11.5), (8.0, 2.5, 6.2)),
+    ((-4.0, 6.9, 8.2), (7.2, 1.05, 4.6)),
+    ((3.0, 6.7, 9.2), (4.4, 1.05, 4.0)),
+    ((4.2, -3.6, 8.0), (2.4, 1.8, 3.0)),
+)
 # Pad centre of the grasper, centimetres along the jaw from the hinge. The jaws have to open wide enough that the
 # pads clear the side, which is thicker than the block the default opening was set on.
 GRASP_PAD_CENTRE = float(load_grasper(Settings.jaw_length, Settings.jaw_width).bounds[0, 0])
@@ -174,7 +184,7 @@ def cavity_mesh(segments=36, slices=24):
     """Return the supine torso shell, vertices in cm and triangle faces, with normals toward the cavity."""
     angles = np.linspace(0, 2 * np.pi, segments, endpoint=False)
     heights = np.linspace(TORSO_Z_MIN, TORSO_Z_MAX, slices)
-    circle = np.stack((np.cos(angles) * TORSO_RADIUS_X, np.sin(angles) * TORSO_RADIUS_Y), axis=1)
+    circle = np.stack((np.cos(angles) * TORSO_RADIUS_X + TORSO_CENTER_X, np.sin(angles) * TORSO_RADIUS_Y), axis=1)
     vertices = np.column_stack((np.tile(circle, (slices, 1)), np.repeat(heights, segments))).astype(np.float32)
     faces = []
     for slice_index in range(slices - 1):
@@ -312,9 +322,9 @@ def diaphragm_mesh(liver, segments=36):
     # Inward is native -Z, so the wall is the vertical section of the cavity there.
     wall_z = far[2] - DIAPHRAGM_INSET
     angles = np.linspace(0, 2 * np.pi, segments, endpoint=False)
-    rim = np.column_stack((np.cos(angles) * TORSO_RADIUS_X, np.sin(angles) * TORSO_RADIUS_Y,
+    rim = np.column_stack((np.cos(angles) * TORSO_RADIUS_X + TORSO_CENTER_X, np.sin(angles) * TORSO_RADIUS_Y,
                            np.full(segments, wall_z)))
-    vertices = np.vstack((np.array((0.0, 0.0, wall_z)), rim))
+    vertices = np.vstack((np.array((TORSO_CENTER_X, 0.0, wall_z)), rim))
     triangles = [(0, index, index + 1) for index in range(1, segments)]
     triangles.append((0, segments, 1))
     return vertices.astype(np.float32), np.asarray(triangles, dtype=np.int32)
