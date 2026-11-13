@@ -19,10 +19,14 @@ from .native_backend import Settings
 MESH_PATH = Path(__file__).parent / "assets" / "liver" / "liver3_refined_1.msh"
 # Long-axis resolution of the source scene, in voxels. The resulting cell stays inside the lattice limits.
 LONG_AXIS_VOXELS = 56
-# The scope looks along -Z, so view-left is native -X. The lobe moves two centimetres that way from the source placement.
-LOBE_SHIFT = np.array((-2.0, 0.0, 0.0))
+# The scope looks along -Z, so view-left is native -X. The lobe moves three centimetres that way
+# from the source placement.
+LOBE_SHIFT = np.array((-3.0, 0.0, 0.0))
 # The tools' first pose moves one centimetre view-right, which is native +X. Later poses follow the lobe.
 INSTRUMENT_START_SHIFT = np.array((1.0, 0.0, 0.0))
+# Centimetres of the lobe's view-left travel that the first pose shares. The pose keeps its offset from
+# the lobe for that part. The rest of LOBE_SHIFT leaves the pose in place.
+INSTRUMENT_SHARED_SHIFT = 1.0
 # Offset is the source scene's placement plus LOBE_SHIFT, in cm. The depression already faces model -Y, world down.
 POSE_OFFSET = np.array((-3.0, -1.0, 6.0)) + LOBE_SHIFT
 # Normalized sites in the unposed model box, and the radius of each pinned patch, in cm.

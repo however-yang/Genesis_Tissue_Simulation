@@ -10,8 +10,8 @@ from .environment import PERITONEAL_CAVITY, SurgicalEnvironment
 from .grid import METERS_PER_UNIT, Tab, build_grid, to_genesis
 from .instrument_geometry import load_grasper
 from .kidney import Kidney
-from .liver import (GRASP_CLOSED_GAP, GRASP_OPEN_GAP, INSTRUMENT_START_SHIFT, LOBE_SHIFT, endoscope_pose, liver_cut,
-                    load_liver)
+from .liver import (GRASP_CLOSED_GAP, GRASP_OPEN_GAP, INSTRUMENT_SHARED_SHIFT, INSTRUMENT_START_SHIFT, LOBE_SHIFT,
+                    endoscope_pose, liver_cut, load_liver)
 from .native_backend import Command, Observation, ScissorsPose, Settings, Surface, scissors_frame
 from .tissue import TissueModel
 
@@ -361,8 +361,9 @@ def liver_stages(cut):
     # The shear-face width points along -Z, so the hinge sits this far headward of the plane.
     hinge_z = float(cut.plane) + SCISSORS_FACE_WIDTH
     bites = tuple((float(depth), float(cut.blade_y), hinge_z) for depth in cut.depths)
-    # The lobe moved view-left. These outside poses move view-right, so the reach grows by both shifts.
-    reach = float(INSTRUMENT_START_SHIFT[0] - LOBE_SHIFT[0])
+    # The outside poses share one centimetre of the lobe's view-left travel, so their offset from the
+    # lobe stays put. The initial view-right placement and the travel they skip make up the rest.
+    reach = float(INSTRUMENT_START_SHIFT[0] - LOBE_SHIFT[0] - INSTRUMENT_SHARED_SHIFT)
     park = (bites[0][0] + 1.5 + reach, bites[0][1], hinge_z)
     # The stored grasp is the jaw hinge, already outside the side. The approach comes from further outside.
     bite = tuple(float(value) for value in cut.grasp)
