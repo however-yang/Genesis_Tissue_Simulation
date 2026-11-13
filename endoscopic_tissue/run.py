@@ -358,7 +358,8 @@ def main():
     parser.add_argument("--tool", choices=("scissors", "knife"), default="scissors")
     parser.add_argument("--scene", choices=tuple(SCISSORS_SCENES), default="wall",
                         help="Scissors only: cut a long wound along a wall standing on the block, split a short flap, "
-                             "excise a tumor from a kidney, or grasp and cut the left lobe of a liver in a cavity")
+                             "excise a tumor from a kidney, or grasp and cut the left lobe of a liver in a cavity "
+                             "or in an empty room")
     parser.add_argument("--start-force", type=float, default=None,
                         help="Cut initiation force in N (scissors: each blade needs half of it); default from Settings")
     parser.add_argument("--dll", type=Path, default=None, help="Native library; default native/bin-scissors")

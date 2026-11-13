@@ -1,4 +1,4 @@
-"""Surroundings drawn around a tissue: the cavity, the pads, and the light."""
+"""Surroundings drawn around a tissue: a cavity with pads and light, or a room that draws nothing."""
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol, runtime_checkable
@@ -211,3 +211,29 @@ class PeritonealCavity:
 
 
 PERITONEAL_CAVITY = PeritonealCavity()
+
+
+@dataclass(frozen=True)
+class EmptyEnvironment:
+    """A room that draws nothing around the tissue.
+
+    The lens lamp is the only lamp and keeps the full `lamp_scale`. Another model takes this room by becoming the
+    scene tissue. The peritoneal cavity stays the liver demo's default room.
+    """
+
+    # The same vertical field as the liver demo, so a transferred lobe keeps its size in the picture.
+    fov: float = 56.0
+    # Warm fill so the side of a dark model that faces away from the lens stays readable.
+    ambient: tuple[float, float, float] = (0.10, 0.04, 0.035)
+    # One full lamp on the lens. The cavity demo splits this same scale across two lamps.
+    lamp_scale: float = 4.0
+
+    def overhead(self, tissue):
+        """Leave the fixed lamp absent, so the lens lamp keeps the full output."""
+        return None
+
+    def populate(self, view, tissue):
+        """Draw the tissue and the instruments alone."""
+
+
+EMPTY_ENVIRONMENT = EmptyEnvironment()

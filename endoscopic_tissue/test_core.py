@@ -13,7 +13,7 @@ import trimesh
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 
-from .environment import PERITONEAL_CAVITY, SurgicalEnvironment
+from .environment import EMPTY_ENVIRONMENT, PERITONEAL_CAVITY, SurgicalEnvironment
 from .fixation import (PointFixation, RegionFixation, add_fixation_arguments, apply_fixation, fixation_from_args,
                        surface_node_mask)
 from .forces import ForceMonitor, MeasuredForce, SolverForceModel, draw_force_readout
@@ -231,9 +231,16 @@ class CoreTests(unittest.TestCase):
     def test_tissue_and_environment_stay_separate(self):
         liver = SCISSORS_SCENES["liver"]
         kidney = SCISSORS_SCENES["kidney"]
+        bare = SCISSORS_SCENES["liver-empty"]
         self.assertIs(liver.environment, PERITONEAL_CAVITY)
+        self.assertIs(bare.environment, EMPTY_ENVIRONMENT)
+        self.assertIs(bare.shape, liver.shape)
+        self.assertEqual(bare.stages, liver.stages)
+        self.assertEqual(bare.shot, liver.shot)
+        self.assertIsNone(bare.environment.overhead(bare.shape))
         self.assertIsInstance(liver.shape, TissueModel)
         self.assertIsInstance(liver.environment, SurgicalEnvironment)
+        self.assertIsInstance(bare.environment, SurgicalEnvironment)
         self.assertIsInstance(kidney.shape, TissueModel)
         self.assertIsNone(kidney.environment)
         self.assertIsNone(SCISSORS_SCENES["wall"].environment)

@@ -6,7 +6,7 @@ from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 from scipy.spatial import cKDTree
 
-from .environment import PERITONEAL_CAVITY, SurgicalEnvironment
+from .environment import EMPTY_ENVIRONMENT, PERITONEAL_CAVITY, SurgicalEnvironment
 from .grid import METERS_PER_UNIT, Tab, build_grid, to_genesis
 from .instrument_geometry import load_grasper
 from .kidney import Kidney
@@ -414,9 +414,11 @@ LIVER_SCENE = ScissorsScene(
     jaw_axis=(-1.0, 0.0, 0.0), jaw_normal=(0.0, 1.0, 0.0), jaw_open_gap=GRASP_OPEN_GAP,
     jaw_stiffness=75.0,
     require_anchor_hold=False)
+# The same lobe, grasp, and cuts, with the empty room in place of the peritoneal cavity.
+LIVER_EMPTY_SCENE = replace(LIVER_SCENE, environment=EMPTY_ENVIRONMENT)
 
 SCISSORS_SCENES = {"wall": WALL_SCENE, "wall-traction": WALL_TRACTION_SCENE, "flap": FLAP_SCENE,
-                   "kidney": KIDNEY_SCENE, "liver": LIVER_SCENE}
+                   "kidney": KIDNEY_SCENE, "liver": LIVER_SCENE, "liver-empty": LIVER_EMPTY_SCENE}
 
 
 def scissors_settings():

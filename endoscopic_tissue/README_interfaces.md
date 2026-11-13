@@ -21,6 +21,7 @@ py -m endoscopic_tissue.run --scene liver
 | `flap` | 悬空薄瓣，从自由端剪到根部 |
 | `kidney` | 肾脏外生肿瘤切除 |
 | `liver` | 腹膜腔里的肝脏，夹住一侧后竖着剪三刀 |
+| `liver-empty` | 同一套肝脏和器械动作，周围换成空房间 |
 
 ```powershell
 py -m endoscopic_tissue.run --scene wall
@@ -109,6 +110,25 @@ SCISSORS_SCENES["organ"] = replace(
 | `populate(view, tissue)` | 场景建好后加入体腔和脂肪 |
 
 有固定灯时，镜头灯和固定灯各用 `lamp_scale` 的一半。`populate` 里用 `view.add_mesh(mesh, material)` 加网格，顶点已经是 Genesis 米制。`view.shot` 是镜头位置和注视点。`from_genesis` 把它换回厘米。
+
+空房间是同一个文件里的 `EMPTY_ENVIRONMENT`。它不画体腔、横膈膜和脂肪，也没有固定灯，镜头灯使用完整的 `lamp_scale`。默认的 `PERITONEAL_CAVITY` 保持不变。把肝脏演示的组织、镜头和器械动作放进空房间，只替换场景上的环境：
+
+```python
+from dataclasses import replace
+
+from endoscopic_tissue.environment import EMPTY_ENVIRONMENT
+from endoscopic_tissue.scenario import LIVER_SCENE, SCISSORS_SCENES
+
+SCISSORS_SCENES["liver-empty"] = replace(LIVER_SCENE, environment=EMPTY_ENVIRONMENT)
+```
+
+`shape` 仍是肝脏，`stages` 仍是夹住一侧再竖着剪三刀，`shot` 仍是原来的镜头。这条场景已经登记，可以直接运行：
+
+```powershell
+py -m endoscopic_tissue.run --scene liver-empty
+```
+
+换一个组织模型时，同时换 `shape`，并给新模型自己的 `stages` 和 `shot`。空房间的视野、环境光和灯亮度用 `replace(EMPTY_ENVIRONMENT, fov=43.0, lamp_scale=2.0)` 调整。
 
 只改当前房间的亮度、视野或脂肪时，复制 `PERITONEAL_CAVITY`：
 
