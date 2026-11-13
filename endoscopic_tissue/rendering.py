@@ -18,17 +18,13 @@ from genesis.ext import pyrender
 
 from .grid import METERS_PER_UNIT, TO_GENESIS, to_genesis
 from .instrument_geometry import knife_frame, knife_geometry, load_davinci_wrist, load_grasper, load_scissors
-from .kidney import Kidney
-from .liver import (LIVER_PACKING, SCOPE_WALL, TORSO_CENTER_X, TORSO_RADIUS_X, TORSO_RADIUS_Y, Liver, cavity_mesh,
-                    diaphragm_mesh)
+from .kidney import KIDNEY_TEXTURE_CM, Kidney
 from .native_backend import Observation, Settings, Surface
 from .visual_surface import refine_surface
 
 
-# One repeat of the fat texture spans this many cm of rest tissue.
+# One repeat of the fat texture spans this many cm of rest tissue. The liver surface uses the same width.
 FAT_TEXTURE_CM = 1.5
-# One repeat of the kidney's detail textures spans this many cm of rest tissue.
-KIDNEY_TEXTURE_CM = 2.4
 # Organs around the block under the liver texture, as ellipsoids (native centre, half extents) in cm.
 LIVER_BACKDROP = (((0, -3, 0), (10, 2.1, 10)), ((-6.0, -0.8, 0.4), (1.8, 1.2, 3.4)), ((6.0, -1.2, 1.0), (2.1, 1.3, 3.8)),
                   ((0.0, -1.0, 5.5), (4.3, 1.0, 1.6)), ((0.0, .2, -6.0), (8.0, 3.5, 2.8)))
@@ -46,11 +42,6 @@ UV_AXES = np.array(((1, 2), (0, 2), (0, 1)))
 # tissue darkens with the square of its distance; its output follows the squared viewing distance, as the automatic
 # light control of an endoscope keeps a close-up exposed like a wide shot.
 LAMP_IRRADIANCE = 2.6
-# The liver albedo is dark and the lobe curves away from the lens. This multiple of the endoscope lamp, with the warm
-# fill below, keeps the lit face and the shaded face readable.
-LIVER_LAMP_SCALE = 4.0
-LIVER_AMBIENT = (.10, .04, .035)
-PERITONEUM_TEXTURE = Path(__file__).parent / "assets/textures/peritoneum.jpg"
 # Barrel distortion of the endoscope optics: the image at radius r, in units of the field stop radius, shows the scene
 # at r (1 + BARREL r^2) / (1 + BARREL), which magnifies the centre by 1 + BARREL and keeps the edge of the view.
 BARREL = .08
@@ -243,7 +234,7 @@ class EndoscopicView:
     """
 
     def __init__(self, settings: Settings, width=1280, height=960, viewer=False, supersample=2,
-                 kidney: Kidney | None = None, camera=BLOCK_CAMERA, liver: Liver | None = None, fov=43):
+                 kidney: Kidney | None = None, camera=BLOCK_CAMERA, environment=None, tissue=None, fov=43):
         if supersample not in (1, 2):
             raise ValueError("supersample must be 1 or 2")
         self.settings = settings
@@ -262,27 +253,32 @@ class EndoscopicView:
         self.lamp_pos = None
         self.overhead = None
         ambient = (.012, .010, .010)
-        if liver is not None:
-            self.skin, self.interior = tissue_materials("liver")
-            self.colors, self.texture_cm, backdrop, floor = None, FAT_TEXTURE_CM, (), None
-            self.lamp_irradiance = LAMP_IRRADIANCE * LIVER_LAMP_SCALE
-            ambient = LIVER_AMBIENT
-            # A second lamp sits directly above the lobe, clear of the cavity, so its light falls straight down.
-            # lamp_reach is the squared distance that gives one full lamp's irradiance on the liver centre.
-            center = (liver.low + liver.high) / 2
-            overhead = center.copy()
-            overhead[1] = liver.high[1] + 12.0
-            self.lamp_pos = to_genesis(overhead.reshape(1, 3))[0]
-            self.lamp_reach = np.sum((self.lamp_pos - to_genesis(center.reshape(1, 3))[0]) ** 2)
-        elif kidney is None:
-            self.skin, self.interior = tissue_materials()
-            backdrop_skin, _ = tissue_materials("liver")
-            self.colors, self.texture_cm, backdrop, floor = None, FAT_TEXTURE_CM, LIVER_BACKDROP, -0.018
-        else:
+        if environment is not None:
+            if tissue is None:
+                raise ValueError("an environment needs the tissue it surrounds")
+            self.skin, self.interior = tissue_materials(tissue.surface_kind)
+            backdrop_skin = None
+            self.colors, self.texture_cm, backdrop, floor = None, tissue.texture_cm, (), None
+            self.lamp_irradiance = LAMP_IRRADIANCE * environment.lamp_scale
+            ambient = environment.ambient
+            # A fixed lamp from the environment. render splits the output with the lens lamp when one is present.
+            placed = environment.overhead(tissue)
+            if placed is not None:
+                self.lamp_pos, self.lamp_reach = placed
+        elif kidney is not None:
             self.skin, self.interior = tissue_materials("kidney")
             backdrop_skin, _ = tissue_materials()
             # The floor sinks below the kidney's pinned base, inside the fat bed.
-            self.colors, self.texture_cm, backdrop, floor = KidneyColors(kidney), KIDNEY_TEXTURE_CM, FAT_BACKDROP, -0.045
+            self.colors, self.texture_cm, backdrop, floor = (
+                KidneyColors(kidney), KIDNEY_TEXTURE_CM, FAT_BACKDROP, -0.045)
+        elif tissue is not None:
+            self.skin, self.interior = tissue_materials(tissue.surface_kind)
+            backdrop_skin = None
+            self.colors, self.texture_cm, backdrop, floor = None, tissue.texture_cm, (), None
+        else:
+            self.skin, self.interior = tissue_materials()
+            backdrop_skin, _ = tissue_materials("liver")
+            self.colors, self.texture_cm, backdrop, floor = None, FAT_TEXTURE_CM, LIVER_BACKDROP, -0.018
         self.steel = pyrender.MetallicRoughnessMaterial(
             baseColorFactor=(.72, .75, .78, 1), metallicFactor=.92, roughnessFactor=.19)
         self.shaft = pyrender.MetallicRoughnessMaterial(
@@ -292,6 +288,7 @@ class EndoscopicView:
         self.edge = pyrender.MetallicRoughnessMaterial(
             baseColorFactor=(.88, .88, .83, 1), metallicFactor=.9, roughnessFactor=.16)
         gs.init(backend=gs.cpu, logging_level="warning")
+        self.shot = camera
         camera, target = camera
         # The endoscope lamp lights the scene (see render). The fill keeps tissue the lamp misses off pure black.
         # Shadow maps would cost every frame for nothing visible: the shadows of a lamp on the lens hide behind
@@ -314,79 +311,8 @@ class EndoscopicView:
         self.camera = self.scene.add_camera(res=(width * supersample, height * supersample), pos=camera,
                                             lookat=target, fov=fov, near=0.001, far=0.5, debug=True, GUI=False)
         self.scene.build()
-        if liver is not None:
-            shell, shell_faces = cavity_mesh()
-            # The photograph runs along the body and around the shell, one copy to the full height, with the
-            # circumferential repeat keeping its pixel aspect. The branch cut sits on the scope's side, behind the lens.
-            theta = np.arctan2(shell[:, 1] / TORSO_RADIUS_Y, (shell[:, 0] - TORSO_CENTER_X) / TORSO_RADIUS_X)
-            scope_theta = float(np.arctan2(SCOPE_WALL[1] / TORSO_RADIUS_Y,
-                                           (SCOPE_WALL[0] - TORSO_CENTER_X) / TORSO_RADIUS_X))
-            u = np.mod(theta - scope_theta, 2 * np.pi) / (2 * np.pi)
-            shell_height = float(shell[:, 2].max() - shell[:, 2].min())
-            v = (shell[:, 2] - float(shell[:, 2].min())) / shell_height
-            corner_u = u[shell_faces]
-            wrap = corner_u.max(axis=1) - corner_u.min(axis=1) > 0.5
-            low = wrap[:, None] & (corner_u < 0.5)
-            seam = np.unique(shell_faces[low])
-            vertices = np.vstack((shell, shell[seam]))
-            u = np.concatenate((u, u[seam] + 1))
-            v = np.concatenate((v, v[seam]))
-            remap = np.full(shell.shape[0], -1, dtype=np.int32)
-            remap[seam] = np.arange(shell.shape[0], shell.shape[0] + seam.shape[0])
-            faces = np.where(low, remap[shell_faces], shell_faces)
-            segments = int(np.count_nonzero(np.abs(shell[:, 2] - shell[0, 2]) <= 1e-4))
-            ring = np.vstack((shell[:segments, :2], shell[:1, :2]))
-            circumference = float(np.linalg.norm(np.diff(ring, axis=0), axis=1).sum())
-            image = Image.open(PERITONEUM_TEXTURE).convert("RGB")
-            aspect = image.size[0] / image.size[1]
-            u = u * (circumference / (aspect * shell_height))
-            cavity = trimesh.Trimesh(to_genesis(vertices), faces, process=False)
-            cavity.visual = trimesh.visual.texture.TextureVisuals(uv=np.column_stack((u, v)).astype(np.float32))
-            peritoneum = pyrender.MetallicRoughnessMaterial(
-                baseColorTexture=pyrender.Texture(
-                    source=image, source_channels="RGB",
-                    sampler=pyrender.Sampler(wrapS=pyrender.GLTF.MIRRORED_REPEAT, wrapT=pyrender.GLTF.MIRRORED_REPEAT)),
-                # Integer components are read as 0-255, so the multiplier is written in floats.
-                baseColorFactor=(1.0, 1.0, 1.0, 1.0), metallicFactor=0, roughnessFactor=.84, doubleSided=True,
-                alphaMode="OPAQUE")
-            self.add_mesh(cavity, peritoneum)
-            wall, wall_faces = diaphragm_mesh(liver)
-            # The diaphragm uses the shell's centimetres per repeat, so the photograph has the same size on both.
-            wall_uv = np.column_stack((0.5 + (wall[:, 0] - TORSO_CENTER_X) / (aspect * shell_height),
-                                       0.5 + wall[:, 1] / shell_height))
-            disk = trimesh.Trimesh(to_genesis(wall), wall_faces, process=False)
-            disk.visual = trimesh.visual.texture.TextureVisuals(uv=wall_uv.astype(np.float32))
-            self.add_mesh(disk, peritoneum)
-            # Packing is drawn only, so the grasp and the cuts are unchanged. Pads under the lobe use the cavity
-            # photograph with the wet roughness of the liver surface. The pads above keep the liver surface.
-            packing_skin, _ = tissue_materials("liver")
-            pink_height = np.array(image.convert("L"), dtype=np.float32) / 255
-            pink_dy, pink_dx = np.gradient(pink_height)
-            pink_normal = np.stack((-pink_dx * 2, pink_dy * 2, np.ones_like(pink_height)), axis=-1)
-            pink_normal /= np.linalg.norm(pink_normal, axis=-1, keepdims=True)
-            lower_skin = pyrender.MetallicRoughnessMaterial(
-                baseColorTexture=pyrender.Texture(
-                    source=image, source_channels="RGB",
-                    sampler=pyrender.Sampler(wrapS=pyrender.GLTF.MIRRORED_REPEAT, wrapT=pyrender.GLTF.MIRRORED_REPEAT)),
-                baseColorFactor=(1.0, 1.0, 1.0, 1.0),
-                normalTexture=pyrender.Texture(
-                    source=Image.fromarray(((pink_normal * .5 + .5) * 255).astype(np.uint8)).convert("RGBA"),
-                    source_channels="RGBA"),
-                metallicFactor=0, roughnessFactor=.26, doubleSided=True, alphaMode="OPAQUE")
-            for centre, scale in LIVER_PACKING:
-                mesh = trimesh.creation.icosphere(subdivisions=4)
-                directions = mesh.vertices
-                native = directions * scale + centre
-                native += directions * (0.12 * wave_noise(native, 3.5, seed=8))[:, None]
-                mesh.vertices = to_genesis(native)
-                # Pads under the lobe share the cavity photograph's scale. The pads above keep the liver repeat.
-                is_below = centre[1] < 0
-                if is_below:
-                    uv = np.column_stack((native[:, 0] / (aspect * shell_height), native[:, 2] / shell_height))
-                else:
-                    uv = np.column_stack((native[:, 0], native[:, 2])) / FAT_TEXTURE_CM
-                mesh.visual = trimesh.visual.texture.TextureVisuals(uv=uv.astype(np.float32))
-                self.add_mesh(mesh, lower_skin if is_below else packing_skin)
+        if environment is not None:
+            environment.populate(self, tissue)
         for center, scale in backdrop:
             mesh = trimesh.creation.icosphere(subdivisions=4 if kidney is None else 5)
             directions = mesh.vertices
@@ -557,7 +483,7 @@ class EndoscopicView:
         lamp_pose[:3, 3] = pos
         self.scene.visualizer.context.set_node_pose(self.lamp, lamp_pose)
         self.lamp.light.intensity = self.lamp_irradiance * np.sum((lookat - pos) ** 2)
-        # The liver keeps this lens lamp and the overhead lamp. Each is half of one full lamp.
+        # A scene with a fixed lamp keeps the lens lamp too. Each is half of one full lamp.
         if self.overhead is not None:
             self.lamp.light.intensity *= 0.5
             self.overhead.light.intensity = 0.5 * self.lamp_irradiance * self.lamp_reach

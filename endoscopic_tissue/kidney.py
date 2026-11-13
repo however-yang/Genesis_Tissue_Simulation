@@ -6,6 +6,10 @@ import numpy as np
 from .grid import implicit_boundary
 
 
+# One repeat of the capsular and cut textures spans this many cm of rest tissue.
+KIDNEY_TEXTURE_CM = 2.4
+
+
 def smooth_min(a, b, k):
     """Return min(a, b) where the two differ by more than `k`, blended into a rounded join of width `k` elsewhere."""
     h = np.maximum(k - np.abs(a - b), 0) / k
@@ -79,3 +83,25 @@ class Kidney:
 
     def bed(self, positions):
         return positions[:, 1] < self.bed_height
+
+    @property
+    def surface_kind(self):
+        """Return the albedo drawn on this kidney."""
+        return "kidney"
+
+    @property
+    def texture_cm(self):
+        """Return the centimetres one repeat of the capsular texture spans."""
+        return KIDNEY_TEXTURE_CM
+
+    def surface_points(self):
+        """Return samples on the kidney ellipsoid and on the tumor ellipsoid, in centimetres."""
+        count = 400
+        index = np.arange(count)
+        y = 1.0 - index / (count - 1) * 2.0
+        radius = np.sqrt(np.maximum(1.0 - y * y, 0.0))
+        theta = np.pi * (3.0 - np.sqrt(5.0)) * index
+        directions = np.stack((np.cos(theta) * radius, y, np.sin(theta) * radius), axis=1)
+        extents = np.array(self.half_extents)
+        tumor_extents = np.array(self.tumor_half_extents)
+        return np.vstack((directions * extents, directions * tumor_extents + self.tumor_center))

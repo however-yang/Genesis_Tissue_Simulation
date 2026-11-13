@@ -13,19 +13,22 @@ import trimesh
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 
+from .environment import PERITONEAL_CAVITY, SurgicalEnvironment
 from .fixation import (PointFixation, RegionFixation, add_fixation_arguments, apply_fixation, fixation_from_args,
                        surface_node_mask)
 from .forces import ForceMonitor, MeasuredForce, SolverForceModel, draw_force_readout
-from .grid import BLOCK_SIZE, build_grid, connectivity_table, EDGE_CORNERS, Tab, to_genesis
+from .grid import BLOCK_SIZE, build_grid, connectivity_table, EDGE_CORNERS, Tab, from_genesis, to_genesis
 from .instrument_geometry import (SCISSORS_BACK_CLEARANCE, knife_frame, knife_geometry, load_davinci_wrist,
                                   load_grasper, load_scissors, scissors_body_depths)
 from .kidney import Kidney
-from .liver import LIGAMENT_RADIUS
+from .liver import LIGAMENT_RADIUS, endoscope_pose
 from .native_backend import (Blade, Command, CutDesc, Grasper, GraspParams, Observation, PhysicsDesc, ReconDesc,
                              ScissorsLoads, ScissorsPose, Surface, scissors_frame)
+from .rendering import FAT_TEXTURE_CM
 from .scenario import (FLAP_SCENE, SCISSORS_SCENES, WALL_SCENE, Sequence, interpolate,
                        scissors_settings, severed_edges, stage_start)
 from .surface_diagnostics import topology_statistics
+from .tissue import TissueModel
 from .visual_surface import refine_surface
 
 
@@ -225,11 +228,51 @@ class CoreTests(unittest.TestCase):
         labels = connected_components(graph, directed=False)[1]
         self.assertEqual(len(np.unique(labels[inside])), 1)
 
+    def test_tissue_and_environment_stay_separate(self):
+        liver = SCISSORS_SCENES["liver"]
+        kidney = SCISSORS_SCENES["kidney"]
+        self.assertIs(liver.environment, PERITONEAL_CAVITY)
+        self.assertIsInstance(liver.shape, TissueModel)
+        self.assertIsInstance(liver.environment, SurgicalEnvironment)
+        self.assertIsInstance(kidney.shape, TissueModel)
+        self.assertIsNone(kidney.environment)
+        self.assertIsNone(SCISSORS_SCENES["wall"].environment)
+        self.assertEqual(liver.shape.surface_kind, "liver")
+        self.assertEqual(kidney.shape.surface_kind, "kidney")
+        self.assertAlmostEqual(liver.shape.texture_cm, FAT_TEXTURE_CM)
+        self.assertAlmostEqual(liver.environment.fov, 56)
+        self.assertAlmostEqual(liver.environment.lamp_scale, 4)
+        centre = (liver.shape.low + liver.shape.high) / 2
+        lamp, reach = liver.environment.overhead(liver.shape)
+        native = from_genesis(lamp)
+        np.testing.assert_allclose((native[0], native[2]), (centre[0], centre[2]), atol=1e-4)
+        np.testing.assert_allclose(native[1], liver.shape.high[1] + 12, atol=1e-4)
+        self.assertGreater(reach, 0)
+        position = from_genesis(liver.shot[0])
+        look = from_genesis(liver.shot[1])
+        posed, posed_look = endoscope_pose(liver.shape)
+        np.testing.assert_allclose(position, posed, atol=1e-4)
+        np.testing.assert_allclose(look, posed_look, atol=1e-4)
+        wall, faces = liver.environment.diaphragm_mesh(liver.shape, position, look)
+        direction = look - position
+        direction /= np.linalg.norm(direction)
+        surface = liver.shape.surface_points()
+        far = surface[np.argmax((surface - position) @ direction)]
+        np.testing.assert_allclose(wall[0, 2], far[2] - liver.environment.diaphragm_inset, atol=1e-4)
+        self.assertLess(wall[0, 2], liver.shape.low[2])
+        self.assertEqual(len(faces), 36)
+        vertices, shell_faces = liver.environment.cavity_mesh()
+        self.assertEqual(len(vertices), 36 * 24)
+        self.assertEqual(len(shell_faces), 23 * 36 * 2)
+        self.assertEqual(sum(pad.is_cavity_coloured for pad in liver.environment.pads), 2)
+
     def test_units_and_orientation(self):
         axes = to_genesis(np.eye(3))
         np.testing.assert_allclose(np.linalg.norm(axes, axis=1), 0.01)
         self.assertGreater(np.linalg.det(axes), 0)
         np.testing.assert_allclose(to_genesis(np.array([[0.0, 1.0, 0.0]])), ((0, 0, 0.01),))
+        native = np.array((1.0, 2.0, 3.0))
+        np.testing.assert_allclose(from_genesis(to_genesis(native.reshape(1, 3))[0]), native, atol=1e-5)
 
     def test_depth_refinement_preserves_rest_lengths_and_mass(self):
         grid = build_grid(.2, vertical_spacing=.05)

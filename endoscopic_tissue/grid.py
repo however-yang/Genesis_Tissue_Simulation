@@ -285,3 +285,11 @@ def build_grid(spacing=0.6, size=BLOCK_SIZE, density=1000.0, vertical_spacing=No
 
 def to_genesis(points):
     return points @ TO_GENESIS.T * METERS_PER_UNIT
+
+
+def from_genesis(points):
+    """Return native centimetres for Genesis metre points.
+
+    This reverses to_genesis.
+    """
+    return np.asarray(points) / METERS_PER_UNIT @ TO_GENESIS

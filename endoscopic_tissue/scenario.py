@@ -6,12 +6,14 @@ from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 from scipy.spatial import cKDTree
 
+from .environment import PERITONEAL_CAVITY, SurgicalEnvironment
 from .grid import METERS_PER_UNIT, Tab, build_grid, to_genesis
-from .liver import (GRASP_CLOSED_GAP, GRASP_OPEN_GAP, INSTRUMENT_START_SHIFT, LOBE_SHIFT, Liver, endoscope_pose,
-                     liver_cut, load_liver)
 from .instrument_geometry import load_grasper
 from .kidney import Kidney
+from .liver import (GRASP_CLOSED_GAP, GRASP_OPEN_GAP, INSTRUMENT_START_SHIFT, LOBE_SHIFT, endoscope_pose, liver_cut,
+                    load_liver)
 from .native_backend import Command, Observation, ScissorsPose, Settings, Surface, scissors_frame
+from .tissue import TissueModel
 
 
 @dataclass(frozen=True)
@@ -38,7 +40,7 @@ STAGES = (
 
 @dataclass(frozen=True)
 class ScissorsScene:
-    """One scissors demonstration: its tissue, shear plane, acceptance region and scripted stages."""
+    """One scissors demonstration: its tissue, surroundings, shear plane, acceptance region and scripted stages."""
     # Tissue grown on the block, or with `shape` the box around the part cut
     # off: the cut stays in it, and the blades pinch its uncut tissue.
     tab: Tab
@@ -66,8 +68,10 @@ class ScissorsScene:
     closeup_offset: tuple[float, float, float]
     # Grasper contact model of the flow, see Settings.contact_model.
     contact_model: int
-    # Tissue in place of the block and its tab, and its Young's modulus.
-    shape: Kidney | Liver | None = None
+    # Tissue in place of the block and its tab. The environment is the cavity, the pads, and the light around it.
+    shape: TissueModel | None = None
+    environment: SurgicalEnvironment | None = None
+    # Young's modulus of that tissue, in pascals.
     young_pa: float = Settings.young_pa
     # Material pieces at the end: 1 when the cut leaves the tissue whole, 2
     # when it excises the shape's tumor, which the grasper then holds.
@@ -404,7 +408,8 @@ LIVER_SCENE = ScissorsScene(
     (-1.0, 0.0, 0.0), liver_stages(LIVER_CUT),
     (tuple(float(value) for value in to_genesis(np.asarray(_LIVER_POS, dtype=np.float32).reshape(1, 3))[0]),
      tuple(float(value) for value in to_genesis(np.asarray(_LIVER_LOOK, dtype=np.float32).reshape(1, 3))[0])),
-    (0.0, -0.02, 0.012), contact_model=2, shape=LIVER, young_pa=6000, spacing=LIVER_CUT.cell,
+    (0.0, -0.02, 0.012), contact_model=2, shape=LIVER, environment=PERITONEAL_CAVITY, young_pa=6000,
+    spacing=LIVER_CUT.cell,
     jaw_axis=(-1.0, 0.0, 0.0), jaw_normal=(0.0, 1.0, 0.0), jaw_open_gap=GRASP_OPEN_GAP,
     jaw_stiffness=75.0,
     require_anchor_hold=False)
@@ -567,10 +572,10 @@ class Sequence:
         self.committed_edges = np.zeros_like(initial.neighbors, dtype=bool)
         self.metrics = Metrics()
         self.settings = settings
+        self.scene = scene
         self.scissors = settings.cutting_tool == "scissors"
         if self.scissors:
             assert scene is not None and rest_positions is not None and inside is not None
-            self.scene = scene
             # A cut is in the tab when the midpoint of its edge lies in the
             # tab's own volume or in its outer shell cells, never in the block.
             self.tab_low = np.array(scene.tab.low) - .2
@@ -807,7 +812,9 @@ class Sequence:
             # them. Within a cell, the tracked interior nodes also follow the
             # shear of the tissue between them and the pad faces.
             # See require_anchor_hold on ScissorsScene. The liver cut crosses the anchored rim.
-            anchor_held = not self.scene.require_anchor_hold or (
+            # A run without a scene keeps the hold.
+            require_anchor_hold = True if self.scene is None else self.scene.require_anchor_hold
+            anchor_held = not require_anchor_hold or (
                 (m.grip_slip_m <= .001 if self.friction_grasp else obs.grip_points > 0)
                 and not m.grip_lost_after_capture)
             passed = bool(m.grasp_acquired and m.lift_m >= 0.001 and m.cut_edges > 0

@@ -22,13 +22,12 @@ import numpy as np
 from .fixation import add_fixation_arguments, use_fixation
 from .forces import ForceMonitor, draw_force_readout, solver_force_readout
 from .grid import METERS_PER_UNIT, build_grid, to_genesis
-from .kidney import Kidney
-from .liver import Liver
 from .instrument_geometry import scissors_body_depths
+from .kidney import Kidney
 from .native_backend import Command, NativeTissue, Observation, Settings, Surface
 from .rendering import BLOCK_CAMERA, EndoscopicView
-from .scenario import (SCISSORS_SCENES, SCISSORS_SPACING, STAGES, Sequence, drive_command, interpolate, scissors_settings,
-                       severed_edges, stage_start)
+from .scenario import (SCISSORS_SCENES, SCISSORS_SPACING, STAGES, Sequence, drive_command, interpolate,
+                       scissors_settings, severed_edges, stage_start)
 from .surface_diagnostics import topology_statistics
 
 
@@ -408,13 +407,13 @@ def main():
     else:
         grid = build_grid(args.spacing, density=settings.density_kg_m3, vertical_spacing=args.vertical_spacing)
     use_fixation(parser, args, grid)
-    # A scene with its own tissue shape frames it with its demo shot from the start. Every other scene uses the
-    # block camera.
-    kidney = scene.shape if scene is not None and isinstance(scene.shape, Kidney) else None
-    liver = scene.shape if scene is not None and isinstance(scene.shape, Liver) else None
-    camera = scene.shot if scene is not None and scene.shape is not None else BLOCK_CAMERA
-    # Narrower than the surrounding view, so the lobe fills more of the picture. The instrument tips stay in frame.
-    fov = 56 if liver is not None else 43
+    # A scene with its own tissue frames it with that scene's shot. Every other scene uses the block camera.
+    # The environment carries the field of view. Every other scene keeps the block view.
+    environment = None if scene is None else scene.environment
+    shape = None if scene is None else scene.shape
+    kidney = shape if environment is None and isinstance(shape, Kidney) else None
+    camera = scene.shot if shape is not None else BLOCK_CAMERA
+    fov = 43 if environment is None else environment.fov
     flow = Flow(settings, scene, stages, grid, args.steps, output)
     view, video = None, None
     monitor = ForceMonitor() if live else None
@@ -428,7 +427,7 @@ def main():
                 worker = executor.submit(step_live, flow, link, grid, settings, args.dll, stages[0].command)
                 try:
                     view = EndoscopicView(settings, args.width, args.height, args.viewer, supersample=1, kidney=kidney,
-                                          camera=camera, liver=liver, fov=fov)
+                                          camera=camera, environment=environment, tissue=shape, fov=fov)
                     video = cv2.VideoWriter(str(output / "endoscopic_demo.mp4"), cv2.VideoWriter_fourcc(*"mp4v"),
                                             LIVE_FPS, (args.width, args.height))
                     if not video.isOpened():
@@ -461,7 +460,7 @@ def main():
                 sink = None
                 if not args.native_only:
                     view = EndoscopicView(settings, args.width, args.height, args.viewer, kidney=kidney,
-                                          camera=camera, liver=liver, fov=fov)
+                                          camera=camera, environment=environment, tissue=shape, fov=fov)
                     video = cv2.VideoWriter(str(output / "endoscopic_demo.mp4"), cv2.VideoWriter_fourcc(*"mp4v"),
                                             1 / (settings.dt * args.render_every), (args.width, args.height))
                     if not video.isOpened():

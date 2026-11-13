@@ -1,8 +1,7 @@
-"""Supine liver inside the peritoneal cavity, from the imported tetrahedral model. Native cm, Y up.
+"""Supine liver from the imported tetrahedral model. Native cm, Y up.
 
 The mesh is the Gmsh liver used by the laparoscopic scene. Its long axis runs left to right and its visceral
-depression faces straight down. Two ligament sites on the upper surface stay pinned. The cavity shell is the same
-supine torso that frames that scene.
+depression faces straight down. Two ligament sites on the upper surface stay pinned.
 """
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,6 +10,7 @@ from typing import NamedTuple
 import numpy as np
 from scipy import ndimage
 
+from .environment import PERITONEAL_CAVITY
 from .grid import implicit_boundary
 from .instrument_geometry import load_grasper
 from .native_backend import Settings
@@ -28,26 +28,6 @@ POSE_OFFSET = np.array((-3.0, -1.0, 6.0)) + LOBE_SHIFT
 # Normalized sites in the unposed model box, and the radius of each pinned patch, in cm.
 LIGAMENT_SITES = ((0.8, 0.85, 0.35), (0.35, 0.85, 0.65))
 LIGAMENT_RADIUS = 2.5
-# Supine peritoneal shell, in cm. The scope sits just outside the +Z opening, above the liver, and looks back
-# along the cavity. The grasped end is then on the right. The lobe already meets the lower-left wall, so the
-# section keeps that side and draws in on the instrument side.
-TORSO_CENTER_X = -2.0
-TORSO_RADIUS_X = 16.0
-TORSO_RADIUS_Y = 9.0
-TORSO_Z_MIN = -12.0
-TORSO_Z_MAX = 18.0
-# The diaphragm stands this far, in cm, past the surface point furthest along the sight line.
-DIAPHRAGM_INSET = 3.0
-# Azimuth of the wall-texture join, on the lower wall under the liver so the lobe and the far opening cover it.
-SCOPE_WALL = np.array((-5.0, -9.0, 0.0))
-# Tissue packed around the lobe, as (centre, half extents) in cm. The two upper pads overlap into one piece.
-# The lower pad reaches toward the scope and stays clear of the lobe. All of them stay off the instrument corridor.
-LIVER_PACKING = (
-    ((-5.5, -4.15, 11.5), (8.0, 2.5, 6.2)),
-    ((-4.0, 6.9, 8.2), (7.2, 1.05, 4.6)),
-    ((3.0, 6.7, 9.2), (4.4, 1.05, 4.0)),
-    ((4.2, -3.6, 8.0), (2.4, 1.8, 3.0)),
-)
 # Pad centre of the grasper, centimetres along the jaw from the hinge. The jaws have to open wide enough that the
 # pads clear the side, which is thicker than the block the default opening was set on.
 GRASP_PAD_CENTRE = float(load_grasper(Settings.jaw_length, Settings.jaw_width).bounds[0, 0])
@@ -153,6 +133,33 @@ class Liver:
         nearest = np.linalg.norm(positions[:, None, :] - self.ligaments, axis=2).min(axis=1)
         return nearest <= LIGAMENT_RADIUS
 
+    @property
+    def surface_kind(self):
+        """Return the albedo drawn on this liver."""
+        return "liver"
+
+    @property
+    def texture_cm(self):
+        """Return the centimetres one repeat of the liver surface spans.
+
+        The peritoneal pads that wear this surface use the same 1.5 cm (see FAT_TEXTURE_CM in rendering.py).
+        """
+        return 1.5
+
+    def surface_points(self):
+        """Return the posed boundary vertices of the imported mesh, in centimetres."""
+        nodes, tets = _mesh_arrays(MESH_PATH)
+        low, high = nodes.min(axis=0), nodes.max(axis=0)
+        posed = pose_points(nodes, (low + high) / 2)
+        corners = (tets[:, [0, 1, 2]], tets[:, [0, 1, 3]], tets[:, [0, 2, 3]], tets[:, [1, 2, 3]])
+        faces = np.sort(np.concatenate(corners), axis=1)
+        key = np.dtype([("a", np.int32), ("b", np.int32), ("c", np.int32)])
+        coded = np.ascontiguousarray(faces).view(key).ravel()
+        unique, counts = np.unique(coded, return_counts=True)
+        # A face shared by two tetrahedra is interior. The boundary is the face that occurs once.
+        boundary = unique[counts == 1].view(np.int32).reshape(-1, 3)
+        return posed[np.unique(boundary)]
+
 
 def load_liver(path=MESH_PATH, pitch=None):
     """Load the liver mesh, pose it supine, and return its signed-distance lattice."""
@@ -178,24 +185,6 @@ def load_liver(path=MESH_PATH, pitch=None):
     sites = np.array(LIGAMENT_SITES) * (model_high - model_low) + model_low
     return Liver(origin.astype(np.float32), float(pitch), field, posed.min(axis=0).astype(np.float32),
                  posed.max(axis=0).astype(np.float32), pose_points(sites, pivot).astype(np.float32))
-
-
-def cavity_mesh(segments=36, slices=24):
-    """Return the supine torso shell, vertices in cm and triangle faces, with normals toward the cavity."""
-    angles = np.linspace(0, 2 * np.pi, segments, endpoint=False)
-    heights = np.linspace(TORSO_Z_MIN, TORSO_Z_MAX, slices)
-    circle = np.stack((np.cos(angles) * TORSO_RADIUS_X + TORSO_CENTER_X, np.sin(angles) * TORSO_RADIUS_Y), axis=1)
-    vertices = np.column_stack((np.tile(circle, (slices, 1)), np.repeat(heights, segments))).astype(np.float32)
-    faces = []
-    for slice_index in range(slices - 1):
-        row = slice_index * segments
-        nxt = row + segments
-        for segment in range(segments):
-            following = (segment + 1) % segments
-            faces.append((row + segment, row + following, nxt + segment))
-            faces.append((row + following, nxt + following, nxt + segment))
-    # The increasing-angle order points outward. The opposite order points into the cavity.
-    return vertices, np.asarray(faces, dtype=np.int32)[:, ::-1]
 
 
 def _lattice_origin(liver):
@@ -280,51 +269,20 @@ def liver_cut(liver):
     return LiverCut(grasp, plane, blade_y, depths, float(cell[2]))
 
 
-def endoscope_pose(liver):
+def endoscope_pose(liver, cavity=PERITONEAL_CAVITY):
     """Return the scope (position, look-at) in native cm, looking back along the cavity at the other face.
 
-    The scope is just outside the +Z opening and a little above the unshifted liver centre. The far opening then
-    falls above the lobe and the grasped end is on the right.
+    The scope is just outside the cavity's +Z opening and a little above the unshifted liver centre. The far opening
+    then falls above the lobe and the grasped end is on the right. `cavity` is the peritoneal shell the scope sits
+    outside. Another environment brings its own shot.
     """
-    focus = (np.asarray(liver.low) + np.asarray(liver.high)) / 2
-    position = np.array((float(focus[0]), float(focus[1]) + 3.5, TORSO_Z_MAX + 8.0))
+    focus = (liver.low + liver.high) / 2
+    position = np.array((float(focus[0]), float(focus[1]) + 3.5, cavity.z_max + 8.0))
     view = focus - position
     view /= np.linalg.norm(view)
     # The lamp exposes the look-at (see LAMP_IRRADIANCE). Projecting the liver centre onto the optical axis puts
-    # that exposure on the tissue. Removing LOBE_SHIFT here keeps the scope on the previous framing, so the lobe
-    # sits view-left of centre.
+    # that exposure on the tissue. Removing LOBE_SHIFT keeps the scope on the framing of the unshifted lobe, so the
+    # lobe sits view-left of centre.
     along = float(np.dot(focus - position, view))
     framing = position - LOBE_SHIFT
     return framing, framing + view * along
-
-
-def diaphragm_mesh(liver, segments=36):
-    """Return the elliptical diaphragm that closes the cavity beyond the liver.
-
-    The wall stands DIAPHRAGM_INSET centimetres past the surface point furthest along the sight line, on the side
-    facing away from the scope. Its normal points toward the scope.
-    """
-    nodes, tets = _mesh_arrays(MESH_PATH)
-    low, high = nodes.min(axis=0), nodes.max(axis=0)
-    posed = pose_points(nodes, (low + high) / 2)
-    corners = (tets[:, [0, 1, 2]], tets[:, [0, 1, 3]], tets[:, [0, 2, 3]], tets[:, [1, 2, 3]])
-    faces = np.sort(np.concatenate(corners), axis=1)
-    key = np.dtype([("a", np.int32), ("b", np.int32), ("c", np.int32)])
-    coded = np.ascontiguousarray(faces).view(key).ravel()
-    unique, counts = np.unique(coded, return_counts=True)
-    # A face of two tetrahedra is interior. The inset is measured from the boundary.
-    boundary = unique[counts == 1].view(np.int32).reshape(-1, 3)
-    surface = posed[np.unique(boundary)]
-    position, look = endoscope_pose(liver)
-    view = look - position
-    view /= np.linalg.norm(view)
-    far = surface[np.argmax((surface - position) @ view)]
-    # Inward is native -Z, so the wall is the vertical section of the cavity there.
-    wall_z = far[2] - DIAPHRAGM_INSET
-    angles = np.linspace(0, 2 * np.pi, segments, endpoint=False)
-    rim = np.column_stack((np.cos(angles) * TORSO_RADIUS_X + TORSO_CENTER_X, np.sin(angles) * TORSO_RADIUS_Y,
-                           np.full(segments, wall_z)))
-    vertices = np.vstack((np.array((TORSO_CENTER_X, 0.0, wall_z)), rim))
-    triangles = [(0, index, index + 1) for index in range(1, segments)]
-    triangles.append((0, segments, 1))
-    return vertices.astype(np.float32), np.asarray(triangles, dtype=np.int32)
