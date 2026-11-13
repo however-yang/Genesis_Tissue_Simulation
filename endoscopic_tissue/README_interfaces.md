@@ -18,6 +18,7 @@ py -m endoscopic_tissue.run --scene liver
 | --- | --- |
 | 腹膜腔里的肝脏 | `py -m endoscopic_tissue.run --scene liver` |
 | 空房间里的同一套肝脏和器械 | `py -m endoscopic_tissue.run --scene liver-empty` |
+| 肾脏放进肝脏的房间，做同样的夹持和三刀竖剪 | `py -m endoscopic_tissue.run --scene kidney-liver-op` |
 | 薄壁、牵引薄壁、薄瓣、肾脏 | `--scene wall`、`wall-traction`、`flap`、`kidney` |
 | 只存画面，不打开窗口 | 加上 `--headless` |
 | 只画开始一帧 | `--steps 0 --headless --output <尚不存在的目录>` |
@@ -45,6 +46,7 @@ py -m endoscopic_tissue.run --scene liver
 | `kidney` | 肾脏外生肿瘤切除 |
 | `liver` | 腹膜腔里的肝脏，夹住一侧后竖着剪三刀 |
 | `liver-empty` | 同一套肝脏和器械动作，周围换成空房间 |
+| `kidney-liver-op` | 肾脏放在原来的腹膜腔里，夹住 +X 极后竖着剪三刀 |
 
 ```powershell
 py -m endoscopic_tissue.run --scene wall
@@ -119,6 +121,12 @@ SCISSORS_SCENES["organ"] = replace(
 ```
 
 肝脏自己的操作路径由 `liver_cut(liver)` 根据距离场算出夹持点、剪切平面、刀高和三刀深度，再由 `liver_stages(cut)` 写成夹住、提起、竖着剪三刀、退出。`load_liver()` 读入网格并摆好姿态。`endoscope_pose(liver, cavity)` 用带 `z_max` 的腹膜腔算出镜头，空房间沿用场景上已经写好的 `shot`。新模型可以按同样的方式从 `distance` 里找夹持点和切口。
+
+把肾脏放进肝脏的腹膜腔并做同样的夹持、提起和三刀竖剪，用已经登记的 `kidney-liver-op`。它的 `shape` 是 `KIDNEY`，房间仍是 `PERITONEAL_CAVITY`，材料是 15000 Pa，格子是 0.1 cm。夹子夹的是肾脏 +X 极，剪刀在 z = 0 的竖直面上连剪三刀。`--scene kidney` 仍是夹住肿瘤再沿瘤颈剪两刀，和这一套不同。
+
+```powershell
+py -m endoscopic_tissue.run --scene kidney-liver-op
+```
 
 ## 环境接口
 

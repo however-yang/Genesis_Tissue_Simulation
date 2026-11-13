@@ -350,6 +350,47 @@ KIDNEY_SCENE = ScissorsScene(
     ((-.026, -.07, .076), (.003, 0, .034)), (-.012, -.03, .025), contact_model=2, shape=KIDNEY, young_pa=15000,
     pieces=2)
 
+
+# The +X pole is about 1.16 cm thick and lies above the pinned bed. The hinge sits one pad length outside it.
+# The shear plane is the lattice mid-plane through that pole.
+KIDNEY_LOBE_GRASP = (6.6445, -0.0171, 0.0)
+KIDNEY_LOBE_PLANE = 0.0
+KIDNEY_LOBE_BLADE_Y = 0.5280
+KIDNEY_LOBE_DEPTHS = (5.9883, 5.8683, 5.7483)
+
+
+def kidney_lobe_stages():
+    """Return the stages that grasp the kidney pole, lift it, and cut it vertically three times.
+
+    The grasper reaches in from outside, jaws open vertically, closes on the pole and raises it. The scissors open
+    up and down on one vertical plane and close three times. Between closures they step toward the kidney, then
+    leave back outside and stop.
+    """
+    orientation = dict(scissors_pitch_deg=0.0, scissors_roll_deg=0.0, scissors_yaw_deg=0.0)
+    hinge_z = KIDNEY_LOBE_PLANE + SCISSORS_FACE_WIDTH
+    bites = tuple((depth, KIDNEY_LOBE_BLADE_Y, hinge_z) for depth in KIDNEY_LOBE_DEPTHS)
+    park = (bites[0][0] + 1.5, bites[0][1], hinge_z)
+    ready = (KIDNEY_LOBE_GRASP[0] + 2.0, KIDNEY_LOBE_GRASP[1], KIDNEY_LOBE_GRASP[2])
+    lifted = (KIDNEY_LOBE_GRASP[0], KIDNEY_LOBE_GRASP[1] + 0.85, KIDNEY_LOBE_GRASP[2])
+    waiting = Command(ready, 0, park, **orientation)
+    closed = 1.0 - GRASP_CLOSED_GAP / GRASP_OPEN_GAP
+    held = Command(lifted, closed, bites[0], **orientation)
+    stages = [Stage("settle", 30, replace(waiting, hinge=(ready[0], ready[1] + 1.5, ready[2]))),
+              Stage("approach", 90, waiting), Stage("bite", 45, replace(waiting, hinge=KIDNEY_LOBE_GRASP)),
+              Stage("close", 45, replace(waiting, hinge=KIDNEY_LOBE_GRASP, closure=closed)),
+              Stage("lift", 60, replace(waiting, hinge=lifted, closure=closed)),
+              Stage("blade_approach", 120, held)]
+    for number, center in enumerate(bites, 1):
+        if number > 1:
+            stages.append(Stage(f"reposition_{number}", 60, replace(held, blade_center=center)))
+        stages.append(Stage(f"incise_{number}", 150,
+                            replace(held, blade_center=center, scissors_closure=1, scissors_cutting=True), ramp=.5))
+        if number < len(bites):
+            stages.append(Stage(f"open_{number}", 30, replace(held, blade_center=center)))
+    return (*stages, Stage("withdraw", 90, replace(held, blade_center=park, scissors_closure=1)),
+            Stage("release", 45, replace(held, blade_center=park)),
+            Stage("hold", 30, replace(held, blade_center=park)))
+
 def liver_stages(cut):
     """Return the stages that grasp one side, lift it, and cut it vertically three times.
 
@@ -416,9 +457,23 @@ LIVER_SCENE = ScissorsScene(
     require_anchor_hold=False)
 # The same lobe, grasp, and cuts, with the empty room in place of the peritoneal cavity.
 LIVER_EMPTY_SCENE = replace(LIVER_SCENE, environment=EMPTY_ENVIRONMENT)
+_KIDNEY_FOCUS = (KIDNEY.low + KIDNEY.high) / 2
+_KIDNEY_LOBE_POS = np.array((float(_KIDNEY_FOCUS[0]), float(_KIDNEY_FOCUS[1]) + 3.5, 26.0), dtype=np.float32)
+_KIDNEY_LOBE_LOOK = np.array(_KIDNEY_FOCUS, dtype=np.float32)
+# The kidney takes the liver room and the liver motion. Its own pole, modulus and 1 mm grid replace the lobe.
+KIDNEY_LOBE_SCENE = replace(
+    LIVER_SCENE, shape=KIDNEY, young_pa=15000, spacing=0.1, vertical_spacing=0.1,
+    tab=Tab(low=(min(KIDNEY_LOBE_DEPTHS) - 2.2, KIDNEY_LOBE_BLADE_Y - 1.8, KIDNEY_LOBE_PLANE - 1.2),
+            high=(max(KIDNEY_LOBE_DEPTHS) + 1.6, KIDNEY_LOBE_BLADE_Y + 1.8, KIDNEY_LOBE_PLANE + 1.2), attached=0),
+    plane=KIDNEY_LOBE_PLANE,
+    cut_low=(5.25, -0.35, -0.2), cut_high=(5.35, 0.25, 0.2),
+    stages=kidney_lobe_stages(),
+    shot=(tuple(float(value) for value in to_genesis(_KIDNEY_LOBE_POS.reshape(1, 3))[0]),
+          tuple(float(value) for value in to_genesis(_KIDNEY_LOBE_LOOK.reshape(1, 3))[0])))
 
 SCISSORS_SCENES = {"wall": WALL_SCENE, "wall-traction": WALL_TRACTION_SCENE, "flap": FLAP_SCENE,
-                   "kidney": KIDNEY_SCENE, "liver": LIVER_SCENE, "liver-empty": LIVER_EMPTY_SCENE}
+                   "kidney": KIDNEY_SCENE, "liver": LIVER_SCENE, "liver-empty": LIVER_EMPTY_SCENE,
+                   "kidney-liver-op": KIDNEY_LOBE_SCENE}
 
 
 def scissors_settings():
