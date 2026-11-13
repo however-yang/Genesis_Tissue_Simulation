@@ -2,13 +2,36 @@
 
 这份说明记录内窥镜软组织演示里可以替换的接口：固定方式、力学信息、场景调用、组织模型和周围环境。坐标除镜头以外都是厘米，Y 朝上。镜头 `shot` 使用 Genesis 米制。
 
+本文件是这些接口的操作记录。每增加或改变一种可调用的操作，并把它上传到分支时，同一批改动里更新本文件。写清它做什么、在哪个文件，并给出可以直接运行的命令或代码。能跑通的例子留在这里，会让组织甩出工作区的例子不要留作推荐命令。
+
 肝脏演示的运行方式：
 
 ```powershell
 py -m endoscopic_tissue.run --scene liver
 ```
 
-空格暂停，Q 或 Esc 退出。`--headless` 只存画面。`--steps 0 --headless` 只画开始时的一帧，不代表完整的夹取和剪切已经通过验收。
+空格暂停，再按任意键继续，Q 或 Esc 退出。器械路径由场景的 `stages` 自动走完，没有键盘或鼠标改夹子、剪刀位置的模式。`--viewer` 只多开一个自由观察窗口，用来转镜头。
+
+已登记、可以直接调用的操作：
+
+| 操作 | 调用 |
+| --- | --- |
+| 腹膜腔里的肝脏 | `py -m endoscopic_tissue.run --scene liver` |
+| 空房间里的同一套肝脏和器械 | `py -m endoscopic_tissue.run --scene liver-empty` |
+| 薄壁、牵引薄壁、薄瓣、肾脏 | `--scene wall`、`wall-traction`、`flap`、`kidney` |
+| 只存画面，不打开窗口 | 加上 `--headless` |
+| 只画开始一帧 | `--steps 0 --headless --output <尚不存在的目录>` |
+| 只跑物理，不建画面 | `--native-only` |
+| 剪切结束后把镜头推近伤口并定格 3 秒 | `--demo` |
+| 单刀片，不读取 `--scene` | `--tool knife` |
+| 改起切力，牛顿，剪刀每刃要达到一半 | `--start-force 0.2` |
+| 保留场景原来的附着 | `--fixation bed` |
+| 钉一个表面点 | `--fixation point --fixation-point X Y Z` |
+| 用一块区域按住肝脏 | 见固定方式一节里盖住两块韧带的盒子 |
+| 读当前这一步的力 | `ForceMonitor().estimate(obs)` |
+| 换房间、换组织 | `replace` 场景的 `environment` 或 `shape`，见下文 |
+
+`--steps 0` 只说明画面能画出来，不代表夹取和剪切已经通过验收。`--output` 必须是还不存在的目录。
 
 ## 场景调用接口
 
@@ -95,7 +118,7 @@ SCISSORS_SCENES["organ"] = replace(
 )
 ```
 
-肝脏自己的操作路径由 `liver_cut` 根据肝脏形状算出，再写成 `liver_stages`。新模型可以按同样的方式从 `distance` 里找夹持点和切口。
+肝脏自己的操作路径由 `liver_cut(liver)` 根据距离场算出夹持点、剪切平面、刀高和三刀深度，再由 `liver_stages(cut)` 写成夹住、提起、竖着剪三刀、退出。`load_liver()` 读入网格并摆好姿态。`endoscope_pose(liver, cavity)` 用带 `z_max` 的腹膜腔算出镜头，空房间沿用场景上已经写好的 `shot`。新模型可以按同样的方式从 `distance` 里找夹持点和切口。
 
 ## 环境接口
 
@@ -207,15 +230,21 @@ py -m endoscopic_tissue.run --scene liver-lens
 | `point` | 钉住离目标最近的一个表面结点，并松开原来的附着。目标离表面超过一个格子对角线时拒绝 |
 | `region` | 钉住盒子里的全部表面结点，并松开原来的附着。盒子在每一轴上都要比 `1e-6` cm 厚，而且里面要有表面结点 |
 
+肝脏的默认 `bed` 是上表面两块韧带。每块半径 2.5 cm，中心写在 `endoscopic_tissue/liver.py` 的 `LIGAMENT_SITES`，摆放时跟着肝脏走。求解开始时复制一次钉住标记。
+
 命令行：
 
 ```powershell
 py -m endoscopic_tissue.run --scene liver --fixation bed
 py -m endoscopic_tissue.run --scene liver --fixation point --fixation-point -2 1 8
-py -m endoscopic_tissue.run --scene liver --fixation region --fixation-low -4 4 6 --fixation-high -1 6 9
+py -m endoscopic_tissue.run --scene liver --fixation region --fixation-low -13.27 1.57 3.72 --fixation-high -0.25 6.57 11.74
 ```
 
-`bed` 不能再带坐标。`point` 只接受 `--fixation-point`。`region` 要同时给 `--fixation-low` 和 `--fixation-high`。坐标是厘米。贴在某个面上的一小片，写成大约一个格子厚、贴着那个面的盒子。
+`bed` 不能再带坐标。`point` 只接受 `--fixation-point`。`region` 要同时给 `--fixation-low` 和 `--fixation-high`。坐标是厘米。贴在某个面上的一小片，写成大约一个格子厚、贴着那个面的盒子。窗口会先打印 `FIXATION: region holds N nodes`。
+
+上面这条区域命令是两块韧带中心各向外扩 2.5 cm 之后合成的一个盒子。它钉住 1054 个表面结点，松开原来的韧带，剪切的一侧不在盒子里。整段夹持和三刀都能跑完，最大位移约 18 mm。只盖住一侧上表面的小盒子，例如 `-4 4 6` 到 `-1 6 9`，只有 37 个结点，settle 时组织会超过 60 mm 工作区并停下。区域固定只钉表面结点，盒子要大到能托住整块肝脏。
+
+`run.py` 在创建原生会话之前调用 `use_fixation`。自己写脚本时，在创建会话之前调用 `apply_fixation`。
 
 在脚本里直接替换格子上的钉住标记：
 
@@ -223,7 +252,7 @@ py -m endoscopic_tissue.run --scene liver --fixation region --fixation-low -4 4 
 from endoscopic_tissue.fixation import PointFixation, RegionFixation, apply_fixation
 
 apply_fixation(grid, PointFixation((-2.0, 1.0, 8.0)))
-apply_fixation(grid, RegionFixation(low=(-4.0, 4.0, 6.0), high=(-1.0, 6.0, 9.0)))
+apply_fixation(grid, RegionFixation(low=(-13.27, 1.57, 3.72), high=(-0.25, 6.57, 11.74)))
 ```
 
 `apply_fixation` 返回钉住的结点个数。这一步要发生在原生会话创建之前。
@@ -242,7 +271,17 @@ estimate = monitor.estimate(obs)
 readout = monitor.readout(obs)
 ```
 
-`estimate` 是应该使用的力。`readout` 是求解器原文，多保留了刀刃阶段和剪刀最近一次切断时的载荷。
+`estimate` 是应该使用的力。`readout` 是求解器原文。它比 `estimate` 多保留这些通道：`blade_phase`，剪刀最近一次切断时的 `scissors_fracture_left_n`、`scissors_fracture_right_n`、`scissors_fracture_total_n`，切断次数 `scissors_fractures`，以及 `is_squeezing`。没有剪刀时这些剪刀通道是 `None`。
+
+带窗口的运行会自己创建 `ForceMonitor()`，并把 `estimate` 画在左上角。`--headless` 和 `--native-only` 不创建监视器。要把一组数画到自己的画面上：
+
+```python
+from endoscopic_tissue.forces import draw_force_readout
+
+draw_force_readout(frame, monitor.estimate(obs))
+```
+
+`frame` 是 BGR 的 `uint8` 图像。函数就地画在左上角。未拟合时第一行是 `solver readout, not a measured force`。
 
 `estimate` 的字段，单位牛顿：
 
