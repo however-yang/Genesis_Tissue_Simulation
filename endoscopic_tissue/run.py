@@ -413,7 +413,8 @@ def main():
     kidney = scene.shape if scene is not None and isinstance(scene.shape, Kidney) else None
     liver = scene.shape if scene is not None and isinstance(scene.shape, Liver) else None
     camera = scene.shot if scene is not None and scene.shape is not None else BLOCK_CAMERA
-    fov = 70 if liver is not None else 43
+    # Narrower than the surrounding view, so the lobe fills more of the picture. The instrument tips stay in frame.
+    fov = 56 if liver is not None else 43
     flow = Flow(settings, scene, stages, grid, args.steps, output)
     view, video = None, None
     monitor = ForceMonitor() if live else None
