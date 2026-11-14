@@ -5,10 +5,121 @@ import numpy as np
 import open3d as o3d
 
 
+def tetrahedralize_surface(mesh, max_volume=None):
+    """Return nodes, positive linear tetrahedra, and their outward boundary faces."""
+    if not mesh.is_watertight():
+        raise RuntimeError(
+            "Volume MSH requires a closed, manifold surface without self-intersections. "
+            "Repair the surface first, or use --msh-type surface for a surface-only export."
+        )
+    if max_volume is not None and (not np.isfinite(max_volume) or max_volume <= 0):
+        raise ValueError("Maximum tetrahedron volume must be finite and positive.")
+    try:
+        import tetgen
+    except ImportError as error:
+        raise RuntimeError("Volume MSH requires tetgen. Install the package requirements first.") from error
+    requested_volume = max_volume
+    for attempt in range(4):
+        generator = tetgen.TetGen(np.asarray(mesh.vertices), np.asarray(mesh.triangles))
+        options = {"order": 1, "quality": True, "minratio": 2.0, "quiet": True}
+        if requested_volume is not None:
+            options.update(fixedvolume=True, maxvolume=requested_volume)
+        try:
+            nodes, elements, *_ = generator.tetrahedralize(**options)
+        except RuntimeError as error:
+            raise RuntimeError(f"TetGen could not generate a volume mesh: {error}") from error
+        if max_volume is None:
+            break
+        candidate = np.asarray(nodes)[np.asarray(elements)]
+        candidate_volumes = np.abs(np.einsum(
+            "ij,ij->i", np.cross(candidate[:, 1] - candidate[:, 0], candidate[:, 2] - candidate[:, 0]),
+            candidate[:, 3] - candidate[:, 0],
+        )) / 6
+        largest = np.max(candidate_volumes)
+        if largest <= max_volume * (1 + 1e-8):
+            break
+        # TetGen optimization may leave elements above its requested target;
+        # tighten the target and verify the actual exported element volumes.
+        requested_volume *= 0.8 * max_volume / largest
+    else:
+        raise RuntimeError("TetGen did not meet tet-max-volume; no volume MSH was written.")
+    nodes = np.asarray(nodes)
+    elements = np.asarray(elements).copy()
+    if elements.ndim != 2 or elements.shape[1] != 4 or len(elements) == 0:
+        raise RuntimeError("TetGen did not produce linear four-node tetrahedra.")
+    if not np.isfinite(nodes).all() or elements.min() < 0 or elements.max() >= len(nodes):
+        raise RuntimeError("TetGen returned invalid nodes or element indices.")
+    corners = nodes[elements]
+    six_volumes = np.einsum(
+        "ij,ij->i", np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]),
+        corners[:, 3] - corners[:, 0],
+    )
+    edge_lengths = np.linalg.norm(corners[:, 1:] - corners[:, :1], axis=2)
+    tolerance = np.finfo(np.float64).eps * np.prod(edge_lengths, axis=1) * 64
+    if not np.isfinite(six_volumes).all() or np.any(np.abs(six_volumes) <= tolerance):
+        raise RuntimeError("TetGen produced degenerate tetrahedra; no volume MSH was written.")
+    inverted = six_volumes < 0
+    elements[inverted, :2] = elements[inverted, :2][:, ::-1]
+    faces = elements[:, [[1, 2, 3], [0, 3, 2], [0, 1, 3], [0, 2, 1]]].reshape(-1, 3)
+    _, first_indices, counts = np.unique(np.sort(faces, axis=1), axis=0, return_index=True, return_counts=True)
+    if np.any(counts > 2):
+        raise RuntimeError("The volume mesh contains non-manifold tetrahedron faces.")
+    boundary = faces[first_indices[counts == 1]]
+    print(f"Volume mesh: {len(nodes)} nodes, {len(elements)} tetrahedra, {len(boundary)} boundary triangles")
+    print(f"Minimum tetrahedron volume: {np.min(np.abs(six_volumes)) / 6:g} (input coordinate unit cubed)")
+    print(f"Maximum tetrahedron volume: {np.max(np.abs(six_volumes)) / 6:g} (input coordinate unit cubed)")
+    print("Degenerate tetrahedra: 0; inverted tetrahedra after orientation correction: 0")
+    return nodes, elements, boundary
+
+
+def write_mesh(mesh, output, *, msh_type="volume", tet_max_volume=None):
+    """Export a surface or volume mesh, using Gmsh 2.2 ASCII for .msh files."""
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.suffix.lower() == ".msh":
+        try:
+            import meshio
+        except ImportError as error:
+            raise RuntimeError("MSH export requires meshio. Install the package requirements first.") from error
+        if msh_type not in ("surface", "volume"):
+            raise ValueError("msh_type must be surface or volume.")
+        if msh_type == "volume":
+            points, elements, triangles = tetrahedralize_surface(mesh, tet_max_volume)
+            cells = [("triangle", triangles), ("tetra", elements)]
+            tags = [np.ones(len(triangles), dtype=np.int32), np.full(len(elements), 2, dtype=np.int32)]
+            groups = {"surface": np.array([1, 2]), "volume": np.array([2, 3])}
+        else:
+            points = np.asarray(mesh.vertices)
+            triangles = np.asarray(mesh.triangles)
+            cells = [("triangle", triangles)]
+            tags = [np.ones(len(triangles), dtype=np.int32)]
+            groups = {"surface": np.array([1, 2])}
+        msh = meshio.Mesh(
+            points=points, cells=cells,
+            cell_data={"gmsh:physical": tags, "gmsh:geometrical": tags},
+            field_data=groups,
+        )
+        meshio.write(output, msh, file_format="gmsh22", binary=False)
+    elif not o3d.io.write_triangle_mesh(str(output), mesh):
+        raise RuntimeError(f"Could not write mesh: {output}")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Reconstruct a triangle mesh from a surface point cloud.")
-    parser.add_argument("--input", type=Path, required=True, help="PLY, PCD, XYZ, XYZN, XYZRGB or PTS point cloud.")
-    parser.add_argument("--output", type=Path, required=True, help="Output mesh: PLY, OBJ or STL.")
+    parser = argparse.ArgumentParser(description="Reconstruct a point cloud or export an existing triangle mesh.")
+    parser.add_argument("--input", type=Path, required=True, help="Point cloud, or an existing PLY/OBJ/STL mesh.")
+    parser.add_argument("--output", type=Path, required=True, help="Output PLY/OBJ/STL surface, or Gmsh MSH.")
+    parser.add_argument(
+        "--input-type", choices=("auto", "pointcloud", "mesh"), default="auto",
+        help="Auto preserves PLY faces and OBJ/STL meshes; pointcloud forces surface reconstruction.",
+    )
+    parser.add_argument(
+        "--msh-type", choices=("volume", "surface"), default="volume",
+        help="MSH element type: volume adds linear tetrahedra and boundary triangles (default).",
+    )
+    parser.add_argument(
+        "--tet-max-volume", type=float,
+        help="Maximum tetrahedron volume, in the input coordinate unit cubed; only for volume MSH.",
+    )
     parser.add_argument("--method", choices=("poisson", "bpa"), default="poisson")
     parser.add_argument("--voxel", type=float, default=0.0, help="Downsampling spacing, in the input coordinate unit.")
     parser.add_argument("--denoise", action="store_true", help="Remove statistical outliers before reconstruction.")
@@ -26,12 +137,17 @@ def main():
 
     if not args.input.is_file():
         parser.error(f"Point cloud not found: {args.input}")
-    if args.input.suffix.lower() not in (".ply", ".pcd", ".xyz", ".xyzn", ".xyzrgb", ".pts"):
-        parser.error("Convert the input to PLY, PCD, XYZ, XYZN, XYZRGB or PTS first.")
-    if args.output.suffix.lower() not in (".ply", ".obj", ".stl"):
-        parser.error("The output must end in .ply, .obj or .stl.")
+    if args.input.suffix.lower() not in (".ply", ".pcd", ".xyz", ".xyzn", ".xyzrgb", ".pts", ".obj", ".stl"):
+        parser.error("Use a PLY/PCD/XYZ/XYZN/XYZRGB/PTS point cloud or a PLY/OBJ/STL mesh.")
+    if args.output.suffix.lower() not in (".ply", ".obj", ".stl", ".msh"):
+        parser.error("The output must end in .ply, .obj, .stl or .msh.")
     if args.input.resolve() == args.output.resolve():
         parser.error("Use a different path for the output mesh and the input point cloud.")
+    if args.tet_max_volume is not None:
+        if not np.isfinite(args.tet_max_volume) or args.tet_max_volume <= 0:
+            parser.error("tet-max-volume must be finite and positive.")
+        if args.output.suffix.lower() != ".msh" or args.msh_type != "volume":
+            parser.error("tet-max-volume applies only to volume MSH output.")
     if not np.isfinite(args.voxel) or args.voxel < 0:
         parser.error("voxel must be finite and nonnegative.")
     if not 4 <= args.depth <= 12:
@@ -45,6 +161,38 @@ def main():
         if not np.isfinite(direction).all() or np.linalg.norm(direction) <= 0:
             parser.error("normal-direction must be finite and nonzero.")
 
+    mesh = None
+    if args.input_type != "pointcloud" and args.input.suffix.lower() in (".ply", ".obj", ".stl"):
+        with o3d.utility.VerbosityContextManager(o3d.utility.VerbosityLevel.Error):
+            candidate = o3d.io.read_triangle_mesh(str(args.input))
+        if candidate.has_triangles():
+            mesh = candidate
+    if mesh is None and (args.input_type == "mesh" or args.input.suffix.lower() in (".obj", ".stl")):
+        parser.error("The input does not contain a readable triangle mesh.")
+    if mesh is None:
+        mesh = reconstruct_point_cloud(args, parser)
+        mesh.remove_duplicated_vertices()
+        mesh.remove_duplicated_triangles()
+        mesh.remove_degenerate_triangles()
+        mesh.remove_unreferenced_vertices()
+    else:
+        print("Input: existing triangle mesh; preserving its coordinates and face connectivity")
+    if mesh.is_empty() or len(mesh.triangles) == 0:
+        raise RuntimeError("Reconstruction produced no triangles. Check normals, coverage and point spacing.")
+    if not np.isfinite(np.asarray(mesh.vertices)).all():
+        raise RuntimeError("Mesh vertex coordinates must be finite.")
+    mesh.compute_vertex_normals()
+    write_mesh(mesh, args.output, msh_type=args.msh_type, tet_max_volume=args.tet_max_volume)
+    print(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
+    print(f"Watertight: {mesh.is_watertight()}")
+    if args.output.suffix.lower() == ".msh":
+        print(f"MSH: Gmsh 2.2 ASCII; {args.msh_type} mesh")
+    print(f"Saved: {args.output.resolve()}")
+    if args.view:
+        o3d.visualization.draw_geometries([mesh], window_name="Reconstructed mesh")
+
+
+def reconstruct_point_cloud(args, parser):
     cloud = o3d.io.read_point_cloud(str(args.input), remove_nan_points=True, remove_infinite_points=True)
     cloud.remove_duplicated_points()
     initial_count = len(cloud.points)
@@ -94,21 +242,7 @@ def main():
             o3d.utility.DoubleVector(radii),
         )
 
-    mesh.remove_duplicated_vertices()
-    mesh.remove_duplicated_triangles()
-    mesh.remove_degenerate_triangles()
-    mesh.remove_unreferenced_vertices()
-    if mesh.is_empty() or len(mesh.triangles) == 0:
-        raise RuntimeError("Reconstruction produced no triangles. Check normals, coverage and point spacing.")
-    mesh.compute_vertex_normals()
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    if not o3d.io.write_triangle_mesh(str(args.output), mesh):
-        raise RuntimeError(f"Could not write mesh: {args.output}")
-    print(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
-    print(f"Watertight: {mesh.is_watertight()}")
-    print(f"Saved: {args.output.resolve()}")
-    if args.view:
-        o3d.visualization.draw_geometries([mesh], window_name="Reconstructed mesh")
+    return mesh
 
 
 if __name__ == "__main__":

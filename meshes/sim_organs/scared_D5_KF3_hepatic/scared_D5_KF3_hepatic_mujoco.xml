@@ -1,0 +1,13 @@
+<mujoco model="scared_D5_KF3_hepatic_biomech">
+  <compiler angle="radian" meshdir="."/>
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+  <asset>
+    <mesh name="scared_D5_KF3_hepatic_watertight" file="scared_D5_KF3_hepatic_watertight_collision.ply" scale="1 1 1"/>
+  </asset>
+  <!-- Biomechanical Reference: Porcine Hepatic Parenchyma, E=8500 Pa, nu=0.47, mass=0.0806 kg -->
+  <worldbody>
+    <body name="scared_D5_KF3_hepatic" pos="0 0 0">
+      <geom type="mesh" mesh="scared_D5_KF3_hepatic_watertight" mass="0.08062" friction="0.120 0.005 0.0001" solref="0.015 1.0" solimp="0.90 0.95 0.001"/>
+    </body>
+  </worldbody>
+</mujoco>

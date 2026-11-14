@@ -55,6 +55,7 @@ Ball Pivoting 适合较密、较均匀的表面点，通常会留下未覆盖区
 提高 `--depth` 会增加时间和内存开销，输入缺失的几何细节不能靠提高深度恢复。
 
 输出支持 PLY、OBJ、STL。PLY 可保存顶点颜色，STL 主要保存三角形几何。
+现已支持 `.msh` 输出：用 `--msh-type volume`（默认）生成四面体体网格，用 `--msh-type surface` 只导出三角表面。需安装 `examples/open3d/requirements.txt` 中的依赖。已有 PLY/OBJ/STL mesh 会自动保留面连接关系；`--input-type pointcloud` 可强制从 PLY 顶点重新重建。具体素材路径与 MSH 运行示例见项目根目录 `pointcloud_to_mesh/README.md`。
 点云的 PLY 只有点，mesh 的 PLY 还包含三角形面。
 生成 mesh 后检查孔洞、孤立面、自交、尺寸和法线；用于仿真还需另外配置碰撞和物理网格。
 

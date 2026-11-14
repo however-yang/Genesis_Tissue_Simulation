@@ -1,0 +1,13 @@
+<mujoco model="scared_D3_KF1_viscera_biomech">
+  <compiler angle="radian" meshdir="."/>
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+  <asset>
+    <mesh name="scared_D3_KF1_viscera_watertight" file="scared_D3_KF1_viscera_watertight_collision.ply" scale="1 1 1"/>
+  </asset>
+  <!-- Biomechanical Reference: Abdominal Peritoneal Viscera & Hepatobiliary Bed, E=12000 Pa, nu=0.47, mass=0.4094 kg -->
+  <worldbody>
+    <body name="scared_D3_KF1_viscera" pos="0 0 0">
+      <geom type="mesh" mesh="scared_D3_KF1_viscera_watertight" mass="0.40943" friction="0.110 0.005 0.0001" solref="0.015 1.0" solimp="0.90 0.95 0.001"/>
+    </body>
+  </worldbody>
+</mujoco>
